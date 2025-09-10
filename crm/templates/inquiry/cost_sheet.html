@@ -1,0 +1,422 @@
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+<html>
+
+<head>
+    <style>
+        * {
+            margin-bottom: 0px !important;
+            margin-top: 0px !important;
+        }
+
+        .align-right {
+            text-align: right !important;
+        }
+
+        div {
+            font-size: 10px !important;
+            line-height: 3px;
+        }
+
+        .border-right-r {
+            border: 0.5px solid black;
+            border-top: none;
+            border-right: none;
+            border-collapse: collapse;
+        }
+
+        @page {
+            size: a4 portrait;
+            border: 1px solid black;
+
+            @frame header_frame {
+                /* Static Frame */
+                -pdf-frame-content: header_content;
+                left: 10pt;
+                right: 10pt;
+                top: 40pt;
+                height: 80pt;
+            }
+
+            @frame content_frame {
+                /* Content Frame */
+                left: 10pt;
+                right: 10pt;
+                top: 120pt;
+               
+                border-bottom: none !important;
+            }
+
+           
+        }
+
+        @page page2 {
+            size: a4 portrait;
+            
+
+            @frame header_frame {
+                /* Static Frame */
+                -pdf-frame-content: header_content2;
+                left: 20pt;
+                right: 20pt;
+                top:00pt;
+                height: 0pt;
+              
+            }
+
+            @frame content_frame {
+                /* Content Frame */
+                border: 1px solid black;
+                left: 20pt;
+                right: 20pt;
+                top: 40pt;
+                bottom: 40pt;
+                border-bottom: none !important;
+            }
+
+      
+        }
+    </style>
+</head>
+
+<body>
+
+    
+    <div id="header_content">
+        <table style="border-top:1px solid black;">
+            <tr>
+                <td > <img width="100%" height="auto" src="{{ head.letter_head.url }}" alt="" /></td>
+              
+            </tr>
+        </table>
+       
+    </div>
+
+    
+    <table border="0.5px" style="padding:2px;">
+        <tr>
+            <th colspan="3" align="center" style="font-size: 14px;"><strong>COST SHEET</strong></th>
+        </tr>
+        <tr>
+         <td><strong>Quoation No. : </strong>
+             {% if data.quotation_no %}
+             {{data.quotation_no}}
+         {% endif %}
+         </td>
+         <td><strong>Date : </strong>
+             {% if data.date_of_inquiry %}
+             {{data.date_of_inquiry}}
+         {% endif %}
+         </td>
+         <td><strong>Customer : </strong>
+             {% if data.party %}
+             {{data.party}}
+         {% endif %}
+         </td>
+        </tr>
+        <tr>
+         <td><strong>Effective : </strong>
+             {% if data.valid_from %}
+             {{data.valid_from}}
+         {% endif %}
+         </td>
+         <td><strong>Validity : </strong>
+             {% if data.valid_till %}
+             {{data.valid_till}}
+         {% endif %}
+         </td>
+         <td><strong>Container Pick Up : </strong>
+             {% if data.container_pickup_location %}
+             {{data.container_pickup_location}}
+         {% endif %}
+         </td>
+        </tr>
+        <tr>
+         <td><strong>Handover : </strong>
+             {% if data.handover_location %}
+             {{data.handover_location}}
+         {% endif %}
+         </td>
+         <td><strong>Stuffing : </strong>
+             {% if data.stuffing_location  %}
+             {{data.stuffing_location }}
+         {% endif %}
+         </td>
+         <td><strong>POL : </strong> 
+             {% if data.pol %}
+             {{data.pol.name}}
+         {% endif %}
+         </td>
+        </tr>
+        <tr>
+         <td><strong>POD : </strong>
+             {% if data.pod %}
+             {{data.pod.name}}
+         {% endif %}
+         </td>
+         <td><strong>FPOD : </strong>
+             {% if data.fpod_location %}
+             {{data.fpod_location.name}}
+         {% endif %}
+         </td>
+         <td><strong>Shipment Module : </strong> 
+             {% if data.module %}
+             {{data.module}}
+         {% endif %}
+         </td>
+        </tr>
+ 
+        <tr>
+        
+         <td><strong>Shipment Type : </strong> 
+             {% if data.shipment_type %}
+             {{data.shipment_type}}
+         {% endif %}
+         </td>
+         <td><strong>Move Type : </strong> 
+             {% if data.move_type %}
+             {{data.move_type}}
+         {% endif %}
+         </td>
+         <td><strong>Commodity : </strong> 
+             {% if data.commodity %}
+             {{data.commodity}}
+         {% endif %}
+         </td>
+        </tr>
+ 
+        <tr>
+        
+         <td><strong>HS Code : </strong> 
+             {% if data.hs_code %}
+             {{data.hs_code}}
+         {% endif %}
+         </td>
+         <td><strong>Gross Weight : </strong> 
+             {% if data.gross %}
+             {{data.gross}}
+         {% endif %}
+         </td>
+         <td><strong>Packaging Type : </strong> 
+             {% if data.total_packages_type %}
+             {{data.total_packages_type}}
+         {% endif %}
+         </td>
+        </tr>
+ 
+        <tr>
+        
+         <td><strong>Freight Terms : </strong> 
+             {% if data.freight_terms %}
+             {{data.freight_terms}}
+         {% endif %}
+         </td>
+         <td><strong>Credit Terms : </strong> 
+             {% if data.credit_terms %}
+             {{data.credit_terms}}
+         {% endif %}
+         </td>
+         <td><strong>Vessel Voyage : </strong> 
+             {% if data.vessel_voyage %}
+             {{data.vessel_voyage}}
+         {% endif %}
+         </td>
+        </tr>
+ 
+        <tr>
+        
+         <td><strong>SI Cutoff : </strong> 
+             {% if data.si_cut_off %}
+             {{data.si_cut_off}}
+         {% endif %}
+         </td>
+         <td><strong>Gate Open : </strong> 
+             {% if data.gate_open %}
+             {{data.gate_open}}
+         {% endif %}
+         </td>
+         <td><strong>Original ETA : </strong> 
+             {% if data.eta_date %}
+             {{data.eta_date}}
+         {% endif %}
+         </td>
+        </tr>
+       
+        <tr>
+        
+         <td><strong>Original ETD : </strong> 
+             {% if data.etd_date %}
+             {{data.etd_date}}
+         {% endif %}
+         </td>
+         <td><strong>Destination ETA : </strong> 
+             {% if data.destination_eta_date %}
+             {{data.destination_eta_date}}
+         {% endif %}
+         </td>
+         <td><strong>No. of container / Size : </strong> 
+             {% if data.no_of_container %}
+             {{data.no_of_container}}
+         {% endif %}
+         </td>
+        </tr>
+        <tr>
+        
+         <td><strong>Shipping Line : </strong> 
+             {% if data.shipping_line %}
+             {{data.shipping_line.name}}
+         {% endif %}
+         </td>
+         <td><strong>Carrier Service : </strong> 
+             {% if data.carrier_service %}
+             {{data.carrier_service}}
+         {% endif %}
+         </td>
+        </tr>
+       
+     </table>
+ 
+ 
+
+    <table style="padding-top:1px; border-collapse:collapse; padding-left:1px; padding-right:1px; padding-bottom:0px; font-size: 12px;">
+        <tr>
+            <th colspan="8" align="center">Selling</th>
+        </tr>
+        <tr style="border: 0.3px solid black;">
+            <th style="width: 15px;">Sr.</th>
+            <th >Charges</th>
+            <th style="width: 80px;">Qty.</th>
+            <th style="width: 80px;">Rate</th>
+            <th style="width: 80px;">Curr</th>
+            <th style="width: 100px;">Ex. Rate</th>
+            <th style="width: 100px;">Amt. W/O Tax</th>
+            <th style="width: 100px;">+ Taxes</th>
+           
+         
+            
+        </tr>
+      
+
+        {% for head in data.inquiry_reference.all %}
+        <tr style="border: 0.3px solid black; border-bottom:none; border-top:none;">
+            <td>{{forloop.counter}}</td>
+            <td>{{head.billing_head.billing_head}}</td>
+            <td align="center"  class="align-center">{{head.qty_unit|floatformat:0}}</td>
+            <td  class="align-right">{{head.rate|floatformat:2|intcomma}}</td>
+            <td align="center" class="align-center">{{head.currency}}</td>
+            <td align="center" class="align-center">{{head.ex_rate}}</td>
+            <td class="align-right">{{head.amount|floatformat:2|intcomma}}</td>
+            
+        
+            <td class="align-right">{{head.gst|floatformat:2|intcomma}}</td>
+        </tr>
+        {% endfor %}
+
+
+
+        
+        <tr style="border: 0.3px solid black;">
+            <td colspan="5"></td>
+            <td>Total</td>
+            <td class="align-right">{{data.gross_amount|floatformat:2|intcomma}}</td>
+            <td>&nbsp;</td>
+            
+
+
+        </tr>
+      
+              
+    </table>
+
+
+    <table style="padding-top:1px; border-collapse:collapse; padding-left:1px; padding-right:1px; padding-bottom:0px;margin-top: 10px; font-size: 12px;">
+        <tr>
+            <th colspan="8" align="center">Buying</th>
+        </tr>
+        <tr style="border: 0.3px solid black;">
+            <th style="width: 15px;">Sr.</th>
+            <th>Charges</th>
+            <th style="width: 80px;">Qty.</th>
+            <th style="width: 80px;">Rate</th>
+            <th style="width: 80px;">Curr</th>
+            <th style="width: 100px;">Ex. Rate</th>
+            <th style="width: 100px;">Amt. W/O Tax</th>
+            <th style="width: 100px;">+ Taxes</th>
+           
+         
+            
+        </tr>
+      
+
+        {% for head in data.inquiry_reference.all %}
+        <tr style="border: 0.3px solid black; border-bottom:none; border-top:none;">
+            <td>{{forloop.counter}}</td>
+            <td>{{head.billing_head.billing_head}}</td>
+            <td align="center"  class="align-center">{{head.qty_unit|floatformat:0}}</td>
+            <td  class="align-right">{{head.rate_rec|floatformat:2|intcomma}}</td>
+            <td align="center" class="align-center">{{head.currency}}</td>
+            <td align="center" class="align-center">{{head.ex_rate}}</td>
+            <td class="align-right">{{head.qty_unit|mul:head.rate_rec|mul:head.ex_rate|floatformat:2|intcomma}}</td>
+            <td class="align-right">{{head.gst|floatformat:2|intcomma}}</td>
+        </tr>
+        {% endfor %}
+
+
+
+        
+        <tr style="border: 0.3px solid black;">
+            <td colspan="5"></td>
+            <td>Total</td>
+            <td class="align-right">{{buying|floatformat:2|intcomma}}</td>
+            <td>&nbsp;</td>
+            
+
+
+        </tr>
+      
+              
+    </table>
+
+    <table style="padding-top:1px; border-collapse:collapse; padding-left:1px; padding-right:1px; padding-bottom:0px;margin-top: 10px; font-size: 12px; text-align: right;">
+        <tr>
+            <th align="right">Selling</th>
+            <td style = "width: 100px;">{{data.gross_amount|intcomma}}</td>
+        </tr>
+        <tr>
+            <th align="right">Buying</th>
+            <td style = "width: 100px;">{{buying|intcomma}}</td>
+        </tr>
+        <tr>
+            <th align="right">Difference</th>
+            <td style = "width: 100px;">{{data.profit_amount|intcomma}}</td>
+        </tr>
+    </table>
+
+<hr>
+
+    <div style="position:relative; margin-top: 10px; ">
+        
+
+
+        <div style="display: flex; flex-direction: row;">
+            <div style="flex:1; padding: 2px!important; margin-top:2px!important;">
+                {{data.company_type.terms_and_conditions|safe}}
+            </div>
+            <h6 class="" style="font-size: 11px; margin-bottom:30px!important; text-align:right; font-weight:bold;">
+                {{data.company_type.for_company}}
+            </h6>
+            <br />
+            <h6 style="font-size: 11px; padding-top: 30px!important; text-align:right; font-weight:bold;">Auth. Sign.</h6>
+        </div>
+        
+        
+    </div>
+    
+
+    
+  
+</body>
+
+</html>

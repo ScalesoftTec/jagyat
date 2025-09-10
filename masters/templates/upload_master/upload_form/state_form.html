@@ -1,0 +1,28 @@
+<div class="tab-pane fade" id="state" role="tabpanel" aria-labelledby="state-tab">
+            
+    <h5>State File <span style="font-size: 14px;">Total States : {{states_global_length}}</span></h5>
+    <div class="row">
+        <div class="col-12 mb-2">Please enter correct field name as per your excel file <i class="far fa-question-circle text-danger" style="cursor: pointer;"  data-toggle="tooltip" data-placement="right" title="If GST Code Is Not In Excel File Then You Create a Field for the same and make value is 00 and enter field name in correct place."></i></div>
+
+
+        <div class="col-md-6 col-sm-12 mb-3">
+            <label for="state_name">For State Name</label>
+            <input type="text" class="form-control" name="state_name" id="state_name">
+        </div>
+        <div class="col-md-6 col-sm-12 mb-3">
+            <label for="gst_code">For State GST Code</label>
+            <input type="text" class="form-control" name="gst_code" id="gst_code">
+        </div>
+        <div class="col-12 mb-3">
+            <label for="country_file">State File</label>
+            <input type="file" class="form-control" name="state_file"
+             id="state_file">
+        </div>
+        
+        <div class="col-12 mb-3">
+            <input type="checkbox" name="state_upload" id="state_upload">
+            <label for="state_upload">I want to upload State file</label>
+        </div>
+    </div>
+
+</div>

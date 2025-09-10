@@ -1,0 +1,103 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Employee List
+</h1>
+
+<a href="{% url 'masters:create_employee' module=module %}" class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Employee</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+<div class="table-responsive">
+
+
+<table class="table table-primary table-bordered compact display" id="employee_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Role</th>
+        <th scope="col">Department</th>
+        <th scope="col">Name</th>
+        <th scope="col">Vendor</th>
+        <th scope="col">Username</th>
+        <th scope="col">Email</th>
+        <th scope="col">Contact no</th>
+        <th scope="col">State</th>
+        <th scope="col">Created By</th>
+        
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for i in data %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td> {{i.role}} </td>
+        <td> {{i.department}} </td>
+        <td> {{i.name}} </td>
+        <td> {{i.vendor}} </td>
+        <td> {{i.user.username}} </td>
+        <td> {{i.email}} </td>
+        <td> {{i.contact_no}} </td>
+        <td> {{i.state}} </td>
+        <td>{{ i.created_by }}</td>
+     
+
+       
+        
+        <td>
+            <a href="{% url 'masters:employee_update' module=module id=i.id %}" class="btn btn-xs btn-info"><i class="fas fa-edit"></i></a>
+
+            {% if request.user.user_account.can_delete %}
+
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{i.name}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ i.name }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'masters:employee_delete' module=module id=i.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+        {% endif %}
+        </td>
+    
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+  <script>
+    let table = new DataTable('#employee_table', {
+        // options
+    });
+  </script>
+{% endblock %}

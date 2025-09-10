@@ -1,0 +1,128 @@
+<div class="row" id="rc-row">
+    {% if update and obj.trailor_rc_ref.all|length > 0 %}
+    {% for i in obj.trailor_rc_ref.all %}
+    <div class="col-12 mb-2" id="rc-row-{{forloop.counter}}">
+        <div class="row" >
+            <div class="col-md-2">
+                <input type="hidden" name="is_rc_active_{{forloop.counter}}" id="is_rc_active_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_rc_update_{{forloop.counter}}" id="is_rc_update_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_rc_id_{{forloop.counter}}" id="is_rc_id_{{forloop.counter}}" value="{{i.id}}" />
+                <label for="rc_no_{{forloop.counter}}">Permit No</label>
+                <input type="text" value="{{ i.permit_no }}" name="rc_no_{{forloop.counter}}" id="rc_no_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="rc_file_{{forloop.counter}}">File
+                    {% if i.file %}
+                    <a href="{{i.file.url}}" target="_blank">View</a>
+                    {% endif %}
+                </label>
+                <input type="file" name="rc_file_{{forloop.counter}}" id="rc_file_{{forloop.counter}}" >
+            </div>
+            <div class="col-md-2">
+                <label for="rc_from_date_{{forloop.counter}}">From Date</label>
+                <input type="date" value="{{ i.from_date|date:'Y-m-d' }}" name="rc_from_date_{{forloop.counter}}" id="rc_from_date_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="rc_to_date_{{forloop.counter}}">To Date</label>
+                <input type="date" value="{{ i.to_date|date:'Y-m-d' }}" name="rc_to_date_{{forloop.counter}}" id="rc_to_date_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="rc_remarks_{{forloop.counter}}">Remarks</label>
+                <input type="text" value="{{i.remarks}}" name="rc_remarks_{{forloop.counter}}" id="rc_remarks_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deleteRCRow({{forloop.counter}})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+    
+        </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12 mb-2" id="rc-row-1">
+
+        <div class="row" >
+            <div class="col-md-2">
+                <input type="hidden" name="is_rc_active_1" id="is_rc_active_1" value="yes" />
+                <input type="hidden" name="is_rc_update_1" id="is_rc_update_1" value="no" />
+                <label for="rc_no_1">Permit No</label>
+                <input type="text"  name="rc_no_1" id="rc_no_1" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="rc_file_1"> File</label>
+                <input type="file"  name="rc_file_1" id="rc_file_1" >
+            </div>
+            <div class="col-md-2">
+                <label for="rc_from_date_1">From Date</label>
+                <input type="date"  name="rc_from_date_1" id="rc_from_date_1" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="rc_to_date_1">To Date</label>
+                <input type="date" name="rc_to_date_1" id="rc_to_date_1" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="rc_remarks_1">Remarks</label>
+                <input type="text"  name="rc_remarks_1" id="rc_remarks_1" class="form-control">
+            </div>
+            
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deleteRCRow(1)" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+    
+        </div>
+    {% endif %}
+    
+</div>
+
+<button class="btn btn-primary mb-3" type="button" onclick="addRCRow()">Add More</button>
+
+<script>
+    var rcCurrentRow = parseInt(document.getElementById('trailor_rc_total_rows').value) || 1
+    const addRCRow = () => {
+        var newElement = document.createElement('div')
+        rcCurrentRow += 1
+        newElement.classList.add('col-12')
+        newElement.setAttribute('id', `rc-row-${rcCurrentRow}`)
+        newElement.classList.add('mb-2')
+        newElement.innerHTML = `
+        <div class="row">
+            <div class="col-md-2">
+                <input type="hidden" name="is_rc_active_${rcCurrentRow}" id="is_rc_active_${rcCurrentRow}" value="yes" />
+                <input type="hidden" name="is_rc_update_${rcCurrentRow}" id="is_rc_update_${rcCurrentRow}" value="no" />
+                <label for="rc_no_${rcCurrentRow}">Permit No</label>
+                <input type="text"  name="rc_no_${rcCurrentRow}" id="rc_no_${rcCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="rc_file_${rcCurrentRow}"> File</label>
+                <input type="file"  name="rc_file_${rcCurrentRow}" id="rc_file_${rcCurrentRow}" >
+            </div>
+            <div class="col-md-2">
+                <label for="rc_from_date_${rcCurrentRow}">From Date</label>
+                <input type="date"  name="rc_from_date_${rcCurrentRow}" id="rc_from_date_${rcCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="rc_to_date_${rcCurrentRow}">To Date</label>
+                <input type="date" name="rc_to_date_${rcCurrentRow}" id="rc_to_date_${rcCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="rc_remarks_${rcCurrentRow}">Remarks</label>
+                <input type="text"  name="rc_remarks_${rcCurrentRow}" id="rc_remarks_${rcCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deleteRCRow(${rcCurrentRow})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+        `
+        document.getElementById('rc-row').append(newElement)
+        document.getElementById('trailor_rc_total_rows').value = rcCurrentRow
+    }
+
+    const deleteRCRow = (index) => {
+        console.log(index)
+        document.getElementById(`rc-row-${index}`).style.display = "none";
+        document.getElementById(`is_rc_active_${index}`).value = "no";
+    }
+</script>

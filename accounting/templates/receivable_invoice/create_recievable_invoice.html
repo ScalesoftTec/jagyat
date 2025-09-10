@@ -1,0 +1,1191 @@
+{% extends 'dashboard/index.html' %}
+
+
+
+{% block dashoard_title %} 
+Invoice Receivables Create - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    {% if not update %}
+    Create New Invoice Receivables
+    {% else %}
+    Update Invoice Receivables
+    {% endif %}
+</h1>
+
+<a href="{% url 'accounting:recievable_invoice_details' module=module  %}"
+    class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye text-white-50"></i> View List</a>
+{% endblock %}
+
+
+
+
+{% block dashboard_content %}
+<style>
+
+
+    .table tr td{
+        padding: 3px!important;
+    }
+
+
+
+
+</style>
+
+
+{% if update %}
+<input type="hidden" id="is_update" value="true">
+<input type="hidden" id="bill_to_address" value="{{ data.bill_to_address.id }}">
+{% else %}
+<input type="hidden" id="is_update" value="false">
+{% endif %}
+
+
+<input type="hidden" id="module" value="{{ module }}">
+
+
+<input type="hidden" id="pre_invoice" value="{{ settings.pre_recievable_invoice }}">
+
+<form enctype="multipart/form-data" method="post" autocomplete="off" onsubmit="disableSubmit(); return checkValidations();" id="inv_rec_form" data-job-url="{% url 'home:ajax_load_jobdetails' %}" data-job_gr-url = "{% url 'home:ajax_job_gr_details' %}"  data-job_hbl-url = "{% url 'home:ajax_job_hbl_details' %}" data-job_container-url = '{% url "home:ajax_job_container_details" %}'>
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+        <div class="col-12">
+            {{form.is_proforma}}
+            <label for="id_is_proforma"><strong>PROFORMA INVOICE</strong> </label>
+        </div>
+        {% if request.user.user_account.create_global_data and global_companies|length > 1 %}
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_company_type">Choose Company</label>
+            {{ form.company_type }}
+        </div>
+        {% else %}
+            <input type="hidden" name="company_type" id="id_company_type" value="{{ request.user.user_account.office.id }}">
+        {% endif %}
+      
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required" id="job_no_label"  for="id_job_no">Select Job</label>
+            {{ form.job_no }}
+        </div>
+
+      {% if update %}
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_invoice_no">Invoice No.</label>
+            {{ form.invoice_no }}
+        </div>
+       {% endif %}
+
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_date_of_invoice">Invoice Date</label>
+            {{ form.date_of_invoice }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_due_date">Due Date</label>
+            {{ form.due_date }}
+        </div>
+
+      
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_mode_of_invoice">Mode of Invoice</label>
+            {{ form.mode_of_invoice }}
+        </div>
+
+
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_type_of_invoice">Type of Invoice</label>
+            {{ form.type_of_invoice }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_account_number">Bank Account</label>
+            {{ form.account_number }}
+        </div>
+        
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_bill_to">Bill To</label>
+            {{ form.bill_to }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_bill_to_address">Bill To Address</label>
+            {{ form.bill_to_address }}
+        </div>
+        
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_shipper">Shipper</label>
+            {{ form.shipper }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_shipper_address">Shipper Address</label>
+            {{ form.shipper_address }}
+        </div>
+    
+     
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_invoice_currency">Invoice Currency</label>
+            {{ form.invoice_currency }}
+        </div>
+
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_currency_ex_rate">Currency Ex Rate</label>
+            {{ form.currency_ex_rate }}
+        </div>
+
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_quotation">Choose Quotation</label>
+            {{ form.quotation }}
+        </div>
+       
+        <div class="col-md-2 col-sm-12 mb-1">
+            
+            <label class="required"  for="id_gst_applicable" >TAX Applicable</label>
+            {{ form.gst_applicable }}
+        </div>
+       
+
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_category">Category (E-Invoice)</label>
+            {{ form.category }}
+        </div>
+
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_detention_from">Detention From</label>
+            {{ form.detention_from }}
+        </div>
+
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_detention_to">Detention To</label>
+            {{ form.detention_to }}
+        </div>
+        <div class="col-md-12 col-sm-12 mb-1" id="hbl_tab">
+            <h5 >HBL</h5>
+            <table class="table display table-bordered compact table-primary" id="hbl_option_container">
+
+            </table>
+        </div>
+       
+        {% if update %}
+
+        <input type="hidden" name="invoice-heads-total" id="invoice-heads-total" value="{{total_invoice_heads}}">
+        {% else %}
+        <input type="hidden" name="invoice-heads-total" id="invoice-heads-total" value="1">
+        {% endif %}
+
+        <div class="col-12">
+            <div class="row my-4" id="invoice_heads">
+                {% if update %}
+
+                {% for head in invoice_heads %}
+                <div class="col-12 mb-1" id="invoice-head-{{forloop.counter}}">
+
+                    <input type="hidden" name="isActive_{{forloop.counter}}" value="1"
+                        id="isActive_{{forloop.counter}}">
+
+                    <div class="row">
+                        <div class="col-md-2 col-sm-12">
+                            <label class="required"  for="billing_head_{{forloop.counter}}">Billing Head</label>
+                            <select required class="form-control" name="billing_head_{{forloop.counter}}"
+                                id="billing_head_{{forloop.counter}}" onchange="getGSTFromBillingHead('{{forloop.counter}}')"  onkeyup="getGSTFromBillingHead('{{forloop.counter}}')">
+
+                                {% for bill in global_billing_head %}
+                                {% if head.billing_head.id == bill.id %}
+                                <option value="{{bill.id}}" selected>{{bill}}</option>
+                                {% else %}
+                                <option value="{{bill.id}}">{{bill}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label class="required"  for="currency_{{forloop.counter}}">Currency</label>
+                            <select required class="form-control" name="currency_{{forloop.counter}}"
+                                id="currency_{{forloop.counter}}">
+                                <option value="" disabled selected>-----</option>
+                                {% for currency in global_currencies %}
+                                {% if head.currency.id == currency.id %}
+
+                                <option value="{{currency.id}}" selected>{{currency.short_name}}</option>
+                                {% else %}
+
+                                <option value="{{currency.id}}">{{currency.short_name}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label class="required"  for="ex_rate_{{forloop.counter}}">Ex Rate</label>
+                            <input required type="text" value="{{head.ex_rate}}" onkeyup="calculateInvoiceTotals()"
+                                name="ex_rate_{{forloop.counter}}" id="ex_rate_{{forloop.counter}}"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label class="required"  for="rate_{{forloop.counter}}">Rate</label>
+                            <input required type="text" value="{{head.rate}}" onkeyup="calculateInvoiceTotals()"
+                                name="rate_{{forloop.counter}}" id="rate_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label class="required"  for="qty_{{forloop.counter}}">Qty</label>
+                            <input required type="text" value="{{head.qty_unit}}" onkeyup="calculateInvoiceTotals()"
+                                name="qty_{{forloop.counter}}" id="qty_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label  class="required" for="tax_applicable_{{forloop.counter}}">Tax App.</label>
+                           <select name="tax_applicable_{{forloop.counter}}" class="form-control" id="tax_applicable_{{forloop.counter}" >
+                            {% if not head.tax_applicable or head.tax_applicable == 'T'  %}
+                            <option value="T" selected>Taxable</option>
+                            {% else %}
+                            <option value="T">Taxable</option>
+                            {% endif %}
+                            {% if head.tax_applicable == 'L' %}
+                            <option value="L" selected>Nil</option>
+                           {% else %}
+                           <option value="L">Nil</option>
+                           {% endif %}
+                           {% if head.tax_applicable == 'E' %}
+                           <option value="E" selected>Exempt</option>
+                           {% else %}
+                           <option value="E">Exempt</option>
+                           {% endif %}
+                           {% if head.tax_applicable == 'N' %}
+                           <option value="N" selected>Non GST</option>
+                           {% else %}
+                           <option value="N">Non GST</option>
+                           {% endif %}
+                           {% if head.tax_applicable == 'F' %}
+                           <option value="F" selected>Free Supplies</option>
+                           {% else %}
+                           <option value="F">Free Supplies</option>
+                           {% endif %}
+                        </select>
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label class="required"  for="gst_{{forloop.counter}}">Tax %</label>
+                            <input required type="text" value="{{head.gst}}" onkeyup="calculateInvoiceTotals()"
+                                name="gst_{{forloop.counter}}" id="gst_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label class="required"  for="amount_{{forloop.counter}}">Amount</label>
+                            <input required type="text" value="{{head.amount}}" name="amount_{{forloop.counter}}"
+                                id="amount_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-2 col-sm-12">
+                            <label class="required"  for="total_{{forloop.counter}}">Total</label>
+                            <input required type="text" value="{{head.total}}" name="total_{{forloop.counter}}"
+                                id="total_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <i class="fas fa-times" onclick="deleteRow('{{forloop.counter}}');"
+                                style="margin-top: 40px; color:red; cursor:pointer;"></i>
+                        </div>
+                        <input type="hidden" name="inv_gst_amount_{{forloop.counter}}" value="{{head.gst_amount}}"
+                            id="inv_gst_amount_{{forloop.counter}}">
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% else %}
+                <div class="col-12 mb-1" id="invoice-head-1">
+                    <input type="hidden" name="isActive_1" value="1" id="isActive_1">
+                    <div class="row">
+                        <div class="col-md-2 col-sm-12">
+                            <label for="billing_head_1">Billing Head</label>
+                            <select required class="form-control" name="billing_head_1" id="billing_head_1" onchange="getGSTFromBillingHead(1)" onkeyup="getGSTFromBillingHead(1)">
+                                <option value="" disabled selected>-----</option>
+                                {% for head in global_billing_head %}
+                                <option value="{{head.id}}">{{head}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="currency_1">Currency</label>
+                            <select required class="form-control" name="currency_1" id="currency_1">
+                                <option value="" disabled selected>-----</option>
+                                {% for currency in global_currencies %}
+                                <option value="{{currency.id}}">{{currency.short_name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="ex_rate_1">Ex Rate</label>
+                            <input required type="text" onkeyup="calculateInvoiceTotals();" name="ex_rate_1" id="ex_rate_1"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="rate_1">Rate</label>
+                            <input required type="text" onkeyup="calculateInvoiceTotals()" name="rate_1" id="rate_1"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="qty_1">Qty</label>
+                            <input required type="text" onkeyup="calculateInvoiceTotals()" name="qty_1" id="qty_1"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="tax_applicable_1">Tax App.</label>
+                           <select name="tax_applicable_1" class="form-control" id="tax_applicable_1">
+                            <option value="T" selected>Taxable</option>
+                            <option value="L">Nil</option>
+                            <option value="E">Exempt</option>
+                            <option value="N">Non GST</option>
+                            <option value="F">Free Supplies</option>
+                            </select>
+                        
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="gst_1">Tax %</label>
+                            <input required type="text" onkeyup="calculateInvoiceTotals()" name="gst_1" id="gst_1"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="amount_1">Amount</label>
+                            <input required type="text" name="amount_1" id="amount_1" class="form-control">
+                        </div>
+                        <div class="col-md-2 col-sm-12">
+                            <label for="total_1">Total</label>
+                            <input required type="text" name="total_1" id="total_1" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <i class="fas fa-times" onclick="deleteRow(1);"
+                                style="margin-top: 40px; color:red; cursor:pointer;"></i>
+                        </div>
+                        <input type="hidden" name="inv_gst_amount_1" value="0" id="inv_gst_amount_1">
+                    </div>
+
+
+                </div>
+                {% endif %}
+
+            </div>
+
+            <button class="btn btn-primary mb-4" type="button" onclick="addMore();"> + Add More</button>
+
+        </div>
+
+
+        <div class="col-md-12 col-sm-12 mb-1">
+            <div class="row">
+                
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label for="id_fin_non_fin">Gross Amount</label>
+                    {{ form.gross_amount }}
+                </div>
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label for="id_fin_non_fin">Tax Amount</label>
+                    {{ form.gst_amount }}
+                </div>
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label for="id_fin_non_fin">Net Amount</label>
+                    {{ form.net_amount }}
+                </div>
+                <div class="col-md-2 col-sm-12 mb-1" id="pph">
+                    <label for="id_tds_section">TDS Section</label>
+                    {{ form.tds_section }}
+                </div>
+                <div class="col-md-2 col-sm-12 mb-1" id="wht">
+                    <label for="id_tds_percentage">TDS Percentage</label>
+                    {{ form.tds_percentage}}
+                </div>
+                <div class="col-md-2 col-sm-12 mb-1" id="wht">
+                    <label for="id_tds_payable">TDS Payable</label>
+                    {{ form.tds_payable }}
+                </div>
+                {% comment %} <div class="col-md-2 col-sm-12 mb-1" id="wht">
+                    <label for="id_deductible_amount">Deductible Amount</label>
+                    {{ form.deductible_amount }}
+                </div> {% endcomment %}
+                
+            </div>
+
+        </div>
+
+        <div class="col-md-12 col-sm-12 mb-1">
+            <label for="id_fin_non_fin">Remarks</label>
+            {{ form.remark_on_invoice }}
+        </div>
+        {% if not update %}
+        <div class="col-md-12 col-sm-12 mb-1">
+            <input type="checkbox" name="send_email_to_client" id="send_email_to_client" class="" />
+            <label for="send_email_to_client">Send email to client</label>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="" style="display: none;">
+        {{form.hbl_options}}
+    </div>
+
+    <button type="submit" id="submitBtn" class="btn btn-primary">
+        {% if update %}
+        Update Invoice
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+
+    <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+
+
+</form>
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+    const is_update = document.getElementById('is_update').value
+
+    if(is_update == "false" || !document.getElementById('id_bill_to_address').value){
+        document.getElementById('id_bill_to_address').innerHTML = ''
+        document.getElementById('id_shipper_address').required = false
+      
+    }
+    else if(is_update == "true" || !document.getElementById('id_shipper_address').value){
+        document.getElementById('id_shipper_address').required = true
+      
+        getOnlyPartyAdress(document.getElementById('id_bill_to').value,'id_bill_to_address');
+    }
+    else{
+      
+    }
+
+    try{
+
+        if(is_update == "false" || !document.getElementById('id_shipper_address').value ){
+            
+            document.getElementById('id_shipper_address').innerHTML = ''
+        }
+        else{
+            
+            getOnlyPartyAdress(document.getElementById('id_shipper').value,'id_shipper_address')
+        }
+
+        document.getElementById('id_shipper').addEventListener('change',()=>getOnlyPartyAdress(document.getElementById('id_shipper').value,'id_shipper_address')) 
+        document.getElementById('id_shipper').addEventListener('keyup',()=>getOnlyPartyAdress(document.getElementById('id_shipper').value,'id_shipper_address'))
+    }catch(err){
+
+    }
+   
+    document.getElementById('id_bill_to').addEventListener('change',()=>getOnlyPartyAdress(document.getElementById('id_bill_to').value,'id_bill_to_address')) 
+    document.getElementById('id_bill_to').addEventListener('keyup',()=>getOnlyPartyAdress(document.getElementById('id_bill_to').value,'id_bill_to_address'))
+
+    var party_credit_days = 0
+
+    function removeOptions(selectElement) {
+        var  L = selectElement.options.length - 1;
+        for(i = L; i >= 0; i--) {
+           selectElement.remove(i);
+        }
+        }
+    async function getOnlyPartyAdress(id,address_id){
+        try{
+            
+            const party = id
+          
+            var adresses = await axios.get('/api/v1/party/details?party='+party)
+            adresses = adresses.data
+            party_credit_days = adresses
+            const select = document.getElementById(address_id); 
+            if(is_update == 'true'){
+            var value = select.value
+            }
+            else{
+                var  value = 0
+            }
+            //removeOptions(select);
+            select.innerHTML = ''
+            select.required = true
+            if(address_id == "id_shipper_address" && document.getElementById('id_shipper').value == ""){
+                select.required = false
+            }
+            var newOption = new Option("Choose Address","")
+            select.add(newOption);
+            
+            adresses.map(item=>{
+                var newOption = new Option(item.branch,item.id)
+                if(item.id == value || adresses.length == 1){
+                    newOption.selected = true
+                }
+                select.add(newOption);
+                party_credit_days = item.party.credit_days
+            })
+    
+        }catch(err){
+           
+        }
+      }
+    
+
+      function calculateDueDate(){
+        try{
+
+            var date_of_invoice = new Date(document.getElementById('id_date_of_invoice').value)
+            var due_date = new Date(date_of_invoice.getTime() + (party_credit_days*24*60*60*1000))
+            due_date = new Date(due_date.getTime() - (due_date.getTimezoneOffset() * 60000 ))
+                .toISOString()
+                .split("T")[0];
+            document.getElementById('id_due_date').value = `${due_date}`
+        }catch(err){
+
+        }
+
+      }
+
+      
+    document.getElementById('id_bill_to').addEventListener('change',()=>calculateDueDate()) 
+    document.getElementById('id_date_of_invoice').addEventListener('change',()=>calculateDueDate()) 
+    document.getElementById('id_bill_to').addEventListener('keyup',()=>calculateDueDate())
+
+
+</script>
+
+
+
+
+<script>
+   load_hbl_job()
+   
+   
+    function load_hbl_job(){
+        try{        
+        let arr = []
+        var all_hbls = document.getElementsByName('hbl_options')
+        for(var i=0; i<all_hbls.length;i++){
+            if(all_hbls[i].checked){
+                arr.push(parseInt(all_hbls[i].value))
+            }
+        }
+        var url = $("#inv_rec_form").attr("data-job_hbl-url");
+        var job_no = $('#id_job_no').val();
+        if(job_no !== ""){
+        $.ajax({
+          url: url,
+          data: { 'job': job_no },
+          dataType: 'json',
+          success: function (data) {
+          const job_hbl = data.job_hbl
+        
+        document.getElementById('hbl_option_container').innerHTML = ''
+        var newRow = document.getElementById('hbl_option_container').insertRow(0)
+        newRow.id = `option-${currentRowNumber}`
+        newRow.classList.add("option")
+        var hbl_check = newRow.insertCell(0)
+        hbl_check.style.width = "40px"
+        var hbl_no = newRow.insertCell(1)
+        // var container_count = newRow.insertCell(2)
+        hbl_check.innerHTML = `Select`
+        hbl_no.innerHTML = `HBL No.`
+        // container_count.innerHTML = `Container Count`
+        var count = 1
+        for(var i=0; i<job_hbl.length; i++){
+            var newRow = document.getElementById('hbl_option_container').insertRow(count)
+            count += 1
+            var hbl_check = newRow.insertCell(0)
+            var hbl_no = newRow.insertCell(1)
+            // var container_count = newRow.insertCell(2)
+            if(arr.includes(job_hbl[i].id)){
+                
+                hbl_check.innerHTML = `
+                <input type="checkbox" checked name="hbl_options" value="${job_hbl[i].id}" id="id_hbl_options__${count}">
+                `
+            }else{
+
+                hbl_check.innerHTML = `
+                <input type="checkbox" name="hbl_options" value="${job_hbl[i].id}" id="id_hbl_options__${count}">
+                `
+
+            }
+            hbl_no.innerHTML = `
+            ${job_hbl[i].job_hbl_no}
+            `
+            var container_details_appended = false
+
+            // var newContainerRow = document.getElementById('hbl_option_container').insertRow(count)
+            // count += 1
+            // var containers = newContainerRow.insertCell(0)
+            // containers.setAttribute('colspan',3)
+           
+
+          
+        //     try{
+        //         var url = $("#inv_rec_form").attr("data-job_container-url");
+        //         $.ajax({
+        //             url: url,
+        //             data: { 'hbl_id': job_hbl[i].id },
+        //             dataType: 'json',
+        //             success: function (data) {
+        //             const job_container = data.job_container
+        //             container_count.innerHTML = `${job_container.length}`
+              
+                    
+        //             containers.innerHTML = ""
+        //             var new_table = document.createElement('table')
+        //             new_table.classList.add('table')
+        //             new_table.classList.add('table-bordered')
+        //             new_table.classList.add('display')
+        //             new_table.classList.add('compact')
+        //             var newRow = new_table.insertRow(0)
+                    
+                    
+        //             var container_no = newRow.insertCell(0)
+        //             var container_type = newRow.insertCell(1)
+        //             var detention_from = newRow.insertCell(2)
+        //             var detention_to = newRow.insertCell(3)
+        //             container_no.innerHTML = `Container No.`
+        //             container_type.innerHTML = `Container Type`
+        //             detention_from.innerHTML = `Detention From`
+        //             detention_to.innerHTML = `Detention To`
+
+                    
+
+        //             for(var j=0;j<job_container.length;j++){
+        //                 var newRow = new_table.insertRow(j+1)
+                        
+        //                 var container_no = newRow.insertCell(0)
+        //                 var container_type = newRow.insertCell(1)
+        //                 var detention_from = newRow.insertCell(2)
+        //                 var detention_to = newRow.insertCell(3)
+        //                 container_no.innerHTML = `${job_container[j].job_container_no}`
+        //                 container_type.innerHTML = `${job_container[j].container_type}`
+        //                 detention_from.innerHTML = `
+        //                     <input type="date" value="${job_container[j].detention_from}" name="detention_from_${job_container[j].id}" class='form-control form-control-sm' />
+        //                 `
+
+        //                 detention_to.innerHTML = `
+        //                     <input type="date" value="${job_container[j].detention_to}" name="detention_to_${job_container[j].id}" class='form-control form-control-sm' />
+        //                 `
+                       
+        //             }
+                   
+                    
+        //             containers.appendChild(new_table)
+        //             container_details_appended = true
+        
+        //         }
+        
+        
+        // })          
+        //     }catch(err){
+        //     }
+            
+        }
+
+    
+          
+          }
+        });
+    
+    
+    }
+    }
+    
+    
+    catch(err){
+    }
+   
+    }
+    $('#id_job_no').on('change',()=>{
+        load_hbl_job() 
+    })
+    
+    if(document.getElementById('is_update') == 'true'){
+        load_hbl_job()
+    }
+    try{
+    }catch(err){
+       
+    }
+
+
+</script>
+
+
+ 
+    
+    <script>
+        $(document).ready(function() {
+            function getJobDetails() {
+                var url = $("#inv_rec_form").attr("data-job-url");
+                var job_no = $("#id_job_no").val();
+                
+                if (url && job_no) { 
+                    $.ajax({
+                        url: url,
+                        data: { 'job_no': job_no },
+                        dataType: 'json',
+                        success: function (data) {
+                            const job = data.job[0];
+                            const bill_to = document.getElementById('id_bill_to').value
+                            const shipper = document.getElementById('id_shipper').value
+                            const inquiry= document.getElementById('id_quotation').value
+                            if (job) { 
+                              
+                                    $("#id_bill_to").val(job.account_id);
+                                    if (job.account_id) {
+                                        getOnlyPartyAdress(job.account_id, 'id_bill_to_address');
+                                    }
+                            
+                                
+                                    $("#id_shipper").val(job.shipper_id);
+                                    if (job.shipper_id) {
+                                        getOnlyPartyAdress(job.shipper_id, 'id_shipper_address');
+                                    }
+            
+                           
+                                
+                                    $("#id_quotation").val(job.inquiry_id);
+                                    if (job.inquiry_id) {
+                                        getQuotationDetails();
+                                    }
+            
+                          
+
+                       
+        
+                                
+                                
+                            }
+                        }
+                    });
+                }
+            }
+            
+            //getJobDetails();
+            $("#id_job_no").change(getJobDetails);
+        });
+        
+
+
+
+    var quotation_id = document.getElementById('id_quotation')
+    const getQuotationDetails = async() => {
+       if(quotation_id.value){
+
+           try{
+               
+               const res = await axios.get(`/api/v1/inquiry/details?id=${quotation_id.value}`)
+               var data = res.data   
+               data = data[0]['inquiry_reference']
+               
+            }catch(err){
+                data = []
+                return
+            }
+        }else{
+            data = []
+            return
+        }
+        addRowsWithData(data)
+          
+           
+       
+    }
+
+    quotation_id.addEventListener('change',getQuotationDetails)
+    quotation_id.addEventListener('keyup',getQuotationDetails)
+
+    var currentRowNumber = parseInt(document.getElementById('invoice-heads-total').value)
+    var availableRowNumber = parseInt(document.getElementById('invoice-heads-total').value)
+    var currency_data = []
+    var billing_data = []
+    axios.get('/api/v1/currency/details').then((res) => {
+        currency_data = res.data
+
+    }).catch(err => {
+    })
+    
+    const billingsContent = document.getElementById('invoice_heads');
+
+    const addRowsWithData = (head) => {
+       
+        billingsContent.innerHTML = ''
+        currentRowNumber = 0
+        availableRowNumber = 0
+
+
+        if(head.length == 0){
+            addMore()
+        }
+        
+        
+
+
+
+        for(var i=0; i<head.length; i++){
+        
+        currentRowNumber += 1;
+        availableRowNumber += 1;
+        var newElement = document.createElement('div')
+        newElement.classList.add('col-12')
+        newElement.setAttribute('id', `invoice-head-${currentRowNumber}`)
+        newElement.classList.add('mb-1')
+
+        newElement.innerHTML = `
+        <div class="row">
+            <input type="hidden" name="isActive_${currentRowNumber}" value="1" id="isActive_${currentRowNumber}">
+            <div class="col-md-2 col-sm-12">
+                <label for="billing_head_${currentRowNumber}">Billing Head</label>
+                <select required class="form-control" name="billing_head_${currentRowNumber}" id="billing_head_${currentRowNumber}" onkeyup="getGSTFromBillingHead(${currentRowNumber})" onchange="getGSTFromBillingHead(${currentRowNumber})">
+                    <option value="" disabled selected>-----</option>
+                    {% for head in global_billing_head %}
+                                
+                    <option value="{{head.id}}">{{head}}</option>
+                            
+                    {% endfor %}
+                    
+                </select>
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="currency_${currentRowNumber}">Currency</label>
+                <select required class="form-control" name="currency_${currentRowNumber}" id="currency_${currentRowNumber}">
+                    <option value="" disabled selected>-----</option>
+                    ${currency_data.map(data => {
+                return (`<option value=${data.id}>${data.short_name}</option>`)
+            })
+            }
+                    
+                </select>
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="ex_rate_${currentRowNumber}">Ex Rate</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" value="${head[i]['ex_rate']}" name="ex_rate_${currentRowNumber}" id="ex_rate_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="rate_${currentRowNumber}">Rate</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" value="${head[i]['rate']}" name="rate_${currentRowNumber}" id="rate_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="qty_${currentRowNumber}">Qty</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" value="${head[i]['qty_unit']}"  name="qty_${currentRowNumber}" id="qty_${currentRowNumber}" class="form-control">
+            </div>
+
+            <div class="col-md-1 col-sm-12">
+                <label for="tax_applicable_${currentRowNumber}">Tax App.</label>
+               <select name="tax_applicable_${currentRowNumber}" class="form-control" id="tax_applicable_${currentRowNumber}">
+                <option value="T" selected>Taxable</option>
+                <option value="L">Nil</option>
+                <option value="E">Exempt</option>
+                <option value="N">Non GST</option>
+                <option value="F">Free Supplies</option>
+                </select>
+            
+            </div>
+
+            <div class="col-md-1 col-sm-12">
+                <label for="gst_${currentRowNumber}">Tax %</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" value="${head[i]['gst']}" name="gst_${currentRowNumber}" id="gst_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="amount_${currentRowNumber}">Amount</label>
+                <input required type="text" name="amount_${currentRowNumber}" value="${head[i]['amount']}" id="amount_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <label for="total_${currentRowNumber}">Total</label>
+                <input required type="text" name="total_${currentRowNumber}" value="${head[i]['total']}" id="total_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <i class="fas fa-times" onclick="deleteRow(${currentRowNumber});" style="margin-top: 40px; color:red; cursor:pointer;"></i>
+            </div>
+            <input type="hidden" name="inv_gst_amount_${currentRowNumber}" value="${head[i]['gst_amount']}" id="inv_gst_amount_${currentRowNumber}">
+        </div>
+        `
+
+        billingsContent.append(newElement)
+        document.getElementById(`billing_head_${currentRowNumber}`).value = head[i]['billing_head']
+        document.getElementById(`currency_${currentRowNumber}`).value = head[i]['currency']
+        document.getElementById('invoice-heads-total').value = currentRowNumber
+
+
+        }
+
+        calculateInvoiceTotals()
+    }
+
+  
+
+    const addMore = () => {
+        currentRowNumber += 1;
+        availableRowNumber += 1;
+
+        var newElement = document.createElement('div')
+        newElement.classList.add('col-12')
+        newElement.setAttribute('id', `invoice-head-${currentRowNumber}`)
+        newElement.classList.add('mb-1')
+
+        newElement.innerHTML = `
+        <div class="row">
+            <input type="hidden" name="isActive_${currentRowNumber}" value="1" id="isActive_${currentRowNumber}">
+            <div class="col-md-2 col-sm-12">
+                <label for="billing_head_${currentRowNumber}">Billing Head</label>
+                <select required class="form-control" name="billing_head_${currentRowNumber}" id="billing_head_${currentRowNumber}" onkeyup="getGSTFromBillingHead(${currentRowNumber})" onchange="getGSTFromBillingHead(${currentRowNumber})">
+                    <option value="" disabled selected>-----</option>
+                    {% for head in global_billing_head %}
+                                
+                    <option value="{{head.id}}">{{head}}</option>
+                            
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="currency_${currentRowNumber}">Currency</label>
+                <select required class="form-control" name="currency_${currentRowNumber}" id="currency_${currentRowNumber}">
+                    <option value="" disabled selected>-----</option>
+                    {% for head in global_currencies %}
+                                
+                    <option value="{{head.id}}">{{head}}</option>
+                            
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="ex_rate_${currentRowNumber}">Ex Rate</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" name="ex_rate_${currentRowNumber}" id="ex_rate_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="rate_${currentRowNumber}">Rate</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" name="rate_${currentRowNumber}" id="rate_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="qty_${currentRowNumber}">Qty</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" name="qty_${currentRowNumber}" id="qty_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="tax_applicable_${currentRowNumber}">Tax App.</label>
+               <select name="tax_applicable_${currentRowNumber}" class="form-control" id="tax_applicable_${currentRowNumber}">
+                <option value="T" selected>Taxable</option>
+                <option value="L">Nil</option>
+                <option value="E">Exempt</option>
+                <option value="N">Non GST</option>
+                <option value="F">Free Supplies</option>
+                </select>
+            
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="gst_${currentRowNumber}">Tax %</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" name="gst_${currentRowNumber}" id="gst_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="amount_${currentRowNumber}">Amount</label>
+                <input required type="text" name="amount_${currentRowNumber}" id="amount_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <label for="total_${currentRowNumber}">Total</label>
+                <input required type="text" name="total_${currentRowNumber}" id="total_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <i class="fas fa-times" onclick="deleteRow(${currentRowNumber});" style="margin-top: 40px; color:red; cursor:pointer;"></i>
+            </div>
+            <input type="hidden" name="inv_gst_amount_${currentRowNumber}" value="0" id="inv_gst_amount_${currentRowNumber}">
+        </div>
+        `
+
+        billingsContent.append(newElement)
+        document.getElementById('invoice-heads-total').value = currentRowNumber
+
+    }
+
+    const deleteRow = (index) => {
+
+        availableRowNumber -= 1;
+        document.getElementById(`isActive_${index}`).value = '0'
+        document.getElementById(`billing_head_${index}`).required = false
+        document.getElementById(`currency_${index}`).required = false
+        document.getElementById(`ex_rate_${index}`).required = false
+        document.getElementById(`rate_${index}`).required = false
+        document.getElementById(`qty_${index}`).required = false
+        document.getElementById(`gst_${index}`).required = false
+        document.getElementById(`amount_${index}`).required = false
+        document.getElementById(`total_${index}`).required = false
+        document.getElementById(`invoice-head-${index}`).style.display = 'none'
+        calculateInvoiceTotals()
+    }
+
+    const calculateInvoiceTotals = () => {
+        var grossAmt = 0
+        var gstAmt = 0
+        var netAmt = 0
+        for (var i = 1; i <= currentRowNumber; i++) {
+            if (document.getElementById(`isActive_${i}`).value == '1') {
+
+                var ex_rate = parseFloat(document.getElementById(`ex_rate_${i}`).value)
+                var rate = parseFloat(document.getElementById(`rate_${i}`).value)
+                var qty = parseFloat(document.getElementById(`qty_${i}`).value)
+                var gst = parseFloat(document.getElementById(`gst_${i}`).value)
+                var amount = document.getElementById(`amount_${i}`)
+                var total = document.getElementById(`total_${i}`)
+
+                var before_gst_amt = ex_rate * rate * qty
+                amount.value = Math.round((before_gst_amt)*100)/100
+                var gst_amt = Math.round(((before_gst_amt * gst) / 100) * 100 )/100;
+                document.getElementById(`inv_gst_amount_${i}`).value = gst_amt
+                total.value =  Math.round((gst_amt + before_gst_amt) * 100) / 100
+
+                gstAmt += Math.round((gst_amt) * 100) /100;
+                netAmt +=  Math.round((gst_amt + before_gst_amt) * 100) / 100
+                grossAmt += Math.round((before_gst_amt) * 100) /100;
+
+            }
+
+        }
+
+        document.getElementById('id_gross_amount').value = Math.round((grossAmt) * 100)/100
+        document.getElementById('id_gst_amount').value = Math.round((gstAmt) * 100)/100
+        document.getElementById('id_net_amount').value = Math.round((netAmt) * 100)/100
+        if (isNaN((document.getElementById('id_gross_amount').value))) {
+            document.getElementById('id_gross_amount').value = 'Calculating ...'
+        }
+        if (isNaN((document.getElementById('id_gst_amount').value))) {
+            document.getElementById('id_gst_amount').value = 'Calculating ...'
+        }
+        if (isNaN((document.getElementById('id_net_amount').value))) {
+            document.getElementById('id_net_amount').value = 'Calculating ...'
+        }
+
+        amount_calculation()
+    }
+
+   
+    const checkValidations = () => {
+        if (availableRowNumber <= 0) {
+            Snackbar.show({ text: 'Please Choose at invoice head.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+            event.preventDefault();
+            return false
+        }
+        else {
+            var flag = 0
+            for (var i = 1; i <= currentRowNumber; i++) {
+                if (document.getElementById(`isActive_${i}`).value == '1') {
+                    if (isNaN((document.getElementById(`id_amount_${i}`).value))) {
+                        flag = 1
+                    }
+                    if (isNaN((document.getElementById(`id_total_${i}`).value))) {
+                        flag = 1
+                    }
+                    if (isNaN((document.getElementById('id_gross_amount').value))) {
+                        flag = 1
+                    }
+                    if (isNaN((document.getElementById('id_gst_amount').value))) {
+                        flag = 1
+                    }
+                    if (isNaN((document.getElementById('id_net_amount').value))) {
+                        flag = 1
+                    }
+                }
+
+            }
+
+            if (flag == 1) {
+                Snackbar.show({ text: 'Please Check Form Again.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+                event.preventDefault();
+                return false
+            }
+
+        }
+    }
+
+    if(document.getElementById('is_update').value == 'false'){
+        document.getElementById('id_company_type').value = document.getElementById('user_company').value
+    }
+    
+    var company_id = document.getElementById('id_company_type').value
+    
+    
+
+    try {
+        var module = document.getElementById('module').value
+       
+    } catch (err) {
+
+    }
+
+</script>
+
+
+<script>
+    function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for(i = L; i >= 0; i--) {
+           selectElement.remove(i);
+        }
+        }
+    
+      
+    function change_tax_type(e){
+
+        let pph_data=document.getElementById('pph')
+        let wht_data=document.getElementById('wht')
+        const select = e.target;
+        const value = select.value;
+        const desc = select.options[select.selectedIndex].text;
+        let comapny_type_data=desc.toUpperCase()
+  
+
+        if(comapny_type_data == 'INDONESIA'){
+            pph_data.style.display='block'
+            
+        }else if(comapny_type_data == 'THAILAND'){
+            wht_data.style.display='block'
+            
+        }else{
+            pph_data.style=''
+        }
+    }
+
+    //document.getElementById('id_company_type').addEventListener('change',change_tax_type)
+
+
+    function amount_calculation(){
+        let gross_aamount=document.getElementById('id_gross_amount').value
+        
+        let tds_percentage=document.getElementById('id_tds_percentage').value
+        let calculate_value=(gross_aamount*tds_percentage)/100
+        
+        let tds_payable_data=document.getElementById('id_tds_payable')
+        tds_payable_data.value=calculate_value
+      
+        
+
+    }
+    document.getElementById('id_tds_percentage').addEventListener('keyup',amount_calculation)
+    
+</script>
+
+<script>
+    const getGSTFromBillingHead = async(index) => {
+        try{
+
+            document.getElementById(`gst_${index}`).value = 0
+            calculateInvoiceTotals()
+            const billing_head = document.getElementById(`billing_head_${index}`).value
+            const res = await axios.get(`/api/v1/billing-head/details/${billing_head}/`)
+            const data = res.data
+            document.getElementById(`gst_${index}`).value = data.gst
+            calculateInvoiceTotals()
+        }catch(err){
+            document.getElementById(`gst_${index}`).value = 0
+            calculateInvoiceTotals()
+        }
+
+    }
+
+    
+const disablelast30DaysDate = (id) => {
+    var dtToday = new Date();
+ 
+    var month = dtToday.getMonth();
+    var day = dtToday.getDate();
+    var year = dtToday.getFullYear();
+    if(month < 10)
+        month = '0' + month.toString();
+    if(day < 10)
+        day = '0' + day.toString();
+    
+    var maxDate = year + '-' + month + '-' + day;
+    $(id).attr('min', maxDate);
+}
+    
+</script>
+
+
+{% endblock %}

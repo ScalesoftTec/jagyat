@@ -1,0 +1,782 @@
+{% extends 'dashboard/index.html' %}
+
+
+
+{% block dashoard_title %} 
+Inquiry Create - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Create New Quotation
+</h1>
+
+<a href="{% url 'crm:inquiry_details' module=module extra_module=extra_module %}"
+    class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<input type="hidden" id="invoice_length" value="{{ invoice_length }}">
+
+
+<input type="hidden" id="module" value="{{ module }}">
+
+
+<input type="hidden" id="pre_invoice" value="{{ settings.pre_recievable_invoice }}">
+
+<form enctype="multipart/form-data" method="post" autocomplete="off" onsubmit="return checkValidations()">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+        {% if request.user.user_account.create_global_data %}
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_company_type">Choose Company</label>
+            {{ form.company_type }}
+        </div>
+        {% else %}
+            <input type="hidden" name="id_company_type" id="id_company_type" value="{{ request.user.user_account.office.id }}">
+        {% endif %}
+      
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_quotation_no">Quotation No</label>
+            {{ form.quotation_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_date_of_inquiry">Date</label>
+            {{ form.date_of_inquiry }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_customer">customer</label>
+            {{ form.customer }}
+        </div>
+       
+       
+       
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_valid_from">Valid From</label>
+            {{ form.valid_from }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_valid_till">Valid Till</label>
+            {{ form.valid_till }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_pol">POL</label>
+            {{ form.pol }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_pod">POD</label>
+            {{ form.pod }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_origin">Origin</label>
+            {{ form.origin }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_destination">Destination</label>
+            {{ form.destination }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_priority">Priority</label>
+            {{ form.priority }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_freght_terms">Freight Terms</label>
+            {{ form.freght_terms }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_work_scope">Work Scope</label>
+            {{ form.work_scope }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_module">Module</label>
+            {{ form.module }}
+        </div>
+
+
+
+        {% if extra_module == 'sea' %}
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_shipping_line">Shipping Line</label>
+            {{ form.shipping_line }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_container_type">Container Type</label>
+            {{ form.container_type }}
+        </div>
+        {% else %}
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_air_line">Air Line</label>
+            {{ form.air_line }}
+        </div>
+        {% endif %}
+
+        <!-- <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_client_status">Client Status</label>
+            {{ form.client_status }}
+        </div> -->
+
+      
+        
+        <div class="col-12 my-3">
+            <hr>
+            <div class="row">
+                <div class="col-md-4 col-sm-12">
+                    <h6 class="mb-3 text-center text-primary">Other Information</h5>
+                        <hr>
+
+                    <div class="mb-3">
+                        <label for="id_gross">Gross Weight / CBM</label>
+                        {{ form.gross }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_detention_at_origin">Detention at Origin</label>
+                        {{ form.detention_at_origin }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_detention_at_pod">Detention at POD</label>
+                        {{ form.detention_at_pod }}
+                    </div>
+
+
+                </div>
+            
+
+                <div class="col-md-4 col-sm-12">
+                    <h6 class="mb-3 text-center text-primary">Other Information</h5>
+                    <hr>
+                     
+                    <div class="mb-3">
+                        <label for="id_routing">Routing</label>
+                        {{ form.routing }}
+                    </div>
+                    {% if extra_module == 'sea' %}
+                    <div class="mb-3">
+                        <label for="id_vessel_schedule">Vessel Schedule</label>
+                        {{ form.vessel_schedule }}
+                    </div>
+                    {% endif %}
+                   
+                    
+
+                </div>
+
+                <div class="col-md-4 col-sm-12">
+                    <h6 class="mb-3 text-center text-primary">Packaging Details</h5>
+                        <hr>
+
+                    <div class="row">
+
+                    
+                        <div class="col-md-8 col-sm-12">
+                            <div class="mb-3">
+                                <label for="id_total_packages">Total Packages</label>
+                                {{ form.total_packages }}
+                            </div>
+                           
+                            <div class="mb-3">
+                                <label for="id_commodity">Commodity</label>
+                                {{ form.commodity }}
+                            </div>
+                        
+                        </div>
+
+                        
+                        <div class="col-md-4 col-sm-12">
+                            <div class="mb-3">
+                                <label for="id_total_packages_type">Type</label>
+                                {{ form.total_packages_type }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="id_commodity_type">Type</label>
+                                {{ form.commodity_type }}
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+
+            </div>
+            <hr>
+        </div>
+
+
+
+
+        {% if update %}
+
+
+        <input type="hidden" name="invoice-heads-total" id="invoice-heads-total" value="{{total_invoice_heads}}">
+        {% else %}
+        <input type="hidden" name="invoice-heads-total" id="invoice-heads-total" value="1">
+        {% endif %}
+
+        <div class="col-12">
+            <div class="row my-4" id="invoice_heads">
+                {% if update %}
+
+                {% for head in invoice_heads %}
+                <div class="col-12 mb-3" id="invoice-head-{{forloop.counter}}">
+
+                    <input type="hidden" name="isActive_{{forloop.counter}}" value="1"
+                        id="isActive_{{forloop.counter}}">
+
+                    <div class="row">
+                        <div class="col-md-2 col-sm-12">
+                            <label for="billing_head_{{forloop.counter}}">Billing Head</label>
+                            <select required class="form-control" name="billing_head_{{forloop.counter}}"
+                                id="billing_head_{{forloop.counter}}">
+
+                                {% for bill in billing_heads %}
+                                {% if head.billing_head.id == bill.id %}
+                                <option value="{{bill.id}}" selected>{{bill.billing_head}}</option>
+                                {% else %}
+                                <option value="{{bill.id}}">{{bill.billing_head}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="currency_{{forloop.counter}}">Currency</label>
+                            <select required class="form-control" name="currency_{{forloop.counter}}"
+                                id="currency_{{forloop.counter}}">
+                                <option value="" disabled selected>-----</option>
+                                {% for currency in currencies %}
+                                {% if head.currency.id == currency.id %}
+
+                                <option value="{{currency.id}}" selected>{{currency.short_name}}</option>
+                                {% else %}
+
+                                <option value="{{currency.id}}">{{currency.short_name}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="ex_rate_{{forloop.counter}}">Ex Rate</label>
+                            <input required type="text" value="{{head.ex_rate}}" onkeyup="calculateInvoiceTotals()"
+                                name="ex_rate_{{forloop.counter}}" id="ex_rate_{{forloop.counter}}"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="rate_{{forloop.counter}}">Rate Off</label>
+                            <input required type="text" value="{{head.rate}}" onkeyup="calculateInvoiceTotals()"
+                                name="rate_{{forloop.counter}}" id="rate_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="rate_rec_{{forloop.counter}}">Rate Rec.</label>
+                            <input required type="text" value="{{head.rate_rec}}" onkeyup="calculateInvoiceTotals()" name="rate_rec_{{forloop.counter}}" id="rate_rec_{{forloop.counter}}"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="qty_{{forloop.counter}}">Qty</label>
+                            <input required type="text" value="{{head.qty_unit}}" onkeyup="calculateInvoiceTotals()"
+                                name="qty_{{forloop.counter}}" id="qty_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="gst_{{forloop.counter}}">Tax %</label>
+                            <input required type="text" value="{{head.gst}}" onkeyup="calculateInvoiceTotals()"
+                                name="gst_{{forloop.counter}}" id="gst_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="profit_{{forloop.counter}}">Profit</label>
+                            <input required type="text" value="{{head.profit}}" name="profit_{{forloop.counter}}" id="profit_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="amount_{{forloop.counter}}">Amount</label>
+                            <input required type="text" value="{{head.amount}}" name="amount_{{forloop.counter}}"
+                                id="amount_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="total_{{forloop.counter}}">Total</label>
+                            <input required type="text" value="{{head.total}}" name="total_{{forloop.counter}}"
+                                id="total_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <i class="fas fa-times" onclick="deleteRow({{forloop.counter}});"
+                                style="margin-top: 40px; color:red; cursor:pointer;"></i>
+                        </div>
+                        <input type="hidden" name="inv_gst_amount_{{forloop.counter}}" value="{{head.gst_amount}}"
+                            id="inv_gst_amount_{{forloop.counter}}">
+                    </div>
+
+
+                </div>
+                {% endfor %}
+
+                {% else %}
+                <div class="col-12 mb-3" id="invoice-head-1">
+
+                    <input type="hidden" name="isActive_1" value="1" id="isActive_1">
+
+                    <div class="row">
+                        <div class="col-md-2 col-sm-12">
+                            <label for="billing_head_1">Billing Head</label>
+                            <select required class="form-control" name="billing_head_1" id="billing_head_1">
+                                <option value="" disabled selected>-----</option>
+                                {% for head in billing_heads %}
+                                <option value="{{head.id}}">{{head.billing_head}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="currency_1">Currency</label>
+                            <select required class="form-control" name="currency_1" id="currency_1">
+                                <option value="" disabled selected>-----</option>
+                                {% for currency in currencies %}
+                                <option value="{{currency.id}}">{{currency.short_name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="ex_rate_1">Ex Rate</label>
+                            <input required type="text" onkeyup="calculateInvoiceTotals()" name="ex_rate_1" id="ex_rate_1"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="rate_1">Rate Off</label>
+                            <input required type="text" onkeyup="calculateInvoiceTotals()" name="rate_1" id="rate_1"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="rate_rec_1">Rate Rec.</label>
+                            <input required type="text" onkeyup="calculateInvoiceTotals()" name="rate_rec_1" id="rate_rec_1"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="qty_1">Qty</label>
+                            <input required type="text" onkeyup="calculateInvoiceTotals()" name="qty_1" id="qty_1"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="gst_1">Tax %</label>
+                            <input required type="text" onkeyup="calculateInvoiceTotals()" name="gst_1" id="gst_1"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="profit_1">Profit</label>
+                            <input required type="text" name="profit_1" id="profit_1" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="amount_1">Amount</label>
+                            <input required type="text" name="amount_1" id="amount_1" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label for="total_1">Total</label>
+                            <input required type="text" name="total_1" id="total_1" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <i class="fas fa-times" onclick="deleteRow(1);"
+                                style="margin-top: 40px; color:red; cursor:pointer;"></i>
+                        </div>
+                        <input type="hidden" name="inv_gst_amount_1" value="0" id="inv_gst_amount_1">
+                    </div>
+
+
+                </div>
+                {% endif %}
+
+            </div>
+
+            <button class="btn btn-primary mb-4" type="button" onclick="addMore();"> + Add More</button>
+
+        </div>
+
+
+        <div class="col-md-12 col-sm-12 mb-3">
+            <div class="row">
+                <div class="col-md-2 col-sm-12 mb-3">
+                    <label for="id_advance_amount">Advance Amount</label>
+                    {{ form.advance_amount }}
+                </div>
+                <div class="col-md-2 col-sm-12 mb-3">
+                    <label for="id_gross_amount">Gross Amount</label>
+                    {{ form.gross_amount }}
+                </div>
+                <div class="col-md-2 col-sm-12 mb-3">
+                    <label for="id_gst_amount">Tax Amount</label>
+                    {{ form.gst_amount }}
+                </div>
+                <div class="col-md-3 col-sm-12 mb-3">
+                    <label for="id_net_amount">Net Amount</label>
+                    {{ form.net_amount }}
+                </div>
+                <div class="col-md-3 col-sm-12 mb-3">
+                    <label for="id_profit_amount">Profit</label>
+                    {{ form.profit_amount }}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-12 col-sm-12 mb-3">
+            <label for="id_fin_non_fin">Remarks</label>
+            {{ form.remark }}
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        
+        Update Inquiry
+        {% else %}
+        Submit
+        {% endif %}
+        
+    </button>
+    {% if update %}
+
+    <input type="hidden" id="is_update" value="yes">
+    {% else %}
+    <input type="hidden" id="is_update" value="no">
+    
+    {% endif %}
+</form>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+    crossorigin="anonymous"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+    integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+<script>
+    var currentRowNumber = parseInt(document.getElementById('invoice-heads-total').value)
+    var availableRowNumber = parseInt(document.getElementById('invoice-heads-total').value)
+    var currency_data = []
+    var billing_data = []
+    axios.get('/api/v1/currency/details').then((res) => {
+        currency_data = res.data
+
+    }).catch(err => {
+    })
+    axios.get('/api/v1/billing-head/details').then((res) => {
+        billing_data = res.data
+
+    }).catch(err => {
+    })
+    const billingsContent = document.getElementById('invoice_heads');
+    const addMore = () => {
+        currentRowNumber += 1;
+        availableRowNumber += 1;
+
+        var newElement = document.createElement('div')
+        newElement.classList.add('col-12')
+        newElement.setAttribute('id', `invoice-head-${currentRowNumber}`)
+        newElement.classList.add('mb-3')
+
+        newElement.innerHTML = `
+        <div class="row">
+            <input type="hidden" name="isActive_${currentRowNumber}" value="1" id="isActive_${currentRowNumber}">
+            <div class="col-md-2 col-sm-12">
+                <label for="billing_head_${currentRowNumber}">Billing Head</label>
+                <select required class="form-control" name="billing_head_${currentRowNumber}" id="billing_head_${currentRowNumber}">
+                    <option value="" disabled selected>-----</option>
+                    ${billing_data.map(data => {
+            return (`<option value=${data.id}>${data.billing_head}</option>`)
+        })
+            }
+                    
+                </select>
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="currency_${currentRowNumber}">Currency</label>
+                <select required class="form-control" name="currency_${currentRowNumber}" id="currency_${currentRowNumber}">
+                    <option value="" disabled selected>-----</option>
+                    ${currency_data.map(data => {
+                return (`<option value=${data.id}>${data.short_name}</option>`)
+            })
+            }
+                    
+                </select>
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="ex_rate_${currentRowNumber}">Ex Rate</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" name="ex_rate_${currentRowNumber}" id="ex_rate_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="rate_${currentRowNumber}">Rate Off</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" name="rate_${currentRowNumber}" id="rate_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="rate_rec_${currentRowNumber}">Rate Rec.</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" name="rate_rec_${currentRowNumber}" id="rate_rec_${currentRowNumber}"
+                    class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="qty_${currentRowNumber}">Qty</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" name="qty_${currentRowNumber}" id="qty_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="gst_${currentRowNumber}">Tax %</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" name="gst_${currentRowNumber}" id="gst_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="profit_${currentRowNumber}">Profit</label>
+                <input required type="text" name="profit_${currentRowNumber}" id="profit_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="amount_${currentRowNumber}">Amount</label>
+                <input required type="text" name="amount_${currentRowNumber}" id="amount_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="total_${currentRowNumber}">Total</label>
+                <input required type="text" name="total_${currentRowNumber}" id="total_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <i class="fas fa-times" onclick="deleteRow(${currentRowNumber});" style="margin-top: 40px; color:red; cursor:pointer;"></i>
+            </div>
+            <input type="hidden" name="inv_gst_amount_${currentRowNumber}" value="0" id="inv_gst_amount_${currentRowNumber}">
+        </div>
+        `
+
+        billingsContent.append(newElement)
+        document.getElementById('invoice-heads-total').value = currentRowNumber
+
+    }
+
+    const deleteRow = (index) => {
+
+        availableRowNumber -= 1;
+        document.getElementById(`isActive_${index}`).value = '0'
+        document.getElementById(`billing_head_${index}`).required = false
+        document.getElementById(`currency_${index}`).required = false
+        document.getElementById(`ex_rate_${index}`).required = false
+        document.getElementById(`rate_${index}`).required = false
+        document.getElementById(`qty_${index}`).required = false
+        document.getElementById(`gst_${index}`).required = false
+        document.getElementById(`amount_${index}`).required = false
+        document.getElementById(`total_${index}`).required = false
+        document.getElementById(`invoice-head-${index}`).style.display = 'none'
+        calculateInvoiceTotals()
+    }
+
+    const calculateInvoiceTotals = () => {
+        var grossAmt = 0
+        var gstAmt = 0
+        var netAmt = 0
+        var profitAmt = 0
+        for (var i = 1; i <= currentRowNumber; i++) {
+            if (document.getElementById(`isActive_${i}`).value == '1') {
+
+                var ex_rate = parseInt(document.getElementById(`ex_rate_${i}`).value)
+                var rate = parseInt(document.getElementById(`rate_${i}`).value)
+                var rate_rec = parseInt(document.getElementById(`rate_rec_${i}`).value)
+                var profit = document.getElementById(`profit_${i}`)
+                var qty = parseInt(document.getElementById(`qty_${i}`).value)
+                var gst = parseInt(document.getElementById(`gst_${i}`).value)
+                var amount = document.getElementById(`amount_${i}`)
+                var total = document.getElementById(`total_${i}`)
+
+                var before_gst_amt = ex_rate * rate * qty
+                profit.value = before_gst_amt - (ex_rate * rate_rec * qty)
+                amount.value = before_gst_amt
+                var gst_amt = (before_gst_amt * gst) / 100;
+                document.getElementById(`inv_gst_amount_${i}`).value = gst_amt
+                total.value = (gst_amt + before_gst_amt)
+                profitAmt += (before_gst_amt-(ex_rate * rate_rec * qty))
+                gstAmt += gst_amt
+                netAmt += (gst_amt + before_gst_amt)
+                grossAmt += before_gst_amt
+
+            }
+
+        }
+
+        document.getElementById('id_gross_amount').value = grossAmt
+        document.getElementById('id_gst_amount').value = gstAmt
+        document.getElementById('id_net_amount').value = netAmt
+        document.getElementById('id_profit_amount').value = profitAmt
+        if (isNaN((document.getElementById('id_gross_amount').value))) {
+            document.getElementById('id_gross_amount').value = 'Calculating ...'
+        }
+        if (isNaN((document.getElementById('id_gst_amount').value))) {
+            document.getElementById('id_gst_amount').value = 'Calculating ...'
+        }
+        if (isNaN((document.getElementById('id_net_amount').value))) {
+            document.getElementById('id_net_amount').value = 'Calculating ...'
+        }
+        if (isNaN((document.getElementById('id_profit_amount').value))) {
+            document.getElementById('id_profit_amount').value = 'Calculating ...'
+        }
+    }
+
+    document.getElementById('id_advance_amount').addEventListener('keyup', () => {
+        calculateInvoiceTotals();
+        var advance_amount = parseFloat(document.getElementById('id_advance_amount').value) || 0
+        var net_amount = parseFloat(document.getElementById('id_net_amount').value) || 0
+        if ((net_amount - advance_amount) >= 0) {
+            document.getElementById('id_net_amount').value = net_amount - advance_amount
+        }
+        else {
+            document.getElementById('id_net_amount').value = 'Please enter valid values...'
+
+        }
+    })
+    const checkValidations = () => {
+        if (availableRowNumber <= 0) {
+            Snackbar.show({ text: 'Please Choose at invoice head.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+            event.preventDefault();
+            return false
+        }
+        else {
+            var flag = 0
+            for (var i = 1; i <= currentRowNumber; i++) {
+                if (document.getElementById(`isActive_${i}`).value == '1') {
+                    if (isNaN((document.getElementById(`id_amount_${i}`).value))) {
+                        flag = 1
+                    }
+                    if (isNaN((document.getElementById(`id_total_${i}`).value))) {
+                        flag = 1
+                    }
+                    if (isNaN((document.getElementById('id_gross_amount').value))) {
+                        flag = 1
+                    }
+                    if (isNaN((document.getElementById('id_gst_amount').value))) {
+                        flag = 1
+                    }
+                    if (isNaN((document.getElementById('id_net_amount').value))) {
+                        flag = 1
+                    }
+                }
+
+            }
+
+            if (flag == 1) {
+                Snackbar.show({ text: 'Please Check Form Again.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+                event.preventDefault();
+                return false
+            }
+
+        }
+    }
+
+
+    var data = JSON.parse("{{jobs_current_len_of_companies|escapejs}}");
+
+    $("#id_company_type").prop("selectedIndex", 1);
+
+    var company_id = document.getElementById('id_company_type').value
+
+    var current_company = data.find(item => item.company_type == company_id)
+
+    document.getElementById('id_company_type').addEventListener('change', (event) => {
+        updateCompanyType(event.target.value);
+
+    })
+    function updateCompanyType(company_id) {
+
+        var current_company = data.find(item => item.company_type == company_id)
+
+
+        try {
+            const length = parseInt(current_company.count) + 1
+            const job_no = document.getElementById('id_quotation_no').value
+            var before_text = current_company.cn_starting
+
+            document.getElementById('id_quotation_no').value = before_text + length
+
+        } catch (err) {
+
+        }
+
+    }
+    try {
+        
+        const length = parseInt(current_company.count) + 1
+        const job_no = document.getElementById('id_quotation_no').value
+        var before_text = current_company.cn_starting
+        if (job_no == '') {
+
+            document.getElementById('id_quotation_no').value = before_text + length
+        }
+    } catch (err) {
+
+    }
+
+</script>
+
+<script>
+    const is_update = document.getElementById('is_update').value
+     
+        if(is_update == "false" || !document.getElementById('id_party_address').value){
+            document.getElementById('id_party_address').innerHTML = ''
+          
+        }
+        else{
+            getOnlyPartyAdress(document.getElementById('id_party').value,'id_party_address');
+          
+        }
+
+        try{
+
+            if(is_update == "false" || !document.getElementById('id_shipper_address').value ){
+                
+                document.getElementById('id_shipper_address').innerHTML = ''
+            }
+            else{
+                
+                getOnlyPartyAdress(document.getElementById('id_shipper').value,'id_shipper_address')
+            }
+
+            document.getElementById('id_shipper').addEventListener('change',()=>getOnlyPartyAdress(document.getElementById('id_shipper').value,'id_shipper_address')) 
+            document.getElementById('id_shipper').addEventListener('keyup',()=>getOnlyPartyAdress(document.getElementById('id_shipper').value,'id_shipper_address'))
+        }catch(err){
+
+        }
+       
+        document.getElementById('id_party').addEventListener('change',()=>getOnlyPartyAdress(document.getElementById('id_party').value,'id_party_address')) 
+        document.getElementById('id_party').addEventListener('keyup',()=>getOnlyPartyAdress(document.getElementById('id_party').value,'id_party_address'))
+    
+       
+        function removeOptions(selectElement) {
+            var  L = selectElement.options.length - 1;
+            for(i = L; i >= 0; i--) {
+               selectElement.remove(i);
+            }
+            }
+        async function getOnlyPartyAdress(id,address_id){
+            try{
+                
+                const party = id
+              
+                var adresses = await axios.get('/api/v1/party/details?party='+party)
+                adresses = adresses.data
+                const select = document.getElementById(address_id); 
+                if(is_update == 'true'){
+                var value = select.value
+                }
+                else{
+                    var  value = 0
+                }
+                //removeOptions(select);
+                select.innerHTML = ''
+                select.required = true
+                var newOption = new Option("Choose Address","")
+                select.add(newOption);
+                
+                adresses.map(item=>{
+                    var newOption = new Option(item.branch,item.id)
+                    if(item.id == value){
+                        newOption.selected = true
+                    }
+                    select.add(newOption);
+                })
+        
+            }catch(err){
+                
+            }
+          }
+</script>
+
+{% endblock %}

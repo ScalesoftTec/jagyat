@@ -1,0 +1,180 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load humanize %}
+
+{% block dashoard_title %}
+{{category.name}}  Transactions |
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+ {{category.name}}    Transactions
+</h1>
+
+<style>
+    table td, th{
+        padding: 0px!important;
+    }
+</style>
+
+{{module}}
+{{company}}
+{{from_date}}
+{{to_date}}
+{{category.id}}
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<div class="table-responsive">
+    <table class="table table-bordered display compact" id="party_ledger_table">
+        <thead>
+            <tr>
+                <th  rowspan="2" style="width: 10%;">Date</th>
+                <th  rowspan="2" style="width: 50%;">Particulars</th>
+                <th style="text-align: center;" rowspan="2">Voucher Type</th>
+                <th style="text-align: center;" colspan="2">{{from_date|date:'d-m-Y'}} - {{to_date|date:'d-m-Y'}}</th>
+            </tr>
+            <tr>
+                <th style="text-align: center;">Debit</th>
+                <th style="text-align: center;">Credit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in report %}
+            <tr>
+                <td>
+                    {% if detail == 1 %}
+                    {{data.data.date|date:"d-m-Y"}}
+                    {% endif %}
+                </td>
+
+                <td>
+                {% if detail == 0  and data.id and not data.url %}
+                {% if category %}
+                <a target="_blank" href="{% url 'acr:ledger_category_transactions' module=module company=company from_date=from_date to_date=to_date id=category.id detail_id=data.id detail=1 type=data.type %}">  {{data.particulars}} </a>
+                {% elif profit_loss %}
+                <a target="_blank" href="{% url 'acr:ledger_category_transactions' module=module company=company from_date=from_date to_date=to_date id=0 profit_loss=profit_loss detail_id=data.id detail=1 type=data.type %}">  {{data.particulars}} </a>
+                {% endif %}
+                {% else %}
+                {% if data.url %}
+                   <a href="{{data.url}}" target="_blank">{{data.particulars}}</a> 
+                {% else %}
+                    {{data.particulars}}
+                {% endif %}
+                {% endif %}
+                </td>
+                <td align="center" style="font-weight: bold;">
+                    {% if detail == 1 %}
+                    {{data.voucher_type}}
+                    {% endif %}
+                </td>
+                <td style="text-align: right;" data-order="{{data.debit|floatformat:2}}">{{data.debit|floatformat:2}}</td>
+                <td style="text-align: right;" data-order="{{data.credit|floatformat:2}}">{{data.credit|floatformat:2}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="3">Total</th>
+                <th style="text-align: right;">{{dr_total|floatformat:2}}</th>
+                <th style="text-align: right;">{{cr_total|floatformat:2}}</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    $(document).ready(function () {
+
+        jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+          return this.flatten().reduce( function ( a, b ) {
+              var x = parseFloat(a) ;
+              var y = parseFloat($(b).attr('data-order')) ;
+      
+              return parseFloat((x+y)).toFixed(2)
+          }, 0 );
+      } );
+
+
+      
+      let table = new DataTable('#party_ledger_table', {
+            // options
+            dom: 'BQlfrtip',
+            "ordering": false,
+            columnDefs: [
+            { "type": "date", "targets": 0,"displayFormat": 'dddd D MMMM YYYY' },
+         
+            ],
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+            order: [[0, 'asc']],
+            buttons: [
+            {
+                extend: 'collection',
+                text: 'Export',
+                
+                buttons: [
+                { extend: 'copy', footer: true, header:true, },
+                { extend: 'excel', footer: true, header:true,
+                exportOptions: {
+                format: {
+                    header: function (data) {
+                    return $('<div></div>')
+                        .append(data)
+                        .find('.tooltip')
+                        .remove()
+                        .end()
+                        .text()
+                    }
+                    }   
+                }  
+             },
+             
+                { extend: 'csv', footer: true, header:true, },
+                { extend: 'pdf', footer: true, header:true,orientation: 'landscape',},
+             
+                ]
+            }
+            ],
+
+            select: {
+                style:'multiple'
+            },
+        
+            drawCallback: function () {
+                var api = this.api();
+                
+               
+                $( api.table().column(3).footer() ).html(
+                    api.column( 3, {page:'current'} ).nodes().sum()
+                );
+                $( api.table().column(4).footer() ).html(
+                    api.column( 4, {page:'current'} ).nodes().sum()
+                );
+             
+              
+               
+              }
+                  
+        });
+       
+      
+        document.querySelector('.dtsb-title').style.display = 'none'
+        
+    })
+
+
+   
+
+</script>
+{% endblock %}

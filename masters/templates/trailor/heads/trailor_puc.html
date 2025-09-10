@@ -1,0 +1,128 @@
+<div class="row" id="puc-row">
+    {% if update and obj.trailor_puc_ref.all|length > 0 %}
+    {% for i in obj.trailor_puc_ref.all %}
+    <div class="col-12 mb-2" id="puc-row-{{forloop.counter}}">
+        <div class="row" >
+            <div class="col-md-2">
+                <input type="hidden" name="is_puc_active_{{forloop.counter}}" id="is_puc_active_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_puc_update_{{forloop.counter}}" id="is_puc_update_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_puc_id_{{forloop.counter}}" id="is_puc_id_{{forloop.counter}}" value="{{i.id}}" />
+                <label for="puc_no_{{forloop.counter}}">Permit No</label>
+                <input type="text" value="{{ i.permit_no }}" name="puc_no_{{forloop.counter}}" id="puc_no_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="puc_file_{{forloop.counter}}">File
+                    {% if i.file %}
+                    <a href="{{i.file.url}}" target="_blank">View</a>
+                    {% endif %}
+                </label>
+                <input type="file" name="puc_file_{{forloop.counter}}" id="puc_file_{{forloop.counter}}" >
+            </div>
+            <div class="col-md-2">
+                <label for="puc_from_date_{{forloop.counter}}">From Date</label>
+                <input type="date" value="{{ i.from_date|date:'Y-m-d' }}" name="puc_from_date_{{forloop.counter}}" id="puc_from_date_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="puc_to_date_{{forloop.counter}}">To Date</label>
+                <input type="date" value="{{ i.to_date|date:'Y-m-d' }}" name="puc_to_date_{{forloop.counter}}" id="puc_to_date_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="puc_remarks_{{forloop.counter}}">Remarks</label>
+                <input type="text" value="{{i.remarks}}" name="puc_remarks_{{forloop.counter}}" id="puc_remarks_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deletePUCRow({{forloop.counter}})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+    
+        </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12 mb-2" id="puc-row-1">
+
+        <div class="row" >
+            <div class="col-md-2">
+                <input type="hidden" name="is_puc_active_1" id="is_puc_active_1" value="yes" />
+                <input type="hidden" name="is_puc_update_1" id="is_puc_update_1" value="no" />
+                <label for="puc_no_1">Permit No</label>
+                <input type="text"  name="puc_no_1" id="puc_no_1" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="puc_file_1"> File</label>
+                <input type="file"  name="puc_file_1" id="puc_file_1" >
+            </div>
+            <div class="col-md-2">
+                <label for="puc_from_date_1">From Date</label>
+                <input type="date"  name="puc_from_date_1" id="puc_from_date_1" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="puc_to_date_1">To Date</label>
+                <input type="date" name="puc_to_date_1" id="puc_to_date_1" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="puc_remarks_1">Remarks</label>
+                <input type="text"  name="puc_remarks_1" id="puc_remarks_1" class="form-control">
+            </div>
+            
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deletePUCRow(1)" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+    
+        </div>
+    {% endif %}
+    
+</div>
+
+<button class="btn btn-primary mb-3" type="button" onclick="addPUCRow()">Add More</button>
+
+<script>
+    var pucCurrentRow = parseInt(document.getElementById('trailor_puc_total_rows').value) || 1
+    const addPUCRow = () => {
+        var newElement = document.createElement('div')
+        pucCurrentRow += 1
+        newElement.classList.add('col-12')
+        newElement.setAttribute('id', `puc-row-${pucCurrentRow}`)
+        newElement.classList.add('mb-2')
+        newElement.innerHTML = `
+        <div class="row">
+            <div class="col-md-2">
+                <input type="hidden" name="is_puc_active_${pucCurrentRow}" id="is_puc_active_${pucCurrentRow}" value="yes" />
+                <input type="hidden" name="is_puc_update_${pucCurrentRow}" id="is_puc_update_${pucCurrentRow}" value="no" />
+                <label for="puc_no_${pucCurrentRow}">Permit No</label>
+                <input type="text"  name="puc_no_${pucCurrentRow}" id="puc_no_${pucCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="puc_file_${pucCurrentRow}"> File</label>
+                <input type="file"  name="puc_file_${pucCurrentRow}" id="puc_file_${pucCurrentRow}" >
+            </div>
+            <div class="col-md-2">
+                <label for="puc_from_date_${pucCurrentRow}">From Date</label>
+                <input type="date"  name="puc_from_date_${pucCurrentRow}" id="puc_from_date_${pucCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="puc_to_date_${pucCurrentRow}">To Date</label>
+                <input type="date" name="puc_to_date_${pucCurrentRow}" id="puc_to_date_${pucCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="puc_remarks_${pucCurrentRow}">Remarks</label>
+                <input type="text"  name="puc_remarks_${pucCurrentRow}" id="puc_remarks_${pucCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deletePUCRow(${pucCurrentRow})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+        `
+        document.getElementById('puc-row').append(newElement)
+        document.getElementById('trailor_puc_total_rows').value = pucCurrentRow
+    }
+
+    const deletePUCRow = (index) => {
+        console.log(index)
+        document.getElementById(`puc-row-${index}`).style.display = "none";
+        document.getElementById(`is_puc_active_${index}`).value = "no";
+    }
+</script>

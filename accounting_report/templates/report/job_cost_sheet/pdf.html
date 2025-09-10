@@ -1,0 +1,389 @@
+{% load static %}
+{% load mathfilters %}
+<html>
+<head>
+    <title>PDF : Job Cost Sheet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style type="text/css">
+        span{
+            font-size: 13px;
+        }
+        @page { size: auto;  margin: 0mm; }
+        @media print {
+            #printbtn {
+                display: none;
+            }
+            title{
+                display: none;
+            }
+        }
+    </style>
+    
+</head>
+<body>
+
+
+    
+<div class="container-fluid ">
+    <input id="printbtn" class="btn btn-sm btn-danger" type="button" value="Print this page" onclick="window.print()">
+</div>
+
+<div class="container-fluid">
+    <table style="display: table-header-group;">
+        <thead>
+            <tr>
+                <th>
+                    <img width="100%" height="150" src="{{ job.company_type.letter_head.url }}" alt="">
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>
+                    <div class="row  p-2">
+                        <div class="col-6 border border-dark">
+                            <span><strong>Customer:</strong> {{invoice.bill_to.party_name}}</span>
+                            <br>
+                            <span>{{invoice.bill_to_address.corp_address_line1}}</span>
+                            <br>
+                            <span>{{invoice.bill_to_address.corp_address_line2}}</span>
+                            <br>
+                            <span>{{invoice.bill_to_address.corp_address_line3}}</span>
+                            <br>
+                            <div class="row">
+                                <div class="col-6"><span>State : {{invoice.bill_to_address.corp_state}}</span></div>
+                                <div class="col-6"><span>GST Code : {{invoice.bill_to_address.corp_state.gst_code}}</span></div>
+                            </div>
+                         
+                        </div>
+
+                        <div class="col-6 border-start-0 border border-dark">
+                            
+                            
+                            <div class="row">
+                                <div class="col-5"><span>Shipper :</span></div>
+                                <div class="col-7"><span>{{invoice.job_no.shipper}}</span></div>
+                            </div>
+                           
+                            
+                           
+                            <div class="row">
+                                <div class="col-5"><span>Consignee :</span></div>
+                                <div class="col-7"><span>{{ invoice.job_no.consignee }}</span></div>
+                            </div>
+                           
+                            <div class="row">
+                                <div class="col-5"><span>Job No. :</span></div>
+                                <div class="col-7"><span>{{ invoice.job_no }}</span></div>
+                            </div>
+                           
+                       
+                           
+                        </div>
+
+
+                        
+                    
+
+                        <div class="col-12 border border-top-0  border-bottom-0 border-dark">
+                            <h6 class="">Sales Invoice</h6>
+                            <table class="table ">
+                                <thead class="">
+                                    <tr>
+                                       
+                                        <th>Description</th>
+                                        <th>SAC</th>
+                                        <th>Unit</th>
+                                        <th>Rate</th>
+                                        <th>Curr.</th>
+                                        <th>Ex. Rate</th>
+                                        <th>Amount</th>
+                                        {% if invoice.company_type.tax_policy == 'GST' %}
+                                        <th>IGST</th>
+                                        <th>CGST</th>
+                                        <th>SGST</th>
+                                        {% elif invoice.company_type.tax_policy == 'VAT' %}
+                                        <th>VAT</th>
+                                        {% endif %}
+                                        <th>Tax Amt</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+    
+                                <tbody>
+                                    
+                                    {% for inv in recievable_invoices %}
+                                    {% for head in inv.recievable_invoice_reference.all %}
+                                    <tr>
+                                       
+                                        <td>{{head.billing_head}}</td>
+                                        <td>{{head.billing_head.hsn_code}}</td>
+                                        <td>{{head.qty_unit}}</td>
+                                        <td>{{head.rate}}</td>
+                                        <td>{{head.currency}}</td>
+                                        <td>{{head.ex_rate}}</td>
+                                        <td>{{head.amount}}</td>
+                                        {% if invoice.company_type.tax_policy == 'GST' %}
+                                        {% if setting.company_gst_code == invoice.bill_to.corp_state.gst_code  %}
+                                        <td>0.00</td>
+                                        <td>{{head.gst|div:2 }}</td>
+                                        <td>{{head.gst|div:2}}</td>
+                                        {% else %}
+                                        <td>{{head.gst}}</td>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                        {% endif %}
+                                        
+                                        {% elif invoice.company_type.tax_policy == 'VAT' %}
+                                        <td>{{head.gst}}</td>
+                                        {% endif %}
+
+                                        <td>{{head.gst_amount}}</td>
+                                        <td>{{head.total}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+    
+    
+                                <tfoot class="table-bordered">
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td>Total</td>
+                                        {% if invoice.company_type.tax_policy == 'GST' %}
+                                        <td colspan="4">{{invoice_rec_gross}}</td>
+                                        {% else %}
+                                        <td colspan="2">{{invoice_rec_gross}}</td>
+                                        {% endif %}
+                                        <td>{{invoice_rec_gst_amount}}</td>
+                                        <td>{{invoice_rec_net}}</td>
+                                    </tr>
+                                </tfoot>
+    
+                            </table>
+                        </div>
+
+                        <div class="col-12 border border-top-0   border-bottom-0 border-dark">
+                            {% if payable_invoices|length > 0 %}
+                            <h6>Purchase Invoice</h6>
+                            {% else %}
+                            <h6>No Payable Invoice Found</h6>
+                            {% endif %}
+                            <table class="table">
+                                <thead class="">
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>SAC</th>
+                                        <th>Unit</th>
+                                        <th>Rate</th>
+                                        <th>Curr.</th>
+                                        <th>Ex. Rate</th>
+                                        <th>Amount</th>
+                                        {% if invoice.company_type.tax_policy == 'GST' %}
+                                        <th>IGST</th>
+                                        <th>CGST</th>
+                                        <th>SGST</th>
+                                        {% elif invoice.company_type.tax_policy == 'VAT' %}
+                                        <th>VAT</th>
+                                        {% endif %}
+                                        <th>Tax Amt</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+    
+                                <tbody>
+                                    
+                                    {% for inv in payable_invoices %}
+                                    {% for head in inv.payable_invoice_reference.all %}
+                                    <tr>
+                                       
+                                        <td>{{head.billing_head}}</td>
+                                        <td>{{head.billing_head.hsn_code}}</td>
+                                        <td>{{head.qty_unit}}</td>
+                                        <td>{{head.rate}}</td>
+                                        <td>{{head.currency}}</td>
+                                        <td>{{head.ex_rate}}</td>
+                                        <td>{{head.amount}}</td>
+                                        {% if invoice.company_type.tax_policy == 'GST' %}
+                                        {% if setting.company_gst_code == invoice.bill_to.corp_state.gst_code  %}
+                                        <td>0.00</td>
+                                        <td>{{head.gst|div:2 }}</td>
+                                        <td>{{head.gst|div:2}}</td>
+                                        {% else %}
+                                        <td>{{head.gst}}</td>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                        {% endif %}
+                                        
+                                        {% elif invoice.company_type.tax_policy == 'VAT' %}
+                                        <td>{{head.gst}}</td>
+                                        {% endif %}
+
+                                        <td>{{head.gst_amount}}</td>
+                                        <td>{{head.total}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+    
+    
+                                <tfoot class="table-bordered">
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td>Total</td>
+                                        {% if invoice.company_type.tax_policy == 'GST' %}
+                                        <td colspan="4">{{invoice_pay_gross}}</td>
+                                        {% else %}
+                                        <td colspan="2">{{invoice_pay_gross}}</td>
+                                        {% endif %}
+                                        <td>{{invoice_pay_gst}}</td>
+                                        <td>{{invoice_pay_net}}</td>
+                                    </tr>
+                                </tfoot>
+    
+                            </table>
+                        </div>
+
+
+                        <div class="col-12 border border-top-0  border-bottom-0 border-dark">
+                            <h6 class="">Head Wise Summary</h6>
+                            <table class="table ">
+                                <thead class="">
+                                    <tr>
+                                       
+                                        <th>Description</th>
+                                        <th>SAC</th>
+                                        <th>Sale Unit</th>
+                                        <th>Sale Rate</th>
+                                        <th>Ex. Rate</th>
+                                        <th>Sale Gross</th>
+                                        <th>Sale Tax Amt</th>
+                                        <th>Sale Total</th>
+                                        <th>Pay Unit</th>
+                                        <th>Pay Rate</th>
+                                        <th>Pay Gross</th>
+                                        <th>Pay Tax Amt</th>
+                                        <th>Pay Total</th>
+                                        <th>Amt. W/O Tax</th>
+                                        <th>Amt. With Tax </th>
+                                    </tr>
+                                </thead>
+    
+                                <tbody>
+                                    
+                                    {% for head in billing_head_summary %}
+                                    
+                                    <tr>
+                                       
+                                        <td>{{head.billing_head}}</td>
+                                        <td>{{head.billing_head.hsn_code}}</td>
+                                        <td>{{head.sale_qty}}</td>
+                                        <td>{{head.sale_rate}}</td>
+                                        <td>{{head.ex_rate}}</td>
+                                        <td>{{head.sale_amount}}</td>
+                                        <td>{{head.sale_gst_amount}}</td>
+                                        <td>{{head.sale_total}}</td>
+
+
+                                        <td>{{head.pay_qty}}</td>
+                                        <td>{{head.pay_rate}}</td>
+                                        <td>{{head.pay_amount}}</td>
+                                        <td>{{head.pay_gst_amount}}</td>
+                                        <td>{{head.pay_total}}</td>
+                                        <td>{{head.net_amount}}</td>
+                                        <td>{{head.net_total}}</td>
+                                    </tr>
+                                  
+                                    {% endfor %}
+                                </tbody>
+    
+                                <tfoot>
+                                    <tr>
+                                       
+                                        <td>Total</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>{{net_wot_sales}}</td>
+                                        <td></td>
+                                        <td>{{net_wt_sales}}</td>
+
+
+                                        <td></td>
+                                        <td></td>
+                                        <td>{{net_wot_purchase}}</td>
+                                        <td></td>
+                                        <td>{{net_wt_purchase}}</td>
+                                        <td>{{net_wot_sales|sub:net_wot_purchase|floatformat:2}}</td>
+                                        <td>{{net_wt_sales|sub:net_wt_purchase|floatformat:2}}</td>
+                                       
+                                    </tr>
+                                  
+                                </tfoot>
+                               
+    
+                            </table>
+                        </div>
+                        
+
+                        <div class="col-12 border border-top-0 py-2 border-dark">
+                            <div class="">
+                                <hr />
+                                <h5 class="text-center">Cost Summary</h5>
+                                <hr />
+                                <table class="mt-2 table table-bordered">
+                                    <tr>
+                                        <th>Invoice Recievable Total Amount</th>
+                                        <td>{{ invoice_rec_net }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Invoice Payable Total Amount</th>
+                                        <td>{{ invoice_pay_net }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Credit Note Total Amount</th>
+                                        <td>{{ invoice_crn_net }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Debit Note Note Total Amount</th>
+                                        <td>{{ invoice_drn_net }}</td>
+                                    </tr>
+                                    <tr class="border-2 border-dark">
+                                        <th>Job Cost Total Amount</th>
+                                        <th>{{ job_costing_amount }}
+                                            {% if job_costing_amount == 0 %}
+                                            (No Profit, No Loss)
+                                            {% elif job_costing_amount > 0 %}
+                                            (Profit)
+                                            {% else %}
+                                            (Loss)
+                                            {% endif %}
+                                        </th>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                      
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+
+            <tr>
+                <td>
+                    <h6>{{invoice.company_type.for_company}}</h6>
+                    <img src="{{ invoice.company_type.stamp.url }}" width='150px' height='150px' alt="">
+                </td>
+            </tr>
+
+        </tfoot>
+    </table>
+</div>
+    
+</body>
+</html>

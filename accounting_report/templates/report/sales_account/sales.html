@@ -1,0 +1,175 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+Sales Account - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+  Sales Account
+</h1>
+
+<style>
+  table td, th{
+    padding: 1px!important;
+  }
+</style>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+<div class="mb-2">
+
+
+  <form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    <input type="hidden" id="selected_fields" name="selected_fields" value="">
+    <input type="hidden" id="list_selected" name="list_selected" value="0">
+    <div class="row">
+      <div class="col-md-2 col-sm-12 mb-3">
+        
+        <label for="choose_company">Choose Company</label>
+        <select name="choose_company" class="form-control form-control-sm" id="choose_company" >
+            {% if choose_company == 'All' %}
+            <option value="All" selected>All</option>
+            {% else %}
+            <option value="All">All</option>
+            {% endif %}
+            {% for data in global_companies %}
+            {% if choose_company == data.id %}
+            <option value="{{data.id}}" selected>{{data.company_name}}</option>
+            {% else %}
+            <option value="{{data.id}}">{{data.company_name}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+      <div class="col-2">
+        <label for="from_date">From</label>
+        <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" required id="from_date" class="form-control form-control-sm" />
+      </div>
+      <div class="col-2">
+        <label for="to_date">To</label>
+      <input type="date" name="to_date" required id="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" />
+      </div>
+      <div class="col-md-3">
+        <button type="submit" id="submitBtn" class="btn btn-primary mt-4 btn-sm">Filter</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="table-repsonsive">
+<table class="table table-primary table-bordered table-hover" id="sales_account_table">
+    <thead>
+      <tr>
+
+        <th scope="col" style="width:75%" rowspan="2">Particulars</th>
+        <th scope="col" class="text-center" colspan="2">Closing Balance</th>
+
+        
+      </tr>
+      <tr>
+
+    
+        <th scope="col" class="text-center">Debit</th>
+        <th scope="col" class="text-center">Credit</th>
+
+        
+      </tr>
+   
+    </thead>
+    <tbody>
+
+    {% for data in report %}
+    <tr  style="background-color: #12033f!important;">
+      <td class="text-white"><strong>{{data.head_name}}</strong></td>
+      <td class="text-white" align="right" data-order="0">0</td>
+      <td class="text-white" align="right" data-order="{{data.amount|floatformat:0|floatformat:2}}"><strong>{{data.amount|floatformat:0|floatformat:2}}</strong></td>
+    </tr>
+    
+
+    {% for sub_data in data.items %}
+    <tr>
+      <td> <i> {{sub_data.item_name}} </i></td>
+      <td align="right" data-order="0">0</td>
+      <td align="right" data-order="0"><i> {{sub_data.amount|floatformat:0|floatformat:2}}</i></td>
+    </tr>
+    {% endfor %}
+
+    {% endfor %}
+
+  
+   
+    </tbody>
+   <tfoot>
+    <tr>
+      <td class="text-white">Total Amount</td>
+      <td class="text-right text-white"></td>
+      <td class="text-right text-white"></td>
+    </tr>
+   </tfoot>
+  </table>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  $(document).ready(function () {
+
+    jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+      return this.flatten().reduce( function ( a, b ) {
+          var x = parseFloat(a) ;
+          var y = parseFloat($(b).attr('data-order')) ;
+  
+          return parseFloat((x+y)).toFixed(2)
+      }, 0 );
+  } );
+
+  let table = new DataTable('#sales_account_table', {
+      // options
+      dom: 'BQlfrtip',
+      "ordering": false,
+      columnDefs: [
+          ],
+          lengthMenu: [
+              [10, 25, 50, -1],
+              [10, 25, 50, 'All'],
+          ],
+         
+      buttons: [
+          {
+              extend: 'collection',
+              text: 'Export',
+              buttons: [
+                { extend: 'copy', footer: true, header:true},
+                { extend: 'excel', footer: true, header:true},
+                { extend: 'csv', footer: true, header:true},
+                { extend: 'pdf', footer: true, header:true},
+               
+              ]
+          }
+          ],
+          drawCallback: function () {
+            var api = this.api();
+            $( api.table().column(1).footer() ).html(
+                api.column( 1, {page:'current'} ).nodes().sum()
+            );
+            $( api.table().column(2).footer() ).html(
+                api.column( 2, {page:'current'} ).nodes().sum()
+            );
+           
+          
+         
+          
+           
+          }
+  });
+  document.querySelector('.dtsb-title').style.display = 'none'
+})
+</script>
+{% endblock %}

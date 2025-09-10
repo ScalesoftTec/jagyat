@@ -1,0 +1,201 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %}
+Export Billing Heads XML -
+{% endblock %}
+
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Billing Head List
+</h1>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<style>
+  .dtsb-button{
+    margin: 0!important;
+    padding: 5px 10px!important;
+    font-size: 12px!important;
+    border-radius: 10px!important;
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-button:hover{
+    
+    font-size: 12px!important;
+  
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-criteria select{
+    font-size: 12px!important;
+  }
+</style>
+
+<form  method="post"
+enctype="multipart/form-data" target="_blank">
+{% csrf_token %}
+<input type="hidden" id="selected_fields" name="selected_fields" value="">
+<div class="row"   id="action_form"  style="display: none;">
+  
+  <div class="col-md-3 col-sm-12">
+
+    <label for="uom">Unit Name or UOM</label>
+    <input type="text" class="form-control form-control-sm" name="uom" id="uom" placeholder="Type the unit name, such as UNIT, if exporting as a Stock Item." />
+  </div>
+
+  <div class="col-md-3 col-sm-12">
+    <label for="suffix">Suffix</label>
+    <input type="text" class="form-control form-control-sm" name="suffix" id="suffix" placeholder="Type a suffix to differentiate sales and purchase billing heads." />
+
+  </div>
+  <div class="col-md-3 col-sm-12">
+    <label for="categgory">Category Name or Under</label>
+    <input type="text" class="form-control form-control-sm" name="category" id="category" placeholder="Type a ledger Cateogry, e.g. Sales Account or Purchase Account." />
+
+  </div>
+  <div class="col-auto mt-4">
+
+    <input type="submit" name="export_type" value="EXPORT STOCK" class="btn btn-primary" />
+    <input type="submit" name="export_type" value="EXPORT LEDGER WISE" class="btn btn-primary" />
+  </div>
+</div>
+
+
+<div class="table-responsive">
+
+<table class="table compact display table-primary table-bordered table-md-responsive" id="bh_table">
+    <thead>
+      <tr>
+       
+        <th scope="col">S. No.</th>
+        <th scope="col">Billing Head Name</th>
+        <th scope="col">HSN Code</th>
+        <th scope="col">GST %</th>
+        
+      
+      </tr>
+    </thead>
+    <tbody>
+        {% for i in data %}
+      <tr>
+        <input type="hidden" id="bh_index_{{forloop.counter}}" name="index_{{forloop.counter}}"
+        value="{{i.id}}">
+        
+        <th>{{ forloop.counter }}</th>
+        <td>{{ i.billing_head }}</td>
+        <td>{{ i.hsn_code }}</td>
+        <td>{{ i.gst }}</td>
+    
+
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+</div>
+</form>
+
+{% endblock %}
+
+{% block js %}
+<script>
+  var selected_ids = []
+  $(document).ready(function () {
+
+  
+  let table = new DataTable('#bh_table', {
+      // options
+      dom: 'BQlfrtip',
+    
+
+    select: {
+        style: 'multi',
+
+    },
+    lengthMenu: [
+    [10, 25, 50, -1],
+    [10, 25, 50, 'All'],
+],
+    buttons: [
+    {
+      extend: 'collection',
+      text: 'Export',
+      buttons: [
+          'copy',
+          'excel',
+          'csv',
+          'pdf',
+         
+      ]
+  },
+        {
+            text: 'Select all',
+            action: function () {
+                selected_ids = []
+                table.rows().select();
+
+            }
+        },
+        {
+            text: 'Deselect all',
+            action: function () {
+                table.rows().deselect();
+                selected_ids = []
+            }
+        },
+
+    ],
+
+  });
+  table.on('select', function (e, dt, type, indexes) {
+              var rowData = table.rows(indexes).data().toArray();
+              
+              indexes.map(index => {
+
+                  var selected_fields = document.getElementById('selected_fields')
+                 
+                  var indexValue = document.getElementById(`bh_index_${index + 1}`).value 
+                  selected_ids.push(indexValue)
+                 
+                  selected_fields.value = selected_ids
+                
+              })
+
+              if (selected_ids.length > 0) {
+                  var action_form = document.getElementById('action_form')
+                  action_form.style.display = 'flex'
+              }
+          })
+          .on('deselect', function (e, dt, type, indexes) {
+              var rowData = table.rows(indexes).data().toArray();
+            
+              indexes.map(index => {
+
+                  var selected_fields = document.getElementById('selected_fields')
+
+                  var indexValue = document.getElementById(`bh_index_${index + 1}`).value
+                  selected_ids = selected_ids.filter(item => item !== indexValue)
+                
+                  selected_fields.value = selected_ids
+               
+
+              })
+
+              if (selected_ids.length == 0) {
+                  var action_form = document.getElementById('action_form')
+                  action_form.style.display = 'none'
+              }
+
+          })
+
+          document.querySelector('.dtsb-title').style.display = 'none'
+          
+        })
+</script>
+
+{% endblock %}

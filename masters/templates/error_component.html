@@ -1,0 +1,13 @@
+    {% for field in form %}
+    {% for error in field.errors %}
+
+    <input type="hidden" value="{{error|escape}}" id="message" >
+
+    <script>
+        var message = document.getElementById('message').value
+            
+                Snackbar.show({ text: message, pos: 'bottom-right', actionText: "", alertScreenReader: true, duration: 3000 });
+            
+    </script>
+    {% endfor %}
+    {% endfor %}

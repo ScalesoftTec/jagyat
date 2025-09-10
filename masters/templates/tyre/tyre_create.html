@@ -1,0 +1,79 @@
+{% extends 'dashboard/index.html' %}
+
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Tyre Details
+    {% else %}
+    Create New Tyre Detail
+    {% endif %}
+</h1>
+
+<a href="{% url 'masters:tyre_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_type">Type</label>
+            {{ form.type }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_brand_name">Brand Name</label>
+            {{ form.brand_name }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_model_name">Model Name</label>
+            {{ form.model_name }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_vendor_name">Vendor Name</label>
+            {{ form.vendor_name }}
+        </div>
+        
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_tyre_no">Tyre No</label>
+            {{ form.tyre_no }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_invoice_no">Invoice No</label>
+            {{ form.invoice_no }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_invoice_date">Invoice Date</label>
+            {{ form.invoice_date }}
+        </div>
+      
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_amount">Amount</label>
+            {{ form.amount }}
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update Tyre Details
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+</form>
+
+
+
+{% endblock %}

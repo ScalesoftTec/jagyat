@@ -1,0 +1,267 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load humanize %}
+
+{% block dashoard_title %} 
+Profit Loss Report - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Profit Loss Report
+</h1>
+
+
+<style>
+    table th, td{
+        padding-top: 0px!important;
+        padding-bottom: 0px!important;
+    }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+    <form method="post" class="mb-3">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-2">
+                <label for="region">Choose Region</label>
+                <select name="region" id="region" required class="form-control">
+                  {% if not selected_region %}
+                  <option value="" selected hidden disabled>Choose Region</option>
+                  {% endif %}
+        
+                  {% for i in company_regions %}
+                  {% if i.region == selected_region %}
+                  <option value="{{i.region}}" selected >{{i.region}}</option>
+                  {% else %}
+                  <option value="{{i.region}}">{{i.region}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+           
+            <div class="col-2">
+                <label for="company">Choose Company</label>
+                <select name="company" required class="form-control form-control-sm" id="company">
+                    {% if company == "All" %}
+                    <option value="All" selected>All</option>
+                    {% else %}
+                    <option value="All">All</option>
+                    {% endif %}
+                    {% for item in global_companies %}
+                    {% if company == item.id %}
+                    <option value="{{item.id}}" selected>{{item}}</option>
+                    {% else %}
+                    <option value="{{item.id}}" >{{item}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <div class="col-2">
+                <label for="from_date">From</label>
+                <input type="date" required name="from_date" id="from_date" class="form-control form-control-sm" value="{{from_date|date:'Y-m-d'}}" >
+            </div>
+        
+            <div class="col-2">
+                <label for="to_date">To</label>
+                <input type="date" required name="to_date" id="to_date" class="form-control form-control-sm" value="{{to_date|date:'Y-m-d'}}" >
+            </div>
+            <div class="col-md-2 col-sm-12 mb-2">
+                <label for="expanded">Expanded</label>
+                <select name="expanded" id="expanded" class="form-control form-control-sm">
+                    {% if expanded == 1 %}
+                    <option value="1" selected>Yes</option>
+                    <option value="0">No</option>
+                    {% else %}
+                    <option value="1">Yes</option>
+                    <option value="0" selected>No</option>
+                    {% endif %}
+                </select>
+            </div>
+            <div class="col-2">
+                <button class="btn btn-primary btn-sm mt-4" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+
+
+
+    {% if profit %}
+   <h4 class="mt-3 text-primary">{{npl_status}} : {{profit|floatformat:2|intcomma}}</h4>
+    {% endif %}
+    <div class="table-responsive">
+    <table class="table compact display  table-bordered" id="profit_loss_account">
+        
+           <thead>
+
+               <tr class="table-dark">
+                   
+                   
+                   <th style="width:450px!important">Particulars</th>
+                   <th style="width: 200px!important;">Amount</th>
+                   
+                   <th style="width:450px!important">Particulars</th>
+                   <th style="width: 200px!important;">Amount</th>
+                   
+                </tr>
+                
+            </thead>
+
+
+        <tbody>
+
+            <tr>
+                <td><a target="_blank" href="{% url 'acr:ledger_category_transactions' module=module company=company from_date=from_date to_date=to_date id=0 profit_loss='DP' %}"> <strong>Direct Purchase</strong></a></td>
+               <td align="right" data-order="{{direct_purchase|floatformat:2}}"><strong>{{direct_purchase|floatformat:2|intcomma}}</strong></td>
+                <td><a target="_blank"  href="{% url 'acr:ledger_category_transactions' module=module company=company from_date=from_date to_date=to_date id=0 profit_loss='DS' %}"><strong>Direct Sales</strong></a></td>
+                <td align="right" data-order="{{direct_sales|floatformat:2}}"><strong> {{direct_sales|floatformat:2|intcomma}}</strong></td>
+            </tr>
+         
+            
+            
+            
+           {% if gross_profit_loss > 0  %}
+            <tr>
+                <td><strong>{{gpl_status}}</strong></td>
+                <td align="right" data-order="{{gross_profit_loss|floatformat:2}} "><strong>{{gross_profit_loss|floatformat:2|intcomma}} </strong></td>
+                <td></td>
+                <td></td>
+                
+            </tr>
+            {% endif %}
+           {% if gross_profit_loss < 0  %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td><strong>{{gpl_status}}</strong></td>
+                <td align="right" data-order="{{gross_profit_loss|floatformat:2}} "><strong>{{gross_profit_loss|mul:-1|floatformat:2|intcomma}}</strong> </td>
+                
+            </tr>
+            {% endif %}
+
+           {% if gross_profit_loss > 0  %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td><strong>Gross Profit b/f</strong></td>
+                <td align="right" data-order="0"><strong>{{gross_profit_loss|floatformat:2|intcomma}}</strong> </td>
+                
+            </tr>
+            {% endif %}
+           {% if gross_profit_loss < 0  %}
+            <tr>
+                <td data-order="0">Gross Loss b/f</td>
+                <td align="right"><strong>{{gross_profit_loss|mul:-1|floatformat:2|intcomma}}</strong> </td>
+                <td></td>
+                <td></td>
+                
+            </tr>
+            {% endif %}
+
+            <tr>
+                <td><a target="_blank"  href="{% url 'acr:ledger_category_transactions' module=module company=company from_date=from_date to_date=to_date id=0 profit_loss='IE' %}"><strong>Indirect Expenses</strong></a></td>
+               <td align="right" data-order="{{indirect_purchase|floatformat:2}}"><strong>{{indirect_purchase|floatformat:2|intcomma}}</strong></td>
+                <td><a target="_blank"  href="{% url 'acr:ledger_category_transactions' module=module company=company from_date=from_date to_date=to_date id=0 profit_loss='IS' %}"><strong>Indirect Income</strong></a></td>
+                <td align="right" data-order="{{indirect_sales|floatformat:2}}"><strong> {{indirect_sales|floatformat:2|intcomma}}</strong></td>
+            </tr>
+          
+            
+    
+
+            {% if net_profit_loss > 0  %}
+            <tr>
+                <td> <strong> Net Profit</strong></td>
+                <td data-order="0" align="right"> <strong> {{net_profit_loss|floatformat:2|intcomma}} </strong> </td>
+                <td></td>
+                <td data-order="0"></td>
+                
+            </tr>
+            {% endif %}
+
+
+           {% if net_profit_loss < 0  %}
+            <tr>
+                <td></td>
+                <td data-order="0"></td>
+                <td> <strong> Net Loss </strong></td>
+                <td data-order="0"><strong>{{net_profit_loss|mul:-1|floatformat:2|intcomma}} </strong></td>
+                
+            </tr>
+            
+            {% endif %}
+
+           
+        </tbody>
+
+       
+
+           
+          
+
+    </table>
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  $(document).ready(function () {
+
+    
+
+  let table = new DataTable('#profit_loss_account', {
+      // options
+      dom: 'Blfrtip',
+      pageLength: -1,
+      "ordering": false,
+      columnDefs: [
+          ],
+          lengthMenu: [
+              [10, 25, 50, -1],
+              [10, 25, 50, 'All'],
+          ],
+         
+          buttons: [
+            {
+                extend: 'collection',
+                text: 'Export',
+                
+                buttons: [
+                { extend: 'copy', footer: true, header:true, },
+                { extend: 'excel', footer: true, header:true,
+                exportOptions: {
+                format: {
+                    header: function (data) {
+                    return $('<div></div>')
+                        .append(data)
+                        .find('.tooltip')
+                        .remove()
+                        .end()
+                        .text()
+                    }
+                    }   
+                }  
+             },
+             
+                { extend: 'csv', footer: true, header:true, },
+                { extend: 'pdf', footer: true, header:true,},
+             
+                ]
+            }
+            ],
+
+         
+  });
+
+
+  document.querySelector('.dtsb-title').style.display = 'none'
+})
+</script>
+{% endblock %}

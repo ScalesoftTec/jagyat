@@ -1,0 +1,64 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    My Profile
+</h1>
+
+
+<style>
+    .profile-name{
+        font-weight: 700;
+    }
+    .profile-name span{
+        font-size: 13px;
+        font-weight: 400;
+    }
+    .profile-details{
+
+        display: flex;
+        flex-direction: column;
+
+    }
+</style>
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+   
+    <div class="row" >
+
+        <div class="col-md-4 col-sm-12 d-flex align-items-center">
+            {% if request.user.user_account.profile_photo  %}
+            <img src="{{request.user.user_account.profile_photo.url}}" class="mr-5" width="120px" alt="">
+            {% endif %}
+            <div class="profile-details">
+                <h3 class="profile-name" >
+                    {{ request.user.first_name }} {{ request.user.last_name }}
+                 
+                    <span >@{{request.user.username}}</span>
+                   
+                    <span ><i class="bi bi-telephone"></i> +91 12030030000</span>
+                 
+                    <span ><i class="bi bi-envelope"></i> +91 12030030000</span>
+                </h3>
+            </div>
+        </div>
+      
+
+
+    </div>
+
+   
+</form>
+
+
+
+
+{% endblock %}
+

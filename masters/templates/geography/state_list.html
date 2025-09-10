@@ -1,0 +1,87 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    State List
+</h1>
+
+<a href="{% url 'dashboard:create_geography' module=module %}" class=" d-inline-block btn btn-sm  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create State</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<table class="table table-primary table-bordered table-md-responsive" id="party_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">State Name</th>
+        <th scope="col">State GST Code</th>
+        {% if request.user.user_account.can_delete %}
+        <th scope="col">Actions</th>
+        {% endif %}
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in states %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ data.name }}</td>
+        <td>{{ data.gst_code }}</td>
+       
+        {% if request.user.user_account.can_delete %}
+        <td>
+    
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.name}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ data.name }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'dashboard:state_delete' module=module id=data.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        </td>
+        {% endif %}
+    
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+
+
+
+{% endblock %}
+
+
+{% block js %}
+<script>
+  let table = new DataTable('#party_table', {
+      // options
+  });
+</script>
+
+
+{% endblock %}

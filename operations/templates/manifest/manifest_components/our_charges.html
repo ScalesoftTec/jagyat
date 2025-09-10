@@ -1,0 +1,196 @@
+<div class="tab-pane fade" id="our_charges" role="tabpanel" aria-labelledby="our_charges-tab">
+
+
+
+        {% if update %}
+        <input type="hidden" name="total_our_rows" id="total_our_rows" value="{{data.manifest_our_charges.all|length}}">
+        {% else %}
+        <input type="hidden" name="total_our_rows" id="total_our_rows" value="1">
+        {% endif %}
+     
+        <table class="table table-bordered " id="our_entry">
+             
+            <tr>
+                <th>Billing Head</th>
+                <th>Qty</th>
+                <th>Curr.</th>
+                <th>Ex. Rate</th>
+                <th>Rate</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+            {% if not update %}
+            <tr id="our_entry-1">
+    
+                <td>
+                    <input type="hidden" name="is_our_active-1" value="yes" id="is_our_active-1">
+                    
+                    <select name="our_billing_head-1" id="our_billing_head-1" class="form-control">
+                        <option value=""> Choose Billing Head </option>
+                        {% for head in global_billing_head %}
+                        <option value="{{head.id}}">{{ head }}</option>
+                        {% endfor %}
+                    </select>
+    
+                </td>
+                <td>
+                    <input type="number" step="0.01"  class="form-control" onkeyup="calculateOurTotal(1)" name="our_qty-1" id="our_qty-1"  />
+                </td>
+                <td>
+                    <select name="our_currency-1" id="our_currency-1" class="form-control">
+                        <option value=""> Choose Currency </option>
+                        {% for curr in global_currencies %}
+                        <option value="{{curr.id}}">{{ curr }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            <td>
+                <input type="number" step="0.01"  class="form-control" onkeyup="calculateOurTotal(1)" name="our_ex_rate-1" id="our_ex_rate-1"  />
+            </td>
+            <td>
+                <input type="number" step="0.01"  class="form-control" onkeyup="calculateOurTotal(1)" name="our_rate-1"  id="our_rate-1"  />
+            </td>
+            <td>
+                <input type="number" step="0.01"  class="form-control" name="our_total-1" id="our_total-1"  />
+            </td>
+            
+            <td><div class="btn btn-sm btn-danger" onclick="deleteourRow(1)">Remove</div></td>
+        </tr>
+            
+        {% else %}
+        {% for i in data.manifest_our_charges.all %}
+            <tr id="our_entry-{{forloop.counter}}">
+    
+            <td>
+              
+                <select name="our_billing_head-{{forloop.counter}}" id="our_billing_head-{{forloop.counter}}" class="form-control">
+                    <option value=""> Choose Billing Head </option>
+                    {% for head in global_billing_head %}
+                    {% if head.id == i.billing_head.id %}
+                    <option value="{{head.id}}" selected>{{ head }}</option>
+                    {% else %}
+                    <option value="{{head.id}}">{{ head }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </td>
+    
+            <td>
+                <input type="hidden" name="is_our_active-{{forloop.counter}}" value="yes" id="is_our_active-{{forloop.counter}}">
+                <input type="number"  step="0.01"  value="{{i.qty}}" class="form-control" onkeyup="calculateOurTotal({{forloop.counter}})" id="our_qty-{{forloop.counter}}" name="our_qty-{{forloop.counter}}"  />
+            </td>
+            <td>
+                <select name="our_currency-{{forloop.counter}}" id="our_currency-{{forloop.counter}}" class="form-control">
+                    <option value=""> Choose Currency </option>
+                    {% for curr in global_currencies %}
+                    {% if i.curr.id == curr.id %}
+                    <option value="{{curr.id}}" selected>{{ curr }}</option>
+                    {% else %}
+                    <option value="{{curr.id}}">{{ curr }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <input type="number" step="0.01" value="{{i.ex_rate}}"  class="form-control" onkeyup="calculateOurTotal({{forloop.counter}})" id="our_ex_rate-{{forloop.counter}}" name="our_ex_rate-{{forloop.counter}}"  />
+            </td>
+            <td>
+                <input type="number" step="0.01" value="{{i.rate}}"  class="form-control" onkeyup="calculateOurTotal({{forloop.counter}})"  id="our_rate-{{forloop.counter}}" name="our_rate-{{forloop.counter}}"  />
+            </td>
+            <td>
+                <input type="number" step="0.01" value="{{i.total}}"  class="form-control" id="our_total-{{forloop.counter}}" name="our_total-{{forloop.counter}}"  />
+            </td>
+            
+          
+            <td><div class="btn btn-sm btn-danger" onclick="deleteourRow({{forloop.counter}})">Remove</div></td>
+            </tr>
+        {% endfor %}
+        {% endif %}
+        </table>
+        <div class="text-right w-100">
+            <button type="button" class="btn btn-sm btn-primary" onclick="addourRow()"> Add More </button>
+        </div>
+    
+    
+        <script>
+         
+            var ourCurrentRowNumber = parseInt(document.getElementById('total_our_rows').value) || 0
+            var ourAvailableRowNumber = parseInt(document.getElementById('total_our_rows').value) || 0
+            const addourRow = () => {
+                ourCurrentRowNumber += 1
+                ourAvailableRowNumber += 1
+                var newRow =  document.getElementById('our_entry').insertRow(-1)
+                newRow.id = `our_entry-${ourCurrentRowNumber}`
+                newRow.classList.add("entry")
+                var billing_head = newRow.insertCell(0)
+                var qty = newRow.insertCell(1)
+                var curr = newRow.insertCell(2)
+                var ex_rate = newRow.insertCell(3)
+                var rate = newRow.insertCell(4)
+                var total = newRow.insertCell(5)
+              
+                var delete_cell = newRow.insertCell(6)
+                
+                billing_head.innerHTML = `
+                <input type="hidden" name="is_our_active-${ourCurrentRowNumber}" value="yes" id="is_our_active-${ourCurrentRowNumber}">
+                <select name="our_billing_head-${ourCurrentRowNumber}" id="our_billing_head-${ourCurrentRowNumber}" class="form-control">
+                    <option value=""> Choose Billing Head </option>
+                    {% for head in global_billing_head %}
+                    <option value="{{head.id}}">{{ head }}</option>
+                    {% endfor %}
+                </select>
+                `
+                qty.innerHTML = `
+                    <input type="number" step="0.01"  class="form-control" onkeyup="calculateOurTotal(${ourCurrentRowNumber})" id="our_qty-${ourCurrentRowNumber}" name="our_qty-${ourCurrentRowNumber}"  />
+                `
+                curr.innerHTML = `
+                <select name="our_currency-${ourCurrentRowNumber}" id="our_currency-${ourCurrentRowNumber}" class="form-control">
+                    <option value=""> Choose Currency </option>
+                    {% for curr in global_currencies %}
+                    <option value="{{curr.id}}">{{ curr }}</option>
+                    {% endfor %}
+                </select>
+                `
+                ex_rate.innerHTML = `
+                <input type="number" step="0.01"  class="form-control" onkeyup="calculateOurTotal(${ourCurrentRowNumber})" id="our_ex_rate-${ourCurrentRowNumber}" name="our_ex_rate-${ourCurrentRowNumber}"  />
+                `
+                rate.innerHTML = `
+                <input type="number" step="0.01"  class="form-control" onkeyup="calculateOurTotal(${ourCurrentRowNumber})"  id="our_rate-${ourCurrentRowNumber}" name="our_rate-${ourCurrentRowNumber}"  />
+                `
+                total.innerHTML = `
+                <input type="number" step="0.01"  class="form-control" id="our_total-${ourCurrentRowNumber}" name="our_total-${ourCurrentRowNumber}"  />
+                `
+        
+                
+                delete_cell.innerHTML = `
+                    <div class="btn btn-sm btn-danger" onclick="deleteourRow(${ourCurrentRowNumber})">Remove</div>
+                `
+              
+                document.getElementById('total_our_rows').value = ourCurrentRowNumber
+            }
+        
+           
+        
+            const deleteourRow = (index) => {
+                document.getElementById(`is_our_active-${index}`).value = "no"
+               
+                document.getElementById(`our_entry-${index}`).style.display = 'none'
+                ourAvailableRowNumber -= 1
+            }
+        
+            const calculateOurTotal = (id) => {
+                var ourQty = document.getElementById(`our_qty-${id}`).value
+                var ourRate = document.getElementById(`our_rate-${id}`).value
+                var ourExRate = document.getElementById(`our_ex_rate-${id}`).value
+                var ourTotal = document.getElementById(`our_total-${id}`)
+             
+                ourQty = parseFloat(ourQty)
+                ourRate = parseFloat(ourRate)
+                ourExRate = parseFloat(ourExRate)
+                ourTotal.value = Math.round((ourQty * ourRate * ourExRate) * 100)/100
+               
+            }
+        </script>
+        
+
+</div>

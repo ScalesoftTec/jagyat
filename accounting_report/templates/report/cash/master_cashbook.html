@@ -1,0 +1,271 @@
+{% extends 'dashboard/index.html' %}
+{% load custom_tags %}
+{% load mathfilters %}
+{% load humanize %}
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+   Master Cashbook
+</h1>
+
+{% endblock %}
+{% block dashoard_title %} Master Cashbook | {% endblock %}
+
+{% block dashboard_content %}
+
+<style>
+  .dtsb-button{
+    margin: 0!important;
+    padding: 5px 10px!important;
+    font-size: 12px!important;
+    border-radius: 10px!important;
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-button:hover{
+    
+    font-size: 12px!important;
+  
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-criteria select{
+    font-size: 12px!important;
+  }
+  tfoot tr td{
+    color: white!important;
+  }
+</style>
+
+
+<div>
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-2">
+                <label for="from_date">From</label>
+                <input type="date" name="from_date" id="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" required />
+            </div>
+            <div class="col-2">
+                <label for="to_date">To</label>
+                <input type="date" name="to_date" id="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" required />
+            </div>
+            
+            <div class="col-2 mt-4">
+               <button class="btn btn-sm btn-primary" type="submit">Get Report</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% if report %}
+<div class="container mt-3 text-center">
+    {% if net_balance > 0 %}
+    <h5 class="text-success">NET BALANCE : <strong>{{net_balance|floatformat:2|intcomma}}</strong></h5>
+    {% else %}
+    <h5 class="text-danger">NET BALANCE : <strong>{{net_balance|floatformat:2|intcomma}}</strong></h5>
+    {% endif %}
+</div>
+
+<div class="table-reponsive">
+
+<table class="table table-primary table-bordered  compact display" id="invoice_table">
+    <thead>
+      <tr>
+       
+        <th scope="col">Company</th>
+        <th scope="col">Particular</th>
+      
+        <th scope="col">Date</th>
+        <th scope="col">Debit</th>
+        <th scope="col">Credit</th>
+        <th scope="col">Actions</th>
+    
+      
+      </tr>
+    </thead>
+    <tbody>
+      {% if opening_balance.amount %}
+        
+      <tr>
+        
+        <td></td>
+       
+    
+        <td>
+            
+            {{opening_balance.particular}}
+           
+        </td>
+     
+       
+        <td>{{opening_balance.date}}</td>
+
+        {% if opening_balance.type == "Debit" %}
+        <td align="right" data-order="{{opening_balance.amount|floatformat:0|floatformat:2}}">{{opening_balance.amount|floatformat:0|floatformat:2|intcomma}}</td>
+        {% else %}
+        <td align="center" data-order="0">-</td>
+        {% endif %}
+
+        {% if data.type == "Credit" %}
+        <td align="right" data-order="{{opening_balance.amount|floatformat:0|floatformat:2}}">{{opening_balance.amount|floatformat:0|floatformat:2|intcomma}}</td>
+        {% else %}
+        <td align="center" data-order="0">-</td>
+        {% endif %}
+        <td>
+        &nbsp;
+    
+        </td>
+       
+      </tr>
+      {% endif %}
+        {% for data in report %}
+      <tr>
+        
+        <td>{{data.company}}</td>
+       
+    
+        <td>
+            {% if data.particular %}
+            {{data.particular}}
+            {% else %}
+            N/A
+            {% endif %}
+        </td>
+     
+       
+        <td>{{data.date}}</td>
+
+        {% if data.type == "Debit" %}
+        <td align="right" data-order="{{data.amount|floatformat:0|floatformat:2}}">{{data.amount|floatformat:0|floatformat:2|intcomma}}</td>
+        {% else %}
+        <td align="center" data-order="0">-</td>
+        {% endif %}
+
+        {% if data.type == "Credit" %}
+        <td align="right" data-order="{{data.amount|floatformat:0|floatformat:2}}">{{data.amount|floatformat:0|floatformat:2|intcomma}}</td>
+        {% else %}
+        <td align="center" data-order="0">-</td>
+        {% endif %}
+        <td>
+          <button type="button" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#viewModal{{ forloop.counter }}">
+            Transfer To Petty Cash <i class="bi bi-bookmark-fill"></i>
+          </button>
+    
+      
+  
+        </td>
+       
+      </tr>
+  
+      {% endfor %}
+     
+    </tbody>
+    <tfoot>
+        <td colspan="3">Total</td>
+  
+        <td class="text-right" align="right"></td>
+        <td class="text-right" align="right"></td>
+        <td></td>
+    </tfoot>
+  </table>
+</div>
+
+{% for data in report %}
+<div class="modal fade" id="viewModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="viewModal{{ forloop.counter }}Label" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+      <div class="modal-header">
+      <h5 class="modal-title" id="viewModal{{ forloop.counter }}Label">Transfer {{data.particular}}</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+      </div>
+      <div class="modal-body">
+       <form action="{% url 'acr:transfer_to_petty_cash' module=module id=data.voucher.id index=forloop.counter %}" method="POST" target="_blank">
+        {% csrf_token %}
+        <div class="row">
+
+          <input type="hidden" name="type_{{forloop.counter}}" value="{{data.type}}">
+          <div class="col-12">
+            <label for="transaction_date_{{forloop.counter}}">Transaction Date</label>
+            <input type="date" name="transaction_date_{{forloop.counter}}" id="transaction_date_{{forloop.counter}}" class="form-control form-control-sm" />
+          </div>
+          <div class="col-12">
+            <label for="transaction_description_{{forloop.counter}}">Description</label>
+            <input type="text" name="transaction_description_{{forloop.counter}}" id="transaction_description_{{forloop.counter}}" class="form-control form-control-sm" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary btn-sm">Move To Petty Cash</button>
+      </form>
+      </div>
+  </div>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+
+{% endblock %}
+
+{% block js %}
+
+<script src="https://cdn.datatables.net/plug-ins/1.13.4/api/sum().js"></script>
+<script>
+  var selected_ids = []
+  $(document).ready(function () {
+
+    jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+      return this.flatten().reduce( function ( a, b ) {
+          var x = parseFloat(a) ;
+          var y = parseFloat($(b).attr('data-order')) ;
+  
+          return parseFloat(x + y).toFixed(2)
+      }, 0 );
+  } );
+
+  let table = new DataTable('#invoice_table', {
+      // options
+      dom: 'BQlfrtip',
+      "columnDefs": [
+      { "type": "date", "targets":  2}
+    ],
+    order: [[2, 'asc']],
+      lengthMenu: [
+    [10, 25, 50, -1],
+    [10, 25, 50, 'All'],
+],
+buttons: [
+{
+  extend: 'collection',
+  text: 'Export',
+  buttons: [
+    'copy',
+    'excel',
+    'csv',
+    'pdf',
+
+  ]
+},
+
+],
+drawCallback: function () {
+  var api = this.api();
+  $( api.table().column(3).footer() ).html(
+      api.column( 3, {page:'current'} ).nodes().sum()
+  );
+ 
+  $( api.table().column(4).footer() ).html(
+      api.column( 4, {page:'current'} ).nodes().sum()
+  );
+ 
+
+ 
+}
+    
+  });
+document.querySelector('.dtsb-title').style.display = 'none'
+        })
+</script>
+{% endblock %}

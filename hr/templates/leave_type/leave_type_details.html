@@ -1,0 +1,84 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Leave Type List
+</h1>
+
+<a href="{% url 'hr:create_leave_type' module=module %}" class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Leave Type</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<table class="table table-primary table-bordered table-md-responsive" id="leave_type_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Title</th>
+        <th scope="col">Created By</th>
+        
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for i in data %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ i.title }}</td>
+        <td>{{ i.created_by }}</td>
+     
+
+       
+        
+        <td>
+            <a href="{% url 'hr:leave_type_update' module=module id=i.id %}" class="btn btn-info mr-3"><i class="fas fa-edit"></i></a>
+
+            {% if request.user.user_account.can_delete %}
+
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{i.name}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ i.name }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'hr:leave_type_delete' module=module id=i.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+        {% endif %}
+        </td>
+    
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+
+
+  <script>
+    let table = new DataTable('#leave_type_table', {
+        // options
+    });
+  </script>
+
+{% endblock %}

@@ -1,0 +1,233 @@
+
+{% load custom_tags %}
+{% load truncate_filters %}
+
+
+
+
+<table class="table  table-primary table-bordered " id="dsr_table" >
+    <thead>
+      <tr>
+        <th>INV.&nbsp;NO.</th>
+        <th >INV.&nbsp;DATE </th>
+
+        {% if request.user.is_superuser  %}
+          <th style="color: rgb(81, 255, 81) !important; white-space:no-wrap;">Module</th>
+        {% endif %}
+
+        <th class="nowrap">SHIPPING LINE</th>
+        <th>DESTINATION</th>
+        <th>CONTAINER NO.</th>
+        <th>SHIPMENT TYPE</th>
+        <th>MBL NO.</th>
+        <th>HBL NO.</th>
+        <th class="nowrap">RAILOUT DATE</th>
+        <th class="nowrap">RAIL ARRIVAL DATE</th>
+        <th>TERMS</th>
+        <th>SCHEME</th>
+        <th class="nowrap">ACCESS VALUE</th>
+        <th>B/E NO.</th>
+        <th>B/E DATE</th>
+        <th>GROSS WEIGHT</th>
+        <th>PACKAGES</th>
+        <th>INVOICE&nbsp;VALUE</th>
+        <th>ITEMS TYPES</th>
+        <th>IMPORT COUNTRY</th>
+        <th>ICD CLEARENCE PORT</th>
+      </tr>
+    </thead>
+
+    <tbody class="text-center">
+    {% for data in report %}
+      <tr>
+        <th scope="row">
+            <a href="{% url 'operations:job_update' module=module id=data.job.id %}">
+          {{data.job.shipper_invoice_no}}
+            </a>
+        </th>
+
+        <td style="width:500px !important;" class="nowrap"> 
+          {% for i in data.job.job_invoice.all  %}
+            {{i.invoice_date|date:"d-M-Y"}}
+          {% if not forloop.last %}|
+          {% endif %}
+          {% endfor %}
+        </td>
+
+
+        {% if request.user.is_superuser  %}
+        <td>
+          <a href="{% url 'operations:job_update' module=module id=data.job.id %}" style=" white-space: nowrap;">
+            {{data.job.module}}
+          </a>
+        </td>
+        {% endif %}
+
+        <td class="nowrap">
+            {% if data.job.shipping_line %}
+                {{data.job.shipping_line}}
+            {% else %}
+                --
+            {% endif %}
+        </td>
+
+        <td>
+            {% if data.job.final_destination %}
+                {{data.job.final_destination}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+
+        <td>
+            {% if data.job.job_container.count > 0 %}
+                {% for container in data.job.job_container.all %}
+                    <strong>{{ container.job_container_no }} / {{ container.container_type }}</strong><br>
+                {% endfor %}
+
+            {% else %}
+                <span>&nbsp;</span>
+            {% endif %}
+        </td>
+
+        <td>
+            {% if data.job.shipment_type %}
+                {{data.job.shipment_type}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+
+        <td>
+            {% if data.job.mbl_no %}
+                {{data.job.mbl_no}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+
+
+        <td>
+            {% if data.job.hbl_no %}
+                {{data.job.hbl_no}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+        <td class="nowrap">
+            {% if data.job.railout_date %}
+                {{data.job.railout_date|date:'d-m-Y'}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+        <td class="nowrap">
+            {% if data.job.rail_arrival_date %}
+                {{data.job.rail_arrival_date}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+
+        <td>
+            {% if data.job.terms %}
+                {{data.job.terms}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+        <td class="nowrap">
+            {% if data.job.scheme %}
+                {{data.job.scheme}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+
+        <td>
+            {% if data.job.access_value %}
+                {{data.job.access_value}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+        
+        <td>
+            {% if data.job.be_no %}
+                {{data.job.be_no}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+
+        <td class="nowrap">
+            {% if data.job.be_date %}
+                {{data.job.be_date}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+
+        <td>
+            {% if data.job.gross_weight %}
+                {{data.job.gross_weight}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+
+        <td>
+            {% if data.job.packages %}
+                {{data.job.packages}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+
+        <td>
+            {% if data.job.invoice_value %}
+                {{data.job.invoice_value}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+
+        <td>
+            {% if data.job.items_types %}
+                {{data.job.items_types}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+
+        <td>
+            {% if data.job.import_country %}
+                {{data.job.import_country}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+
+        <td class="nowrap">
+            {% if data.job.icd_clear_port %}
+                {{data.job.icd_clear_port}}
+            {% else %}
+            --
+            {% endif %}
+        </td>
+
+       
+
+       
+    
+       
+        
+          
+      </tr>
+
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+

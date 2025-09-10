@@ -1,0 +1,299 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load humanize %}
+
+
+{% block dashoard_title %} 
+Trial Balance Report - 
+{% endblock %}
+
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Trial Balance Report
+</h1>
+
+<style>
+    table td, th{
+        padding: 0px!important;
+    }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<p>
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+      Export PDF
+    </a>
+   
+  </p>
+  <div class="collapse" id="collapseExample">
+    <div class="card card-body" style="padding: 10px!important;">
+      
+  <form method="post" action="{% url 'acr:trial_balance_pdf' module=module %}" target="_blank">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-2 col-sm-12 mb-2">
+            <label for="company2">Choose Company</label>
+            <select name="company2" required class="form-control" id="company2">
+                <option value="ALL" selected>ALL</option>
+                {% for item in global_companies %}
+                {% if company == item.id %}
+                <option value="{{item.id}}" selected>{{item}}</option>
+                {% else %}
+                <option value="{{item.id}}" >{{item}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+     
+        <div class="col-md-2 col-sm-12 mb-2">
+            <label for="from_date2">From Date</label>
+            <input type="date" required name="from_date2" id="from_date2" class="form-control" value="{{from_date|date:'Y-m-d'}}" >
+        </div>
+        <div class="col-md-2 col-sm-12 mb-2">
+            <label for="to_date2">To Date</label>
+            <input type="date" required name="to_date2" id="to_date2" class="form-control" value="{{to_date|date:'Y-m-d'}}" >
+        </div>
+        <div class="col-md-1 col-sm-12">
+
+            <button class="btn mt-4 btn-primary" type="submit">PDF</button>
+        </div>
+    </div>
+  </form>
+
+  
+    </div>
+  </div>
+
+
+   
+<form method="post" class="mb-3">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-2 col-sm-12 mb-2">
+            <label for="company">Choose Company</label>
+            <select name="company" required class="form-control" id="company">
+                <option value="ALL" selected>ALL</option>
+                {% for item in global_companies %}
+                {% if company == item.id %}
+                <option value="{{item.id}}" selected>{{item}}</option>
+                {% else %}
+                <option value="{{item.id}}" >{{item}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+     
+        <div class="col-md-2 col-sm-12 mb-2">
+            <label for="from_date">From Date</label>
+            <input type="date" required name="from_date" id="from_date" class="form-control" value="{{from_date|date:'Y-m-d'}}" >
+        </div>
+        <div class="col-md-2 col-sm-12 mb-2">
+            <label for="to_date">To Date</label>
+            <input type="date" required name="to_date" id="to_date" class="form-control" value="{{to_date|date:'Y-m-d'}}" >
+        </div>
+        <div class="col-md-2 col-sm-12 mb-2">
+            <label for="expanded">Expanded</label>
+            <select name="expanded" id="expanded" class="form-control form-control-sm">
+                {% if expanded == 1 %}
+                <option value="1" selected>Yes</option>
+                <option value="0">No</option>
+                {% else %}
+                <option value="1">Yes</option>
+                <option value="0" selected>No</option>
+                {% endif %}
+            </select>
+        </div>
+        <div class="col-md-1 col-sm-12">
+
+            <button class="btn mt-4 btn-primary" type="submit">Search</button>
+        </div>
+    </div>
+</form>
+
+    <table class="table table-primary table-bordered table-md-responsive" id="tb_table">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 50%;" rowspan="3">Particulars</th>
+               
+                <th colspan="4" class="text-center">{{from_date|date:'d-m-Y'}} To {{to_date|date:'d-m-Y'}}</th>
+
+            </tr>
+            <tr>
+                <th rowspan="2" class="text-center">Opening Balance</th>
+                <th colspan="2" class="text-center">Transaction</th>
+                <th rowspan="2" class="text-center">Closing Balance</th>
+
+            </tr>
+            <tr>
+              
+                <th class="text-center">Debit</th>
+                <th class="text-center">Credit</th> 
+                
+            </tr>
+           
+            
+        </thead>
+
+
+        <tbody>
+
+            {% for item in report_list %}
+            <tr>
+                <td><span style="margin-left: {{item.depth}}px;"></span>
+                {% if item.category.voucher_category.count > 0 %}
+                    <a target="_blank" href="{% url 'acr:ledger_category_transactions' module=module company=company from_date=from_date to_date=to_date id=item.category.id %}">{{item.category.name}}</a> 
+                {% else %}
+                    {{item.category.name}}
+                {% endif %}
+                </td>
+                {% if item.opening_in == "Debit" %}
+                <td style="text-align: right;" data-order="{{item.opening|floatformat:2}}">{{item.opening}}  Dr.</td>
+                {% else %}
+                <td style="text-align: right;" data-order="{{item.opening|mul:-1|floatformat:2}}">{{item.opening}}  Cr.</td>
+                {% endif %}
+                
+                <td style="text-align: right;" data-order="{{item.dr_total|floatformat:2}}">
+                    {{item.dr_total}}
+                </td>
+                <td style="text-align: right;" data-order="{{item.cr_total|floatformat:2}}">
+                    {{item.cr_total}}
+                </td>
+                
+
+                {% if item.closing_in == "Debit" %}
+                <td style="text-align: right;" data-order="{{item.closing|floatformat:2}}">{{item.closing}}  Dr.</td>
+                {% else %}
+                <td style="text-align: right;" data-order="{{item.closing|mul:-1|floatformat:2}}">{{item.closing}}  Cr.</td>
+                {% endif %}
+
+               
+            </tr>
+
+            {% for ledger in item.ledger_report %}
+            <tr>
+
+                <td style="font-size: 11px; font-weight: 400;">
+                    <span style="margin-left: {{item.depth|add:23}}px;"></span>
+                    {% if ledger.id and ledger.type %}
+                    <a target="_blank" href="{% url 'acr:ledger_category_transactions' module=module company=company from_date=from_date to_date=to_date id=item.category.id detail_id=ledger.id detail=1 type=ledger.type %}">  
+                          <i> {{ledger.particulars}} </i>
+                        </a>
+                        {% else %}
+                         <i> {{ledger.particulars}} </i>
+                        {% endif %}
+                   
+                </td>
+                <td data-order="0" style="font-size: 11px; font-weight: 400; text-align: right;">&nbsp;</td>
+                <td data-order="0" style="font-size: 11px; font-weight: 400; text-align: right;">{{ledger.debit|floatformat:2}}</td>
+                <td data-order="0" style="font-size: 11px; font-weight: 400; text-align: right;">{{ledger.credit|floatformat:2}}</td>
+                <td data-order="0" style="font-size: 11px; font-weight: 400; text-align: right;">
+                    {% if ledger.debit|sub:ledger.credit >= 0 %} 
+                    {{ledger.debit|sub:ledger.credit|floatformat:2}} Dr.   
+                    {% else %}
+                    {{ledger.debit|sub:ledger.credit|mul:-1|floatformat:2}} Cr.   
+                    {% endif %}
+                </td>
+
+            </tr>
+            {% endfor %}
+
+            {% for sub_item in item.report %}
+                {% include 'report/trial_balance_report/list.html' %}
+            {% endfor %}
+            
+           {% endfor %}
+           
+        </tbody>
+
+        <tfoot class="table-dark">
+            <tr>
+                <td></td>
+               
+
+                <td align="right" class="text-white text-right"></td>
+                <td align="right" class="text-white text-right"></td>
+                <td align="right" class="text-white text-right"></td>
+                <td align="right" class="text-white text-right"></td>
+                
+              
+            </tr>
+
+        </tfoot>
+
+    </table>
+
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+  $(document).ready(function () {
+
+    jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+      return this.flatten().reduce( function ( a, b ) {
+          var x = parseFloat(a) ;
+          var y = parseFloat($(b).attr('data-order')) ;
+  
+          return parseFloat((x+y)).toFixed(2)
+      }, 0 );
+  } );
+
+  let table = new DataTable('#tb_table', {
+      // options
+      dom: 'BQlfrtip',
+      ordering:false,
+      "pageLength": -1,
+     
+      columnDefs: [
+          ],
+          lengthMenu: [
+              [10, 25, 50, -1],
+              [10, 25, 50, 'All'],
+          ],
+         
+      buttons: [
+          {
+              extend: 'collection',
+              text: 'Export',
+              buttons: [
+                { extend: 'copy', footer: true, header:true},
+                { extend: 'excel', footer: true, header:true},
+                { extend: 'csv', footer: true, header:true},
+                { extend: 'pdf', footer: true, header:true},
+               
+              ]
+          }
+          ],
+          drawCallback: function () {
+            var api = this.api();
+            $( api.table().column(1).footer() ).html(
+                api.column( 1, {page:'current'} ).nodes().sum()
+            );
+            $( api.table().column(2).footer() ).html(
+                api.column( 2, {page:'current'} ).nodes().sum()
+            );
+            $( api.table().column(3).footer() ).html(
+                api.column( 3, {page:'current'} ).nodes().sum()
+            );
+            $( api.table().column(4).footer() ).html(
+                api.column( 4, {page:'current'} ).nodes().sum()
+            );
+           
+          
+         
+          
+           
+          }
+  });
+  document.querySelector('.dtsb-title').style.display = 'none'
+})
+</script>
+{% endblock %}

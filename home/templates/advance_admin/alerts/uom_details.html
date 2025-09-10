@@ -1,0 +1,84 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Commodity List
+</h1>
+
+<a href="{% url 'dashboard:create_uom' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Unit of Measurement</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<table class="table table-primary " id="party_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Name</th>
+        <th scope="col">Short Name</th>
+        <th scope="col">Type</th>
+     
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in uom %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ data.name }}</td>
+        <td>{{ data.short_name }}</td>
+        <td>{{ data.type }}</td>
+        
+        <td>
+            <a href="{% url 'dashboard:uom_update' module=module id=data.id %}" class="btn btn-info mr-3"><i class="fas fa-edit"></i></a>
+
+
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.name}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ data.name }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'dashboard:uom_delete' module=module id=data.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        </td>
+    
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+
+  <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+  <script>
+    let table = new DataTable('#party_table', {
+        // options
+    });
+  </script>
+
+{% endblock %}

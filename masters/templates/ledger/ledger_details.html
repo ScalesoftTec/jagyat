@@ -1,0 +1,201 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+Ledger List - 
+{% endblock %}
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Ledger List
+</h1>
+
+<a href="{% url 'masters:create_ledger' module=module %}" class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Ledger </a>
+
+<style>
+  table td, th{
+    padding: 2px!important;
+    min-width: 130px!important;
+  }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+<form  method="post" id="action_form" style="display: none;"
+enctype="multipart/form-data">
+{% csrf_token %}
+<input type="hidden" id="selected_fields" name="selected_fields" value="">
+<div class="row mb-3">
+{% if  request.user.user_account.can_delete %}
+  <div class="col-auto">
+    <button class="btn btn-primary btn-sm">Delete Selected</button>
+  </div>
+  {% endif %}
+</div>
+
+</form>
+
+<div class="table-responsive">
+
+<table class="table compact table-primary table-bordered" id="ledger_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        {% if request.user.is_superuser %}
+
+        <th scope="col">Company</th>
+        {% endif %}
+        <th scope="col">Name</th>
+       
+        <th scope="col">Acc. Group</th>
+        <th scope="col">Opening Balance</th>
+     
+ 
+       
+     
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for i in data %}
+      <tr>
+        <th scope="row">
+         
+
+        {{ forloop.counter }}</th>
+        {% if request.user.is_superuser %}
+        <td>{{ i.company_type }}</td>
+        {% endif %}
+        <td>{{ i.ledger_name }}</td>
+      
+      
+        <td><span class="badge badge-primary">{{ i.tally_group }}</span></td>
+       
+        <td>{{ i.opening_balance }}</td>
+        
+        
+       
+        
+        <td>
+  
+            <a href="{% url 'masters:ledger_update' module=module id=i.id %}" class="btn btn-xs btn-info"><i class="fas fa-edit"></i></a>
+
+            {% if request.user.user_account.can_delete %}
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{i.ledger_name}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ i.ledger_name }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'masters:ledger_delete' module=module id=i.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+        {% endif %}
+        </td>
+    
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+  
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+  $(document).ready(function () {
+    var selected_ids = []
+  let table = new DataTable('#ledger_table', {
+    // options
+    dom: 'BQlfrtip',
+    select: {
+      style: 'multi',
+
+  },
+    lengthMenu: [
+              [10, 25, 50, -1],
+              [10, 25, 50, 'All'],
+          ],
+          buttons: [
+      'excel', 'pdf',
+        {
+            text: 'Select all',
+            action: function () {
+                selected_ids = []
+                table.rows().select();
+
+            }
+        },
+        {
+            text: 'Deselect all',
+            action: function () {
+                table.rows().deselect();
+                selected_ids = []
+            }
+        },
+
+    ],
+    
+});
+table.on('select', function (e, dt, type, indexes) {
+  var rowData = table.rows(indexes).data().toArray();
+  console.log(rowData)
+  indexes.map(index => {
+
+      var selected_fields = document.getElementById('selected_fields')
+
+      var indexValue = document.getElementById(`party_index_${index + 1}`).value
+      selected_ids.push(indexValue)
+      console.log(selected_ids)
+      selected_fields.value = selected_ids
+      console.log(selected_fields.value)
+
+  })
+
+  if (selected_ids.length > 0) {
+      var action_form = document.getElementById('action_form')
+      action_form.style.display = 'block'
+  }
+})
+.on('deselect', function (e, dt, type, indexes) {
+  var rowData = table.rows(indexes).data().toArray();
+  console.log("Index Length is : " + indexes[0])
+  indexes.map(index => {
+
+      var selected_fields = document.getElementById('selected_fields')
+
+      var indexValue = document.getElementById(`party_index_${index + 1}`).value
+      selected_ids = selected_ids.filter(item => item !== indexValue)
+      console.log(selected_ids)
+      selected_fields.value = selected_ids
+      console.log(selected_fields.value)
+
+  })
+
+  if (selected_ids.length == 0) {
+      var action_form = document.getElementById('action_form')
+      action_form.style.display = 'none'
+  }
+
+})
+})
+</script>
+{% endblock %}

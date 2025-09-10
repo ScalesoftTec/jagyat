@@ -1,0 +1,143 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+
+{% if update %}
+Update Event |
+{% else %}
+Create Event |
+{% endif %}
+
+{% endblock %} 
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Sales Call
+    {% else %}
+    Create New Sales Call
+    {% endif %}
+
+</h1>
+
+<a href="{% url 'crm:event_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<input type="hidden" id="user_type" value="{{request.user.is_staff}}">
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    {% if request.user.is_staff %}
+    <h6 class="text-danger mb-3">Please note assigned to cannot be update</h6>
+    {% endif %}
+    <div class="row">
+
+        {% if request.user.user_account.create_global_data %}
+        <div class="col-md-3 col-sm-12 mb-1" id="company_div">
+            <label for="id_company_type" class="required" >Choose Company</label>
+            {{ form.company_type }}
+        </div>
+        {% else %}
+            <input type="hidden" name="id_company_type" id="id_company_type" value="{{ request.user.user_account.office.id }}">
+        {% endif %}
+
+
+        {% if request.user.is_staff %}
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_user" class="required" >Assigned To</label>
+            {{ form.user }}
+        </div>
+        {% endif %}
+        
+      
+
+        
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_title" class="required" >Title</label>
+            {{ form.title }}
+        </div>
+
+
+
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_customer" class="required" >Customer</label>
+            {{ form.customer }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_status" class="required" >Status</label>
+            {{ form.status }}
+        </div>
+
+        
+       
+        {% if not update %}
+        
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_start" class="required" >Start Time</label>
+            {{ form.start }}
+        </div>
+
+        
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_end" class="required" >End Time</label>
+            {{ form.end }}
+        </div>
+        {% endif %}
+        
+        <div class="col-md-12 col-sm-12 mb-3">
+            <label for="id_description" class="required" >Description</label>
+            {{ form.description }}
+        </div>
+
+        <div class="col-md-6 col-sm-12 mb-3">
+            <label for="id_remarks">Remarks After Meeting</label>
+            {{ form.remarks }}
+        </div>
+        
+        <div class="col-md-6 col-sm-12 mb-3" id="manager_remark_div">
+            <label for="id_manager_remarks">Manager Remarks</label>
+            {{ form.manager_remarks }}
+        </div>
+
+        
+
+        
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        <input type="hidden" id="is_update" value="true">
+        Update Event
+        {% else %}
+        <input type="hidden" id="is_update" value="false">
+        Submit
+        {% endif %}
+
+    </button>
+</form>
+
+
+
+{% endblock %}
+{% block js %}
+<script>
+    const userType = document.getElementById('user_type').value
+    const update = document.getElementById('is_update').value
+    if(userType != "True"){
+        document.getElementById('id_manager_remarks').readOnly = 1
+    }else{
+        document.getElementById('id_remarks').readOnly = 1
+    }
+    if(update == "true"){
+        document.getElementById('id_user').readOnly = true;
+        document.getElementById('id_title').readOnly = true;
+        document.getElementById('company_div').style.display = 'none';
+    }
+   
+</script>
+{% endblock %}

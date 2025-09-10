@@ -1,0 +1,178 @@
+{% extends 'dashboard/index.html' %}
+
+
+
+{% block dashoard_title %} 
+Final Credit Note Details - 
+{% endblock %}
+
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Final Credit Note List
+</h1>
+
+<div class="">
+    <a href="{% url 'accounting:create_credit_note' module=module extra_module='sea' %}" class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Sea Credit Note</a>
+   
+    <a href="{% url 'accounting:create_credit_note' module=module extra_module='air' %}" class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Air Credit Note</a>
+</div>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<div class="">
+
+  <form action="" method="post">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-2">
+            <label for="choose_company">Choose Branch</label>
+            <select name="choose_company" class="form-control form-control-sm" id="choose_company" >
+                {% if choose_company == 'All' %}
+                <option value="All" selected>All</option>
+                {% else %}
+                <option value="All">All</option>
+                {% endif %}
+                {% for data in global_companies %}
+                {% if choose_company == data.id %}
+                <option value="{{data.id}}" selected>{{data.company_name}}</option>
+                {% else %}
+                <option value="{{data.id}}">{{data.company_name}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+          </div>
+          <div class="col-2">
+              <label for="from_date">From Date</label>
+              <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="start_date">
+          </div>
+          <div class="col-2">
+              <label for="to_date">To Date</label>
+              <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="to_date">
+          </div>
+          
+         
+          <div class="col-2">
+              <button type="submit" class="btn btn-primary btn-sm mt-4">Filter</button>
+          </div>
+      </div>
+  </form>
+
+</div>
+
+<div class="table-responsive">
+
+
+<table class="table compact table-primary table-bordered table-md-responsive " id="cn_table">
+    <thead>
+      <tr>
+
+        <th scope="col">Job No.</th>
+        <th scope="col">Credit Note No.</th>
+    
+        <th scope="col">Date</th>
+
+        <th scope="col">Company</th>
+        <th scope="col">Bill To</th>
+        <th scope="col">Address</th>
+   
+        <th scope="col">Invoice No.</th>
+        <th scope="col">Gross Amount</th>
+        <th scope="col">Net Amount</th>
+   
+        <th scope="col">RCM</th>
+       
+        <th scope="col">PDF</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in note %}
+
+      <tr>
+        
+        <td>{{ data.job_no }}</td>
+        <td>{{ data.final_invoice_no }}</td>
+        <td>{{ data.einvoice_date|date:"Y-m-d" }}</td>
+
+        <td>{{ data.company_type }}</td>
+        <td>{{ data.bill_to.party_name }}</td>
+        <td>{{ data.bill_to_address.branch }}</td>
+       
+        <td>{{ data.invoice_no }}</td>
+        <td align="right">{{ data.gross_amount|floatformat:0|floatformat:2 }}</td>
+        <td align="right">{{ data.net_amount|floatformat:0|floatformat:2 }}</td>
+        
+        <td>
+            {% if data.is_rcm %}
+            <span class="badge badge-primary">YES</span>
+            {% else %}
+            <span class="badge badge-danger">NO</span>
+            {% endif %}
+        </td>
+       
+        <td>
+          <a class="btn btn-xs btn-primary" href="{% url 'accounting:credit_note_pdf' id=data.id  %}" target="_blank"><i class="fas fa-file-pdf"></i></a>
+        </td>
+      
+    
+      </tr>
+      
+
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+
+    var selected_ids = []
+    $(document).ready(function () {
+
+
+        let table = new DataTable('#cn_table', {
+            // options
+            dom: 'BQlfrtip',
+            "columnDefs": [
+                { "type": "date", "targets": 2 },
+           
+            ],
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+            "pageLength": 50,
+            buttons: [
+            {
+                extend: 'collection',
+                text: 'Export',
+                buttons: [
+                    'copy',
+                    'excel',
+                    'csv',
+                    'pdf',
+                   
+                ]
+            },
+
+            ]
+
+        });
+        document.querySelector('.dtsb-title').style.display = 'none'
+    })
+
+
+
+    
+</script>
+
+{% endblock %}

@@ -1,0 +1,224 @@
+{% extends 'dashboard/index.html' %}
+{% load custom_tags %}
+{% load truncate_filters %}
+
+{% block dashoard_title %} 
+DSR Details - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    DSR List
+
+</h1>
+
+
+<style>
+  .table th, td{
+   
+    /* padding-top: 3px!important;
+    padding-left: 3px!important;
+    padding-bottom: 3px!important;
+    padding-right: 25px !important;
+    text-wrap: nowrap;
+    text-transform:uppercase; */
+  }
+  td, th{
+    width: 100%;
+    text-align: center !important;
+  }
+  
+  td{
+  }
+
+  .nowrap{
+    white-space: nowrap;
+  }
+  th{
+    white-space: nowrap;
+  }
+ 
+</style>
+
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="">
+  <form  method="post" action="{% url 'operations:dsr_actions' module=module %}" target="_blank">
+    {% csrf_token %}
+    <input type="hidden" id="selected_fields" name="selected_fields" value="">
+    <input type="hidden" id="list_selected" name="list_selected" value="0">
+    <div class="row">
+      <div class="col-md-2 col-sm-12" id="action_form" style="display: none;  flex-direction: row; justify-content: flex-start;" >
+       <input type="submit" name="action_type" value="EXPORT DSR" class="btn btn-sm btn-primary" />
+       <input type="submit" name="action_type" value="SEND DSR" class="ml-2 btn btn-sm btn-primary" />
+      
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="mt-2">
+  <form action="" method="post">
+      {% csrf_token %}
+      <div class="row">
+          <div class="col-2">
+              <label for="from_date">From Date</label>
+              <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="start_date">
+          </div>
+          <div class="col-2">
+              <label for="to_date">To Date</label>
+              <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="to_date">
+          </div>
+
+
+          <div class="col-2">
+            <label for="module_type">Module Type</label>
+            <select name="module_type" id="module_type" class="form-control">
+                <option value="import" {% if module_type == 'import' %}selected{% endif %}>Import</option>
+                <option value="export" {% if module_type == 'export' %}selected{% endif %}>Export</option>
+            </select>
+        </div>
+          
+          
+          <div class="col-2">
+              <button type="submit" class="btn btn-primary btn-sm mt-4">Filter</button>
+          </div>
+      </div>
+  </form>
+</div>
+
+<div class="large-table-fake-top-scroll-container-3">
+  <div>&nbsp;</div>
+</div>
+
+
+<div class="table-responsive" style='overflow-x: hidden;'>
+  {% if module_type == 'import' %}
+    {% include 'dsr/import_dsr.html' %}
+  {% elif module_type == 'export' %}
+    {% include 'dsr/export_dsr.html' %}
+  {% endif %}
+
+</div>
+ 
+  
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  $(document).ready(function () {
+    var selected_ids = []
+
+
+  let table = new DataTable('#dsr_table', {
+      // options
+      dom: 'BQlfrtip',
+      dom: "<'row'<'col-sm-12'Q>>" + 
+      "<'row'<'col-sm-12'B>>" + 
+      "<'row'<'col-sm-3'l><'col-sm-3'f><'col-sm-6'p>>" +
+         "<'row'<'col-sm-12'Q>>" +
+         "<'row'<'col-sm-12'tr>>" +
+         "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+      "pageLength": 25,
+      scrollY: '60vh',
+      scrollX: true,
+      scrollCollapse: true,
+      lengthMenu: [
+      [10, 25, 50, -1],
+      [10, 25, 50, 'All'],
+      ],
+      select: {
+        style: 'multi',
+  
+      },
+
+      buttons: [
+        {
+            text: 'Select all',
+            action: function () {
+                table.rows({ page: 'current' }).select();
+                selected_ids = []
+
+            }
+        },
+        {
+            text: 'Deselect all',
+            action: function () {
+              table.rows({ page: 'current' }).deselect();
+                selected_ids = []
+            }
+        },
+
+    ],
+
+     });
+
+  table.on('select', function (e, dt, type, indexes) {
+    var rowData = table.rows(indexes).data().toArray();
+
+    indexes.map(index => {
+      console.log(index)
+      var selected_fields = document.getElementById('selected_fields')
+      try{
+      var indexValue = document.getElementById(`dsr_${index + 1}`).value
+      selected_ids.push(indexValue)
+   
+      selected_fields.value = selected_ids
+      }catch(err){
+        console.log(err)
+      }
+
+    })
+
+    if (selected_ids.length > 0) {
+      var action_form = document.getElementById('action_form')
+      action_form.style.display = 'flex'
+      document.getElementById('list_selected').value = 1
+    
+    }
+  })
+    .on('deselect', function (e, dt, type, indexes) {
+      var rowData = table.rows(indexes).data().toArray();
+
+      indexes.map(index => {
+
+        var selected_fields = document.getElementById('selected_fields')
+        try{
+        var indexValue = document.getElementById(`dsr_${index + 1}`).value
+        selected_ids = selected_ids.filter(item => item !== indexValue)
+  
+        selected_fields.value = selected_ids
+        }catch(err){}
+
+      })
+
+      if (selected_ids.length == 0) {
+        var action_form = document.getElementById('action_form')
+        action_form.style.display = 'none'
+        document.getElementById('list_selected').value = 0
+      }
+
+    })
+  document.querySelector('.dtsb-title').style.display = 'none'
+})
+
+
+
+$(function() {
+  var tableContainer = $(".table-responsive");
+  var table = $(".table-responsive table");
+  var fakeContainer = $(".large-table-fake-top-scroll-container-3");
+  var fakeDiv = $(".large-table-fake-top-scroll-container-3 div");
+
+  var tableWidth = table.width();
+  fakeDiv.width(tableWidth);
+
+  fakeContainer.scroll(function() {
+tableContainer.scrollLeft(fakeContainer.scrollLeft());
+  });
+})
+</script>
+{% endblock %}

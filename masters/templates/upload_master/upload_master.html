@@ -1,0 +1,118 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Upload Files Master
+</h1>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<style> 
+    .nav-item{
+        font-size: 14px;
+        
+    }
+    .nav-item.nav-link{
+        color: #280466!important;
+        padding: 5px 20px!important;
+    
+    }
+    .nav-link.active{
+        background-color: #280466!important;
+        color: white!important;
+    }
+</style>
+
+    <form enctype="multipart/form-data" action="{% url 'masters:upload_master' module=module %}" method="post">
+    {% csrf_token %}
+    <div class="row gx-3">
+        <div class="col-md-12 col-sm-12">
+            <nav class="nav nav-pills   mb-4">
+                <a class="nav-item  nav-link active" id="country-tab" data-toggle="tab" href="#country">Country</a>
+                <a class="nav-item nav-link" id="state-tab" data-toggle="tab" href="#state">State</a>
+                <a class="nav-item nav-link" id="city-tab" data-toggle="tab" href="#city">City</a>
+                <a class="nav-item nav-link" id="sea_port-tab" data-toggle="tab" href="#sea_port">Sea Ports</a>
+                <a class="nav-item nav-link" id="air_port-tab" href="#air_port" data-toggle="tab">Air Ports</a>
+                <a class="nav-item nav-link" href="#location" id="location-tab" data-toggle="tab">Locations</a>
+                <a class="nav-item nav-link" href="#currency" id="currency-tab" data-toggle="tab">Currency</a>
+                <a class="nav-item nav-link" href="#shipping_line" id="shipping_line-tab" data-toggle="tab">S. Line</a>
+                <a class="nav-item nav-link" href="#airline" id="airline-tab" data-toggle="tab">Air Line</a>
+                <a class="nav-item nav-link" href="#billing_head" id="billing_head-tab" data-toggle="tab">B. Head</a>
+                <a class="nav-item nav-link" href="#party" id="party-tab" data-toggle="tab">Party</a>
+                <a class="nav-item nav-link" href="#jobs" id="jobs-tab" data-toggle="tab">Jobs</a>
+                <a class="nav-item nav-link" href="#ledger_category" id="ledger_category-tab" data-toggle="tab">Ledger Category</a>
+                <a class="nav-item nav-link" href="#rinv" id="rinv-tab" data-toggle="tab">R. Inv</a>
+                <a class="nav-item nav-link" href="#pay_invoice" id="pay_invoice-tab" data-toggle="tab">Pay. Invoices</a>
+                <a class="nav-item nav-link" href="#crn" id="crn-tab" data-toggle="tab">CR. Note</a>
+                <a class="nav-item nav-link" href="#drn" id="drn-tab" data-toggle="tab">DR. Note</a>
+                <a class="nav-item nav-link" href="#match_data" id="match_data-tab" data-toggle="tab">Match Data</a>
+                
+                {% comment %} 
+                <a class="nav-item nav-link" href="#billing_head" id="billing_head-tab" data-toggle="tab">CAN</a>
+                <a class="nav-item nav-link" href="#billing_head" id="billing_head-tab" data-toggle="tab">FC</a>
+                <a class="nav-item nav-link" href="#billing_head" id="billing_head-tab" data-toggle="tab">MBL</a>
+                <a class="nav-item nav-link" href="#billing_head" id="billing_head-tab" data-toggle="tab">DO</a>
+                <a class="nav-item nav-link" href="#billing_head" id="billing_head-tab" data-toggle="tab">DSR</a>
+                <a class="nav-item nav-link" href="#billing_head" id="billing_head-tab" data-toggle="tab">Rec. Voucher</a>
+                <a class="nav-item nav-link" href="#billing_head" id="billing_head-tab" data-toggle="tab">Pay. Voucher</a>
+                <a class="nav-item nav-link" href="#billing_head" id="billing_head-tab" data-toggle="tab">Quotation</a> {% endcomment %}
+               
+        
+            </nav>
+        </div>
+
+        <div class="col-md-12 col-sm-12">
+            <div class="tab-content" id="myTabContent">
+                <!-- Country File Content Here -->
+                {% include "upload_master/upload_form/country_form.html" %}
+                <!-- State File Content Here -->
+                {% include "upload_master/upload_form/state_form.html" %}
+                <!-- City File Content Here -->
+                {% include "upload_master/upload_form/city_form.html" %}
+                <!-- Sea Port Content Here -->
+                {% include "upload_master/upload_form/seaport_form.html" %}
+                <!-- Air Port Content Here -->
+                {% include "upload_master/upload_form/airport_form.html" %}
+                <!-- Locations Content Here -->
+                {% include "upload_master/upload_form/location_form.html" %}
+                <!-- Currency Content Here -->
+                {% include "upload_master/upload_form/currency_form.html" %}
+                <!-- Shipping Lines Content Here -->
+                {% include "upload_master/upload_form/shippingline_form.html" %}
+                <!-- Air Lines Content Here -->
+                {% include "upload_master/upload_form/airline_form.html" %}
+                <!-- Billing Head Content Here -->
+                {% include "upload_master/upload_form/billinghead_form.html" %}
+                <!-- Party Master Content Here -->
+                {% include "upload_master/upload_form/party_form.html" %}
+                <!-- Job Master Content Here -->
+                {% include "upload_master/upload_form/job_form.html" %}
+                <!-- Rec. Invoice Content Here -->
+                {% include "upload_master/upload_form/rinv_form.html" %}
+                <!-- Pay. Invoice Content Here -->
+                {% include "upload_master/upload_form/pay_invoice_form.html" %}
+                <!-- Credit Note Content Here -->
+                {% include "upload_master/upload_form/crn_form.html" %}
+                <!-- Debit Note Content Here -->
+                {% include "upload_master/upload_form/drn_form.html" %}
+                <!-- Ledger Category Content Here -->
+                {% include "upload_master/upload_form/ledger_categories_form.html" %}
+                {% include "upload_master/upload_form/match_data_form.html" %}
+            </div>
+            <div class="text-right">
+
+                <button type="submit" class="btn btn-primary mt-5">Upload Files</button>
+            </div>
+        </div>
+
+    </div>
+  
+</form>
+
+
+
+
+{% endblock %}

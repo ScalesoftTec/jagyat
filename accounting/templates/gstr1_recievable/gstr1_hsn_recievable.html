@@ -1,0 +1,171 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+{% block dashoard_title %}
+GSTR1 HSN Wise List -
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    GSTR1 HSN Wise List
+</h1>
+
+<style>
+  table td,
+  th {
+    font-size: 13px !important;
+    padding: 1px !important;
+  }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<div class="mb-2">
+
+
+  <form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    <input type="hidden" id="selected_fields" name="selected_fields" value="">
+    <input type="hidden" id="list_selected" name="list_selected" value="0">
+    <div class="row">
+      <div class="col-2">
+        <label for="choose_company">Choose GST Code</label>
+        <select name="choose_company" class="form-control form-control-sm" id="choose_company" >
+            {% if choose_company == 'All' %}
+            <option value="All" selected>All</option>
+            {% else %}
+            <option value="All">All</option>
+            {% endif %}
+            {% for data in companies_gst_code %}
+            {% if choose_company == data.company_gst_code %}
+            <option value="{{data.company_gst_code}}" selected>{{data.company_gst_code}}</option>
+            {% else %}
+            <option value="{{data.company_gst_code}}">{{data.company_gst_code}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+      </div>
+      <div class="col-2">
+        <label for="from_date">From</label>
+        <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" required id="from_date" class="form-control form-control-sm" />
+      </div>
+      <div class="col-2">
+        <label for="to_date">To</label>
+      <input type="date" name="to_date" required id="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" />
+      </div>
+      <div class="col-md-3">
+        <button type="submit" id="submitBtn" class="btn btn-primary mt-4 btn-sm">Filter</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% if report %}
+<div class="table-responsive">
+
+
+  <table class="table table-primary table-bordered compact display" id="gstr1_hsn_table">
+    <thead>
+      <tr>
+       
+        <th scope="col">HSN Code</th>
+        <th scope="col">Head Name</th>
+        <th scope="col">No. of Bills</th>
+        <th scope="col">Rate %</th>
+        <th scope="col">Total Taxable Value</th>
+        <th scope="col">IGST</th>
+        <th scope="col">CGST</th>
+        <th scope="col">SGST</th>
+
+
+   
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for data in report %}
+      <tr>
+
+          <td>{{data.billing_head__hsn_code}}</td>
+          <td>{{data.billing_head__billing_head}}</td>
+          <td align="center">{{data.invoice_count}}</td>
+          <td  align="center">{{data.gst}}</td>
+          <td align="right" data-order="{{data.taxable_value|floatformat:2}}">{{data.taxable_value|floatformat:2|intcomma}}</td>
+          <td align="right" data-order="{{data.igst_amount_sum|floatformat:2}}">{{data.igst_amount_sum|floatformat:2}}</td>
+          <td align="right" data-order="{{data.csgst_amount_sum|floatformat:2}}">{{data.csgst_amount_sum|floatformat:2|intcomma}}</td>
+          <td align="right" data-order="{{data.csgst_amount_sum|floatformat:2}}">{{data.csgst_amount_sum|floatformat:2|intcomma}}</td>
+          
+        </tr>
+        {% endfor %}
+
+    </tbody>
+
+
+    <tfoot>
+      <tr>
+        <td style="color: white;" align="right" colspan="4">Total</td>
+       
+        <td style="color: white;" class="text-right" align="right"></td>
+        <td style="color: white;" class="text-right" align="right">{{data.hsn_code}}</td>
+        <td style="color: white;" class="text-right" align="right">{{data.hsn_code}}</td>
+        <td style="color: white;" class="text-right" align="right">{{data.hsn_code}}</td>
+
+
+      </tr>
+    </tfoot>
+
+  </table>
+</div>
+{% endif %}
+
+<script src="https://cdn.datatables.net/plug-ins/1.13.4/api/sum().js"></script>
+<script>
+  var selected_ids = []
+  $(document).ready(function () {
+
+    jQuery.fn.dataTable.Api.register('sum()', function () {
+      return this.flatten().reduce(function (a, b) {
+        var x = parseFloat(a);
+        var y = parseFloat($(b).attr('data-order'));
+
+        return parseFloat(x + y).toFixed(2)
+      }, 0);
+    });
+
+  let table = new DataTable('#gstr1_hsn_table', {
+
+    dom: 'BQlfrtip',
+    lengthMenu: [
+      [10, 25, 50, -1],
+      [10, 25, 50, 'All'],
+    ],
+
+    drawCallback: function () {
+        var api = this.api();
+
+        var from_row = 4
+        var to_row = 7
+
+        for (var i = from_row; i <= to_row; i++) {
+          $(api.table().column(i).footer()).html(
+            api.column(i, { page: 'current' }).nodes().sum()
+          );
+        }
+
+
+      }
+  
+  
+  });
+ 
+  document.querySelector('.dtsb-title').style.display = 'none'
+})
+
+</script>
+
+{% endblock %}

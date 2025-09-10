@@ -1,0 +1,559 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load custom_tags %}
+
+{% block dashoard_title %}
+GSTR2 List -
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+  GSTR2 Payable List
+</h1>
+
+<style>
+  table td,
+  th {
+    font-size: 13px !important;
+    padding: 1px !important;
+  }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<div class="mb-2">
+
+
+  <form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    <input type="hidden" id="selected_fields" name="selected_fields" value="">
+    <input type="hidden" id="list_selected" name="list_selected" value="0">
+    <div class="row">
+      <div class="col-2">
+        <label for="filter_percent">Filter By %</label>
+        <select name="filter_percent" id="filter_percent" class="form-control form-control-sm">
+          {% if filter_percent == "All" %}
+          <option value="All" selected>All</option>
+          {% else %}
+          <option value="All">All</option>
+          {% endif %}
+
+          {% if filter_percent == "5" %}
+          <option value="5" selected>5%</option>
+          {% else %}
+          <option value="5">5%</option>
+          {% endif %}
+
+          {% if filter_percent == "12" %}
+          <option value="12" selected>12%</option>
+          {% else %}
+          <option value="12">12%</option>
+          {% endif %}
+
+          {% if filter_percent == "18" %}
+          <option value="18" selected>18%</option>
+          {% else %}
+          <option value="18">18%</option>
+          {% endif %}
+
+          {% if filter_percent == "28" %}
+          <option value="28" selected>28%</option>
+          {% else %}
+          <option value="28">28%</option>
+          {% endif %}
+
+        </select>
+      </div>
+
+      <div class="col-2">
+        <label class="required" for="company_gst_code">GST Code</label>
+        <select name="company_gst_code" class="form-control form-control-sm" id="company_gst_code" required>
+          {% if not company_gst_code or company_gst_code == "A" %}
+          <option value="A" selected>ALL</option>
+          {% else %}
+          <option value="A">ALL</option>
+          {% endif %}
+          {% for i in companies_gst_code %}
+          {% if i.company_gst_code == company_gst_code and company_gst_code %}
+          <option value="{{i.company_gst_code}}" selected>{{i.company_gst_code}}</option>
+          {% else %}
+          <option value="{{i.company_gst_code}}" >{{i.company_gst_code}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-2">
+        <label class="required" for="invoice_status">Status</label>
+        <select name="invoice_status" class="form-control form-control-sm" id="invoice_status" required>
+          {% if  invoice_status == "A" %}
+          <option value="A" selected>ALL</option>
+          {% else %}
+          <option value="A">ALL</option>
+          {% endif %}
+          
+          {% if  invoice_status == "F" %}
+          <option value="F" selected>Final</option>
+          {% else %}
+          <option value="F">Final</option>
+          {% endif %}
+          {% if  invoice_status == "U" %}
+          <option value="U" selected>Unfinal</option>
+          {% else %}
+          <option value="U">Unfinal</option>
+          {% endif %}
+          
+        </select>
+      </div>
+
+      <div class="col-2">
+        <label for="from_date">From</label>
+        <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" required id="from_date" class="form-control form-control-sm" />
+      </div>
+      <div class="col-2">
+        <label for="to_date">To</label>
+      <input type="date" name="to_date" required id="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" />
+      </div>
+
+      <div class="col-md-12 col-sm-12 row" id="action_form" style="display: none;">
+        <div class="col-2">
+          <label for="status">Update Status To</label>
+          <select name="status" id="status" class="form-control form-control-sm" required>
+            <option value="F" selected>Finalize</option>
+            <option value="U">Unfinal</option>
+            
+          </select>
+        </div>
+
+        <div class="col-2">
+          <label for="claim_date">Claim Date</label>
+          <input type="date" class="form-control form-control-sm" name="claim_date" value="{{today_date|date:'Y-m-d'}}" required id="claim_date">
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <button type="submit" id="submitBtn" class="btn btn-primary mt-4 btn-sm">Filter</button>
+      </div>
+    </div>
+  </form>
+
+
+  
+
+
+
+
+</div>
+
+{% if report %}
+
+<div class="large-table-fake-top-scroll-container-3">
+  <div>&nbsp;</div>
+</div>
+<div class="table-responsive">
+
+
+  <table class="table table-primary table-bordered compact display" id="gstr2_table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th scope="col">Company GST Code</th>
+        <th scope="col">Bill No.</th>
+        <th scope="col">Type</th>
+        <th scope="col">Date</th>
+        <th scope="col">Job No</th>
+        <th scope="col">Job Type</th>
+        <th scope="col">Location</th>
+        <th scope="col">GST No.</th>
+        <th scope="col">State</th>
+        <th scope="col">Party Name</th>
+        <th scope="col">Currency</th>
+        <th scope="col">Total Amount</th>
+        {% if filter_percent == "All" %}
+        <th scope="col">Non Tax Amount</th>
+        {% endif %}
+
+        {% if filter_percent == "5" or filter_percent == "All" %}
+        <th scope="col">Taxable 5%</th>
+        <th scope="col">CGST 2.5%</th>
+        <th scope="col">SGST 2.5%</th>
+        <th scope="col">IGST 5%</th>
+        <th scope="col">Other 2.5%</th>
+        <th scope="col">Other 2.5%</th>
+        <th scope="col">Other 5%</th>
+        {% endif %}
+
+        {% if filter_percent == "12" or filter_percent == "All" %}
+        <th scope="col">Taxable 12%</th>
+        <th scope="col">CGST 6%</th>
+        <th scope="col">SGST 6%</th>
+        <th scope="col">IGST 12%</th>
+
+        <th scope="col">Other 6%</th>
+        <th scope="col">Other 6%</th>
+        <th scope="col">Other 12%</th>
+        {% endif %}
+
+        {% if filter_percent == "18" or filter_percent == "All" %}
+        <th scope="col">Taxable 18%</th>
+        <th scope="col">CGST 9%</th>
+        <th scope="col">SGST 9%</th>
+        <th scope="col">IGST 18%</th>
+        
+        <th scope="col">Other 9%</th>
+        <th scope="col">Other 9%</th>
+        <th scope="col">Other 18%</th>
+        {% endif %}
+
+        {% if filter_percent == "28" or filter_percent == "All" %}
+        <th scope="col">Taxable 28%</th>
+        <th scope="col">CGST 14%</th>
+        <th scope="col">SGST 14%</th>
+        <th scope="col">IGST 28%</th>
+
+        <th scope="col">Other 14%</th>
+        <th scope="col">Other 14%</th>
+        <th scope="col">Other 28%</th>
+        {% endif %}
+
+        <th scope="col">Total GST</th>
+        <th scope="col">Status</th>
+
+
+      </tr>
+    </thead>
+   
+    <tbody>
+      {% for data in report_list %}
+
+      {% if data.type == "D" %}
+     
+      {% if filter_percent == "All" %}
+      {% include 'report/gstr2_payable/gstr2_list.html' %}
+      {% endif %}
+
+      {% if filter_percent == "5" and data.taxable_5 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_list.html' %}
+      {% endif %}
+
+
+      {% if filter_percent == "12" and data.taxable_12 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_list.html' %}
+      {% endif %}
+
+
+
+      {% if filter_percent == "18" and data.taxable_18 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_list.html' %}
+      {% endif %}
+
+      {% if filter_percent == "28" and data.taxable_28 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_list.html' %}
+      {% endif %}
+      
+      {% elif data.type == "OTH" %}
+     
+      {% if filter_percent == "All" %}
+      {% include 'report/gstr2_payable/gstr2_list_oth.html' %}
+      {% endif %}
+
+      {% if filter_percent == "5" and data.taxable_5 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_list_oth.html' %}
+      {% endif %}
+
+
+      {% if filter_percent == "12" and data.taxable_12 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_list_oth.html' %}
+      {% endif %}
+
+
+
+      {% if filter_percent == "18" and data.taxable_18 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_list_oth.html' %}
+      {% endif %}
+
+      {% if filter_percent == "28" and data.taxable_28 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_list_oth.html' %}
+      {% endif %}
+
+      {% elif data.type == "N" %}
+     
+      {% if filter_percent == "All" %}
+      {% include 'report/gstr2_payable/gstr2_note_list.html' %}
+      {% endif %}
+
+      {% if filter_percent == "5" and data.taxable_5 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_note_list.html' %}
+      {% endif %}
+
+
+      {% if filter_percent == "12" and data.taxable_12 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_note_list.html' %}
+      {% endif %}
+
+
+
+      {% if filter_percent == "18" and data.taxable_18 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_note_list.html' %}
+      {% endif %}
+
+      {% if filter_percent == "28" and data.taxable_28 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_note_list.html' %}
+      {% endif %}
+
+      {% else %}
+
+
+     
+      {% if filter_percent == "All" %}
+      {% include 'report/gstr2_payable/gstr2_expense_list.html' %}
+      {% endif %}
+
+      {% if filter_percent == "5" and data.taxable_5 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_expense_list.html' %}
+      {% endif %}
+
+
+      {% if filter_percent == "12" and data.taxable_12 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_expense_list.html' %}
+      {% endif %}
+
+
+
+      {% if filter_percent == "18" and data.taxable_18 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_expense_list.html' %}
+      {% endif %}
+
+      {% if filter_percent == "28" and data.taxable_28 > 0 %}
+      {% include 'report/gstr2_payable/gstr2_expense_list.html' %}
+      {% endif %}
+
+      {% endif %}
+      
+      {% endfor %}
+
+ 
+
+    </tbody>
+
+
+    <tfoot>
+      <tr>
+        <td colspan="12" style="color:white!important;">Total</td>
+       
+        <td class="text-right" style="color:white!important;"></td>
+        {% if filter_percent == "All" %}
+        <td class="text-right" style="color:white!important;"></td>
+        {% endif %}
+
+        {% if filter_percent == "5" or filter_percent == "All" %}
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        {% endif %}
+
+        {% if filter_percent == "12" or filter_percent == "All" %}
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        {% endif %}
+
+        {% if filter_percent == "18" or filter_percent == "All" %}
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        {% endif %}
+
+        {% if filter_percent == "28" or filter_percent == "All" %}
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        <td class="text-right" style="color:white!important;"></td>
+        {% endif %}
+
+        <td class="text-right" style="color:white!important;"></td>
+        <td></td>
+        
+
+
+      </tr>
+    </tfoot>
+
+  </table>
+</div>
+{% endif %}
+
+
+{% endblock %}
+
+{% block js %}
+<script src="https://cdn.datatables.net/plug-ins/1.13.4/api/sum().js"></script>
+<script>
+  var selected_ids = []
+  $(document).ready(function () {
+
+    jQuery.fn.dataTable.Api.register('sum()', function () {
+      return this.flatten().reduce(function (a, b) {
+        var x = parseFloat(a);
+        var y = parseFloat($(b).attr('data-order'));
+
+        return parseFloat(x + y).toFixed(2)
+      }, 0);
+    });
+
+  let table = new DataTable('#gstr2_table', {
+
+    dom: 'BQlfrtip',
+    lengthMenu: [
+      [10, 25, 50, -1],
+      [10, 25, 50, 'All'],
+    ],
+    select: {
+      style: 'multi',
+
+    },
+    buttons: [
+          {
+            extend: 'collection',
+            text: 'Export',
+            buttons: [
+                'copy',
+                'excel',
+                'csv',
+                'pdf',
+                'print'
+            ]
+        },
+          {
+              text: 'Select all',
+              action: function () {
+                  selected_ids = []
+                  table.rows().select();
+
+              }
+          },
+          {
+              text: 'Deselect all',
+              action: function () {
+                  table.rows().deselect();
+                  selected_ids = []
+              }
+          },
+
+      ],
+      drawCallback: function () {
+        var api = this.api();
+
+        var from_row = 12
+        var to_row = 42
+
+        for (var i = from_row; i <= to_row; i++) {
+          $(api.table().column(i).footer()).html(
+            api.column(i, { page: 'current' }).nodes().sum()
+          );
+        }
+
+
+      }
+
+  });
+  table.on('select', function (e, dt, type, indexes) {
+    var rowData = table.rows(indexes).data().toArray();
+    console.log(rowData)
+    indexes.map(index => {
+
+      var selected_fields = document.getElementById('selected_fields')
+
+      var indexValue = document.getElementById(`invoice_${index + 1}`).value
+      var index_type = document.getElementById(`invoice_type_${index + 1}`).value
+      var value = {'id':indexValue,'type':index_type}
+      selected_ids.push(JSON.stringify(value))
+      selected_fields.value = selected_ids
+
+
+    })
+
+    if (selected_ids.length > 0) {
+      var action_form = document.getElementById('action_form')
+      action_form.style.display = 'flex'
+      document.getElementById('status').required = true
+      document.getElementById('list_selected').value = 1
+      document.getElementById('submitBtn').innerText = "Update"
+    }
+  })
+    .on('deselect', function (e, dt, type, indexes) {
+      var rowData = table.rows(indexes).data().toArray();
+      console.log("Index Length is : " + indexes[0])
+      indexes.map(index => {
+
+        var selected_fields = document.getElementById('selected_fields')
+
+        var indexValue = document.getElementById(`invoice_${index + 1}`).value
+        var index_type = document.getElementById(`invoice_type_${index + 1}`).value
+        var value = {'id':indexValue,'type':index_type}
+  
+     
+      
+        selected_ids = selected_ids.filter(item => {
+          var curr_item = JSON.parse(item)
+          if(!( curr_item.id == value.id && curr_item.type == value.type)){
+            return item
+          }
+        })
+
+
+  
+        selected_fields.value = selected_ids
+    
+
+      })
+
+      if (selected_ids.length == 0) {
+        var action_form = document.getElementById('action_form')
+        action_form.style.display = 'none'
+        document.getElementById('status').required = false
+        document.getElementById('list_selected').value = 0
+        document.getElementById('submitBtn').innerText = "Filter"
+      }
+
+    })
+
+  document.querySelector('.dtsb-title').style.display = 'none'
+})
+
+$(function() {
+  var tableContainer = $(".table-responsive");
+  var table = $(".table-responsive table");
+  var fakeContainer = $(".large-table-fake-top-scroll-container-3");
+  var fakeDiv = $(".large-table-fake-top-scroll-container-3 div");
+
+  var tableWidth = table.width();
+  fakeDiv.width(tableWidth);
+
+  fakeContainer.scroll(function() {
+tableContainer.scrollLeft(fakeContainer.scrollLeft());
+  });
+})
+
+
+</script>
+
+{% endblock %}

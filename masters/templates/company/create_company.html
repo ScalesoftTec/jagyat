@@ -1,0 +1,511 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+
+    {% if update %}
+    Update Company
+    {% else %}
+    Create New Company
+    {% endif %}
+
+
+</h1>
+
+<a href="{% url 'masters:company_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<style>
+    .form-input {
+        width: 250px;
+        padding: 20px;
+        background: #fff;
+        border: 2px dashed #4A0577;
+      }
+      
+      .form-input input {
+        display: none;
+      }
+      
+      .form-input label {
+        display: block;
+        width: 100%;
+        height: 50px;
+        line-height: 50px;
+        text-align: center;
+        background: #4A0577;
+        color: #fff;
+        font-size: 0.90rem;
+        font-family: "Poppins", sans-serif;
+        text-transform: Uppercase;
+        font-weight: 600;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      
+      .form-input img {
+        width: 100%;
+        display: none;
+        margin-top: 10px;
+      }
+      
+</style>
+
+{% if update %}
+    
+    <form enctype="multipart/form-data" action="{% url 'masters:update_company' module=module id=logistics.id %}" method="post" onsubmit="return checkValidations()">
+    {% else %}
+    
+    <form enctype="multipart/form-data" action="{% url 'masters:create_company' module=module %}" method="post" onsubmit="return checkValidations()">
+    {% endif %}
+    {% csrf_token %}
+
+    <div class="row">
+        <div class="col-md-3 col-sm-12 mb-3">
+            <div class="form-input">
+                <label for="company_logo">Company Logo</label>
+                <input type="file" id="company_logo" name="company_logo" accept="image/*" onchange="showCompanyLogo(event);"
+                    >
+                <div class="preview">
+                    {% if update %}
+                    <img id="company_logo-preview" src="{{logistics.logo.url}}">
+                    {% else %}
+                    <img id="company_logo-preview" src="">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <div class="form-input">
+                <label for="company_letter_head">Company Letter Head</label>
+                <input type="file" id="company_letter_head" name="company_letter_head" accept="image/*" onchange="showCompanyLetterHead(event);"
+                    >
+                <div class="preview">
+                    {% if update %}
+                    <img id="company_letter_head-preview" src="{{logistics.letter_head.url}}">
+                    {% else %}
+                    <img id="company_letter_head-preview" src="">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <div class="form-input">
+                <label for="company_stamp">Company Stamp</label>
+                <input type="file" id="company_stamp" name="company_stamp" accept="image/*" onchange="showCompanyStamp(event);"
+                    >
+                <div class="preview">
+                    {% if update %}
+                    <img id="company_stamp-preview" src="{{logistics.stamp.url}}">
+                    {% else %}
+                    <img id="company_stamp-preview" src="">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <div class="form-input">
+                <label for="mbl_final_image">MBL Final Image</label>
+                <input type="file" id="mbl_final_image" name="mbl_final_image" accept="image/*" onchange="showMBLFinalImage(event);"
+                    >
+                <div class="preview">
+                    {% if update %}
+                    <img id="mbl_final_image-preview" src="{{logistics.mbl_final_image.url}}">
+                    {% else %}
+                    <img id="mbl_final_image-preview" src="">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="company_name">Company Name</label>
+            <input type="text" id="company_name" name="company_name" class="form-control" value="{{ logistics.company_name }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="branch_name">Branch Name</label>
+            <input type="text" id="branch_name" name="branch_name" class="form-control" value="{{ logistics.branch_name }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="gstin_no">GSTIN</label>
+            <input type="text" id="gstin_no" name="gstin_no" class="form-control" value="{{ logistics.gstin_no }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="branch_email">Email</label>
+            <input type="text" id="branch_email" name="branch_email" class="form-control" value="{{ logistics.branch_email }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="branch_name">Tax Policy</label>
+            <select class="form-control" name="tax_policy" id="tax_policy">
+                {% if logistics.tax_policy == 'GST' %}
+                <option value="GST" selected>GST</option>
+                {% else %}
+                <option value="GST">GST</option>
+                {% endif %}
+                
+                {% if logistics.tax_policy == 'VAT' %}
+                <option value="VAT" selected>VAT</option>
+                {% else %}
+                <option value="VAT">VAT</option>
+                {% endif %}
+                {% if logistics.tax_policy == 'NO TAX' %}
+                <option value="NO TAX" selected>NO TAX</option>
+                {% else %}
+                <option value="NO TAX">NO TAX</option>
+                {% endif %}
+                {% if logistics.tax_policy == 'OTHERS' %}
+                <option value="OTHERS" selected>OTHERS</option>
+                {% else %}
+                <option value="OTHERS">OTHERS</option>
+                {% endif %}
+            </select>
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="company_gst_code">Company GST Code</label>
+            <input type="text" id="company_gst_code" name="company_gst_code" class="form-control" value="{{ logistics.company_gst_code }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="pre_job">Pre Job Name</label>
+            <input type="text" id="pre_job" name="pre_job" class="form-control" value="{{ logistics.pre_job }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="mbl_prefix">MBL Prefix</label>
+            <input type="text" id="mbl_prefix" name="mbl_prefix" class="form-control" value="{{ logistics.mbl_prefix }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="pre_recievable_invoice">Pre Recievable Invoice Name</label>
+            <input type="text" id="pre_recievable_invoice" name="pre_recievable_invoice" class="form-control" value="{{ logistics.pre_recievable_invoice }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="rcm_cn_prefix">RCM Credit Note Prefix</label>
+            <input type="text" id="rcm_cn_prefix" name="rcm_cn_prefix" class="form-control" value="{{ logistics.rcm_cn_prefix }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="rcm_ri_prefix">RCM Rec. Invoice Prefix</label>
+            <input type="text" id="rcm_ri_prefix" name="rcm_ri_prefix" class="form-control" value="{{ logistics.rcm_ri_prefix }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="opening_invoice_no">Opening Invoice No.</label>
+            {% if  logistics.opening_invoice_no %}
+            <input type="text" id="opening_invoice_no" name="opening_invoice_no" class="form-control" value="{{ logistics.opening_invoice_no }}">
+            {% else %}
+            <input type="text" id="opening_invoice_no" name="opening_invoice_no" class="form-control" value="0">
+            {% endif %}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="pre_payable_invoice">Pre Payable Invoice Name</label>
+            <input type="text" id="pre_payable_invoice" name="pre_payable_invoice" class="form-control"  value="{{ logistics.pre_payable_invoice }}">
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="pre_payment_voucher">Pre Payment Voucher Name</label>
+            <input type="text" id="pre_payment_voucher" name="pre_payment_voucher" class="form-control"  value="{{ logistics.pre_payment_voucher }}">
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="pre_recieve_voucher">Pre Reciept Voucher Name</label>
+            <input type="text" id="pre_recieve_voucher" name="pre_recieve_voucher" class="form-control"  value="{{ logistics.pre_recieve_voucher }}">
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="pre_credit_note">Pre Credit Note Name</label>
+            <input type="text" id="pre_credit_note" name="pre_credit_note" class="form-control"  value="{{ logistics.pre_credit_note }}">
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="pre_debit_note">Pre Debit Note Name</label>
+            <input type="text" id="pre_debit_note" name="pre_debit_note" class="form-control"  value="{{ logistics.pre_debit_note }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="pre_inquiry">Pre Inquiry Name</label>
+            <input type="text" id="pre_inquiry" name="pre_inquiry" class="form-control"  value="{{ logistics.pre_inquiry }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="legal_name">Legal Name (as Per PAN Card)</label>
+            <input type="text" id="legal_name" name="legal_name" class="form-control"  value="{{ logistics.legal_name }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="pin_code">PIN CODE</label>
+            <input type="text" id="pin_code" name="pin_code" class="form-control"  value="{{ logistics.pin_code }}">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="phone">Phone</label>
+            <input type="text" id="phone" name="phone" class="form-control"  value="{{ logistics.phone }}">
+        </div>
+        <div class="col-md-6 col-sm-12 mb-3">
+            <label for="address_line_1">Address Line 1</label>
+            <input type="text" id="address_line_1" name="address_line_1" class="form-control"  value="{{ logistics.address_line_1 }}">
+        </div>
+        <div class="col-md-6 col-sm-12 mb-3">
+            <label for="address_line_2">Address Line 2</label>
+            <input type="text" id="address_line_2" name="address_line_2" class="form-control"  value="{{ logistics.address_line_2 }}">
+        </div>
+        <div class="row col-12">
+
+            <div class="col-md-6 col-sm-12 mb-3">
+                <label for="open_time">Opening Time</label>
+                <input type="time" id="open_time" name="open_time" class="form-control"  value="{{ logistics.open_time|time:'h:i:s' }}">
+            </div>
+            <div class="col-md-6 col-sm-12 mb-3">
+                <label for="close_time">Closing Time</label>
+                <input type="time" id="close_time" name="close_time" class="form-control"  value="{{ logistics.close_time|time:'h:i:s' }}">
+            </div>
+            <div class="col-md-6 col-sm-12 mb-3">
+                <label for="for_company">For Company</label>
+                <input type="text" id="for_company" name="for_company" class="form-control"  value="{{ logistics.for_company }}">
+            </div>
+            <div class="col-md-6 col-sm-12 mb-3">
+                <label for="vgm_authorized_shipper">Authorized Shipper Name For VGM</label>
+                <input type="text" id="vgm_authorized_shipper" name="vgm_authorized_shipper" class="form-control"  value="{{ logistics.vgm_authorized_shipper }}">
+            </div>
+        </div>
+
+        
+        {% if update %}
+        <div class="col-auto mb-3">
+            {% if logistics.is_connected_to_tally %}
+            <input type="checkbox" name="is_connected_to_tally" checked id="is_connected_to_tally">
+            {% else %}
+            <input type="checkbox" name="is_connected_to_tally" id="is_connected_to_tally">
+            {% endif %}
+            <label for="is_connected_to_tally">Is Connected to Tally</label>
+        </div>
+        {% else %}
+        <div class="col-auto mb-3">
+            <input type="checkbox" name="is_connected_to_tally" id="is_connected_to_tally">
+            <label for="is_connected_to_tally">Is Connected to Tally</label>
+        </div>
+        {% endif %}
+
+
+        {% if update %}
+        <div class="col-auto mb-3">
+            {% if logistics.is_job_approve_required %}
+            <input type="checkbox" name="is_job_approve_required" checked id="is_job_approve_required">
+            {% else %}
+            <input type="checkbox" name="is_job_approve_required" id="is_job_approve_required">
+            {% endif %}
+            <label for="is_job_approve_required">Is Job Approve Reuired</label>
+        </div>
+        {% else %}
+        <div class="col-auto mb-3">
+            <input type="checkbox" name="is_job_approve_required" id="is_job_approve_required">
+            <label for="is_job_approve_required">Is Job Approve Reuired</label>
+        </div>
+        {% endif %}
+
+        {% if update %}
+        <div class="col-auto mb-3">
+            {% if logistics.is_rec_inv_approve_required %}
+            <input type="checkbox" name="is_rec_inv_approve_required" checked id="is_rec_inv_approve_required">
+            {% else %}
+            <input type="checkbox" name="is_rec_inv_approve_required" id="is_rec_inv_approve_required">
+            {% endif %}
+            <label for="is_rec_inv_approve_required">Is Rec. Invoice Approve Required</label>
+        </div>
+        {% else %}
+        <div class="col-auto mb-3">
+            <input type="checkbox" name="is_rec_inv_approve_required" id="is_rec_inv_approve_required">
+            <label for="is_rec_inv_approve_required">Is Rec. Invoice Approve Required</label>
+        </div>
+        {% endif %}
+
+        {% if update %}
+        <div class="col-auto mb-3">
+            {% if logistics.is_pay_inv_approve_required %}
+            <input type="checkbox" name="is_pay_inv_approve_required" checked id="is_pay_inv_approve_required">
+            {% else %}
+            <input type="checkbox" name="is_pay_inv_approve_required" id="is_pay_inv_approve_required">
+            {% endif %}
+            <label for="is_pay_inv_approve_required">Is Pay. Invoice Approve Required</label>
+        </div>
+        {% else %}
+        <div class="col-auto mb-3">
+            <input type="checkbox" name="is_pay_inv_approve_required" id="is_pay_inv_approve_required">
+            <label for="is_pay_inv_approve_required">Is Pay. Invoice Approve Required</label>
+        </div>
+        {% endif %}
+        {% if update %}
+        <div class="col-auto mb-3">
+            {% if logistics.is_can_approve_required %}
+            <input type="checkbox" name="is_can_approve_required" checked id="is_can_approve_required">
+            {% else %}
+            <input type="checkbox" name="is_can_approve_required" id="is_can_approve_required">
+            {% endif %}
+            <label for="is_can_approve_required">Is CAN Approve Required</label>
+        </div>
+        {% else %}
+        <div class="col-auto mb-3">
+            <input type="checkbox" name="is_can_approve_required" id="is_can_approve_required">
+            <label for="is_can_approve_required">Is CAN Approve Required</label>
+        </div>
+        {% endif %}
+
+        {% if update %}
+        <div class="col-auto mb-3">
+            {% if logistics.is_do_approve_required %}
+            <input type="checkbox" name="is_do_approve_required" checked id="is_do_approve_required">
+            {% else %}
+            <input type="checkbox" name="is_do_approve_required" id="is_do_approve_required">
+            {% endif %}
+            <label for="is_do_approve_required">Is DO Approve Required</label>
+        </div>
+        {% else %}
+        <div class="col-auto mb-3">
+            <input type="checkbox" name="is_do_approve_required" id="is_do_approve_required">
+            <label for="is_do_approve_required">Is DO Approve Required</label>
+        </div>
+        {% endif %}
+
+        {% if update %}
+        <div class="col-auto mb-3">
+            {% if logistics.is_fc_approve_required %}
+            <input type="checkbox" name="is_fc_approve_required" checked id="is_fc_approve_required">
+            {% else %}
+            <input type="checkbox" name="is_fc_approve_required" id="is_fc_approve_required">
+            {% endif %}
+            <label for="is_fc_approve_required">Is FC Approve Required</label>
+        </div>
+        {% else %}
+        <div class="col-auto mb-3">
+            <input type="checkbox" name="is_fc_approve_required" id="is_fc_approve_required">
+            <label for="is_fc_approve_required">Is FC Approve Required</label>
+        </div>
+        {% endif %}
+
+        {% if update %}
+        <div class="col-auto mb-3">
+            {% if logistics.is_crn_approve_required %}
+            <input type="checkbox" name="is_crn_approve_required" checked id="is_crn_approve_required">
+            {% else %}
+            <input type="checkbox" name="is_crn_approve_required" id="is_crn_approve_required">
+            {% endif %}
+            <label for="is_crn_approve_required">Is Credit Note Approve Required</label>
+        </div>
+        {% else %}
+        <div class="col-auto mb-3">
+            <input type="checkbox" name="is_crn_approve_required" id="is_crn_approve_required">
+            <label for="is_crn_approve_required">Is Credit Note Approve Required</label>
+        </div>
+        {% endif %}
+
+        {% if update %}
+        <div class="col-auto mb-3">
+            {% if logistics.is_drn_approve_required %}
+            <input type="checkbox" name="is_drn_approve_required" checked id="is_drn_approve_required">
+            {% else %}
+            <input type="checkbox" name="is_drn_approve_required" id="is_drn_approve_required">
+            {% endif %}
+            <label for="is_drn_approve_required">Is Debit Note Approve Required</label>
+        </div>
+        {% else %}
+        <div class="col-auto mb-3">
+            <input type="checkbox" name="is_drn_approve_required" id="is_drn_approve_required">
+            <label for="is_drn_approve_required">Is Debit Note Approve Required</label>
+        </div>
+        {% endif %}
+       
+        {% if update %}
+        <div class="col-auto mb-3">
+            {% if logistics.auto_journal %}
+            <input type="checkbox" name="auto_journal" checked id="auto_journal">
+            {% else %}
+            <input type="checkbox" name="auto_journal" id="auto_journal">
+            {% endif %}
+            <label for="auto_journal">Auto Journal</label>
+        </div>
+        {% else %}
+        <div class="col-auto mb-3">
+            <input type="checkbox" name="auto_journal" id="auto_journal">
+            <label for="auto_journal">Auto Journal</label>
+        </div>
+        {% endif %}
+
+    </div>
+    {% if update %}
+    <input type="hidden" name="isUpdate" id="isUpdate" value="true" />
+    <button type="submit" class="btn btn-primary">Update Company</button>
+    {% else %}
+    <input type="hidden" name="isUpdate" id="isUpdate" value="false" />
+    <button type="submit" class="btn btn-primary">Create Company</button>
+    {% endif %}
+</form>
+
+
+<script>
+    var company_logo = document.getElementById("company_logo-preview");
+    company_logo.style.display = "block";
+    function showCompanyLogo(event) {
+        if (event.target.files.length > 0) {
+            var src = URL.createObjectURL(event.target.files[0]);
+            var company_logo = document.getElementById("company_logo-preview");
+            company_logo.src = src;
+            company_logo.style.display = "block";
+        }
+    }
+    var company_letter_head = document.getElementById("company_letter_head-preview");
+    company_letter_head.style.display = "block";
+    function showCompanyLetterHead(event) {
+        if (event.target.files.length > 0) {
+            var src = URL.createObjectURL(event.target.files[0]);
+            var company_letter_head = document.getElementById("company_letter_head-preview");
+            company_letter_head.src = src;
+            company_letter_head.style.display = "block";
+        }
+    }
+    var company_stamp = document.getElementById("company_stamp-preview");
+    company_stamp.style.display = "block";
+    function showCompanyStamp(event) {
+        if (event.target.files.length > 0) {
+            var src = URL.createObjectURL(event.target.files[0]);
+            var company_stamp = document.getElementById("company_stamp-preview");
+            company_stamp.src = src;
+        }
+    }
+
+    var mbl_final_image = document.getElementById("mbl_final_image-preview");
+    mbl_final_image.style.display = "block";
+    function showMBLFinalImage(event) {
+        if (event.target.files.length > 0) {
+            var src = URL.createObjectURL(event.target.files[0]);
+            var mbl_final_image = document.getElementById("mbl_final_image-preview");
+            mbl_final_image.src = src;
+        }
+    }
+
+    const checkValidations = () => {
+        const isUpdate = document.getElementById('isUpdate').value;
+        if(isUpdate == 'false'){
+            if (!(document.getElementById('company_logo').value)) {
+                Snackbar.show({ text: 'Please Choose Company Logo.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+            event.preventDefault();
+            return false
+        }
+        if (!(document.getElementById('company_letter_head').value)) {
+            Snackbar.show({ text: 'Please Choose Company Letter Head.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+            event.preventDefault();
+            return false
+        }
+        if (!(document.getElementById('company_stamp').value)) {
+            Snackbar.show({ text: 'Please Choose Company Stamp.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+            event.preventDefault();
+            return false
+        }
+        if (!(document.getElementById('mbl_final_image').value)) {
+            Snackbar.show({ text: 'Please Choose MBL Final Image.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+            event.preventDefault();
+            return false
+        }
+    }
+    }
+</script>
+
+
+{% endblock %}

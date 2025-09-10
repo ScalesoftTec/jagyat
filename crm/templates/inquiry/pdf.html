@@ -1,0 +1,418 @@
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+<html>
+
+<head>
+    <title>Invoice 2- {{data.final_invoice_no}}</title>
+    <style>
+        
+        td{
+            vertical-align: top;
+            font-size: 9px!important;
+        }
+
+        .align-right {
+            text-align: right !important;
+            
+        }
+
+        div {
+            font-size: 9px !important;
+            line-height: 3px;
+        }
+
+        .border-right-r {
+            border: 0.5px solid black;
+            border-top: none;
+            border-right: none;
+            border-collapse: collapse;
+        }
+
+        @page {
+            size: a4 portrait;
+          
+            
+            @frame header_frame {
+      
+                -pdf-frame-content: header_content;
+                left: 10pt;
+                right: 10pt;
+                top: 40pt;
+                height: 0pt;
+                
+            }
+
+            @frame content_frame {
+              
+                left: 10pt;
+                right: 10pt;
+                top: 10pt;
+                bottom: 10pt;
+               
+              
+            }
+
+            @frame footer_frame {
+            
+                -pdf-frame-content: footer_content;
+                left: 10pt;
+                right: 10pt;
+               
+                height: 0pt;
+                bottom: 20pt;
+                border-top: 0px!important;
+                padding: 2px;
+            }
+        }
+
+        @page page2 {
+            size: a4 portrait;
+            
+
+            @frame header_frame {
+         
+                -pdf-frame-content: header_content2;
+                left: 20pt;
+                right: 20pt;
+                top:00pt;
+                height: 0pt;
+              
+            }
+
+            @frame content_frame {
+                font-family: Tahoma;
+                border: 1px solid black;
+                left: 20pt;
+                right: 20pt;
+                top: 40pt;
+                bottom: 40pt;
+                border-bottom: none !important;
+            }
+
+            @frame footer_frame {
+      
+                -pdf-frame-content: footer_content2;
+                left: 20pt;
+                right: 20pt;
+                top: 650pt;
+                height: 150pt;
+                bottom: 20pt;
+                border-top: none !important;
+                padding: 2px;
+            }
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <table style="padding: 1px;">
+       
+        <tr style="height: 120px;">
+        <td colspan="4"><img style="width: 100vw; height: 200px;" src="{{ head.letter_head.url }}" alt="" /></td>
+        </tr>
+        <tr> <td align="center" colspan="4" style="font-size: 14px;padding:10px;"> <strong style="text-decoration: underline;">Quotation</strong></td></tr>
+       
+       
+
+        <tr>
+            <td colspan="2">
+                <table>
+                    <tr style="margin-bottom: 5px;">
+                        <td style="width: 100px;" >Customer</td>
+                        <td >
+                            <div>:{{data.customer.party_name}}</div>
+                            {% if data.customer.address1 %}
+                            <div>&nbsp;{{data.customer.address1}}</div>
+                            {% else %}
+                            <div></div>
+                            {% endif %}
+
+                            {% if data.customer.address2 %}
+                            <div>&nbsp;{{data.customer.address2}}</div>
+                            {% else %}
+                            <div></div>
+                            {% endif %}
+
+                            {% if data.customer.address3 %}
+                            <div>&nbsp;{{data.customer.address3}}</div>
+                            {% else %}
+                            <div></div>
+                            {% endif %}
+
+                            
+                           </td>
+                    </tr>
+                    
+                   
+                    <tr>
+                        <td style="width: 100px;" >Port of Origin</td>
+                        <td>: {{data.origin}}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 100px;" >Final Destination</td>
+                        <td>: {{data.destination}}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 100px;" >Vessel Schedule</td>
+                        <td>: {{data.vessel_schedule}}</td>
+                    </tr>
+                    
+                   
+                    <tr>
+                        <td style="width: 100px;" >Shipping Line</td>
+                        <td>: {{data.shipping_line}}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 100px;" >Detention at Origin</td>
+                        <td>: {{data.detention_at_origin}}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 100px;" >Detention at POD</td>
+                        <td>: {{data.detention_at_pod}}</td>
+                    </tr>
+                </table>
+            </td>
+            <td colspan="2">
+                <table>
+                    <tr>
+                        <td style="width: 100px;" >Quotation  Number</td>
+                        <td>: {{data.quotation_no}}
+                       </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="width: 100px;" >Date</td>
+                        <td>: 
+                        {{data.date_of_inquiry|date:'d M , Y'}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 100px;" >Priority</td>
+                        <td>: {{data.priority}}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 100px;" >Freight Terms</td>
+                        <td>: {{data.freght_terms}}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 100px;" >Commodity</td>
+                        <td style="width:150px">: {{data.commodity}}</td>
+                    </tr>
+                    {% comment %} <tr>
+                        <td style="width: 100px;" >Master Number</td>
+                        <td>: {{mbl_no}}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 100px;" >House Number</td>
+                     
+                        <td>: {{hbl_data}}</td>
+                        
+                    </tr> {% endcomment %}
+                    <tr>
+                        <td style="width: 100px;" >Number of Packs</td>
+                        <td>: {{data.total_packages}}</td>
+                    </tr> 
+                    <tr>
+                        <td style="width: 100px;" >Weight / CBM</td>
+                        <td>: {{data.gross}}</td>
+                    </tr>
+                    
+                   
+                   
+                </table>    
+            </td>
+
+            
+        </tr>
+        <tr>
+            <td colspan="4"><div>Note:</div></td>
+        </tr>
+    </table>
+    
+    
+    
+    <table style="padding-top:1px; padding-left: 2px; padding-right: 2px; border-collapse:collapse; font-size: 8.5px; ">
+        <tr style="border: 1px solid black;">
+            <td style="width: 20px;">No</td>
+            <td>Charges Details</td>
+            <td style="width: 65px;">HSN/SAC</td>
+            <td style="width: 40px;">Curr.</td>
+            <td style="width: 70px;">Rate/Unit</td>
+            <td style="width: 30px;">Unit</td>
+            <td style="width: 70px;">Curr. Amt</td>
+            <td style="width: 40px;">ROE</td>
+            <td style="width: 70px;">Taxable Amt</td>
+            {% if data.bill_to_address.corp_state.gst_code == data.company_type.company_gst_code %}
+            <td style="width: 30px;">Rate</td>
+            <td style="width: 50px;">CGST</td>
+            <td style="width: 30px;">Rate</td>
+            <td style="width: s0px;">SGST</td>
+            {% else %}
+            <td style="width: 30px;">Rate</td>
+            <td style="width: 50px;">IGST</td>
+            {% endif %}
+            <td style="width: 70px;">Amt in  {{data.invoice_currency}}</td>
+        </tr>
+        {% for head in data.inquiry_reference.all %}
+        <tr style="font-size: 7.5px; border-left: 1px solid black;">
+            <td style="width: 20px;">{{forloop.counter}}</td>
+            <td style="">{{head.billing_head.billing_head}}</td>
+            <td style="width: 65px; text-align: center;">{{head.billing_head.hsn_code}}</td>
+            <td style="width: 40px; text-align: center;" >{{head.currency}}</td>
+            <td style="width: 70px;" align="right">{{head.rate|floatformat:2}}</td>
+            <td style="width: 30px;" align="right">{{head.qty_unit|floatformat:2}}</td>
+            <td style="width: 70px;" align="right">{{head.ex_rate|mul:head.rate|floatformat:2}}</td>
+            <td style="width: 40px;" align="right">
+                {% if head.ex_rate > 1 %}
+                {{head.ex_rate|floatformat:2}}
+                {% else %}
+                &nbsp;
+                {% endif %}
+                </td>
+            <td style="width: 70px;" align="right">
+                
+                {{head.amount|floatformat:2}}
+                
+            </td>
+            {% if data.bill_to_address.corp_state.gst_code == data.company_type.company_gst_code %}
+            <td style="width: 30px;" align="right">{{head.gst|div:2|floatformat:2}}</td>
+            <td style="width: 50px;" align="right">{{head.gst_amount|div:2|floatformat:2}}</td>
+            <td style="width: 30px;" align="right">{{head.gst|div:2|floatformat:2}}</td>
+            <td style="width: 50px;" align="right">{{head.gst_amount|div:2|floatformat:2}}</td>
+            {% else %}
+            <td style="width: 30px;" align="right">{{head.gst|floatformat:2}}</td>
+            <td style="width: 50px;" align="right">{{head.gst_amount|floatformat:2}}</td>
+            {% endif %}
+            <td style="width: 70px; border-right: 1px solid black;" align="right">{{head.total|floatformat:2}}</td>
+        </tr>
+        {% endfor %}
+
+        {% for value in blank %}
+
+        <tr style="font-size: 7.5px; border-left: 1px solid black;">
+            <td style="width: 20px;">&nbsp;</td>
+            <td>&nbsp;</td>
+            <td style="width: 65px; text-align: center;">&nbsp;</td>
+            <td style="width: 40px; text-align: center;" >&nbsp;</td>
+            <td style="width: 70px;" align="right">&nbsp;</td>
+            <td style="width: 30px;" align="right">&nbsp;</td>
+            <td style="width: 70px;" align="right">&nbsp;</td>
+            <td style="width: 40px;" align="right">&nbsp;</td>
+            <td style="width: 70px;">&nbsp;</td>
+            {% if data.bill_to_address.corp_state.gst_code == data.company_type.company_gst_code %}
+            <td style="width: 30px;" align="right">&nbsp;</td>
+            <td style="width: 50px;" align="right">&nbsp;</td>
+            <td style="width: 30px;" align="right">&nbsp;</td>
+            <td style="width: 50px;" align="right">&nbsp;</td>
+            {% else %}
+            <td style="width: 30px;" align="right">&nbsp;</td>
+            <td style="width: 50px;" align="right">&nbsp;</td>
+            {% endif %}
+            <td style="width: 70px; border-right: 1px solid black;" align="right">&nbsp;</td>
+        </tr>
+
+        {% endfor %}
+
+
+        <tr style="font-size: 7.5px; border: 1px solid black;">
+            <td colspan="8" align="right">TOTAL IN {{data.invoice_currency}}</td>
+            <td align="right">{{data.gross_amount|floatformat:0}}</td>
+            
+            {% if data.bill_to_address.corp_state.gst_code == data.company_type.company_gst_code %}
+            <td style="width: 30px;" align="right">&nbsp;</td>
+            <td style="width: 50px;" align="right">{{data.gst_amount|div:2|floatformat:0}}</td>
+            <td style="width: 30px;" align="right">&nbsp;</td>
+            <td style="width: 50px;" align="right">{{data.gst_amount|div:2|floatformat:0}}</td>
+            {% else %}
+            <td style="width: 30px;" align="right">&nbsp;</td>
+            <td style="width: 50px;" align="right">{{data.gst_amount|floatformat:0}}</td>
+            {% endif %}
+            <td style="width: 70px;" align="right">{{data.net_amount|floatformat:0}}</td>
+        </tr>
+
+    </table>
+
+    <div style="padding: 4px;">{{ data.net_amount|floatformat:0 |num_to_text }} ONLY</div>
+
+    <!-- 
+<table>
+    <tr style="border: 1px solid black; " >
+    <td style="width: 70px; padding: 0px; padding-left: 2px; padding-top: 2px;">HSN/SAC</td>
+    <td style="width: 90px; padding: 0px; padding-left: 2px; padding-top: 2px;">Taxable Amount</td>
+    <td style="width: 30px; padding: 0px; padding-left: 2px; padding-top: 2px;">Rate</td>
+    <td style="width: 50px; padding: 0px; padding-left: 2px; padding-top: 2px;">CGST</td>
+    <td style="width: 30px; padding: 0px; padding-left: 2px; padding-top: 2px;">Rate</td>
+    <td style="width: 50px; padding: 0px; padding-left: 2px; padding-top: 2px;">SGST</td>
+    <td style="width: 30px; padding: 0px; padding-left: 2px; padding-top: 2px;">Rate</td>
+    <td style="width: 50px; padding: 0px; padding-left: 2px; padding-top: 2px;">IGST</td>
+    <td style="width: 70px; padding: 0px; padding-left: 2px; padding-top: 2px;">Total</td>
+    </tr>
+    {% for item in invoice_detail %}
+    <tr style="border: 1px solid black; " >
+    <td style="width: 70px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">{{item.billing_head__hsn_code}}</td>
+    <td align="right" style="width: 90px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">{{item.taxable_amount|floatformat:2}}</td>
+    {% if data.bill_to_address.corp_state == data.company_type.company_gst_code %}
+    <td align="right" style="width: 30px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">{{item.gst|div:2|floatformat:2}}</td>
+    <td align="right" style="width: 50px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">{{item.gst_sum|div:2|floatformat:2}}</td>
+    <td align="right" style="width: 30px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">{{item.gst|div:2|floatformat:2}}</td>
+    <td align="right" style="width: 50px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">{{item.gst_sum|div:2|floatformat:2}}</td>
+    <td align="right" style="width: 30px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">&nbsp;</td>
+    <td align="right" style="width: 50px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">&nbsp;</td>
+    {% else %}
+    <td align="right" style="width: 30px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">&nbsp;</td>
+    <td align="right" style="width: 50px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">&nbsp;</td>
+    <td align="right" style="width: 30px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">&nbsp;</td>
+    <td align="right" style="width: 50px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">&nbsp;</td>
+    <td align="right" style="width: 30px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">{{item.gst|floatformat:2}}</td>
+    <td align="right" style="width: 50px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">{{item.gst_sum|floatformat:2}}</td>
+    {% endif %}
+    <td align="right" style="width: 70px; padding: 0px; padding-left: 2px; padding-right: 2px; padding-top: 2px;">{{item.gst_sum|floatformat:2}}</td>
+    </tr>
+
+    {% endfor %}
+</table> -->
+
+ 
+
+
+
+    <table >
+        
+        <tr>
+            <td style="width:70px">Terms</td>
+            <td colspan="3">{{data.company_type.terms_and_conditions|safe}}</td>
+            <td align="right" >
+                <h6 class="" style="font-size: 11px; margin-bottom:30px!important; text-align:right; font-weight:bold;">
+                    {{data.company_type.for_company}}
+                </h6>
+                
+                    <img width="120px"  height="120px" src="{{ head.stamp.url }}" alt="" />
+                
+                <h6 style="font-size: 11px; padding-top: 30px!important; text-align:right; font-weight:bold;">Auth. Sign.</h6>
+            </td>
+        </tr>
+      
+    </table>
+    
+
+    <h6 style="font-size: 8px; font-weight:bold;">  This is computer generated invoice no signature required</h6>
+
+    
+    <div id="footer_content">
+        <h5 style="color:rgb(61, 60, 60);font-size: 12px;font-weight: 400;">
+            Powered By (Easyfreightlook) Scalesoft Technologies Pvt Ltd</h5>
+    </div>
+   
+
+    
+
+  
+
+
+</body>
+
+</html>

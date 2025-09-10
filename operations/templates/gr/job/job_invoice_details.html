@@ -1,0 +1,137 @@
+<div  class="tab-pane fade" id="job_invoice_details" role="tabpanel" aria-labelledby="job_invoice_details-tab">
+    
+    {% if update and data.job_invoice.all|length > 0 %}
+    <input type="hidden" value="{{data.job_invoice.all|length}}" name="total_job_invoice_details_rows" id="total_job_invoice_details_rows" />
+    {% else %}
+    <input type="hidden" value="1" name="total_job_invoice_details_rows" id="total_job_invoice_details_rows" />
+    {% endif %}
+    <div class="table-responsive">
+    <table class="table  table-bordered" id="job_invoice_table">
+        <tr>
+            <th>Invoice No</th>
+            <th>Invoice Date</th>
+            <th>Value</th>
+            <th>Currency</th>
+            <th>Net Weight</th>
+            <th>Ship Bill No</th>
+            <th>Ship Bill Type</th>
+            <th>Ship Bill Date</th>
+           
+            <th>Action</th>
+        </tr>
+        {% if update and data.job_invoice.all|length > 0 %}
+        {% for j in data.job_invoice.all %}
+        <tr id="job_invoice_details-{{forloop.counter}}">
+            
+            <td>
+                <input type="hidden" name="job_invoice_details_is_active-{{forloop.counter}}" id="job_invoice_details_is_active-{{forloop.counter}}" value="yes">
+                <input type="text" value="{{j.invoice_no}}" name="invoice_no-{{forloop.counter}}" id="invoice_no-{{forloop.counter}}" class="form-control" />
+                
+            </td>
+            <td>
+                <input type="date" value="{{j.invoice_date|date:'Y-m-d' }}" name="invoice_date-{{forloop.counter}}" id="invoice_date-{{forloop.counter}}" class="form-control">
+            </td>
+            <td><input type="number" step="0.00001" value="{{j.value}}" name="value-{{forloop.counter}}" id="value-{{forloop.counter}}" class="form-control"></td>
+            <td><input type="text" value="{{j.curr}}" name="curr-{{forloop.counter}}" id="curr-{{forloop.counter}}" class="form-control"></td>
+            <td><input type="text" value="{{j.net_wt}}" name="net_wt-{{forloop.counter}}" id="net_wt-{{forloop.counter}}" class="form-control"></td>
+            <td><input type="text" value="{{j.ship_bill_no}}" name="ship_bill_no-{{forloop.counter}}" id="ship_bill_no-{{forloop.counter}}" class="form-control"></td>
+            <td><input type="text" value="{{j.ship_bill_type}}" name="ship_bill_type-{{forloop.counter}}" id="ship_bill_type-{{forloop.counter}}" class="form-control"></td>
+            <td><input type="date" value="{{j.ship_bill_date|date:'Y-m-d' }}" name="ship_bill_date-{{forloop.counter}}" id="ship_bill_date-{{forloop.counter}}" class="form-control"></td>
+            
+            <td><button type="button" class="btn btn-sm btn-danger" onclick="jobInvoiceDeleteRow({{forloop.counter}})">Remove</button></td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr id="job_invoice_details-1">
+            
+            <td>
+                <input type="hidden" name="job_invoice_details_is_active-1" id="job_invoice_details_is_active-1" value="yes">
+                <input type="text" name="invoice_no-1" id="invoice_no-1" class="form-control" />
+                
+            </td>
+            <td>
+                <input type="date" name="invoice_date-1" id="invoice_date-1" class="form-control">
+            </td>
+            <td><input type="number" step="0.00001" name="value-1" id="value-1" class="form-control"></td>
+            <td><input type="text" name="curr-1" id="curr-1" class="form-control"></td>
+            <td><input type="text" name="net_wt-1" id="net_wt-1" class="form-control"></td>
+            <td><input type="text" name="ship_bill_no-1" id="ship_bill_no-1" class="form-control"></td>
+            <td><input type="text" name="ship_bill_type-1" id="ship_bill_type-1" class="form-control"></td>
+            <td><input type="date" name="ship_bill_date-1" id="ship_bill_date-1" class="form-control"></td>
+            
+            <td><button type="button" class="btn btn-sm btn-danger" onclick="jobInvoiceDeleteRow(1)">Remove</button></td>
+        </tr>
+    {% endif %}
+    </table>
+    </div>
+    <div class="text-right">
+        <button class="btn btn-sm btn-primary" type="button" onclick="jobInvoiceAddRow()">Add More</button>
+    </div>
+</div>
+
+<script>
+    var jobInvoiceCurrentRow = parseInt(document.getElementById('total_job_invoice_details_rows').value) 
+    
+    var jobInvoiceavailableRowNumber = parseInt(document.getElementById('total_job_invoice_details_rows').value) || 0
+    
+    const jobInvoiceAddRow = () => {
+        jobInvoiceCurrentRow += 1
+        jobInvoiceavailableRowNumber += 1
+        var newRow =  document.getElementById('job_invoice_table').insertRow(-1)
+        newRow.id = `job_invoice_details-${jobInvoiceCurrentRow}`
+        newRow.classList.add("job_invoice_details-entry")
+        var job_invoice_no = newRow.insertCell(0)
+        var job_invoice_date = newRow.insertCell(1)
+        var value = newRow.insertCell(2)
+        var curr = newRow.insertCell(3)
+        var net_wt = newRow.insertCell(4)
+        var ship_bill_no = newRow.insertCell(5)
+        var ship_bill_type = newRow.insertCell(6)
+        var ship_bill_date = newRow.insertCell(7)
+        
+        var delete_cell = newRow.insertCell(8)
+        
+        job_invoice_no.innerHTML = `
+        <input type="hidden" name="job_invoice_details_is_active-${jobInvoiceCurrentRow}" id="job_invoice_details_is_active-${jobInvoiceCurrentRow}" value="yes">
+        <input type="text" name="invoice_no-${jobInvoiceCurrentRow}" id="invoice_no-${jobInvoiceCurrentRow}" class="form-control" />
+        `
+        job_invoice_date.innerHTML = `
+        <input type="date" name="invoice_date-${jobInvoiceCurrentRow}" id="invoice_date-${jobInvoiceCurrentRow}" class="form-control">
+        `
+        value.innerHTML = `
+        <input type="number" step="0.00001" name="value-${jobInvoiceCurrentRow}" id="value-${jobInvoiceCurrentRow}" class="form-control">
+        `
+        curr.innerHTML = `
+        <input type="text" name="curr-${jobInvoiceCurrentRow}" id="curr-${jobInvoiceCurrentRow}" class="form-control">
+        `
+        net_wt.innerHTML = `
+        <input type="text" name="net_wt-${jobInvoiceCurrentRow}" id="net_wt-${jobInvoiceCurrentRow}" class="form-control">
+        `
+        ship_bill_no.innerHTML = `
+        <input type="text" name="ship_bill_no-${jobInvoiceCurrentRow}" id="ship_bill_no-${jobInvoiceCurrentRow}" class="form-control">
+        `
+        ship_bill_type.innerHTML = `
+        <input type="text" name="ship_bill_type-${jobInvoiceCurrentRow}" id="ship_bill_type-${jobInvoiceCurrentRow}" class="form-control">
+        `
+        ship_bill_date.innerHTML = `
+        <input type="date" name="ship_bill_date-${jobInvoiceCurrentRow}" id="ship_bill_date-${jobInvoiceCurrentRow}" class="form-control">
+        `
+
+       
+
+        delete_cell.innerHTML = `
+            <div class="btn btn-sm btn-danger" onclick="jobInvoiceDeleteRow(${jobInvoiceCurrentRow})">Remove</div>
+        `
+        
+        document.getElementById('total_job_invoice_details_rows').value = jobInvoiceCurrentRow
+    }
+
+    
+
+    const jobInvoiceDeleteRow = (index) => {
+        document.getElementById(`job_invoice_details_is_active-${index}`).value = "no"
+        
+        document.getElementById(`job_invoice_details-${index}`).style.display = 'none'
+        jobInvoiceavailableRowNumber -= 1
+    }
+</script>

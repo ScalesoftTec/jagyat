@@ -1,0 +1,149 @@
+{% load custom_tags %}
+{% load humanize %}
+{% load mathfilters %}
+
+
+{% if data.invoice.is_cancel %}
+<tr class="strikeout bg-secondary">
+  {% else %}
+  <tr>
+  {% endif %}
+  <td>{{data.invoice.company_type}}</td>
+ 
+  <td align="center">
+    {% if data.invoice.is_cancel %}
+    Cancelled
+    {% else %}
+    Active
+    {% endif %}
+  </td>
+  <td>
+    
+    {{data.invoice.final_invoice_no}}
+    
+  </td>
+
+  <td>
+  
+    {{data.invoice.einvoice_date|date:"Y-m-d"}}
+   
+  </td>
+  <td>
+    {% if data.invoice.type_of_invoice == "TAX INVOICE" %}
+    REG
+    {% elif data.invoice.type_of_invoice == "BILL OF SUPPLY" %}
+    BOS
+    {% else  %}
+    RCM
+    {% endif %}
+  
+  </td>
+  <td>
+
+    {% if data.invoice.type_of_invoice == "BILL OF SUPPLY" and data.invoice.category == "B2B" %}
+    B2B/OTHER
+    {% else  %}
+    {{data.invoice.category}}
+    {% endif %}
+
+  </td>
+  <td>{{data.invoice.job_no.job_no}}</td>
+  <td>{{data.invoice.job_no.module}}</td>
+  <td>{{data.invoice.bill_to_address.branch}}</td>
+  <td>{{data.invoice.bill_to_address.corp_gstin}}</td>
+  <td>{{data.invoice.bill_to_address.corp_state.name}}</td>
+  <td>{{data.invoice.bill_to.party_name}}</td>
+  <td>{{data.invoice.invoice_currency}}</td>
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.invoice.net_amount}}" align="right">{{data.invoice.net_amount|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.invoice.net_amount|floatformat:2|intcomma}}</td>
+  {% endif %}
+
+  
+  {% if filter_percent == "All" %}
+  {% if data.invoice.is_cancel %}
+  <td data-order="0" align="right">{{data.non_taxable_amount|mul:data.invoice.currency_ex_rate|floatformat:2|intcomma}}
+    {% else %}
+    <td data-order="{{data.non_taxable_amount|mul:data.invoice.currency_ex_rate|floatformat:2}}" align="right">{{data.non_taxable_amount|mul:data.invoice.currency_ex_rate|floatformat:2|intcomma}}
+
+
+    {% endif %}
+  </td>
+  {% endif %} 
+
+  {% if filter_percent == "5" or filter_percent == "All" %}
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.taxable_5|floatformat:2}}" align="right">{{data.taxable_5|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.taxable_5|floatformat:2|intcomma}}</td>
+  {% endif %}
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.cs_5|floatformat:2}}" align="right">{{data.cs_5|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.cs_5|floatformat:2|intcomma}}</td>
+  {% endif %}
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.cs_5|floatformat:2}}" align="right">{{data.cs_5|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.cs_5|floatformat:2|intcomma}}</td>
+  {% endif %}
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.i_5|floatformat:2}}" align="right">{{data.i_5|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.i_5|floatformat:2|intcomma}}</td>
+  {% endif %}
+  {% endif %}
+
+  {% if filter_percent == "12" or filter_percent == "All" %}
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.taxable_12|floatformat:2}}" align="right">{{data.taxable_12|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.taxable_12|floatformat:2|intcomma}}</td>
+  {% endif %}
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.cs_12|floatformat:2}}" align="right">{{data.cs_12|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.cs_12|floatformat:2|intcomma}}</td>
+  {% endif %}
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.cs_12|floatformat:2}}" align="right">{{data.cs_12|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.cs_12|floatformat:2|intcomma}}</td>
+  {% endif %}
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.i_12|floatformat:2}}" align="right">{{data.i_12|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.i_12|floatformat:2|intcomma}}</td>
+  {% endif %}
+  {% endif %}
+
+  {% if filter_percent == "18" or filter_percent == "All" %}
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.taxable_18|floatformat:2}}" align="right">{{data.taxable_18|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.taxable_18|floatformat:2|intcomma}}</td>
+  {% endif %}
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.cs_18|floatformat:2}}" align="right">{{data.cs_18|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.cs_18|floatformat:2|intcomma}}</td>
+  {% endif %}
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.cs_18|floatformat:2}}" align="right">{{data.cs_18|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.cs_18|floatformat:2|intcomma}}</td>
+  {% endif %}
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.i_18|floatformat:2}}" align="right">{{data.i_18|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.i_18|floatformat:2|intcomma}}</td>
+  {% endif %}
+  {% endif %}
+
+  {% if not data.invoice.is_cancel %}
+  <td data-order="{{data.invoice.gst_amount|floatformat:2}}" align="right">{{data.invoice.gst_amount|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td data-order="0" align="right">{{data.invoice.gst_amount|floatformat:2|intcomma}}</td>
+  {% endif %}
+</tr>

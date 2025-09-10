@@ -1,0 +1,354 @@
+{% if update %}
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_job_no">Job No. * </label>
+    {{ form.job_no }}
+</div>
+{% endif %}
+
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_job_date">Job Date *</label>
+    {{ form.job_date }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_module">Module</label>
+    {{ form.module }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_account"> Account Party</label>
+    {{ form.account }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_account_address"> Account GST</label>
+    {{ form.account_address }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_importer"> Importer</label>
+    {{ form.importer }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_shipper"> Exporter</label>
+    {{ form.shipper }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_forwarder"> Agent</label>
+    {{ form.forwarder }}
+</div>
+
+{% if module == 'sea_export' or module == 'sea_import' %}
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_shipping_line">Shipping Line</label>
+    {{ form.shipping_line }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_vessel_voy_name">Vessel Voy</label>
+    {{ form.vessel_voy_name }}
+</div>
+
+{% elif module == 'air_export' or module == 'air_import' %}
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_air_line">Air Line</label>
+    {{ form.air_line }}
+</div>
+{% endif %}
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_place_of_reciept">Place of Reciept <a href="{% url 'masters:LocationCreatePopup' id='id_place_of_reciept' %}" id="add_place_receipt" onclick="return showAddPopup(this);"><i class="fas fa-plus ml-3"></i></a></label>
+    {{ form.place_of_reciept }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_port_of_loading">Port Of Loading <a href="{% url 'masters:PortCreatePopup' id='id_port_of_loading' %}" id="add_pol" onclick="return showAddPopup(this);"><i class="fas fa-plus ml-3"></i></a></label>
+    {{ form.port_of_loading }}
+    
+</div>
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_port_of_discharge">Port of Discharge <a href="{% url 'masters:PortCreatePopup' id='id_port_of_discharge' %}" id="add_pod" onclick="return showAddPopup(this);"><i class="fas fa-plus ml-3"></i></a></label>
+    {{ form.port_of_discharge }}
+</div>
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_final_destination">Final Destination <a href="{% url 'masters:LocationCreatePopup' id='id_final_destination' %}" id="add_final_destination" onclick="return showAddPopup(this);"><i class="fas fa-plus ml-3"></i></a></label>
+    {{ form.final_destination }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-3">
+    <label for="id_hbl_no">HBL No.</label>
+    {{ form.hbl_no }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-3">
+    <label for="id_hbl_date">HBL Date</label>
+    {{ form.hbl_date }}
+</div>
+
+
+
+<div class="col-md-3 col-sm-12 mb-3">
+    <label for="id_mbl_no">MBL No.</label>
+    {{ form.mbl_no }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-3">
+    <label for="id_mbl_date">MBL Date</label>
+    {{ form.mbl_date }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_eta_date">ETA Date</label>
+    {{ form.eta_date }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_ata_date">ATA Date</label>
+    {{ form.ata_date }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_etd_date">ETD Date</label>
+    {{ form.etd_date }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_atd_date">ATD Date</label>
+    {{ form.atd_date }}
+</div>
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_railout_date">Railout date</label>
+    {{ form.railout_date }}
+</div>
+
+
+
+<div class="col-md-3 col-sm-12 mb-3">
+    <label for="id_actual_arrival_pod_date">Port Arrival Date</label>
+    {{ form.actual_arrival_pod_date }}
+</div>
+
+
+{% if module != 'air_import' %}
+
+<div class="col-md-3 col-sm-12 mb-3">
+    <label for="id_gigm">GIGM</label>
+    {{ form.gigm }}
+</div>
+<div class="col-md-3 col-sm-12 mb-3">
+    <label for="id_gigm_date">GIGM Date</label>
+    {{ form.gigm_date }}
+</div>
+<div class="col-md-3 col-sm-12 mb-3">
+    <label for="id_ligm">LIGM</label>
+    {{ form.ligm }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-3">
+    <label for="id_ligm_date">LIGM Date</label>
+    {{ form.ligm_date }}
+</div>
+{% endif %}
+
+
+{% if module == 'air_import' %}
+<div class="col-md-3 col-sm-12 mb-3">
+    <label for="id_ligm">IGM No</label>
+    {{ form.igm_no }}
+</div>
+<div class="col-md-3 col-sm-12 mb-3">
+    <label for="id_ligm">IGM Date</label>
+    {{ form.igm_date }}
+</div>
+{% endif %}
+
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_port_out_date">Port Out Date</label>
+    {{ form.port_out_date }}
+</div>
+
+<!-- <div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_cfs_in_date">CFS In Date</label>
+    {{ form.cfs_in_date }}
+</div> -->
+
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_commodity">Commodity</label>
+    {{ form.commodity }}
+</div>
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_commodity_type">Commodity Type</label>
+    {{ form.commodity_type }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_no_of_packages">No Of Packages</label>
+    {{ form.no_of_packages }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_packages_type">Package Type</label>
+    {{ form.packages_type }}
+</div>
+
+
+
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_volume">Volume</label>
+    {{ form.volume }}
+</div>
+
+
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_net_weight">Net Weight</label>
+    {{ form.net_weight }}
+</div>
+
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_gross_weight">Gross Weight</label>
+    {{ form.gross_weight }}
+</div>
+<!-- <div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_cbm">Total CBM</label>
+    {{ form.cbm }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_oc_date">O/C Date</label>
+    {{ form.oc_date }}
+</div> -->
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_do_date">DO Validity</label>
+    {{ form.do_date }}
+</div>
+
+{% comment %} <div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_delivery">Delivery Agent</label>
+    {{ form.delivery }}
+</div> {% endcomment %}
+<!-- <div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_ams_no"> AMS No.</label>
+    {{ form.ams_no }}
+</div> -->
+    
+<!-- <div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_ams_date"> AMS Date</label>
+    {{ form.ams_date }}
+</div>
+    
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_isf_filed_by"> ISF Filed By</label>
+    {{ form.isf_filed_by }}
+</div>
+    
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_isf_no"> ISF No.</label>
+    {{ form.isf_no }}
+</div>
+    
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_isf_date"> ISF Date</label>
+    {{ form.isf_date }}
+</div> -->
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_container_return_date">Container Return Date</label>
+    {{ form.container_return_date }}
+</div>
+
+<!-- <div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_invoice_no">Invoice No</label>
+    {{ form.invoice_no }}
+</div>
+
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_invoice_date">Invoice Date</label>
+    {{ form.invoice_date }}
+</div> -->
+<!-- <div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_invoice_value">Invoice Value</label>
+    {{ form.invoice_value }}
+</div> -->
+<!-- <div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_asessable_value">Asessable Value</label>
+    {{ form.asessable_value }}
+</div> -->
+
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_shipment_type">Shipment Type</label>
+    {{ form.shipment_type }}
+</div>
+
+{% comment %} <div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_vessel_voy_date">Vessel Voy Date</label>
+    {{ form.vessel_voy_date }}
+</div> {% endcomment %}
+
+
+{% comment %} <div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_work_scope">Work Scope</label>
+    {{ form.work_scope }}
+</div> {% endcomment %}
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_status">Status</label>
+    {{ form.status }}
+</div>
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_hbl_status">HBL Status</label>
+    {{ form.hbl_status }}
+</div>
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_hbl_recieved_date">HBL Rec. Date</label>
+    {{ form.hbl_recieved_date }}
+</div>
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_hbl_location">HBL Location</label>
+    {{ form.hbl_location }}
+</div>
+
+
+
+<!-- <div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_ship_bill_no">B/E No.</label>
+    {{ form.ship_bill_no }}
+</div>
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_ship_bill_date">B/E Date</label>
+    {{ form.ship_bill_date }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_ship_bill_type">B/E Type</label>
+    {{ form.ship_bill_type }}
+</div> -->
+
+
+
+
+{% if module == 'air_export' or module == 'air_import' %}
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_flight_no">Flight No</label>
+    {{ form.flight_no }}
+</div>
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_flight_date">Flight Date</label>
+    {{ form.flight_date }}
+</div>
+
+<div class="col-md-3 col-sm-12 mb-1">
+    <label for="id_flight_date">Total CBM</label>
+    {{ form.cbm }}
+</div>
+{% endif %}
+

@@ -1,0 +1,188 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+Delivery Order List - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+  Delivery Order List
+</h1>
+
+<a href="{% url 'operations:create_do' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Delivery Order</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<div class="row ">
+ 
+    <div class="col-12">
+    
+  
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="choose_option" value="month" id="choose_option">
+            <div class="row">
+  
+                <div class="col-md-4 col-sm-12 mb-3"  id="choose_by_date">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12">
+                            <label for="from_date">From</label>
+                            <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control" id="from_date" >
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <label for="to_date">To</label>
+                            <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control" id="to_date" >
+                        </div>
+                    </div>
+                </div>
+  
+             
+  
+                <div class="col-md-3 col-sm-12 mb-3">
+                    <button type="submit" style="margin-top: 33px;" class=" btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+  
+  </div>
+
+<div class="table-responsive">
+
+
+
+
+<table class="table compact table-primary table-bordered" id="do_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Job No.</th>
+        <th scope="col">Job Date</th>
+        <th scope="col">DO Date</th>
+        <th scope="col">Container No.</th>
+        <th scope="col">Container Type</th>
+        <th scope="col">Company</th>
+     
+        <th scope="col">Actions</th>
+        <th scope="col">PDF</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in orders %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ data.job }}</td>
+        <td>{{ data.job.job_date }}</td>
+        <td>{{ data.date }}</td>
+        <td>{{ data.container_no }}</td>
+        <td>{{ data.container_type }}</td>
+        <td>{{ data.company_type }}</td>
+        
+        <td>
+            <a href="{% url 'operations:do_update' module=module id=data.id %}" class="btn btn-info mr-3"><i class="fas fa-edit"></i></a>
+
+            {% if request.user.user_account.can_delete %}
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.job}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ data.job }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'operations:do_delete' module=module id=data.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+        {% endif %}
+
+        </td>
+        <td>
+          <a class="btn btn-primary" href="{% url 'operations:do_pdf' id=data.id %}" target="_blank"><i class="fas fa-file-pdf"></i></a>
+        </td>
+      
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+</div>
+  {% endblock %}
+  
+  {% block js %}
+  
+  <script>
+  let table = new DataTable('#do_table', {
+      dom: 'BQlfrtip',
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+           
+        ]
+    },
+
+    ]
+
+});
+
+document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+
+
+  <script>
+    
+  
+    document.getElementById('months').value = document.getElementById('current_month').value
+
+    function changeDateFilterOption(){
+        var dateOption = document.getElementById('choose_option_date').checked
+
+        if(dateOption){
+            
+            document.getElementById('choose_option').value = 'date'
+            document.getElementById('choose_by_month').style.display = 'none'
+            document.getElementById('choose_by_date').style.display = 'block'
+            document.getElementById('from_date').required = true
+            document.getElementById('to_date').required = true
+            document.getElementById('months').required = false
+        }
+        else{
+            
+            document.getElementById('choose_option').value = 'month'
+            document.getElementById('choose_by_month').style.display = 'block'
+            document.getElementById('choose_by_date').style.display = 'none'
+            document.getElementById('from_date').required = false
+            document.getElementById('to_date').required = false
+            document.getElementById('months').required = true
+        }
+    }
+
+</script>
+{% endblock %}

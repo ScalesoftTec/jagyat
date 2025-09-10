@@ -1,0 +1,291 @@
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+<html>
+
+<head>
+    <title>Balance Sheet</title>
+    <style>
+            *{
+            font-family: Tahoma;
+        }
+        td{
+            vertical-align: top;
+            font-size: 14px!important;
+        }
+
+        .align-right {
+            text-align: right !important;
+            
+        }
+
+        div {
+            font-size: 9px !important;
+            line-height: 3px;
+        }
+
+        .border-right-r {
+            border: 0.5px solid black;
+            border-top: none;
+            border-right: none;
+            border-collapse: collapse;
+        }
+        .flex-container {
+        display: flex;
+        flex-direction: row;
+   
+       
+        }
+
+        .flex-container > div {
+            line-height: 20px;
+       
+        margin: 10px;
+        padding: 10px;
+        font-size: 10px;
+        }
+       
+
+
+        @page {
+            size: a4 portrait;
+          
+            
+            @frame header_frame {
+      
+                -pdf-frame-content: header_content;
+                left: 15pt;
+                right: 15pt;
+                top: 15pt;
+                height: 00pt;
+            }
+
+            @frame content_frame {
+              
+                left: 20pt;
+                right: 20pt;
+                top: 20pt;
+                bottom: 10pt;
+                height: 770pt;
+               
+              
+            }
+
+            @frame footer_frame {
+            
+                -pdf-frame-content: footer_content;
+                left: 10pt;
+                right: 10pt;
+                top: 790pt;
+                height:50pt;
+                bottom: 20pt;
+                border-top: 0px!important;
+                padding: 2px;
+            }
+        }
+
+        @page innerpages {
+            @frame header_frame {
+                -pdf-frame-content: headerOther;
+                left: 20pt;
+                right: 20pt;
+                top: 20pt;
+                
+                height: 110pt;
+            }
+            @frame content_frame {
+              
+              left: 20pt;
+              right: 20pt;
+              top: 90pt;
+              bottom: 10pt;
+              height: 710pt;
+             
+            
+          }
+
+          @frame footer_frame {
+            
+            -pdf-frame-content: footer_content;
+            left: 10pt;
+            right: 10pt;
+            top: 790pt;
+            height:50pt;
+            bottom: 20pt;
+            border-top: 0px!important;
+            padding: 2px;
+        }
+        }
+    </style>
+
+
+</head>
+
+<body>
+
+
+
+  
+        
+        <div style="text-align: center;">
+        <h1>{{company.company_name}} </h1>    
+        <h3>{{company.address_line_1}}</h3>    
+        <h3>Email : {{company.branch_email}}</h3>    
+        <hr>
+        <h1>Balance Sheet</h1>
+        <h3>{{from_date|date:'d-m-Y'}} To {{to_date|date:'d-m-Y'}}</h3>
+        </div>
+
+        <table style="border: 1px solid black;">
+            <thead>
+
+                <tr>
+                    <th>Liabilities</th>    
+                    <th>&nbsp;</th>    
+                    <th>Amount</th>  
+
+                    <th>Assets</th>    
+                    <th>&nbsp;</th>    
+                    <th>Amount</th>    
+                </tr>
+            
+            </thead>
+            <tbody>
+                {% for data in  %}
+            </tbody>
+        </table>
+
+        <table style=" border: 1px solid black;">
+        
+            <tr style="width: 100%;">
+                <th style="width: 50%; vertical-align:top; background-color: aqua;">
+                        <table style="padding-right: 2px; background-color: red; width: 100%; table-layout: fixed;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid black; padding-top:5px padding-bottom:3px">
+                                <th style="width: 60%!important;  text-align: left; font-size: 14px;" colspan="2" align="center">Liabilities</th>
+                                <th style="width: 30%!important; font-size: 14px; text-align: right;" >Amount</th>         
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% if profit_loss != 0 %}
+                            <tr>
+                                <td style="text-align: left;"> 
+                                    {% if profit_loss > 0 %}
+                                    <strong> Net Profit </strong>
+                                    {% elif profit_loss < 0 %}
+                                    <strong>Net Loss</strong>
+                                    {% endif %}
+                            
+                                </td>
+                                <td>&nbsp;</td>
+                                <td style="text-align: right;"><strong>{{profit_loss|floatformat:2|intcomma}}</strong></td>
+                            </tr>
+                            {% endif %}
+                        {% for data in liability_report_list %}
+                            {% include 'report/balance_sheet_report_category/pdf/list.html' %}
+
+                            {% for ledger in data.ledger_report %}
+                            <tr>
+                                <td style="font-size: 11px;  text-align: left; font-weight: 400; padding-left: {{data.depth|add:23}}px;">
+                                        <i> {{ledger.particulars}} </i>
+                                </td>
+                                <td  style="font-size: 11px; font-weight: 400; text-align: right;">
+                                    {% if ledger.debit|sub:ledger.credit >= 0 %} 
+                                    {{ledger.debit|sub:ledger.credit|floatformat:2}} Dr.   
+                                    {% else %}
+                                    {{ledger.debit|sub:ledger.credit|mul:-1|floatformat:2}} Cr.   
+                                    {% endif %}
+                                </td>
+                                <td >&nbsp;</td>
+                
+                            </tr>
+                            {% endfor %}
+                        {% endfor %}
+                        </tbody>
+                        </table>
+                </th>  
+              
+              
+              
+              
+              
+                <th style="width: 50%; vertical-align:top;">
+                        <table style="padding-right: 2px;">
+                        <thead class="table-dark">
+                            <tr style="border-bottom: 1px solid black; padding-top:5px padding-bottom:3px">
+                                <th style="width: 60%;  text-align: left; font-size: 14px;" colspan="2" align="center">Assets</th>
+                                <th style="width: 30%; font-size: 14px; text-align: right;" >Amount</th>         
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for data in assets_report_list %}
+                            {% include 'report/balance_sheet_report_category/pdf/list.html' %}
+
+                            {% for ledger in data.ledger_report %}
+                            <tr>
+                                <td style="font-size: 11px;  text-align: left; font-weight: 400; padding-left: {{data.depth|add:23}}px;">
+                                        <i> {{ledger.particulars}} </i>
+                                </td>
+                                <td  style="font-size: 11px; font-weight: 400; text-align: right;">
+                                    {% if ledger.debit|sub:ledger.credit >= 0 %} 
+                                    {{ledger.debit|sub:ledger.credit|floatformat:2}} Dr.   
+                                    {% else %}
+                                    {{ledger.debit|sub:ledger.credit|mul:-1|floatformat:2}} Cr.   
+                                    {% endif %}
+                                </td>
+                                <td >&nbsp;</td>
+                
+                            </tr>
+                            {% endfor %}
+                        {% endfor %}
+                        </tbody>
+                        </table>
+                </th>  
+            </tr>
+
+
+            <tr style="vertical-align: top;">
+            
+               
+            
+                <th style="width: 50%; vertical-align: top;">
+                        <table>
+                            <tr>
+                                <th style=" text-align: left; width: 60%;" colspan="2" align="center">Total</th>
+                                <th style="text-align: right;" align="right" class="text-right"> <strong> {{liability_total|floatformat:2}}</strong></th>         
+                            </tr>
+                        </table>
+                </th>    
+
+                <th style="width: 50%; vertical-align: top;">
+                        <table>
+                            <tr>
+                                <th style=" text-align: left; width: 60%;" colspan="2" align="center">Total</th>
+                                <th style="text-align: right;" align="right" class="text-right"> <strong> {{assets_total|floatformat:2}}</strong></th>         
+                            </tr>
+                        </table>
+                </th>    
+            </tr>
+
+
+        </table>
+
+        
+   
+
+    
+
+    <div id="footer_content" style="text-align: center; font-size: 10px; border-top: 0.5px solid black; padding-top: 2px;">
+       
+     <strong> Page <pdf:pagenumber /> of <pdf:pagecount></strong>
+       
+       
+    </div>
+
+
+    
+</body>
+
+</html>

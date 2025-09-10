@@ -1,0 +1,126 @@
+<div class="row">
+    {% if update %}
+    <input type="hidden" name="leads-heads-total" id="leads-heads-total" value="{{total_leads_heads}}">
+    {% else %}
+    <input type="hidden" name="leads-heads-total" id="leads-heads-total" value="1">
+    {% endif %}
+
+    <div class="col-12">
+        <div class="row " id="leads_heads">
+            {% if update %}
+
+            {% for head in leads_heads %}
+            <div class="col-12 mb-1" id="leads-data-{{forloop.counter}}">
+
+                <input type="hidden" name="isActive_{{forloop.counter}}" value="1"
+                    id="isActive_{{forloop.counter}}">
+
+                <div class="row">
+                    <div class="col-md-3 col-sm-12">
+                        <label for="company_name-{{forloop.counter}}">Company Name</label>
+                        <input type="text"name='company_name-{{forloop.counter}}' id="company_name-{{forloop.counter}}"  class="form-control" value="{{head.company_name}}">
+                        
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                        <label for="contact_person-{{forloop.counter}}">Contact Person</label>
+                        <input type="text"name='contact_person-{{forloop.counter}}' id="contact_person-{{forloop.counter}}"  class="form-control" value="{{head.contact_person}}" >
+                        
+                    </div>
+                    <div class="col-md-2 col-sm-12">
+                        <label for="contact_email-{{forloop.counter}}">Contact Email</label>
+                        <input type="text"name='contact_email-{{forloop.counter}}' id="contact_email-{{forloop.counter}}"  class="form-control" value="{{head.contact_email}}" >
+                        
+                    </div>
+                    <div class="col-md-2 col-sm-12">
+                        <label for="phone_no-{{forloop.counter}}">Phone No.</label>
+                        <input type="number"name='phone_no-{{forloop.counter}}' id="phone_no-{{forloop.counter}}"  class="form-control" value="{{head.phone}}" >
+                        
+                    </div>
+                    <div class="col-md-2 col-sm-12">
+                        <label for="location-{{forloop.counter}}">Location</label>
+                        <input type="text"name='location-{{forloop.counter}}' id="location-{{forloop.counter}}"  class="form-control" value="{{head.location}}">
+                        
+                    </div>
+                    <div class="col-md-11 col-sm-12 mb-1" >
+                        <label for="remarks-{{forloop.counter}}">Remarks</label>
+                        <input type="text" name="remarks-{{forloop.counter}}" id='remarks-{{forloop.counter}}' class="form-control" value="{{head.remarks}}">
+                    </div>
+                   
+
+                    <div class="col-md-1 col-sm-12" style="margin-bottom:50px;">
+                        <button class="btn btn-danger mt-4" type="button" onclick="deleteRow('{{forloop.counter}}');">
+                            <i class="fas fa-times"></i> 
+                        </button>
+                       
+                    </div>
+
+                   
+                </div>
+
+
+            </div>
+            {% endfor %}
+
+            {% else %}
+            <div class="col-12 mb-1" id="leads-data-1">
+
+                <input type="hidden" name="isActive_1" value="1" id="isActive_1">
+
+                <div class="row">
+                    <div class="col-md-3 col-sm-12">
+                       <label for="company_name-1">Company Name</label>
+                       <input type="text"name='company_name-1' id="company_name-1"  class="form-control" >
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                        <label for="contact_person-1">Contact Person</label>
+                        <input type="text"name='contact_person-1' id="contact_person-1"  class="form-control" >
+                        
+                    </div>
+                    <div class="col-md-2 col-sm-12">
+                        <label for="contact_email-1">Contact Email</label>
+                        <input type="text"name='contact_email-1' id="contact_email-1"  class="form-control" >
+                        
+                    </div>
+                    <div class="col-md-2 col-sm-12">
+                        <label for="phone_no-1">Phone No.</label>
+                        <input type="number"name='phone_no-1' id="phone_no-1"  class="form-control" >
+                        
+                    </div>
+                    <div class="col-md-2 col-sm-12">
+                        <label for="location-1">Location</label>
+                        <input type="text"name='location-1' id="location-1"  class="form-control" >
+                        
+                    </div>
+                    
+                    
+                    
+                    <!-- <div class="col-md-1 col-sm-12">
+                        <i class="fas fa-times" onclick="deleteRow(1);"
+                            style="margin-top: 80px; color:red; cursor:pointer;"></i>
+                    </div> -->
+                    
+                    <!-- <input type="hidden" name="inv_gst_amount_1" value="0" id="inv_gst_amount_1"  class="form-control" > -->
+
+                    <div class="col-md-11 col-sm-12 mb-1" >
+                        <label for="remarks-1">Remarks</label>
+                        <input type="text" name="remarks-1",id='remarks-1' class="form-control">
+                    </div>
+                    <div class="col-md-1 col-sm-12 mt-4" style="margin-bottom:50px;">
+                        <button class="btn btn-danger" type="button" onclick="deleteRow(1);">
+                            <i class="fas fa-times"></i> 
+                        </button>
+                       
+                    </div>
+                </div>
+
+
+            </div>
+            {% endif %}
+
+        </div>
+
+        <button class="btn btn-primary mb-4" type="button" onclick="addMore();"> + Add More</button>
+
+    </div>
+
+</div>

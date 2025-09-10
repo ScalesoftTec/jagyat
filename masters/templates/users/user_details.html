@@ -1,0 +1,86 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Users List
+</h1>
+
+<a href="{% url 'masters:create_user' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create New User</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<table class="table table-primary " id="party_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Name</th>
+        <th scope="col">Username</th>
+        <th scope="col">Email</th>
+        <th scope="col">Office</th>
+     
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in users %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ data.first_name }} {{ data.last_name }}</td>
+        <td>{{ data.username }}</td>
+        <td>{{ data.email }}</td>
+        <td>{{ data.user_account.office.company_name }}</td>
+        
+        <td>
+            <a href="{% url 'masters:update_user' module=module id=data.id %}" class="btn btn-info mr-3"><i class="fas fa-edit"></i></a>
+
+
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.username}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ data.first_name }} {{ data.last_name }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'masters:user_delete' module=module id=data.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        </td>
+    
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+
+  <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+  <script>
+    let table = new DataTable('#party_table', {
+        // options
+    });
+  </script>
+
+{% endblock %}

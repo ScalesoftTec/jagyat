@@ -1,0 +1,275 @@
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+<html>
+
+<head>
+    <title>Trial Balance</title>
+    <style>
+            *{
+            font-family: Tahoma;
+        }
+        td{
+            vertical-align: top;
+            font-size: 14px!important;
+        }
+
+        .align-right {
+            text-align: right !important;
+            
+        }
+
+        div {
+            font-size: 9px !important;
+            line-height: 3px;
+        }
+
+        .border-right-r {
+            border: 0.5px solid black;
+            border-top: none;
+            border-right: none;
+            border-collapse: collapse;
+        }
+        .flex-container {
+        display: flex;
+        flex-direction: row;
+   
+       
+        }
+
+        .flex-container > div {
+            line-height: 20px;
+       
+        margin: 10px;
+        padding: 10px;
+        font-size: 10px;
+        }
+       
+
+
+        @page {
+            size: a4 portrait;
+          
+            
+            @frame header_frame {
+      
+                -pdf-frame-content: header_content;
+                left: 15pt;
+                right: 15pt;
+                top: 15pt;
+                height: 00pt;
+            }
+
+            @frame content_frame {
+              
+                left: 20pt;
+                right: 20pt;
+                top: 20pt;
+                bottom: 10pt;
+                height: 770pt;
+               
+              
+            }
+
+            @frame footer_frame {
+            
+                -pdf-frame-content: footer_content;
+                left: 10pt;
+                right: 10pt;
+                top: 790pt;
+                height:50pt;
+                bottom: 20pt;
+                border-top: 0px!important;
+                padding: 2px;
+            }
+        }
+
+        @page innerpages {
+            @frame header_frame {
+                -pdf-frame-content: headerOther;
+                left: 20pt;
+                right: 20pt;
+                top: 20pt;
+                
+                height: 110pt;
+            }
+            @frame content_frame {
+              
+              left: 20pt;
+              right: 20pt;
+              top: 90pt;
+              bottom: 10pt;
+              height: 710pt;
+             
+            
+          }
+
+          @frame footer_frame {
+            
+            -pdf-frame-content: footer_content;
+            left: 10pt;
+            right: 10pt;
+            top: 790pt;
+            height:50pt;
+            bottom: 20pt;
+            border-top: 0px!important;
+            padding: 2px;
+        }
+        }
+    </style>
+
+
+</head>
+
+<body>
+
+    <pdf:nexttemplate name="innerpages"/>
+    <div id="headerOther">
+        <h1>{{company.company_name}} </h1>
+        <h3>Trial Balance : {{from_date|date:'d-m-Y'}} To {{to_date|date:'d-m-Y'}}</h3>
+        <table style="padding-top: 2px; ">
+            <thead >
+                <tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+                    <th style="width: 35%; border-right: 1px solid black;"  rowspan="2">Particulars</th>
+                    <th style="border-right: 1px solid black;" rowspan="2" class="text-center">Opening Balance</th>
+                    <th style="border-right: 1px solid black;" colspan="2" class="text-center">Transaction</th>
+                    <th  rowspan="2" class="text-center">Closing Balance</th>
+                    
+                </tr>
+                    
+                <tr style="border-bottom: 1px solid black;">
+                    
+                    <th style="border-right: 1px solid black;" class="text-center">Debit</th>
+                    <th style="border-right: 1px solid black;" class="text-center">Credit</th> 
+                    
+                </tr>
+                        
+                        
+            </thead>
+        </table>
+    </div>
+
+
+
+  
+        
+        <div style="text-align: center;">
+        <h1>{{company.company_name}} </h1>    
+        <h3>{{company.address_line_1}}</h3>    
+        <h3>Email : {{company.branch_email}}</h3>    
+        <hr>
+        <h1>Trial Balance</h1>
+        <h3>{{from_date|date:'d-m-Y'}} To {{to_date|date:'d-m-Y'}}</h3>
+        </div>
+    
+
+    <table style="padding-top: 2px; ">
+        <thead >
+                <tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+                    <th style="width: 35%; border-right: 1px solid black;"  rowspan="2">Particulars</th>
+                    <th style="border-right: 1px solid black;" rowspan="2" class="text-center">Opening Balance</th>
+                    <th style="border-right: 1px solid black;" colspan="2" class="text-center">Transaction</th>
+                    <th  rowspan="2" class="text-center">Closing Balance</th>
+                    
+                </tr>
+                    
+                <tr style="border-bottom: 1px solid black;">
+                    
+                    <th style="border-right: 1px solid black;" class="text-center">Debit</th>
+                    <th style="border-right: 1px solid black;" class="text-center">Credit</th> 
+                    
+                </tr>
+                        
+                        
+            </thead>
+
+            {% for item in data %}
+            <tr style="width: 35%;" >
+                <td><span style="margin-left: {{item.depth}}px;"></span>
+                
+                <strong>{{item.category.name}}</strong> 
+               
+                </td>
+                {% if item.opening_in == "Debit" %}
+                <td style="text-align: right; border-bottom: 0.7px solid black;">{{item.opening|floatformat:2}}  Dr.</td>
+                {% else %}
+                <td style="text-align: right; border-bottom: 0.7px solid black;">{{item.opening|floatformat:2}}  Cr.</td>
+                {% endif %}
+                
+                <td style="text-align: right; border-bottom: 0.7px solid black;">
+                    {{item.dr_total|floatformat:2}}
+                </td>
+                <td style="text-align: right; border-bottom: 0.7px solid black;">
+                    {{item.cr_total|floatformat:2}}
+                </td>
+                
+
+                {% if item.closing_in == "Debit" %}
+                <td style="text-align: right; border-bottom: 0.7px solid black;">{{item.closing|floatformat:2}}  Dr.</td>
+                {% else %}
+                <td style="text-align: right; border-bottom: 0.7px solid black;">{{item.closing|floatformat:2}}  Cr.</td>
+                {% endif %}
+
+
+                {% for ledger in item.ledger_report %}
+                <tr>
+
+                    <td style="font-size: 11px; font-weight: 400; padding-left: {{sub_item.depth|add:14}}px;">
+                        
+                           <i> {{ledger.particulars}} </i>
+                       
+                    </td>
+                    <td style="font-size: 11px; font-weight: 400; text-align: right;">&nbsp;</td>
+                    <td style="font-size: 11px; font-weight: 400; text-align: right;">{{ledger.debit|floatformat:2}}</td>
+                    <td style="font-size: 11px; font-weight: 400; text-align: right;">{{ledger.credit|floatformat:2}}</td>
+                    <td style="font-size: 11px; font-weight: 400; text-align: right;">
+                        {% if ledger.debit|sub:ledger.credit >= 0 %} 
+                        {{ledger.debit|sub:ledger.credit|floatformat:2}} Dr.   
+                        {% else %}
+                        {{ledger.debit|sub:ledger.credit|mul:-1|floatformat:2}} Cr.   
+                        {% endif %}
+                    </td>
+
+                </tr>
+                {% endfor %}
+               
+            </tr>
+
+            {% for sub_item in item.report %}
+                {% include 'report/trial_balance_report/pdf/list.html' %}
+            {% endfor %}
+            
+           {% endfor %}
+           
+       
+
+      
+            <tr style="border-bottom: 2px solid black; border-top: 1px solid black;">
+                <td><strong> Grand Total </strong></td>
+               
+
+                <td align="right" style="text-align: right; font-weight:700;">{{total_report.opening|floatformat:2}}</td>
+                <td align="right" style="text-align: right; font-weight:700;">{{total_report.debit|floatformat:2}}</td>
+                <td align="right" style="text-align: right; font-weight:700;">{{total_report.credit|floatformat:2}}</td>
+                <td align="right" style="text-align: right; font-weight:700;">{{total_report.closing|floatformat:2}}</td>
+                
+              
+            </tr>
+
+       
+
+    </table>
+
+    <div id="footer_content" style="text-align: center; font-size: 10px; border-top: 0.5px solid black; padding-top: 2px;">
+       
+     <strong> Page <pdf:pagenumber /> of <pdf:pagecount></strong>
+       
+       
+    </div>
+
+
+    
+</body>
+
+</html>

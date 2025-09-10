@@ -1,0 +1,555 @@
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+<html>
+
+<head>
+    <style>
+        * {
+            margin-bottom: 0px !important;
+            margin-top: 0px !important;
+        }
+
+        .align-right {
+            text-align: right !important;
+        }
+
+        div {
+            font-size: 9px !important;
+            line-height: 3px;
+        }
+
+        .border-right-r {
+            border: 0.5px solid black;
+            border-top: none;
+            border-right: none;
+            border-collapse: collapse;
+        }
+
+        @page {
+            size: a4 portrait;
+            border: 1px solid black;
+
+            @frame header_frame {
+                /* Static Frame */
+                -pdf-frame-content: header_content;
+                left: 10pt;
+                right: 10pt;
+                top: 40pt;
+                height: 80pt;
+            }
+
+            @frame content_frame {
+                /* Content Frame */
+                left: 10pt;
+                right: 10pt;
+                top: 120pt;
+                height: 519pt;
+                border-bottom: none !important;
+            }
+
+            @frame footer_frame {
+                /* Another static Frame */
+                -pdf-frame-content: footer_content;
+                left: 10pt;
+                right: 10pt;
+                top: 628pt;
+                height: 160pt;
+                bottom: 20pt;
+                border-top: 0px!important;
+                padding: 2px;
+            }
+        }
+
+        @page page2 {
+            size: a4 portrait;
+            
+
+            @frame header_frame {
+                /* Static Frame */
+                -pdf-frame-content: header_content2;
+                left: 20pt;
+                right: 20pt;
+                top:00pt;
+                height: 0pt;
+              
+            }
+
+            @frame content_frame {
+                /* Content Frame */
+                border: 1px solid black;
+                left: 20pt;
+                right: 20pt;
+                top: 40pt;
+                bottom: 40pt;
+                border-bottom: none !important;
+            }
+
+            @frame footer_frame {
+                /* Another static Frame */
+                -pdf-frame-content: footer_content2;
+                left: 20pt;
+                right: 20pt;
+                top: 650pt;
+                height: 150pt;
+                bottom: 20pt;
+                border-top: none !important;
+                padding: 2px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    
+    <div id="header_content">
+        <table>
+            <tr>
+                <td style="width:90%"> <img width="100%" height="auto" src="{{ head.letter_head.url }}" alt="" /></td>
+                <td align="left"  style="width:10%"> 
+                   
+                </td>
+            </tr>
+        </table>
+       
+    </div>
+
+    
+
+    <table border="0.5px" style="padding:2px;">
+        <tr>
+            <td rowspan="2" style="text-align:left;vertical-align:top;padding:2px;">
+                <div><strong>Invoice From: </strong></div>
+                <div>{{data.bill_from.party_name}}</div>
+                <div>{{data.bill_from_address.corp_address_line1}}</div>
+                <div>{{data.bill_from_address.corp_address_line2}}</div>
+                <div>{{data.bill_from_address.corp_address_line3}}</div>
+
+                <div style="margin-top: 3px!important;">
+                    <div>
+                        <div><strong>Supply State : </strong> {{data.bill_from_address.corp_state}}</div>
+                        <div><strong>State Code : </strong> {{data.bill_from_address.corp_state.gst_code}}</div>
+                        <div><strong>GSTIN/UIN : </strong> {{data.bill_from_address.corp_gstin}}</div>
+                    </div>
+
+                </div>
+            </td>
+
+            <td style="text-align:left;vertical-align:top;padding:2px;">
+                <table>
+
+                    <tr style="margin: 0px; padding: 0.3px;">
+                        <td><strong>Invoice No.</strong></td>
+                        <td><strong>Date</strong></td>
+                       
+                    </tr>
+                    <tr style="margin: 0px; padding: 0.3px;">
+                        <td>{{data.invoice_no}}</td>
+                        <td>{{data.date_of_invoice}}</td>
+                     
+                    </tr>
+                </table>
+
+            </td>
+
+        </tr>
+
+        <tr align="top">
+
+            <td style="text-align:left;vertical-align:top;padding:2px; height:60;">
+
+                <div><strong>Shipper :</strong></div>
+                <div>{{data.shipper.party_name}}</div>
+                <div>{{data.shipper_address.corp_address_line1}}</div>
+                <div>{{data.shipper_address.corp_address_line2}}</div>
+                <div>{{data.shipper_address.corp_address_line3}}</div>
+                <div>{{data.shipper_address.corp_state}}</div>
+            </td>
+
+        </tr>
+
+
+
+
+    </table>
+
+    <table border="0.5px" style="padding-top:1px; padding-left:1px; padding-bottom:0px;">
+        <tr>
+            <td style="width: 140px;">
+                <div><strong>MBL No. Date</strong></div>
+                <div>{{data.job_no.mbl_no}} {{data.job_no.mbl_date}}</div>
+            </td>
+            <td style="width: 140px;">
+                <div><strong>HBL No. Date</strong></div>
+                <div>{{data.job_no.hbl_no}} {{data.job_no.hbl_date}}</div>
+            </td>
+
+            <td style="width: 140px;">
+                <div><strong>S/B No. Date</strong></div>
+                <div>{{data.job_no.job_invoice.first.ship_bill_no}} {{data.job_no.job_invoice.first.ship_bill_date}}</div>
+            </td>
+
+            <td colspan="3">
+                <div><strong>Exporter Inv. No & Date</strong></div>
+                <div>{{data.job_no.job_invoice.first.invoice_no}} {{data.job_no.job_invoice.first.ship_bill_date}}</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div><strong>Vessel Name</strong></div>
+                <div>{{data.job_no.vessel_voy_name}}</div>
+            </td>
+
+            <td>
+                <div><strong>Port Of Loading</strong></div>
+                <div>{{data.job_no.port_of_loading}}</div>
+            </td>
+
+            <td colspan="4">
+                <div><strong>Description Of Goods</strong></div>
+                <div>{{data.job_no.commodity}}</div>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div><strong>Port of Discharge</strong></div>
+                <div>{{data.job_no.port_of_discharge}}</div>
+            </td>
+
+            <td>
+                <div><strong>Final Destination</strong></div>
+                <div>{{data.job_no.final_destination}}</div>
+            </td>
+
+            <td colspan="2">
+                <div><strong>Job Reference</strong></div>
+                <div>{{data.job_no.job_no}}</div>
+            </td>
+
+            <td colspan="2">
+                <div><strong>Ex Rate</strong></div>
+                <div>{{data.currency_ex_rate}}</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div><strong>Packages / Type</strong></div>
+                <div>{{data.job_no.no_of_packages}} / {{data.job_no.packages_type}}</div>
+            </td>
+
+            <td>
+                <div><strong>Shipping Line</strong></div>
+                <div>{{data.job_no.shipping_line}}</div>
+            </td>
+
+            <td>
+                <div><strong>Gr.Wt(Kg/MT)</strong></div>
+                <div>{{data.job_no.gross_weight}}</div>
+            </td>
+
+            <td>
+                <div><strong>Nt.Wt(Kg/MT)</strong></div>
+                <div>{{data.job_no.net_weight}}</div>
+            </td>
+            <td>
+                <div><strong>CBM</strong></div>
+                <div>{{data.job_no.cbm}}</div>
+            </td>
+            <td>
+                <div><strong>No Of Cont.</strong></div>
+                <div>{{data.job_no.container_no}}</div>
+            </td>
+        </tr>
+    </table>
+
+    <table style="padding-top:1px; border-collapse:collapse; padding-left:1px; padding-bottom:0px; font-size: 8px;">
+        <tr style="border: 0.3px solid black;">
+            <th style="width: 15px;" rowspan="2">Sr.</th>
+            <th style="width: 170px;" rowspan="2">Description</th>
+            <th rowspan="2" style="width: 40px;">SAC</th>
+            <th rowspan="2" style="width: 25px;">QTY / CBM</th>
+            <th rowspan="2" style="width: 30px;">Curr.</th>
+            <th rowspan="2" style="width: 50px;">Unit Rate</th>
+            <th rowspan="2" style="width: 60px;">Total Amount in {{data.invoice_currency}}</th>
+           
+            <th rowspan="2" style="width: 60px;">Taxable Amount</th>
+            <th colspan="2">SGST</th>
+            <th colspan="2">CGST</th>
+            <th colspan="2">IGST</th>
+         
+            <th rowspan="2" >Amount in {{data.invoice_currency}}</th>
+        </tr>
+        <tr style="border: 0.3px solid black;">
+          
+            <th style="width: 23px;">Rate</th>
+            <th style="width: 55px;">Amount</th>
+            <th style="width: 23px;">Rate</th>
+            <th style="width: 55px;">Amount</th>
+            <th style="width: 23px;">Rate</th>
+            <th style="width: 55px;">Amount</th>
+          
+        </tr>
+
+        {% for head in data.payable_invoice_reference.all %}
+        <tr style="border: 0.3px solid black; border-bottom:none; border-top:none;">
+            <td>{{forloop.counter}}</td>
+            <td>{{head.billing_head.billing_head}}</td>
+            <td align="center" class="align-center">{{head.billing_head.hsn_code}}</td>
+            <td align="center"  class="align-center">{{head.qty_unit|floatformat:0}}</td>
+            <td align="center" class="align-center">{{head.currency}}</td>
+            <td  class="align-right">{{head.rate|floatformat:2|intcomma}}</td>
+            <td class="align-right">{{head.amount|floatformat:2|intcomma}}</td>
+          
+            <td class="align-right">
+                {% if head.gst > 0 %}
+                {{head.amount|floatformat:2|intcomma}}
+                {% else %}
+                0
+                {% endif %}
+            </td>
+            <td class="align-right">
+                {% if data.company_type.company_gst_code == data.bill_from_address.corp_state.gst_code and not head.billing_head.always_igst  %}
+                {% if head.gst > 0 %}
+                {{head.gst|div:2|floatformat:1}}%
+                {% else %}
+                0%
+                {% endif %}
+                {% else %}
+                0%
+                {% endif %}
+            </td>
+            <td class="align-right">
+                {% if data.company_type.company_gst_code == data.bill_from_address.corp_state.gst_code and not head.billing_head.always_igst  %}
+                {% if head.gst > 0 %}
+                {{head.gst_amount|div:2|floatformat:2|intcomma}}
+                {% else %}
+                0
+                {% endif %}
+                {% else %}
+                0
+                {% endif %}
+            </td>
+            <td class="align-right">
+                {% if data.company_type.company_gst_code == data.bill_from_address.corp_state.gst_code and not head.billing_head.always_igst  %}
+                {% if head.gst > 0 %}
+                {{head.gst|div:2|floatformat:1}}%
+                {% else %}
+                0
+                {% endif %}
+                {% else %}
+                0%
+                {% endif %}
+            </td>
+        
+
+            <td class="align-right">
+                {% if data.company_type.company_gst_code == data.bill_from_address.corp_state.gst_code and not head.billing_head.always_igst  %}
+                {% if head.gst > 0 %}
+                {{head.gst_amount|div:2|floatformat:2|intcomma}}
+                {% else %}
+                0
+                {% endif %}
+                {% else %}
+                0
+                {% endif %}
+            </td>
+            <td class="align-right">
+                {% if not data.company_type.company_gst_code == data.bill_from_address.corp_state.gst_code or head.billing_head.always_igst  %}
+                {% if head.gst > 0 %}
+                {{head.gst|floatformat:1}}%
+                {% else %}
+                0
+                {% endif %}
+                {% else %}
+                0%
+                {% endif %}
+            </td>
+            <td class="align-right">
+                {% if not data.company_type.company_gst_code == data.bill_from_address.corp_state.gst_code or head.billing_head.always_igst  %}
+                {% if head.gst > 0 %}
+                {{head.gst_amount|floatformat:2|intcomma}}
+                {% else %}
+                0
+                {% endif %}
+                {% else %}
+                0
+                {% endif %}
+            </td>
+   
+
+            <td class="align-right">{{head.total|floatformat:2|intcomma}}</td>
+        </tr>
+        {% endfor %}
+
+
+
+        {% for value in blank %}
+
+        <tr style="border: 0.3px solid black; border-bottom:none; border-top:none;">
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+       
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+         
+            <td>&nbsp;</td>
+        </tr>
+
+        {% endfor %}
+        <tr style="border: 0.3px solid black;">
+            <td colspan="6"></td>
+            <td class="align-right">{{data.gross_amount|floatformat:2}}</td>
+        
+            <td class="align-right">{{total_taxable_amount|floatformat:2}}</td>
+            <td colspan="2" class="align-right">{{per_5|add:per_12|add:per_18|div:2|floatformat:2|intcomma}}</td>
+            <td colspan="2" class="align-right">{{per_5|add:per_12|add:per_18|div:2|floatformat:2|intcomma}}</td>
+            <td colspan="2" class="align-right">{{per_i5|add:per_i12|add:per_i18|floatformat:2|intcomma}}</td>
+        
+            <td class="align-right">{{data.net_amount|floatformat:2}}</td>
+
+
+
+        </tr>
+   
+        <tr style="border: 0.5px solid black; border-top: none;  border-left: none;">
+            <td colspan="10">
+                <table>
+                    <tr style="border:0.5px solid black; border-top: none; border-left: none; border-collapse: collapse;">
+                        <td align="center" style="width: 50px;">Rate</td>
+                        <td align="center" style="width: 60px;">CGST</td>
+                        <td align="center" style="width: 60px;">SGST</td>
+                        <td align="center" style="width: 60px;">IGST</td>
+                        <td align="center" style="width: 90px;">Total</td>
+                        <td align="center" style="width: 90px;">Taxable Amount</td>
+                    </tr>
+                </table>
+            </td>
+            <td colspan="3">Total Taxable Amount</td>
+
+            <td colspan="2">{{total_taxable_amount|floatformat:2|intcomma}}</td>
+            
+        </tr>
+        
+        <tr>
+        
+            <td colspan="10">
+                <table>
+                    <tr style="border:0.5px solid black; border-top: none; border-left: none; border-collapse: collapse;">
+                        <td align="center" style="width: 50px;">5%</td>
+                        <td align="right" style="width: 60px;">{{per_5|div:2|floatformat:2|intcomma}}</td>
+                        <td align="right" style="width: 60px;">{{per_5|div:2|floatformat:2|intcomma}}</td>
+                        <td align="right" style="width: 60px;">{{per_i5|floatformat:2|intcomma}}</td>
+                        <td align="right" style="width: 90px;"> {{per_i5|add:per_5|floatformat:2|intcomma}}</td>
+                        <td align="right" style="width: 90px;">{{per_5_taxable|floatformat:2|intcomma}}</td>
+
+                    </tr>
+                </table>
+            </td>
+           
+            <td colspan="4" class="align-right border-right-r">Round Off</td>
+
+            <td class="align-right border-right-r">{{ data.net_amount|floatformat:0|sub:data.net_amount|floatformat:2 }}
+            </td>
+
+        </tr>
+        <tr>
+          
+            <td colspan="10">
+                <table>
+                    <tr style="border:0.5px solid black; border-top: none; border-left: none; border-collapse: collapse;">
+                        <td align="center" style="width: 50px;">12%</td>
+                        <td align="right"  style="width: 60px;">{{per_12|div:2|floatformat:2|intcomma}}</td>
+                        <td align="right" style="width: 60px;">{{per_12|div:2|floatformat:2|intcomma}}</td>
+                        <td align="right" style="width: 60px;">{{per_i12|floatformat:2|intcomma}}</td>
+                        <td align="right" style="width: 90px;">{{per_i12|add:per_12|floatformat:2|intcomma}}</td>
+                        <td align="right" style="width: 90px;">{{per_12_taxable|floatformat:2|intcomma}}</td>
+                        
+                    </tr>
+                </table>
+            </td>
+           
+            <td colspan="4" rowspan="2" class="align-right border-right-r" ><strong style="font-size: 12px!important;">INVOICE AMOUNT</strong> </td>
+
+            <td rowspan="2" class="align-right border-right-r" ><strong style="font-size: 12px!important;">{{ data.net_amount|floatformat:0|intcomma }}</strong> </td>
+
+        </tr>
+
+        <tr>
+            
+            <td colspan="10">
+                <table style="border:0.5px solid black; border-top: none; border-left: none; border-collapse: collapse;">
+                    <tr>
+                        <td align="center" style="width: 50px;">18%</td>
+                        <td align="right" style="width: 60px;">{{per_18|div:2|floatformat:2|intcomma}}</td>
+                        <td align="right" style="width: 60px;">{{per_18|div:2|floatformat:2|intcomma}}</td>
+                        <td align="right" style="width: 60px;">{{per_i18|floatformat:2|intcomma}}</td>
+                        <td align="right" style="width: 90px;">{{per_i18|add:per_18|floatformat:2|intcomma}}</td>
+                        <td align="right" style="width: 90px;">{{per_18_taxable|floatformat:2|intcomma}}</td>
+                       
+                    </tr>
+                </table>
+            </td>
+           
+        </tr>
+
+        <tr style="border: 0.5px solid black; padding-top:5px!important; border-bottom:none; border-left:none;">
+         
+            <td colspan="15"><strong> Amount In {{data.invoice_currency}} : {{amount_in_words}}</strong></td>
+          
+        </tr>
+        
+        
+
+
+
+
+    </table>
+
+
+    <div id="footer_content">
+        
+        <div style="border:0.5px solid black;margin-bottom:5px; border-top:none; border-left:none; border-right:none;">
+            <strong> Container No.</strong>
+            <span>{{data.job_no.container_no}}</span>
+        </div>
+        <div style="border:0.5px solid black; border-top:none; border-left:none; border-right:none;">
+            <strong> Remarks : </strong> <span>{{data.remark_on_invoice}}</span>
+         
+        </div>
+        <div style="position:relative">
+            
+
+
+            <div style="display: flex; flex-direction: row;">
+                <div style="flex:1; padding: 2px!important; margin-top:2px!important;">
+                    {{data.company_type.terms_and_conditions|safe}}
+                </div>
+                <h6 class="" style="font-size: 11px; margin-bottom:30px!important; text-align:right; font-weight:bold;">
+                    {{data.company_type.for_company}}
+                </h6>
+                <br />
+                <h6 style="font-size: 11px; padding-top: 30px!important; text-align:right; font-weight:bold;">Auth. Sign.</h6>
+            </div>
+            
+            
+        </div>
+        <h6 style="font-size: 8px; text-align:center; font-weight:bold;">  This is computer generated invoice no signature required</h6>
+    </div>
+
+
+</body>
+
+</html>

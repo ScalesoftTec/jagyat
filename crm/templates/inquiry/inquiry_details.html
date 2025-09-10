@@ -1,0 +1,222 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+Inquiry List - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Quotation List
+</h1>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<input type="hidden" id="current_month" value="{{ current_month }}">
+
+<div class="row ">
+ 
+    <div class="col-12">
+        <div class="mb-2" style="display: flex;">
+           
+           
+                
+            <input  data-toggle="toggle"  data-on="Date" data-off="Month" type="checkbox" id="choose_option_date" onchange="changeDateFilterOption();" >
+                   
+            
+        </div>
+       
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="choose_option" value="month" id="choose_option">
+            <div class="row">
+
+                <div class="col-md-4 col-sm-12 mb-3" style="display: none;" id="choose_by_date">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12">
+                            <label for="from_date">From</label>
+                            <input type="date" name="from_date" class="form-control" id="from_date" >
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <label for="to_date">To</label>
+                            <input type="date" name="to_date" class="form-control" id="to_date" >
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-sm-12 mb-3" id="choose_by_month">
+                    <label for="months">Choose Month</label>
+                    <select class="form-control" name="months" id="months" required>
+                        <option value="1">January</option>
+                        <option value="2">Febuary</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3 col-sm-12 mb-3">
+                    <button type="submit" style="margin-top: 33px;" class=" btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+
+<table class="table table-primary compact table-bordered table-md-responsive" id="inquiry_table">
+    <thead>
+      <tr>
+
+   
+        
+        <th scope="col">Quotation No.</th>
+        <th scope="col">Date</th>
+        <th scope="col">Branch</th>
+        <th scope="col">Module</th>
+        <th scope="col">Customer</th>
+        <th scope="col">POL</th>
+        <th scope="col">POD</th>
+        <th scope="col">Net Amount</th>
+        <th scope="col">Profit Amount</th>
+        <th scope="col">Actions</th>
+        <th scope="col">PDF</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in inquiries %}
+
+        
+      <tr>
+        
+        <td>{{ data.quotation_no }}</td>
+        <td>{{ data.date_of_inquiry }}</td>
+        <td>{{ data.company_type }}</td>
+        <td>{{ data.module }}</td>
+        <td>{{ data.customer}}</td>
+        <td>{{ data.pol}}</td>
+        <td>{{ data.pod}}</td>
+        <td>{{ data.net_amount }}</td>
+        <td>{{ data.profit_amount }}</td>
+        
+        
+        <td>
+            <a href="{% url 'crm:inquiry_update' module=module id=data.id extra_module=extra_module %}" class="btn btn-info mr-3"><i class="fas fa-edit"></i></a>
+
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.quotation_no}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ data.quotation_no }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'crm:inquiry_delete' module=module id=data.id extra_module=extra_module %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        </td>
+        <td>
+          <a class="btn btn-primary" href="{% url 'crm:inquiry_pdf' id=data.id %}" target="_blank"><i class="fas fa-file-pdf"></i></a>
+        </td>
+      
+    
+      </tr>
+      
+   
+
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+
+  
+  
+{% endblock %}
+
+
+{% block js %}
+<script>
+  let table = new DataTable('#inquiry_table', {
+    dom: 'BQlfrtip',
+    "pageLength": 50,
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+           
+        ]
+    },
+    
+    ]
+
+});
+
+document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+
+<script>
+
+
+ 
+  document.getElementById('months').value = document.getElementById('current_month').value
+
+  function changeDateFilterOption(){
+      var dateOption = document.getElementById('choose_option_date').checked
+
+      if(dateOption){
+          
+          document.getElementById('choose_option').value = 'date'
+          document.getElementById('choose_by_month').style.display = 'none'
+          document.getElementById('choose_by_date').style.display = 'block'
+          document.getElementById('from_date').required = true
+          document.getElementById('to_date').required = true
+          document.getElementById('months').required = false
+      }
+      else{
+          
+          document.getElementById('choose_option').value = 'month'
+          document.getElementById('choose_by_month').style.display = 'block'
+          document.getElementById('choose_by_date').style.display = 'none'
+          document.getElementById('from_date').required = false
+          document.getElementById('to_date').required = false
+          document.getElementById('months').required = true
+      }
+  }
+
+</script>
+{% endblock %}

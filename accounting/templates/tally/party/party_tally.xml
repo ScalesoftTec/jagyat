@@ -1,0 +1,45 @@
+<ENVELOPE>
+    <HEADER>
+        <TALLYREQUEST>Import Data</TALLYREQUEST>
+    </HEADER>
+    <BODY>
+        <IMPORTDATA>
+            <REQUESTDESC>
+                    <REPORTNAME>All Masters</REPORTNAME>
+                <STATICVARIABLES>
+                    <SVCURRENTCOMPANY>{{company.legal_name}}</SVCURRENTCOMPANY>
+                </STATICVARIABLES>
+            </REQUESTDESC>
+            <REQUESTDATA>
+                {% for data in data_list %}
+                <TALLYMESSAGE xmlns:UDF="TallyUDF">
+                    <LEDGER Action="Create" NAME="{{data.party.party_name}} / {{data.branch}}">
+                  
+                        <NAME.LIST TYPE="String">
+                            <NAME>{{data.party.party_name}} / {{data.branch}}</NAME>
+                            <NAME>{{data.branch}}</NAME>
+                        </NAME.LIST>
+                        <PARENT>{{data.party.tally_under}}</PARENT>
+                        <MAILINGNAME.LIST TYPE="String">
+                        <MAILINGNAME>{{data.party.party_name}}</MAILINGNAME>
+                        </MAILINGNAME.LIST>
+                        <ADDRESS.LIST TYPE="String">
+                            <ADDRESS>{{data.corp_address_line1}} </ADDRESS>
+                            <ADDRESS>{{data.corp_address_line2}} </ADDRESS>
+                            <ADDRESS>{{data.corp_address_line3}} </ADDRESS>
+                            
+                        </ADDRESS.LIST>
+                        <PINCODE>{{data.corp_zip}}</PINCODE>
+                        <COUNTRYNAME>{{data.corp_country}}</COUNTRYNAME>
+                        <LEDSTATENAME>{{data.corp_state}}</LEDSTATENAME>
+                        <EMAIL>{{data.corp_email}}</EMAIL>
+                        <EMAILCC>{{data.corp_email}}</EMAILCC>
+                        <LEDGERPHONE>{{data.corp_contact}}</LEDGERPHONE>
+                        <LEDGERMOBILE>{{data.corp_contact}}</LEDGERMOBILE>
+                     </LEDGER> 
+                </TALLYMESSAGE> 
+                {% endfor %}
+            </REQUESTDATA>
+        </IMPORTDATA>
+    </BODY>
+</ENVELOPE>

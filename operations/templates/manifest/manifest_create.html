@@ -1,0 +1,265 @@
+{% extends 'dashboard/index.html' %}
+
+
+
+{% block dashoard_title %} 
+Manifest Create - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<style>
+    button.nav-link
+    {
+        font-size: 14px;
+    }
+
+    .table td{
+        padding: 0!important;
+    }
+    .table th{
+        padding: 0!important;
+    }
+</style>
+
+
+<h1 class="h5 mb-0 text-gray-800">
+    {% if not update %}
+    Create New Manifest
+    {% else %}
+    Update Manifest
+    {% endif %}
+</h1>
+
+
+
+<a href="{% url 'operations:manifest_details' module=module  %}"
+    class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<input type="hidden" id="invoice_length" value="{{ invoice_length }}">
+{% if update %}
+<input type="hidden" id="is_update" value="true">
+<input type="hidden" id="customer_address" value="{{ data.customer_address.id }}">
+{% else %}
+<input type="hidden" id="is_update" value="false">
+{% endif %}
+
+
+<input type="hidden" id="module" value="{{ module }}">
+<input type="hidden" id="extra_module" value="{{ extra_module }}">
+
+
+<input type="hidden" id="pre_invoice" value="{{ settings.pre_recievable_invoice }}">
+
+<form enctype="multipart/form-data" method="post" autocomplete="off" onsubmit="return checkValidations()" >
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+
+        {% if request.user.user_account.create_global_data and global_companies|length > 1 %}
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_company_type">Choose Company</label>
+            {{ form.company_type }}
+        </div>
+        {% else %}
+            <input type="hidden" name="company_type" id="id_company_type" value="{{ request.user.user_account.office.id }}">
+        {% endif %}
+      
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_job_no">Select Job</label>
+            {{ form.job_no }}
+        </div>
+      
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_manifest_no">Manifest No</label>
+            {{ form.manifest_no }}
+        </div>
+      
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_manifest_date">Date</label>
+            {{ form.manifest_date }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_customer">Customer</label>
+            {{ form.customer }}
+        </div>
+      
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_customer_address">Customer Address</label>
+            {{ form.customer_address }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_manifest_currency">Currency</label>
+            {{ form.manifest_currency }}
+        </div>
+      
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_manifest_ex_rate">Ex Rate</label>
+            {{ form.manifest_ex_rate }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_payment">Payment</label>
+            {{ form.payment }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_payment_date">Payment Date</label>
+            {{ form.payment_date }}
+        </div>
+      
+       <div class="col-12 mb-1">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="charges_to_collect-tab" data-toggle="tab" data-target="#charges_to_collect" type="button" role="tab" aria-controls="charges_to_collect" aria-selected="true">Charges To Collect</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="charges_to_pay-tab" data-toggle="tab" data-target="#charges_to_pay" type="button" role="tab" aria-controls="charges_to_pay" aria-selected="false">Charges To Pay</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="our_charges-tab" data-toggle="tab" data-target="#our_charges" type="button" role="tab" aria-controls="our_charges" aria-selected="false">Our Charges</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="your_charges-tab" data-toggle="tab" data-target="#your_charges" type="button" role="tab" aria-controls="your_charges" aria-selected="false">Your Charges</button>
+            </li>
+          </ul>
+          <div class="tab-content" id="myTabContent">
+            {% include 'manifest/manifest_components/charges_to_collect.html' %}
+            {% include 'manifest/manifest_components/charges_to_pay.html' %}
+            {% include 'manifest/manifest_components/your_charges.html' %}
+            {% include 'manifest/manifest_components/our_charges.html' %}
+          
+            
+          </div>
+       </div>
+       
+
+    </div>
+    <div class="mt-2">
+
+        <button type="submit" class="btn btn-primary">
+            {% if update %}
+            Update Manifest
+            {% else %}
+            Submit
+            {% endif %}
+            
+        </button>
+    </div>
+
+    {% if update %}
+    <input type="hidden" id="is_update" value="true">
+
+    {% else %}
+    <input type="hidden" id="is_update" value="false">
+    {% endif %}
+    <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+
+
+</form>
+
+<script>
+    if(document.getElementById('is_update').value == 'false'){
+        document.getElementById('id_company_type').value = document.getElementById('user_company').value
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+    crossorigin="anonymous"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+    integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+<script>
+    function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for(i = L; i >= 0; i--) {
+           selectElement.remove(i);
+        }
+        }
+    
+      document.getElementById('id_company_type').addEventListener('change',getOnlyCompanyJobs)
+      async function getOnlyCompanyJobs(){
+        try{
+            const company = document.getElementById('id_company_type').value
+           
+            var jobs = await axios.get('/api/v1/jobs/details?ordering=-id&company_type='+company)
+            jobs = jobs.data
+            const select = document.getElementById('id_job_no'); 
+            const value = select.value
+            removeOptions(select);
+            
+            select.required = true
+            var newOption = new Option("Choose Job","")
+            select.add(newOption);
+         
+           
+            jobs.map(item=>{
+              
+                    var newOption = new Option(item.job_no,item.id)
+                    if(item.id == value){
+                        newOption.selected = true
+                    }
+                    select.add(newOption);
+              
+                
+            })
+    
+        }catch(err){
+            console.log(err)
+        }
+      }
+    
+      getOnlyCompanyJobs()
+    
+</script>
+
+
+
+
+<script>
+    const is_update = document.getElementById('is_update').value
+ 
+    if(is_update == 'false'){
+        document.getElementById('id_customer_address').innerHTML = ''
+    }
+    else{
+        getOnlyPartyAdress()
+    }
+    document.getElementById('id_customer').addEventListener('change',getOnlyPartyAdress)
+    document.getElementById('id_customer').addEventListener('keyup',getOnlyPartyAdress)
+    async function getOnlyPartyAdress(){
+        try{
+    
+            const party = document.getElementById('id_customer').value
+            var adresses = await axios.get('/api/v1/party/details?party='+party)
+            adresses = adresses.data
+            const select = document.getElementById('id_customer_address'); 
+            const value = select.value
+            removeOptions(select);
+            
+            select.required = true
+            var newOption = new Option("Choose Address","")
+            select.add(newOption);
+            
+            adresses.map(item=>{
+                var newOption = new Option(item.branch,item.id)
+                if(item.id == value){
+                    newOption.selected = true
+                }
+                select.add(newOption);
+            })
+    
+        }catch(err){
+            console.log(err)
+        }
+      }
+    
+</script>
+
+
+{% endblock %}

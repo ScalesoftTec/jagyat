@@ -1,0 +1,779 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+Business Intelligence
+{% endblock %}
+
+{% block dashboard_heading %}
+<style>
+    a{
+      text-decoration: none!important;
+    }
+    .blue{
+      background-color: #065568;
+    }
+    .green{
+      background-color: #036b28;
+    }
+    .orange{
+      background-color: #ef7700;
+    }
+    .red{
+      background-color: #b00707;
+    }
+    .card{
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+    }
+    .card:hover{
+      transform: scale(1.01);
+    }
+    .card h6{
+      font-size: 14px;
+    }
+    
+  </style>
+  <h1 class="h3 mb-0 text-gray-800">
+    <span class="greeting-text">{{greeting}}</span>, {{ request.user.first_name }} {{ request.user.last_name }}
+  </h1>
+{% endblock %}
+
+
+{% block dashboard_content %}
+{% if global_companies|length > 1 %}
+<form action="{% url 'dashboard:bi_dashboard' module=module %}" method="post">
+    {% csrf_token %}
+    <div class="row mb-1">
+        <div class="col-md-3">
+            <label for="bi_company">Company</label>
+            <select name="bi_company" class="form-control" id="bi_company">
+                {% if selected_company == 'all' %}
+                <option value="all" selected>All</option>
+                {% else %}
+                <option value="all">All</option>
+                {% endif %}
+                {% for i in global_companies %}
+                {% if i.id == selected_company %}
+                <option value="{{i.id}}" selected>{{i}} ({{i.branch_name}})</option>
+                {% else %}
+                <option value="{{i.id}}">{{i}} ({{i.branch_name}})</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 mt-1">
+            <button type="submit" class="mt-4 btn btn-sm btn-primary">Search</button>
+        </div>
+    </div>
+</form>
+{% endif %}
+<div class="row mb-1">
+    <div class="col-md-3 col-sm-12 mb-1">
+      <div class="card orange">
+        
+  
+          <div class="card-body">
+            <h5 class="card-title text-white"><i class="bi bi-briefcase"></i> Total Jobs</h5>
+            
+            <h6 class="text-white">{{job_count}}</h6>
+          </div>
+        
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-12 mb-1">
+      <div class="card red">
+        
+  
+          <div class="card-body">
+            <h5 class="card-title text-white"><i class="bi bi-briefcase"></i> Active Jobs</h5>
+            
+            <h6 class="text-white">{{active_job_count}}</h6>
+          </div>
+        
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-12 mb-1">
+      <div class="card blue">
+        
+  
+          <div class="card-body">
+            <h5 class="card-title text-white"><i class="bi bi-briefcase"></i> Closed Jobs</h5>
+            
+            <h6 class="text-white"> {{close_job_count}}</h6>
+          </div>
+        
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-12 mb-1">
+      <div class="card green">
+        
+  
+          <div class="card-body">
+            <h5 class="card-title text-white"><i class="bi bi-briefcase"></i> Deleted Jobs</h5>
+            
+            <h6 class="text-white">{{deleted_job_count}}</h6>
+          </div>
+        
+      </div>
+    </div>
+  
+  
+  
+  </div>
+  
+<div class="row mb-1">
+    <div class="col-md-3 col-sm-12 mb-1">
+      <div class="card blue">
+        
+  
+          <div class="card-body">
+            <h5 class="card-title text-white"><i class="bi bi-receipt"></i> Total Sales</h5>
+            
+            <h6 class="text-white">₹ {{total_sales}}</h6>
+          </div>
+        
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-12 mb-1">
+      <div class="card green">
+        
+  
+          <div class="card-body">
+            <h5 class="card-title text-white"><i class="bi bi-receipt"></i> Today Sales</h5>
+            
+            <h6 class="text-white">₹ {{today_sales}}</h6>
+          </div>
+        
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-12 mb-1">
+      <div class="card orange">
+        
+  
+          <div class="card-body">
+            <h5 class="card-title text-white"><i class="bi bi-receipt"></i> Outstanding Sales</h5>
+            
+            <h6 class="text-white">₹ {{recievable_pending_amount}}</h6>
+          </div>
+        
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-12 mb-1">
+      <div class="card red">
+        
+  
+          <div class="card-body">
+            <h5 class="card-title text-white"><i class="bi bi-receipt"></i> Collected Sales</h5>
+            
+            <h6 class="text-white">₹ {{recievable_collected_amount}}</h6>
+          </div>
+        
+      </div>
+    </div>
+  
+  
+  
+    <!-- <div class="col-md-6 col-sm-12 mb-1">
+      <canvas id="year_wise_sale_graph"></canvas>
+    </div>
+  
+    <div class="col-md-6 col-sm-12 mb-1">
+      <canvas id="year_wise_jobs_graph"></canvas>
+    </div> -->
+  
+    <!-- <div class="col-md-3 col-sm-12 mb-1">
+      <div class="card orange">
+        <div class="card-body">
+          <h5 class="card-title text-white"><i class="bi bi-file-earmark-pdf"></i> My Documents</h5>
+  
+          <h6 class="text-white">Edit/View Details</h6>
+        </div>
+      </div>
+    </div> -->
+  
+    
+
+    
+  
+  
+  </div>
+
+  <hr class="my-4">
+  
+  <div class="mt-5 ml-2">
+        <h3>Graphical Analytics</h3>
+  </div>
+  
+<div class="row ">
+ 
+
+<div class="row my-3">
+  <div class="col-md-4">
+    <div class="m-2" style="border: 2px solid rgb(175, 175, 175); border-radius: 7px; box-shadow: #dadada 2px 2px 10px;">
+      <div class="p-3">
+        <label for="monthSelect" class="form-label" style="color:#065568"><b style="text-transform: uppercase;">Sales and Purchase Invoices Data :</b></label>
+        <canvas id="monthly_sales_graph"></canvas>
+      </div>
+      <div  class="p-3">
+        <label for="year">Select Year:</label>
+        <select name="year" id="year" style="width: 100px; border-radius: 3px ; padding: 10px 5px; font-size: 14px; border-top:none; border-left:none; border-right:none; border-bottom:2px solid black; width:150px; ">
+          
+          <option value="">--Select Year--</option>
+          {% for year in years %}
+          <option value="{{year}}">{{year}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="m-2" style="border: 2px solid rgb(175, 175, 175); border-radius: 7px; box-shadow: #dadada 2px 2px 10px;">
+      <div class="p-3">
+        <label for="job_wise_graph" class="form-label" style="color:#065568"><b style="text-transform: uppercase;">Job Data Date Wise :</b></label>
+        <canvas id="job_wise_graph"></canvas>
+      </div>
+      <div  class="p-3">
+        <label for="job_year">Select Year:</label>
+        <select name="job_year" id="job_year" style="width: 100px; border-radius: 3px ; padding: 10px 5px; font-size: 14px; border-top:none; border-left:none; border-right:none; border-bottom:2px solid black; width:150px; ">
+          
+          <option value="">--Select Year--</option>
+          {% for year in years %}
+          <option value="{{year}}">{{year}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="m-2" style="border: 2px solid rgb(175, 175, 175); border-radius: 7px; box-shadow: #dadada 2px 2px 10px;">
+      <div class="p-3">
+        <label for="invoice_rec_margin_chart" class="form-label" style="color:#065568"><b style="text-transform: uppercase;">Sales Invoice Data DateWise :</b></label>
+        <canvas id="invoice_rec_margin_chart"></canvas>
+      </div>
+      <div  class="p-3">
+        <label for="invoice_rec_year">Select Year:</label>
+        <select name="invoice_rec_year" id="invoice_rec_year" style="width: 100px; border-radius: 3px ; padding: 10px 5px; font-size: 14px; border-top:none; border-left:none; border-right:none; border-bottom:2px solid black; width:150px; ">
+          
+          <option value="">--Select Year--</option>
+          {% for year in years %}
+          <option value="{{year}}">{{year}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="m-2" style="border: 2px solid rgb(175, 175, 175); border-radius: 7px; box-shadow: #dadada 2px 2px 10px;">
+      <div class="p-3">
+        <label for="invoice_pay_margin_chart" class="form-label" style="color:#065568"><b style="text-transform: uppercase;">Purchase Invoice Data DateWise :</b></label>
+        <canvas id="invoice_pay_margin_chart"></canvas>
+      </div>
+      <div  class="p-3">
+        <label for="invoice_pay_year">Select Year:</label>
+        <select name="invoice_pay_year" id="invoice_pay_year" style="width: 100px; border-radius: 3px ; padding: 10px 5px; font-size: 14px; border-top:none; border-left:none; border-right:none; border-bottom:2px solid black; width:150px; ">
+          
+          <option value="">--Select Year--</option>
+          {% for year in years %}
+          <option value="{{year}}">{{year}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+
+
+
+  
+</div>
+
+<input type="hidden" value="{{module}}" id="module">
+
+  
+  <input type="hidden" id="total_year_wise_sales_year" value="{{year_wise_sales|length}}">
+  {% for i in year_wise_sales  %}
+  <input type="hidden" id="year_wise_sales_year-{{forloop.counter}}" value="{{i.year}}">
+  <input type="hidden" id="year_wise_sales_amount-{{forloop.counter}}" value="{{i.amount}}">
+  {% endfor %}
+  
+  <input type="hidden" id="year_wise_jobs_total" value="{{year_wise_jobs_list|length}}">
+  {% for i in year_wise_jobs_list  %}
+  <input type="hidden" id="year_wise_jobs_year-{{forloop.counter}}" value="{{i.year}}">
+  <input type="hidden" id="year_wise_jobs_count-{{forloop.counter}}" value="{{i.count}}">
+  {% endfor %}
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  
+
+  <input type="hidden" value="{{account_manager_data}}" id="account_manager_data">
+  <input type="hidden" value="{{bill_to_data}}" id="bill_to_data">
+  <input hidden id="yearly_graph_of_containers" value="{{data_list}}">
+
+  <script>
+    let delayed;
+    let modules = document.getElementById('module').value;  
+    let currentChart = null;  
+  
+    // Get the current year
+    const currentYear = new Date().getFullYear();
+  
+    
+    fetchSalesAndPurchaseData(modules, currentYear);
+  
+  
+    document.getElementById('year').addEventListener('change', function(event) {
+      const selectedYear = event.target.value;
+      fetchSalesAndPurchaseData(modules, selectedYear);
+    });
+  
+  
+    function fetchSalesAndPurchaseData(module, year) {
+      fetch(`/dashboard/${module}/get_sales_and_purchase_data/${year}/`)
+        .then(response => response.json())
+        .then(data => {
+          
+          updateChart(data.sales, data.purchases, data.months);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+  
+    
+    function updateChart(sales, purchases, months) {
+  
+      if (currentChart !== null) {
+        currentChart.destroy();
+      }
+  
+      const salesdata = {
+        labels: months, 
+        datasets: [
+          {
+            label: 'Invoice Sales',
+            data: sales,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            borderWidth: 2,
+            borderRadius: 6,
+            borderSkipped: false,
+          },
+          {
+            label: 'Invoice Purchases',
+            data: purchases,
+            borderColor: 'rgba(255, 99, 132, 1)',
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            borderWidth: 2,
+            borderRadius: 6,
+            borderSkipped: false,
+          }
+        ]
+      };
+  
+      // Get the canvas element and initialize the chart
+      const salesChart = document.getElementById('monthly_sales_graph');
+      if (!salesChart) {
+        alert('Element not found!');
+      } else {
+        const config = {
+          type: 'bar',
+          data: salesdata,
+          options: {
+            animation: {
+              onComplete: () => {
+                delayed = true;
+              },
+              delay: (context) => {
+                let delay = 0;
+                if (context.type === 'data' && context.mode === 'default' && !delayed) {
+                  delay = context.dataIndex * 250 + context.datasetIndex * 50;
+                }
+                return delay;
+              },
+            },
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: `Sale and Purchase Analytics`  
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  display: false,
+                }
+              },
+              x: {
+                grid: {
+                  display: false,
+                }
+              }
+            }
+          }
+        };
+  
+        // Destroy previous chart instance if it exists
+        if (Chart.getChart(salesChart)) {
+          Chart.getChart(salesChart).destroy();
+        }
+  
+        // Create a new chart instance and store it in currentChart
+        currentChart = new Chart(salesChart, config);
+      }
+    }
+  </script>
+  
+  
+  
+  
+  <script>
+    let currentChart2 = null;  
+  
+    // Get the current year
+    const currentYear2 = new Date().getFullYear();
+  
+    
+    fetchJobWiseData(modules, currentYear2);
+  
+  
+    document.getElementById('job_year').addEventListener('change', function(event) {
+      const selectedYear2 = event.target.value;
+      fetchJobWiseData(modules, selectedYear2);
+    });
+  
+  
+    function fetchJobWiseData(module, year) {
+      fetch(`/dashboard/${module}/job_wise_data/${year}/`)
+        .then(response => response.json())
+        .then(data => {
+          
+          updateChart2(data.jobs, data.months);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+  
+    
+    function updateChart2(jobs, months) {
+  
+      if (currentChart2 !== null) {
+        currentChart2.destroy();
+      }
+  
+      const jobdata = {
+        labels: months, 
+        datasets: [
+          {
+            label: 'Jobs Created',
+            data: jobs,
+            borderColor: 'rgb(160, 157, 255)',
+            backgroundColor: 'rgb(182, 180, 250)',
+            borderWidth: 2,
+            borderRadius: 6,
+            borderSkipped: false,
+          }
+        ]
+      };
+  
+      // Get the canvas element and initialize the chart
+      const jobsChart2 = document.getElementById('job_wise_graph');
+      if (!jobsChart2) {
+        alert('Element not found!');
+      } else {
+        const config = {
+          type: 'bar',
+          data: jobdata,
+          options: {
+            animation: {
+              onComplete: () => {
+                delayed = true;
+              },
+              delay: (context) => {
+                let delay = 0;
+                if (context.type === 'data' && context.mode === 'default' && !delayed) {
+                  delay = context.dataIndex * 250 + context.datasetIndex * 50;
+                }
+                return delay;
+              },
+            },
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: `Number of jobs Created (Analytics)`  
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  display: false,
+                }
+              },
+              x: {
+                grid: {
+                  display: false,
+                }
+              }
+            }
+          }
+        };
+  
+        // Destroy previous chart instance if it exists
+        if (Chart.getChart(jobsChart2)) {
+          Chart.getChart(jobsChart2).destroy();
+        }
+  
+        // Create a new chart instance and store it in currentChart
+        currentChart2 = new Chart(jobsChart2, config);
+      }
+    }
+  </script>
+  
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+    let currentChart3 = null;
+  
+    const currentYear3 = new Date().getFullYear();
+  
+    // Initial data fetch
+    fetchInvoiceWiseData_margin(modules, currentYear3);
+  
+    // Year selection handler
+    document.getElementById('invoice_rec_year').addEventListener('change', function(event) {
+      const selectedYear2 = event.target.value;
+      fetchInvoiceWiseData_margin(modules, selectedYear2);
+    });
+  
+    function fetchInvoiceWiseData_margin(module, year) {
+      fetch(`/dashboard/${module}/profit_margin_date_wise/${year}/`)
+        .then(response => response.json())
+        .then(data => {
+          updateChart3(data);  // Use the entire data object for the chart update
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+  
+    function updateChart3(data) {
+      console.log(data);
+      if (currentChart3 !== null) {
+        currentChart3.destroy();
+      }
+  
+      // Ensure the canvas element exists before interacting with it
+      const invoiceMarginChart = document.getElementById('invoice_rec_margin_chart');
+      if (!invoiceMarginChart) {
+        console.error('Canvas element not found!');
+        return;  // Exit early if the canvas element doesn't exist
+      }
+  
+      const ctx = invoiceMarginChart.getContext('2d');  // Get the context for Chart.js
+  
+      // Prepare data for the chart
+      // const months = data.months;  // Provided directly by the backend
+      const netInvoiceAmount = data.net_invoice_amount;
+  
+      const months = data.months.map(month => {
+        return new Date(2020, month - 1, 1).toLocaleString('default', { month: 'short' });  // Format the month
+      });
+  
+      // Chart.js configuration
+      const invoiceMarginData = {
+        labels: months,
+        datasets: [
+          {
+            label: 'Margin of sales Invoice',
+            data: netInvoiceAmount,
+            borderColor: '#17A18D ',  // Color for net invoice amount
+            backgroundColor: '#20BEAD ',  // Lighter color for net invoice amount
+            borderWidth: 2,
+            borderRadius: 6,
+            borderSkipped: false,
+          }
+        ]
+      };
+  
+      // Configuration for Chart.js
+      const config = {
+        type: 'bar',
+        data: invoiceMarginData,
+        options: {
+          animation: {
+              onComplete: () => {
+                delayed = true;
+              },
+              delay: (context) => {
+                let delay = 0;
+                if (context.type === 'data' && context.mode === 'default' && !delayed) {
+                  delay = context.dataIndex * 250 + context.datasetIndex * 50;
+                }
+                return delay;
+              },
+            },
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: `Sales Invoice Data ( Analytics ) `  
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                display: false,
+              }
+            },
+            x: {
+              grid: {
+                display: false,
+              }
+            }
+          }
+        }
+      };
+  
+      // Destroy any previous chart if it exists
+      if (Chart.getChart(invoiceMarginChart)) {
+        Chart.getChart(invoiceMarginChart).destroy();
+      }
+  
+      // Create a new chart instance
+      currentChart3 = new Chart(ctx, config);
+    }
+  });
+  
+  </script>
+  
+  
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+    let currentChart4 = null;
+  
+    const currentYear4 = new Date().getFullYear();
+  
+    // Initial data fetch
+    fetchInvoiceWiseData_margin(modules, currentYear4);
+  
+    // Year selection handler
+    document.getElementById('invoice_pay_year').addEventListener('change', function(event) {
+      const selectedYear4 = event.target.value;
+      fetchInvoiceWiseData_margin(modules, selectedYear4);
+    });
+  
+    function fetchInvoiceWiseData_margin(module, year) {
+      fetch(`/dashboard/${module}/invoice_pay_margin_date_wise/${year}/`)
+        .then(response => response.json())
+        .then(data => {
+          updateChart4(data);  // Use the entire data object for the chart update
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+  
+    function updateChart4(data) {
+      console.log(data);
+      if (currentChart4 !== null) {
+        currentChart4.destroy();
+      }
+  
+      
+      const invoicePayableChart = document.getElementById('invoice_pay_margin_chart');
+      if (!invoicePayableChart) {
+        console.error('Canvas element not found!');
+        return;  
+      }
+  
+      const ctx2 = invoicePayableChart.getContext('2d');  
+  
+     
+      const netPayableAmount = data.net_debit_amount;
+  
+      const months = data.months.map(month => {
+        return new Date(2025, month - 1, 1).toLocaleString('default', { month: 'short' });  
+      });
+  
+      // Chart.js configuration
+      const invoicePayableData = {
+        labels: months,
+        datasets: [
+          {
+            label: 'Margin of Purchase Invoice',
+            data: netPayableAmount,
+            borderColor: '#d82749 ',  
+            backgroundColor: '#ba6845 ',
+            borderWidth: 2,
+            borderRadius: 6,
+            borderSkipped: false,
+          }
+        ]
+      };
+  
+      
+      const config = {
+        type: 'bar',
+        data: invoicePayableData,
+        options: {
+          animation: {
+              onComplete: () => {
+                delayed = true;
+              },
+              delay: (context) => {
+                let delay = 0;
+                if (context.type === 'data' && context.mode === 'default' && !delayed) {
+                  delay = context.dataIndex * 250 + context.datasetIndex * 50;
+                }
+                return delay;
+              },
+            },
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: `Purchase Invoice Data ( Analytics ) `  
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                display: false,
+              }
+            },
+            x: {
+              grid: {
+                display: false,
+              }
+            }
+          }
+        }
+      };
+  
+      
+      if (Chart.getChart(invoicePayableChart)) {
+        Chart.getChart(invoicePayableChart).destroy();
+      }
+  
+      // Create a new chart instance
+      currentChart4 = new Chart(ctx2, config);
+    }
+  });
+  
+  </script>
+  
+{% endblock %}

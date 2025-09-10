@@ -1,0 +1,115 @@
+<table class="table compact table-bordered table-primary" id="job_table">
+    <thead>
+<tr>
+    <th scope="col">S. No.</th>
+    <th>Job No</th>
+    <th>Date</th>
+    <th>Company</th>
+    <th>Alt. Company</th>
+    <th>Booking Party</th>
+    <th>Account</th>
+    <th>Account Address</th>
+    <th>Place of Reciept</th>
+    <th>Place of Loading</th>
+    <th>Place of loading date</th>
+    <th>Place of unloading</th>
+    <th>unloading date</th>
+    <th>commodity</th>
+    <th>Gross weight</th>
+	<th>Container no</th>
+    <th>Container type</th>
+    <th>DO date</th>
+    <!-- <th>Eway VALID date</th> -->
+    <th>Gr no</th>
+    <th>Trailor no</th>
+
+
+    <th>Approved</th>
+    <th scope="col">Actions</th>
+    
+</tr>
+</thead>
+<tbody>
+    {% for data in jobs %}
+    <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{data.job_no}}</td>
+        <td>{{data.job_date}}</td>
+        <td>{{data.company_type}}</td>
+        <td>{{data.alternate_company}}</td>
+
+        <td>{{data.booking_party}}</td>
+        <td>{{data.account}}</td>
+        <td>{{data.account_address.branch}}</td>
+        <td>{{data.place_of_reciept}}</td>
+        <td>{{data.place_of_loading}}</td>
+        <td>{{data.place_of_unloading_date}}</td>
+        <td>{{data.place_of_unloading}}</td>
+        <td>{{data.place_of_unloading_date}}</td>
+        <td>{{data.commodity}}</td>
+        <td>{{data.gross_weight}}</td>
+        <td>{{data.container_no}}</td>
+        <td>{{data.container_type}}</td>
+        <td>{{data.do_date}}</td>
+     
+        <td>{{data.gr_no}}</td>
+        <td>{{data.trailor_no}}</td>
+        
+
+    
+
+    {% if data.company_type.is_job_approve_required  %}
+    
+    {% if data.is_approved and data.application_handler %}
+    <td><span class="badge rounded-pill bg-success">Approved</span></td>
+    {% elif data.is_approved and not data.application_handler %}
+    <td><span class="badge rounded-pill bg-success">N/A</span></td>
+    {% else %}
+    <td><span class="badge rounded-pill bg-danger">Pending</span></td>
+    {% endif %}
+    
+    {% else %}
+    <td><span class="badge rounded-pill bg-danger">N/A</span></td>
+    {% endif %}
+
+   
+
+   
+    <td>
+        <a href="{% url 'operations:job_update' module=module id=data.id %}" class="btn btn-xs btn-info mr-3"><i class="fas fa-edit"></i></a>
+
+        {% if request.user.user_account.can_delete %}
+
+        <!-- Button trigger modal -->
+    <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+        <i class="fas fa-trash"></i>
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.job_no}}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            Are you sure want to delete {{ data.job_no }}?
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <a href="{% url 'operations:job_delete' module=module id=data.id %}" class="btn btn-primary">Confirm Delete</a>
+            </div>
+        </div>
+        </div>
+    </div>
+    {% endif %}
+
+    </td>
+    </tr>
+  {% endfor %}
+ 
+</tbody>
+</table>

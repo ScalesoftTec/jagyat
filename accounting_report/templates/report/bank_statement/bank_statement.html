@@ -1,0 +1,138 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+  Bank Report
+</h1>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<div class="row">
+  <div class="col-md-5 col-sm-12 mb-3">
+    <label for="choose_bank">Choose Bank</label>
+    <select name="choose_bank" class="form-control" id="choose_bank" onchange="bankChanged()">
+      <option value="" disabled selected>----------</option>
+      {% for bank in banks %}
+      <option value="{{bank.id}}">{{bank}}</option>
+
+      {% endfor %}
+    </select>
+  </div>
+</div>
+
+<div id="party_ledger_details">
+
+  <h6 class="my-3">Bank Balance Amount : <span id="bank-balance">Select A/C</span> </h6>
+
+  <table class="table table-primary table-bordered table-md-responsive" id="party_ledger_table">
+    <thead>
+      <tr>
+
+        <th scope="col">Voucher Date</th>
+        <th scope="col">Voucher No.</th>
+        <th scope="col">Instrument No.</th>
+        <th scope="col">Particular</th>
+        <th scope="col">Recieved Bank From</th>
+
+
+        <th scope="col">Recieved Amount</th>
+        <th scope="col">Paid Amount</th>
+
+      </tr>
+    </thead>
+    <tbody id="part-ledger-body">
+
+
+    </tbody>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+
+      <td>Total: <span id="rec_tds">0</span></td>
+      <td>Total: <span id="pay_tds">0</span></td>
+
+    </tr>
+  </table>
+</div>
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+  integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+
+
+
+  const bankChanged = async () => {
+    var bank = document.getElementById('choose_bank').value
+    var bank_balance_res = await axios.get('/api/v1/bank/balance/details')
+    var bank_balances = bank_balance_res.data
+
+
+
+
+    document.getElementById('rec_tds').innerText = 0
+    document.getElementById('bank-balance').innerText = 0
+    document.getElementById('pay_tds').innerText = 0
+
+    bank_balances = bank_balances.filter(item => item.bank == bank)
+
+    const balances = bank_balances.map(item => {
+
+      if (item.bank_from == undefined) {
+        var bank_from = "-"
+      }
+      else {
+        var bank_from = item.bank_from
+      }
+
+
+      var data = `
+                <tr>
+                    <td>${item.voucher_date}</td>
+                    <td>${item.voucher_no || "-"}</td>
+                    <td>${item.instrument_no || "-"}</td>
+                    <td>${item.particular_name || "-"}</td>
+                    <td>${bank_from}</td>
+                    <td>${item.recieved_amount}</td>
+                    <td>${item.paid_amount}</td>
+                    
+                </tr>
+            `
+
+      return data
+    }).join('')
+
+    bank_balances.forEach(item => {
+
+
+
+      document.getElementById('rec_tds').innerText = parseFloat(document.getElementById('rec_tds').innerText) + parseFloat(item.recieved_amount)
+      document.getElementById('pay_tds').innerText = parseFloat(document.getElementById('pay_tds').innerText) + parseFloat(item.paid_amount)
+
+
+      document.getElementById('bank-balance').innerText = parseFloat(document.getElementById('bank-balance').innerText) + (parseFloat(item.recieved_amount) - parseFloat(item.paid_amount))
+    })
+
+
+
+
+    const table_body = document.getElementById('part-ledger-body')
+
+    table_body.innerHTML = balances
+
+
+  }
+
+</script>
+
+{% endblock %}

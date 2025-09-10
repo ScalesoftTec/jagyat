@@ -1,0 +1,313 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+{% if update %}
+Update Freight Certificate - 
+{% else %}
+Create Freight Certificate - 
+{% endif %}
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Freight Certificate Details
+    {% else %}
+    Create New Freight Certificate
+    {% endif %}
+</h1>
+
+<a href="{% url 'operations:fc_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post" id="fc_form" data-job-url="{% url 'home:ajax_load_jobdetails' %}" data-job_hbl-url="{% url 'home:ajax_job_hbl_details' %}">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+        {% if update %}
+
+        <input type="hidden" name="invoice-heads-total" id="invoice-heads-total" value="{{total_invoice_heads}}">
+        {% else %}
+        <input type="hidden" name="invoice-heads-total" id="invoice-heads-total" value="1">
+        {% endif %}
+
+        
+        {% if request.user.user_account.create_global_data %}
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_company_type">Choose Company</label>
+            {{ form.company_type }}
+        </div>
+        {% else %}
+            <input type="hidden" name="id_company_type" id="id_company_type" value="{{ request.user.user_account.office.id }}">
+        {% endif %}
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_job">Select Job</label>
+            {{ form.job }}
+        </div>
+       
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_consignee">Consignee</label>
+            {{ form.consignee }}
+        </div>
+        
+
+        <!-- <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_hbl">HBL</label>
+            {{ form.hbl }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_mbl">MBL</label>
+            {{ form.mbl }}
+        </div> -->
+        <!-- <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_hbl_date">HBL Date</label>
+            {{ form.hbl_date }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_mbl_date">MBL Date</label>
+            {{ form.mbl_date }}
+        </div> -->
+    
+
+
+
+
+        <!-- <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_gross_weight">Gross Weight</label>
+            {{ form.gross_weight }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_cbm">CBM</label>
+            {{ form.cbm }}
+        </div> -->
+
+        
+
+
+<!-- 
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_container_no">Container No.</label>
+            {{ form.container_no }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_container_type">Container Type</label>
+            {{ form.container_type }}
+        </div> -->
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_ocean_freight">Ocean Freight</label>
+            {{ form.ocean_freight }}
+
+        </div>
+        <div class="col-md-12 col-sm-12 mb-1" id="hbl_tab" style="display: none;">
+            <label  for="id_hbl_options">HBL</label>
+            {{ form.hbl_options }}
+        </div>
+
+        <div class="col-md-12 col-sm-12 mb-1" id="hbl_tab">
+            <h5 >HBL</h5>
+            <table class="table display table-bordered compact table-primary" id="hbl_option_container">
+    
+            </table>
+        </div>
+    </div>
+
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update Freight Certificate Details
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+
+    {% if update %}
+    <input type="hidden" id="is_update" value="true">
+
+    {% else %}
+    <input type="hidden" id="is_update" value="false">
+    {% endif %}
+    <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+
+
+
+</form>
+
+
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+    if(document.getElementById('is_update').value == 'false'){
+        document.getElementById('id_company_type').value = document.getElementById('user_company').value
+    }
+  $("#id_job").change(function () {
+    var url = $("#fc_form").attr("data-job-url");
+    var job_no = $(this).val();
+  
+    $.ajax({
+      url: url,
+      data: { 'job_no': job_no },
+      dataType: 'json',
+      success: function (data) {
+      
+
+      const job = data.job[0]
+          
+      $("#id_consignee").val(job.importer_id);
+    
+      $("#id_container_type").val(job.container_type);
+      $("#id_hbl").val(job.hbl_no);
+      $("#id_mbl").val(job.mbl_no);
+      $("#id_hbl_date").val(job.hbl_date);
+      $("#id_mbl_date").val(job.mbl_date);
+      $("#id_container_no").val(job.container_no);
+      $("#id_gross_weight").val(job.gross_weight);
+      $("#id_cbm").val(job.cbm);
+     
+      }
+    });
+  });
+
+
+  function removeOptions(selectElement) {
+    var i, L = selectElement.options.length - 1;
+    for(i = L; i >= 0; i--) {
+       selectElement.remove(i);
+    }
+    }
+
+  document.getElementById('id_company_type').addEventListener('change',getOnlyCompanyJobs)
+ // async function getOnlyCompanyJobs(){
+  //  try{
+//
+  //      const company = document.getElementById('id_company_type').value
+  //      var jobs = await axios.get('/api/v1/jobs/details?company_type='+company)
+        jobs = jobs.data
+  //      const select = document.getElementById('id_job'); 
+  //      const value = select.value
+  //      removeOptions(select);
+//
+  //      select.required = true
+  //      var newOption = new Option("Choose Job","")
+  //      select.add(newOption);
+  //      
+//
+  //      
+   //     jobs.map(item=>{
+   //         var newOption = new Option(item.job_no,item.id)
+   //         if(item.id == value){
+                newOption.selected = true
+   //         }
+   //         select.add(newOption);
+   //     })
+//
+   // }catch(err){
+   //     console.log(err)
+   // }
+  //}
+
+  getOnlyCompanyJobs()
+
+</script>
+
+
+
+<script>
+    var currentRowNumber = parseInt(document.getElementById('invoice-heads-total').value)
+
+    load_hbl_job()
+
+     function load_hbl_job(){
+         try{        
+         let arr = []
+         var all_hbls = document.getElementsByName('hbl_options')
+         for(var i=0; i<all_hbls.length;i++){
+             if(all_hbls[i].checked){
+                 arr.push(parseInt(all_hbls[i].value))
+             }
+         }
+         var url = $("#fc_form").attr("data-job_hbl-url");
+         var job_no = $('#id_job').val();
+         if(job_no !== ""){
+         $.ajax({
+           url: url,
+           data: { 'job': job_no },
+           dataType: 'json',
+           success: function (data) {
+           const job_hbl = data.job_hbl
+         
+         document.getElementById('hbl_option_container').innerHTML = ''
+         var newRow = document.getElementById('hbl_option_container').insertRow(0)
+         newRow.id = `option-${currentRowNumber}`
+         newRow.classList.add("option")
+         var hbl_check = newRow.insertCell(0)
+         hbl_check.style.width = "40px"
+         var hbl_no = newRow.insertCell(1)
+         // var container_count = newRow.insertCell(2)
+         hbl_check.innerHTML = `Select`
+         hbl_no.innerHTML = `HBL No.`
+         // container_count.innerHTML = `Container Count`
+         var count = 1
+         for(var i=0; i<job_hbl.length; i++){
+             var newRow = document.getElementById('hbl_option_container').insertRow(count)
+             count += 1
+             var hbl_check = newRow.insertCell(0)
+             var hbl_no = newRow.insertCell(1)
+             // var container_count = newRow.insertCell(2)
+             if(arr.includes(job_hbl[i].id)){
+                 
+                 hbl_check.innerHTML = `
+                 <input type="checkbox" checked name="hbl_options" value="${job_hbl[i].id}" id="id_hbl_options__${count}">
+                 `
+             }else{
+ 
+                 hbl_check.innerHTML = `
+                 <input type="checkbox" name="hbl_options" value="${job_hbl[i].id}" id="id_hbl_options__${count}">
+                 `
+ 
+             }
+             hbl_no.innerHTML = `
+             ${job_hbl[i].job_hbl_no}
+             `
+             var container_details_appended = false             
+            }
+           }
+         });
+     }
+     }
+     
+     
+     catch(err){
+     }
+    
+     }
+     $('#id_job').on('change',()=>{
+         load_hbl_job() 
+     })
+     
+     if(document.getElementById('is_update') == 'true'){
+         load_hbl_job()
+     }
+     try{
+     }catch(err){
+        
+     }
+ 
+ 
+ </script>
+ 
+
+{% endblock %}

@@ -1,0 +1,342 @@
+{% extends 'dashboard/index.html' %}
+
+
+
+{% block dashoard_title %}
+New Loan Registeration -
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Register New Loan
+</h1>
+
+<style>
+    .table td, .table th{
+        padding: 0px;
+    }
+    
+</style>
+
+<a href="{% url 'accounting:loan_details' module=module  %}"
+    class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+<form enctype="multipart/form-data" method="post" autocomplete="off" onsubmit="return checkValidations()"
+    id="inv_rec_form" data-job-url="{% url 'home:ajax_load_jobdetails' %}">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+
+    <div class="row">
+        <div class="col-md-4 col-sm-12">
+            <label for="id_file1">File 1</label>
+            {{form.file1}}
+        </div>
+        <div class="col-md-4 col-sm-12">
+            <label for="id_file2">File 2</label>
+            {{form.file2}}
+        </div>
+        <div class="col-md-4 col-sm-12">
+            <label for="id_file3">File 3</label>
+            {{form.file3}}
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+
+        <div class="col-md-3 col-sm-12">
+            <label class="required" for="id_company_type">Company Type</label>
+            {{form.company_type}}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label class="required" for="id_category">Category</label>
+            {{form.category}}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label class="required" for="id_loan_no">Loan No.</label>
+            {{form.loan_no}}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label class="required" for="id_loan_date">Loan Date</label>
+            {{form.loan_date}}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label class="required" for="id_loan_type">Loan Type</label>
+            {{form.loan_type}}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label class="required" for="id_rate_type">Rate Type</label>
+            {{form.rate_type}}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label class="required" for="id_bank">Bank</label>
+            {{form.bank}}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label class="required" for="id_loan_duration">Tenure (In Months)</label>
+            {{form.loan_duration}}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label class="required" for="id_principal_amount">Principal Amount</label>
+            {{form.principal_amount}}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label class="required" for="id_interest_rate">Interest Rate</label>
+            {{form.interest_rate}}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label class="required" for="id_start_date">Start Monthly EMI Date</label>
+            {{form.start_date}}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label class="required" for="id_end_date">Start Monthly EMI Due Date</label>
+            {{form.end_date}}
+        </div>
+        <div class="col-md-4 col-sm-12">
+            <label class="required" for="id_interest_amount">Interest Amount</label>
+            {{form.interest_amount}}
+        </div>
+        <div class="col-md-4 col-sm-12">
+            <label class="required" for="id_total_amount">Total Amount</label>
+            {{form.total_amount}}
+        </div>
+        <div class="col-md-4 col-sm-12">
+            <label class="required" for="id_monthly_emi">Monthly EMI</label>
+            {{form.monthly_emi}}
+        </div>
+
+
+    </div>
+
+    <hr>
+    <table class="table-primary table display compact table-bordered" id="loan_table">
+       
+            <tr>
+                <th>S.No.</th>
+                <th>Date</th>
+                <th>Principal Paid</th>
+                <th>Interest Charged</th>
+                
+                <th>Total Payment</th>
+               
+            </tr>
+        
+    </table>
+    <hr>
+
+  
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Save Update
+        {% else %}
+        Save
+        {% endif %}
+
+    </button>
+
+
+    {% if update %}
+    <input type="hidden" id="is_update" value="true">
+
+    {% else %}
+    <input type="hidden" id="is_update" value="false">
+    {% endif %}
+    <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+
+
+</form>
+
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  
+    const principalAmount = document.getElementById("id_principal_amount");
+    const interestRateYear = document.getElementById("id_interest_rate");
+    const tenureMonth = document.getElementById("id_loan_duration");
+    const getEmiReducing = () => {
+    var P = parseFloat(principalAmount.value)
+    var R = parseFloat(interestRateYear.value)
+    var N = parseFloat(tenureMonth.value)
+    
+    R = (R / 100) / 12
+
+    var emi =(P * R * (Math.pow((1 + R), N) / (Math.pow((1 + R), N) - 1)));
+    
+    console.log("EMI",emi)
+
+    return emi
+}
+
+    const setTableRow = () => {
+        document.getElementById('loan_table').innerHTML = ""
+        var newRow = document.getElementById('loan_table').insertRow(0)
+        var sno = newRow.insertCell(0)
+        var date = newRow.insertCell(1)
+        var principal = newRow.insertCell(2)
+        var interest = newRow.insertCell(3)
+        var total = newRow.insertCell(4)
+      
+
+        sno.innerHTML = "S.No."
+        date.innerHTML = "Date"
+        principal.innerHTML = "Principal"
+        interest.innerHTML = "Interest"
+        total.innerHTML = "Total"
+        
+
+
+        for (var i=1; i<=tenureMonth.value; i++){
+
+       
+        var newRow = document.getElementById('loan_table').insertRow(i)
+        newRow.id = `entry-${i}`
+        newRow.classList.add("entry")
+        var sno = newRow.insertCell(0)
+        var date = newRow.insertCell(1)
+        var principal = newRow.insertCell(2)
+        var interest = newRow.insertCell(3)
+        var total = newRow.insertCell(4)
+       
+        sno.innerHTML = i
+        date.innerHTML = `<input type="date" id='date_${i}' name="date_${i}" required class="form-control form-control-sm" />`
+        principal.innerHTML = `<input type="number" step="0.01" id='principal_${i}' name="principal_${i}" required class="form-control form-control-sm" />`
+        interest.innerHTML = `<input type="number" step="0.01" id='interest_${i}' name="interest_${i}" required class="form-control form-control-sm" />`
+        total.innerHTML = `<input type="number" step="0.01" id='total_${i}' name="total_${i}" required class="form-control form-control-sm" />`
+       
+    
+    }
+    }
+
+    
+    const setAllMonth = () => {
+        try{
+
+            document.getElementById('date_1').value = document.getElementById('id_start_date').value
+            var currentDate =  new Date(document.getElementById('id_start_date').value)
+            for(var i = 1;i<=tenureMonth.value;i++){
+                const currentMonth = currentDate.getMonth();
+                const currentYear = currentDate.getFullYear();
+                // Calculate the month and year of the next month
+                let nextMonth = currentMonth + 1;
+                let nextYear = currentYear;
+                if (nextMonth > 11) {
+                    // If the next month is greater than 11 (December), add 1 to the year and set the month to 0 (January)
+                    nextMonth = 0;
+                    nextYear += 1;
+                }
+                // Create a new Date object for the first day of the next month
+               
+                const nextMonthDate = new Date(nextYear, nextMonth, currentDate.getDate());
+                var day = ("0" + nextMonthDate.getDate()).slice(-2);
+                var month = ("0" + (nextMonthDate.getMonth() + 1)).slice(-2);
+                currentDate = nextMonthDate
+                document.getElementById(`date_${i}`).value = nextMonthDate.getFullYear()+"-"+(month)+"-"+(day) ;
+                // console.log(nextMonthDate)
+             }
+
+            document.getElementById('id_end_date').value = document.getElementById('date_'+tenureMonth.value).value
+        }catch(err){
+            console.log(err)
+        }
+        
+    }
+    
+    const reducingLoan = () => {
+    var P = Number(principalAmount.value);
+    var R = Number(interestRateYear.value);
+   
+    var N = Number(tenureMonth.value);
+
+    const emiReducing = getEmiReducing();
+    const totalPaymentReducing = N * emiReducing;
+    const totalInterestReducing = totalPaymentReducing - P;
+    // console.log({
+    //     emiReducing: emiReducing,
+    //     totalPaymentReducing: totalPaymentReducing,
+    //     totalInterestReducing: totalInterestReducing
+    // })
+    document.getElementById('id_interest_amount').value = totalInterestReducing.toFixed(2)
+    document.getElementById('id_total_amount').value = totalPaymentReducing.toFixed(2)
+    document.getElementById('id_monthly_emi').value = emiReducing.toFixed(2)
+
+    var balance = P
+    for(var i=1; i<=N; i++){
+        var p_emi = (balance / N)
+        var p_emi_interest = p_emi * (R/100)
+        balance -= (emiReducing -  p_emi_interest).toFixed(2)
+        document.getElementById('principal_'+i).value = (emiReducing -  p_emi_interest).toFixed(2)
+        document.getElementById('interest_'+i).value = p_emi_interest.toFixed(2)
+        document.getElementById('total_'+i).value = emiReducing.toFixed(2)
+       
+    }
+}
+
+    const EstimateFixedInterestLoan = () => {
+        const P = Number(principalAmount.value);
+        const R = Number(interestRateYear.value);
+        const N = Number(tenureMonth.value);
+
+        const totalInterestFixed = P * R * N / 1200;
+        const totalPaymentFixed = P + totalInterestFixed;
+        const emiFixed = totalPaymentFixed / N;
+
+        document.getElementById('id_interest_amount').value = totalInterestFixed.toFixed(2)
+        document.getElementById('id_total_amount').value = totalPaymentFixed.toFixed(2)
+        document.getElementById('id_monthly_emi').value = emiFixed.toFixed(2)
+        var balance = P
+        var monthly_emi = totalInterestFixed / N
+        for(var i=1; i<=N; i++){
+            balance -= emiFixed
+            document.getElementById('principal_'+i).value = (emiFixed -  monthly_emi).toFixed(2)
+            document.getElementById('interest_'+i).value = monthly_emi.toFixed(2)
+            document.getElementById('total_'+i).value = emiFixed.toFixed(2)
+        }
+
+    }
+
+    const callLoanFunction = () => {
+        setTableRow()
+        try{
+            var rate_type = document.getElementById('id_rate_type').value
+            if(!rate_type || rate_type == "Flat"){
+                EstimateFixedInterestLoan()
+            }else{
+                reducingLoan()
+            }
+            setAllMonth()
+        }catch(err){
+
+        }
+    }
+
+
+    document.getElementById('id_principal_amount').addEventListener('change',callLoanFunction)
+    document.getElementById('id_principal_amount').addEventListener('keyup',callLoanFunction)
+    document.getElementById('id_loan_duration').addEventListener('change',callLoanFunction)
+    document.getElementById('id_loan_duration').addEventListener('keyup',callLoanFunction)
+    document.getElementById('id_interest_rate').addEventListener('change',callLoanFunction)
+    document.getElementById('id_interest_rate').addEventListener('keyup',callLoanFunction)
+    document.getElementById('id_rate_type').addEventListener('change',callLoanFunction)
+    document.getElementById('id_rate_type').addEventListener('keyup',callLoanFunction)
+    document.getElementById('id_start_date').addEventListener('change',callLoanFunction)
+    document.getElementById('id_start_date').addEventListener('keyup',callLoanFunction)
+
+    
+  
+  $("#id_category").select2({
+      placeholder: "Choose Option",
+    templateSelection: function (data, container) {
+        // Add custom attributes to the <option> tag for the selected option
+            $(data.element).attr("data-custom-attribute", data.customValue);
+            return data.text;
+    },
+});
+</script>
+
+{% endblock %}

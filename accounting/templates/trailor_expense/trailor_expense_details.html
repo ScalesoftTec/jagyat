@@ -1,0 +1,139 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+Trailor Expense Details - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Trailor Expense List
+</h1>
+
+<a href="{% url 'accounting:create_trailor_expense' module=module %}" class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Trailor Expense</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+
+
+<div class="row ">
+ 
+    <div class="col-12">
+    
+       
+
+        <form method="post">
+            {% csrf_token %}
+           
+            <div class="row">
+
+                <div class="col-md-4 col-sm-12 mb-3" id="choose_by_date">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12">
+                            <label for="from_date">From</label>
+                            <input type="date" name="from_date" class="form-control" value="{{from_date|date:'Y-m-d'}}" id="from_date" >
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <label for="to_date">To</label>
+                            <input type="date" name="to_date" class="form-control" value="{{to_date|date:'Y-m-d'}}" id="to_date" >
+                        </div>
+                    </div>
+                </div>
+
+              
+                <div class="col-md-3 col-sm-12 mb-3">
+                    <button type="submit" style="margin-top: 33px;" class=" btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<div class="table-responsive">
+
+
+<table class="table compact table-primary table-bordered display" id="trailor_exp_table">
+    <thead>
+      <tr>
+
+        <th scope="col">Company</th>
+        <th scope="col">Trailor No</th>
+        <th scope="col">Job No.</th>
+        <th  style="width: 90px;" scope="col">Job Date</th>
+        <th scope="col">Cash Exp.</th>
+        <th scope="col">Diesel (IOCL) Exp.</th>
+        <th scope="col">Fasttag Exp.</th>
+        <th scope="col">Pump Exp.</th>
+        <th scope="col">Net Exp.</th>
+        
+        <th scope="col">Created At</th>
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in invoices %}
+        <tr>
+
+            <td>{{ data.company_type }}</td>
+            <td>{{ data.trailor_no }}</td>
+            <td>{{ data.job_no }}</td>
+            <td >{{ data.job_no.job_date|date:"Y-m-d" }}</td>
+            <td align="right">{{ data.cash_expense|floatformat:0|floatformat:2 }}</td>
+            <td align="right">{{ data.card_expense|floatformat:0|floatformat:2 }}</td>
+            <td align="right">{{ data.fast_card_expense|floatformat:0|floatformat:2 }}</td>
+            <td align="right">{{ data.pump_expense|floatformat:0|floatformat:2 }}</td>
+            <td align="right">{{ data.net_amount|floatformat:0|floatformat:2 }}</td>
+
+      
+        <td>{{ data.created_at|date:"Y-m-d" }}</td>
+        <td>
+            <a href="{% url 'accounting:trailor_expense_update' module=module id=data.id  %}" class="btn btn-info btn-xs mr-3"><i class="fas fa-edit"></i></a>
+            
+        </td>
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+</div>
+
+
+ 
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+    let table = new DataTable('#trailor_exp_table', {
+        // options
+        dom: 'BQlfrtip',
+        buttons: [
+        {
+            extend: 'collection',
+            text: 'Export',
+            buttons: [
+                'copy',
+                'excel',
+                'csv',
+                'pdf',
+               
+            ]
+        },
+
+        ]
+
+    });
+  
+    document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+
+{% endblock %}

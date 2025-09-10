@@ -1,0 +1,94 @@
+<div class="row" id="event-row">
+    {% if update and obj.trailor_event_ref.all|length > 0 %}
+    {% for i in obj.trailor_event_ref.all %}
+    <div class="col-12 mb-2" id="event-row-{{forloop.counter}}">
+        <div class="row" >
+            <div class="col-md-5">
+                <input type="hidden" name="is_event_active_{{forloop.counter}}" id="is_event_active_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_event_update_{{forloop.counter}}" id="is_event_update_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_event_id_{{forloop.counter}}" id="is_event_id_{{forloop.counter}}" value="{{i.id}}" />
+                <label for="event_remarks_{{forloop.counter}}">Event</label>
+                <input type="text" value="{{ i.event_remarks }}" name="event_remarks_{{forloop.counter}}" id="event_remarks_{{forloop.counter}}" class="form-control">
+            </div>
+          
+            <div class="col-md-5">
+                <label for="event_date_{{forloop.counter}}"> Date</label>
+                <input type="date" value="{{ i.date|date:'Y-m-d' }}" name="event_date_{{forloop.counter}}" id="event_date_{{forloop.counter}}" class="form-control">
+            </div>
+           
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deleteEventRow({{forloop.counter}})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+    
+        </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12 mb-2" id="event-row-1">
+
+        <div class="row" >
+            <div class="col-md-5">
+                <input type="hidden" name="is_event_active_1" id="is_event_active_1" value="yes" />
+                <input type="hidden" name="is_event_update_1" id="is_event_update_1" value="no" />
+                <label for="event_remarks_1">Event</label>
+                <input type="text"  name="event_remarks_1" id="event_remarks_1" class="form-control">
+            </div>
+           
+            <div class="col-md-5">
+                <label for="event_date_1"> Date</label>
+                <input type="date"  name="event_date_1" id="event_date_1" class="form-control">
+            </div>
+           
+            
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deleteEventRow(1)" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+    
+        </div>
+    {% endif %}
+    
+</div>
+
+<button class="btn btn-primary mb-3" type="button" onclick="addEventRow()">Add More</button>
+
+<script>
+    var eventCurrentRow = parseInt(document.getElementById('trailor_event_total_rows').value) || 1
+    const addEventRow = () => {
+        var newElement = document.createElement('div')
+        eventCurrentRow += 1
+        newElement.classList.add('col-12')
+        newElement.setAttribute('id', `event-row-${eventCurrentRow}`)
+        newElement.classList.add('mb-2')
+        newElement.innerHTML = `
+        <div class="row">
+            <div class="col-md-5">
+                <input type="hidden" name="is_event_active_${eventCurrentRow}" id="is_event_active_${eventCurrentRow}" value="yes" />
+                <input type="hidden" name="is_event_update_${eventCurrentRow}" id="is_event_update_${eventCurrentRow}" value="no" />
+                <label for="np_no_${eventCurrentRow}">Event</label>
+                <input type="text"  name="event_remarks_${eventCurrentRow}" id="event_remarks_${eventCurrentRow}" class="form-control">
+            </div>
+           
+            <div class="col-md-5">
+                <label for="event_date_${eventCurrentRow}"> Date</label>
+                <input type="date"  name="event_date_${eventCurrentRow}" id="event_date_${eventCurrentRow}" class="form-control">
+            </div>
+           
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deleteEventRow(${eventCurrentRow})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+        `
+        document.getElementById('event-row').append(newElement)
+        document.getElementById('trailor_event_total_rows').value = eventCurrentRow
+    }
+
+    const deleteEventRow = (index) => {
+        console.log(index)
+        document.getElementById(`event-row-${index}`).style.display = "none";
+        document.getElementById(`is_event_active_${index}`).value = "no";
+    }
+</script>

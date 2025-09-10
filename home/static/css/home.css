@@ -1,0 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins",sans-serif;
+}
+
+
+
+body{
+    background-image: linear-gradient(90deg, rgba(2, 0, 36, 0.63) 0%, rgba(9, 9, 121, 0.589) 35%, rgba(0, 213, 255, 0.562) 100%), url('/static/images/login_background.jpeg');
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+}
+
+.welcome_text{
+    text-align: center;
+    font-weight: 500;
+    padding-top: 20px;
+    color: #ffffff;
+}
+
+.choose_text{
+    text-align: center;
+    font-weight: 500;
+    font-size: 18px;
+    color: #ffffff;
+}
+.global-col-div{
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 10px;
+    
+    color: white;   
+}
+
+.global-col-div a{
+    width: 100%;
+    display: flex;
+    transition: all 0.2s linear;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    height: 100%;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.global-col-div h4{
+    text-align: center;
+ 
+}
+.global-col-div a:hover{
+    text-decoration: none;
+    color: white;
+}
+
+.operations-col a{
+    background-color: #004b81;
+}
+.accounts-col a{
+    background-color: #6d008f;
+}
+.crm-col a{
+    background-color: #02805a;
+}
+.bi-col a{
+    background-color: #7a7802;
+}
+.hr-col a{
+    background-color: #027a26;
+}
+.transportation-col a{
+    background-color: #7a0202;
+}
+.admin-col a{
+    background-color: #7a4602;
+}
+
+.sea-ex-col a{
+    background-color: #70027a;
+}
+.sea-im-col a{
+    background-color: #7a2802;
+}
+.air-ex-col a{
+    background-color: #7a6802;
+}
+.air-im-col a{
+    background-color: #027a26;
+}
+.nvocc-col a{
+    background-color: #7a5e02;
+}
+
+.operations-col a:hover{
+    background-image: linear-gradient(90deg, rgba(2,0,36,0.5018382352941176) 0%, rgba(9,9,121,0.47942927170868344) 35%, rgba(0,212,255,0.3841911764705882) 100%), url('/static/images/operations.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+}
+.accounts-col a:hover{
+    background-image: linear-gradient(90deg, rgba(2,0,36,0.5018382352941176) 0%, rgba(9,9,121,0.47942927170868344) 35%, rgba(0,212,255,0.3841911764705882) 100%), url('/static/images/accounts.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+}
+.crm-col a:hover{
+    background-image: linear-gradient(90deg, rgba(2,0,36,0.5018382352941176) 0%, rgba(9,9,121,0.47942927170868344) 35%, rgba(0,212,255,0.3841911764705882) 100%), url('/static/images/crm.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+}
+.bi-col a:hover{
+    background-image: linear-gradient(90deg, rgba(2,0,36,0.5018382352941176) 0%, rgba(9,9,121,0.47942927170868344) 35%, rgba(0,212,255,0.3841911764705882) 100%), url('/static/images/bi.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+}
+
+.hr-col a:hover{
+    background-image: linear-gradient(90deg, rgba(2,0,36,0.5018382352941176) 0%, rgba(9,9,121,0.47942927170868344) 35%, rgba(0,212,255,0.3841911764705882) 100%), url('/static/images/hr.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+}
+
+.transportation-col a:hover{
+    background-image: linear-gradient(90deg, rgba(2,0,36,0.5018382352941176) 0%, rgba(9,9,121,0.47942927170868344) 35%, rgba(0,212,255,0.3841911764705882) 100%), url('/static/images/transportation.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+}
+
+.admin-col a:hover{
+    background-image: linear-gradient(90deg, rgba(2,0,36,0.5018382352941176) 0%, rgba(9,9,121,0.47942927170868344) 35%, rgba(0,212,255,0.3841911764705882) 100%), url('/static/images/admin.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+}
+
+.sea-ex-col a:hover{
+    background-image: linear-gradient(90deg, rgba(2,0,36,0.5018382352941176) 0%, rgba(9,9,121,0.47942927170868344) 35%, rgba(0,212,255,0.3841911764705882) 100%), url('/static/images/sea_ex.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+}
+.sea-im-col a:hover{
+    background-image: linear-gradient(90deg, rgba(2,0,36,0.5018382352941176) 0%, rgba(9,9,121,0.47942927170868344) 35%, rgba(0,212,255,0.3841911764705882) 100%), url('/static/images/sea_im.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+}
+.nvocc-col a:hover{
+    background-image: linear-gradient(90deg, rgba(2,0,36,0.5018382352941176) 0%, rgba(9,9,121,0.47942927170868344) 35%, rgba(0,212,255,0.3841911764705882) 100%), url('/static/images/sea_im.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+}
+.air-im-col a:hover{
+    background-image: linear-gradient(90deg, rgba(2,0,36,0.5018382352941176) 0%, rgba(9,9,121,0.47942927170868344) 35%, rgba(0,212,255,0.3841911764705882) 100%), url('/static/images/air_im.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+}
+.air-ex-col a:hover{
+    background-image: linear-gradient(90deg, rgba(2,0,36,0.5018382352941176) 0%, rgba(9,9,121,0.47942927170868344) 35%, rgba(0,212,255,0.3841911764705882) 100%), url('/static/images/air_ex.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+}
+
+.logout-btn{
+ 
+    padding: 10px 30px;
+    border-radius: 10px;
+    
+    font-size: 18px;
+    background-color: #075892;
+    margin: 20px 0;
+    color: white;
+    margin-right: 10px;
+    text-decoration: none;
+}
+
+.logout-btn:hover{
+    color: white;
+    text-decoration: none;
+}

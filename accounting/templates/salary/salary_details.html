@@ -1,0 +1,164 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Salarys List
+</h1>
+
+<a href="{% url 'accounting:create_salary' module=module %}" class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Salary</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<div class="">
+
+  <form method="post">
+      {% csrf_token %}
+      <div class="row">
+          <div class="col-2">
+              <label for="choose_company">Choose Branch</label>
+              <select name="choose_company" class="form-control form-control-sm" id="choose_company" >
+                  {% if choose_company == 'All' %}
+                  <option value="All" selected>All</option>
+                  {% else %}
+                  <option value="All">All</option>
+                  {% endif %}
+                  {% for data in global_companies %}
+                  {% if choose_company == data.id %}
+                  <option value="{{data.id}}" selected>{{data.company_name}}</option>
+                  {% else %}
+                  <option value="{{data.id}}">{{data.company_name}}</option>
+                  {% endif %}
+                  {% endfor %}
+              </select>
+            </div>
+          <div class="col-2">
+              <label for="from_date">From Date</label>
+              <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="start_date">
+          </div>
+          <div class="col-2">
+              <label for="to_date">To Date</label>
+              <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="to_date">
+          </div>
+          
+         
+          <div class="col-2">
+              <button type="submit" class="btn btn-primary btn-sm mt-4">Filter</button>
+          </div>
+      </div>
+  </form>
+
+</div>
+
+
+<div class="table-responsive">
+
+
+<table class="table compact table-primary table-bordered" id="salary_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Branch</th>
+        <th scope="col">Employee</th>
+        <th scope="col">Currency</th>
+        <th scope="col">Date</th>
+        <th scope="col">Basic</th>
+        <th scope="col">TDS</th>
+        <th scope="col">ESI</th>
+        <th scope="col">PF</th>
+        <th scope="col">Net&nbsp;Amount</th>
+       
+     
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in salaries %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ data.company_type }}</td>
+        <td>{{ data.employee }}</td>
+        <td>{{ data.salary_currency }}</td>
+        <td>{{ data.date }}</td>
+        <td>{{ data.basic }}</td>
+        <td>{{ data.tds_amount }}</td>
+        <td>{{ data.esi_amount }}</td>
+        <td>{{ data.pf_amount }}</td>
+        <td>{{ data.net_amount }}</td>
+       
+        
+        <td>
+            <a href="{% url 'accounting:salary_update' module=module id=data.id %}" class="btn btn-info btn-xs"><i class="fas fa-edit"></i></a>
+
+            {% if request.user.user_account.can_delete %}
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.name}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ data.name }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'accounting:salary_delete' module=module id=data.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+        {% endif %}
+        </td>
+    
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+</div>
+
+
+{% endblock %}
+
+
+{% block js %}
+<script>
+  let table = new DataTable('#salary_table', {
+    dom: 'BQlfrtip',
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Exsalary',
+        buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+           
+        ]
+    },
+
+    ]
+
+});
+
+document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+
+{% endblock %}

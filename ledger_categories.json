@@ -1,0 +1,318 @@
+[
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 1,
+      "fields": {
+        "name":"Capital Account",
+        "child":null,
+        "nominal":false,
+        "liability":true,
+        "asset":false,
+        "depth":1
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 2,
+      "fields": {
+        "name":"Reserves & Surplus",
+        "child":1,
+        "nominal":false,
+        "liability":true,
+        "asset":false,
+        "depth":2
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 3,
+      "fields": {
+        "name":"Current Assets",
+        "child":null,
+        "nominal":false,
+        "liability":false,
+        "asset":true,
+        "depth":1
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 4,
+      "fields": {
+        "name":"Bank Accounts",
+        "child":3,
+        "nominal":false,
+        "liability":false,
+        "asset":true,
+        "depth":2
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 5,
+      "fields": {
+        "name":"Cash-in-Hand",
+        "child":3,
+        "nominal":false,
+        "liability":false,
+        "asset":true,
+        "depth":2
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 6,
+      "fields": {
+        "name":"Deposits (Asset)",
+        "child":3,
+        "nominal":false,
+        "liability":false,
+        "asset":true,
+        "depth":2
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 7,
+      "fields": {
+        "name":"Loans & Advances (Asset)",
+        "child":3,
+        "nominal":false,
+        "liability":false,
+        "asset":true,
+        "depth":2
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 8,
+      "fields": {
+        "name":"Stock-in-Hand",
+        "child":3,
+        "nominal":false,
+        "liability":false,
+        "asset":true,
+        "depth":2
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 9,
+      "fields": {
+        "name":"Sundry Debtors",
+        "child":3,
+        "nominal":false,
+        "liability":false,
+        "asset":true,
+        "depth":2
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 10,
+      "fields": {
+        "name":"Current Liabilities",
+        "child":null,
+        "nominal":false,
+        "liability":true,
+        "asset":false,
+        "depth":1
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 11,
+      "fields": {
+        "name":"Duties & Taxes",
+        "child":10,
+        "nominal":false,
+        "liability":true,
+        "asset":false,
+        "depth":2
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 12,
+      "fields": {
+        "name":"Provisions",
+        "child":10,
+        "nominal":false,
+        "liability":true,
+        "asset":false,
+        "depth":2
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 13,
+      "fields": {
+        "name":"Sundry Creditors",
+        "child":10,
+        "nominal":false,
+        "liability":true,
+        "asset":false,
+        "depth":2
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 14,
+      "fields": {
+        "name":"Direct Expenses",
+        "child":null,
+        "nominal":true,
+        "liability":false,
+        "asset":false,
+        "depth":1
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 15,
+      "fields": {
+        "name":"Direct Incomes",
+        "child":null,
+        "nominal":true,
+        "liability":false,
+        "asset":false,
+        "depth":1
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 16,
+      "fields": {
+        "name":"Indirect Expenses",
+        "child":null,
+        "nominal":true,
+        "liability":false,
+        "asset":false,
+        "depth":1
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 17,
+      "fields": {
+        "name":"Indirect Incomes",
+        "child":null,
+        "nominal":true,
+        "liability":false,
+        "asset":false,
+        "depth":1
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 18,
+      "fields": {
+        "name":"Fixed Assets",
+        "child":null,
+        "nominal":false,
+        "liability":false,
+        "asset":true,
+        "depth":1
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 19,
+      "fields": {
+        "name":"Loans (Liability)",
+        "child":null,
+        "nominal":false,
+        "liability":true,
+        "asset":false,
+        "depth":1
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 20,
+      "fields": {
+        "name":"Bank OD A/C",
+        "child":19,
+        "nominal":false,
+        "liability":true,
+        "asset":false,
+        "depth":2
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 21,
+      "fields": {
+        "name":"Secured Loans",
+        "child":19,
+        "nominal":false,
+        "liability":true,
+        "asset":false,
+        "depth":2
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 22,
+      "fields": {
+        "name":"Unsecured Loans",
+        "child":19,
+        "nominal":false,
+        "liability":true,
+        "asset":false,
+        "depth":2
+      }
+    },
+    
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 23,
+      "fields": {
+        "name":"Purchase Accounts",
+        "child":null,
+        "nominal":true,
+        "liability":false,
+        "asset":false,
+        "depth":1
+      }
+    },
+    
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 24,
+      "fields": {
+        "name":"Sales Accounts",
+        "child":null,
+        "nominal":true,
+        "liability":false,
+        "asset":false,
+        "depth":1
+      }
+    },
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 25,
+      "fields": {
+        "name":"Suspense A/c",
+        "child":null,
+        "nominal":false,
+        "liability":true,
+        "asset":false,
+        "depth":1
+      }
+    },
+   
+    {
+      "model": "masters.LedgerCategory",
+      "pk": 25,
+      "fields": {
+        "name":"Suspense A/c",
+        "child":null,
+        "nominal":false,
+        "liability":true,
+        "asset":false,
+        "depth":1
+      }
+    }
+    
+  ]

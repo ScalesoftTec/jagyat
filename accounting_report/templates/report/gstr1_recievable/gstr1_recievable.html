@@ -1,0 +1,216 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load custom_tags %}
+
+{% block dashoard_title %}
+GSTR1 List -
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+  GSTR1 Recievables List
+</h1>
+
+<style>
+  table td,
+  th {
+    font-size: 13px !important;
+    padding: 1px !important;
+  }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<div class="mb-4">
+
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="row">
+      <!-- <div class="col-2">
+        <label for="filter_percent">Filter By %</label>
+        <select name="filter_percent" id="filter_percent" class="form-control form-control-sm">
+          <option value="All" selected>All</option>
+          <option value="5" >5%</option>
+          <option value="12">12%</option>
+          <option value="18">18%</option>
+         
+
+        </select>
+      </div> -->
+      <div class="col-2">
+        <label for="from_date">From</label>
+        <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" required id="from_date"
+          class="form-control form-control-sm" />
+      </div>
+      <div class="col-2">
+        <label for="to_date">To</label>
+        <input type="date" name="to_date" required id="to_date" value="{{to_date|date:'Y-m-d'}}"
+          class="form-control form-control-sm" />
+      </div>
+
+      <div class="col-md-3">
+        <button type="button" id="invoice_button" class="btn btn-primary btn-sm mt-4">Filter</button>
+      </div>
+    </div>
+  </form>
+
+</div>
+
+
+<div class="table-responsive">
+
+
+  <table class="table table-primary  table-bordered compact display" id="gstr1_table" >
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th style="min-width:50px!important" scope="col">Status</th>
+        <th style="min-width:150px!important" scope="col">Company GST Code</th>
+        <th style="min-width:150px!important" scope="col">Bill No.</th>
+        <th style="min-width:150px!important" scope="col">Date</th>
+        <th style="min-width:50px!important" scope="col">Type</th>
+        <th style="min-width:50px!important" scope="col">Category</th>
+        <th style="min-width:100px!important" scope="col">Job No</th>
+        <th style="min-width:100px!important" scope="col">Job Type</th>
+        <th style="min-width:150px!important" scope="col">Location</th>
+        <th style="min-width:150px!important" scope="col">GST No.</th>
+        <th style="min-width:150px!important" scope="col">State</th>
+        <th style="min-width:150px!important" scope="col">Party Name</th>
+        <th style="min-width:50px!important" scope="col">Currency</th>
+        <th style="min-width:100px!important" scope="col">Total Amount</th>
+       
+        {% if filter_percent == "All" %}
+        <th scope="col">Non Tax Amount</th>
+        {% endif %}
+
+        {% if filter_percent == "5" or filter_percent == "All" %}
+        <th scope="col">Taxable 5%</th>
+        <th scope="col">CGST 2.5%</th>
+        <th scope="col">SGST 2.5%</th>
+        <th scope="col">IGST 5%</th>
+        {% endif %}
+
+        {% if filter_percent == "12" or filter_percent == "All" %}
+        <th scope="col">Taxable 12%</th>
+        <th scope="col">CGST 6%</th>
+        <th scope="col">SGST 6%</th>
+        <th scope="col">IGST 12%</th>
+        {% endif %}
+
+        {% if filter_percent == "18" or filter_percent == "All" %}
+        <th scope="col">Taxable 18%</th>
+        <th scope="col">CGST 9%</th>
+        <th scope="col">SGST 9%</th>
+        <th scope="col">IGST 18%</th>
+        {% endif %}
+
+        <th scope="col">Total GST</th>
+
+
+      </tr>
+    </thead>
+    <tbody id="tbody">
+     
+
+    </tbody>
+
+    <tfoot>
+      <tr align="right">
+        <td style="color: white!important;" colspan="13"></td>
+        <td style="color: white!important;">Total</td>
+
+
+        <td class="text-right" style="color: white!important;" align="right"></td>
+    
+        {% if filter_percent == "All" %}
+        <td class="text-right" style="color: white!important;" align="right"></td>
+
+        {% endif %}
+
+        {% if filter_percent == "5" or filter_percent == "All" %}
+        <td class="text-right" style="color: white!important; " align="right"></td>
+        <td class="text-right" style="color: white!important; " align="right"></td>
+        <td class="text-right" style="color: white!important; " align="right"></td>
+        <td class="text-right" style="color: white!important; " align="right"></td>
+        {% endif %}
+
+        {% if filter_percent == "12" or filter_percent == "All" %}
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        {% endif %}
+
+        {% if filter_percent == "18" or filter_percent == "All" %}
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        {% endif %}
+ 
+        <td style="color: white!important;" align="right"></td>
+
+
+
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+
+<script src="https://cdn.datatables.net/plug-ins/1.13.4/api/sum().js"></script>
+<script>
+  $(document).ready(function () {
+    var invoices = []
+ 
+    jQuery.fn.dataTable.Api.register('sum()', function () {
+      return this.flatten().reduce(function (a, b) {
+        var x = parseFloat(a);
+        var y = parseFloat($(b).attr('data-order'));
+
+        return parseFloat(x + y).toFixed(2)
+      }, 0);
+    });
+    
+
+    let table = new DataTable('#gstr1_table', {
+      dom: "BQflrtip",
+
+    lengthMenu: [
+      [10, 25, 50, -1],
+      [10, 25, 50, 'All'],
+    ],
+
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+            'copy',
+            { extend: 'excel', footer: true,header:true},
+            { extend: 'csv', footer: true,header:true},
+            { extend: 'pdf', footer: true,header:true},
+        
+        ]
+    }
+    ],
+
+  
+    
+    })
+
+  })
+
+  
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,27 @@
+ <ENVELOPE>
+	<HEADER>
+		<TALLYREQUEST>Import Data</TALLYREQUEST>
+	</HEADER>
+	<BODY>
+		<IMPORTDATA>
+			<REQUESTDESC>
+				    <REPORTNAME>All Masters</REPORTNAME>
+                <STATICVARIABLES>
+                    <SVCURRENTCOMPANY>{{company.company_name}}</SVCURRENTCOMPANY>
+                </STATICVARIABLES>
+			</REQUESTDESC>
+			<REQUESTDATA>
+				 <TALLYMESSAGE xmlns:UDF="TallyUDF">
+
+                    <UNIT Action = "Create">
+                        <NAME>{{data.short_name}}</NAME>
+                        <ISSIMPLEUNIT>Yes</ISSIMPLEUNIT>
+                        <ORIGINALNAME>{{data.name}}</ORIGINALNAME>
+                        <DECIMALPLACES>{{data.decimal_places}}</DECIMALPLACES>
+
+                    </UNIT>
+                </TALLYMESSAGE>
+			</REQUESTDATA>
+		</IMPORTDATA>
+	</BODY>
+</ENVELOPE>

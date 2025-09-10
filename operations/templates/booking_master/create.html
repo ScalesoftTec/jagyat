@@ -1,0 +1,270 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %}
+{% if update %}
+{{form.instance.booking_no}} | Update Booking 
+{% else %}
+Create Booking | 
+{% endif %}
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Booking
+    {% else %}
+    Create New Booking
+    {% endif %}
+    
+</h1>
+
+<a href="{% url 'operations:booking_master_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+    <form enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        {% include 'error_component.html' %}
+        <div class="row">
+
+            <input type="hidden" value="{{module}}" id="operation_module">
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_module_name">Module.</label>
+                {{ form.module }}
+            </div>
+
+            <div class="col-md-2 col-sm-12">
+                <label for="id_booking_no">Booking No.</label>
+                {{form.booking_no}}
+
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <label for="id_booking_date">Date</label>
+                {{form.booking_date}}
+
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <label for="id_ref_no">Ref No.</label>
+                {{form.ref_no}}
+
+            </div>
+
+            <div class="col-md-2 col-sm-12">
+                <label for="id_party_name">Party Name</label>
+                {{form.party_name}}
+            </div>
+
+        
+
+            <div class="col-md-2 col-sm-12">
+                <label for="id_shipper">Shipper</label>
+                {{form.shipper}}
+
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <label for="id_consignee">Consginee</label>
+                {{form.consignee}}
+
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <label for="id_agent">Agent</label>
+                {{form.agent}}
+
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <label for="id_pol">POL</label>
+                {{form.pol}}
+
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_pod">POD</label>
+                {{form.pod}}
+
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <label for="id_fpod">FPOD</label>
+                {{form.fpod}}
+
+            </div>
+            {% if module == 'sea_export' or module == 'sea_import' %}
+            <div class="col-md-2 col-sm-12">
+                <label for="id_shipping_line">Shipping Line</label>
+                {{form.shipping_line}}
+            </div>
+            
+            <div class="col-md-2 col-sm-12">
+                <label for="id_container_size">Container Size</label>
+                {{form.container_size}}
+            </div>
+            
+            <div class="col-md-2 col-sm-12">
+                <label for="id_no_of_container">No Of Container</label>
+                {{form.no_of_container}}
+            </div>
+            
+            <div class="col-md-2 col-sm-12">
+                <label for="id_actual_weight">Actual Weight</label>
+                {{form.actual_weight}}
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <label for="id_volume_weight">Volume Weight</label>
+                {{form.volume_weight}}
+            </div>
+            {% endif %}
+
+            <div class="col-md-2 col-sm-12" id="cbm_div" style="display:none;">
+                <label for="id_cbm">CBM</label>
+                {{form.cbm}}
+
+            </div>
+       
+            {% if module == 'sea_export' or module == 'sea_import' %}
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_mbl_no">MBL No</label>
+                {{form.mbl_no}}
+
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <label for="id_hbl_no">HBL No.</label>
+                {{form.hbl_no}}
+
+            </div>
+            {% endif %}
+
+            {% if module == 'air_export' or module == 'air_import' %}
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_mbl_no">MAWB No</label>
+                {{form.mbl_no}}
+
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_hbl_no">HAWB No.</label>
+                {{form.hbl_no}}
+
+            </div>
+            {% endif %}
+
+
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_buying_rate">Buying Rate</label>
+                {{form.buying_rate}}
+
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_selling_rate">Selling Rate</label>
+                {{form.selling_rate}}
+
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_etd">ETD</label>
+                {{form.etd}}
+
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <label for="id_sales_person">Sales Person</label>
+                {{form.sales_person}}
+
+            </div>
+            
+        </div>
+
+        <button type="submit" class="btn btn-outline-primary">
+        Save Booking
+        
+        </button>
+    </form>
+
+
+
+{% endblock %}
+
+
+{% block js %}
+
+
+<script>
+    function handleCBM(){
+        var value = document.getElementById('id_container_size').value
+        document.getElementById('cbm_div').style.display="none"
+        if (value == "LCL"){
+            document.getElementById('cbm_div').style.display="block"
+        }
+    
+
+    }
+    handleCBM();
+    document.getElementById('id_container_size').addEventListener('change',handleCBM)
+    document.getElementById('id_container_size').addEventListener('keyup',handleCBM)
+
+
+    var module = document.getElementById('operation_module').value;
+
+    if (module == 'sea_export') {
+        document.getElementById('id_module').value = 'Sea Export'
+    }
+    else if (module == 'sea_import') {
+        document.getElementById('id_module').value = 'Sea Import'
+    }
+    else if (module == 'air_export') {
+        document.getElementById('id_module').value = 'Air Export'
+    }
+    else if (module == 'air_import') {
+        document.getElementById('id_module').value = 'Air Import'
+    }
+    else if (module == 'transportation') {
+        document.getElementById('id_module').value = 'Transport'
+    }
+</script>
+
+
+<script type="text/javascript">
+    // When Module is Air import or Export then fpod value should be Disabled and Auto Fill the same value in fpod that pod contain 
+    // Code By Kuldeep :-) 
+
+    var moduleField = document.getElementById('operation_module'); 
+    var moduleValue = moduleField.value;
+
+    function toggleFpodField() {
+        var fpodField = document.getElementById('id_fpod'); 
+
+
+        if (moduleValue === 'sea_import' || moduleValue === 'sea_export') {
+            fpodField.disabled = false; 
+        } else if (moduleValue === 'air_import' || moduleValue === 'air_export') {
+            fpodField.disabled = true; 
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var moduleField = document.getElementById('id_module');
+        var pod = document.getElementById('id_pod');
+        moduleField.addEventListener('change', toggleFpodField);
+
+        if (moduleValue === 'air_import' || moduleValue === 'air_export') {
+            pod.addEventListener('change', function(){
+                var pod_2 = document.getElementById('id_pod');
+                var fpod_2 = document.getElementById('id_fpod');
+                fpod_2.value = pod_2.value;
+                console.log(fpod_2.value);
+            })
+        }
+        toggleFpodField();
+    });
+
+</script>
+
+<script>
+   // $('#id_party_name').select2({});
+   // $('#id_consignee').select2({});
+   // $('#id_agent').select2({});
+   // $('#id_pol').select2({});
+   // $('#id_pod').select2({});
+   // $('#id_fpod').select2({});
+   // $('#id_shipper').select2({});
+   // $('#id_sales_person').select2({});
+   // $('#id_shipping_line').select2({});
+</script>
+{% endblock %}

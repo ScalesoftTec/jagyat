@@ -1,0 +1,459 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %}
+{% if update %}
+Update Cargo Arrival Notice -
+{% else %}
+Create Cargo Arrival Notice -
+{% endif %}
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Cargo Arrival Notice Details
+    {% else %}
+    Create New Cargo Arrival Notice
+    {% endif %}
+</h1>
+
+<a href="{% url 'operations:can_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post" id="can_form"  onsubmit="disableSubmit()" data-job-url="{% url 'home:ajax_load_jobdetails' %}" data-hbl-url="{% url 'home:ajax_hbl_details' %}" data-party-url="{% url 'home:ajax_party_details' %}">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+        {% if request.user.user_account.create_global_data %}
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_company_type">Choose Company</label>
+            {{ form.company_type }}
+        </div>
+        {% else %}
+        <input type="hidden" name="id_company_type" id="id_company_type"
+            value="{{ request.user.user_account.office.id }}">
+        {% endif %}
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_job">Select Job</label>
+            {{ form.job }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_hbl">HBL</label>
+            {{ form.hbl }}
+        </div>
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_hbl_date">HBL Date</label>
+            {{ form.hbl_date }}
+        </div>
+ 
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_date">Date</label>
+            {{ form.date }}
+        </div>
+
+ 
+
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_pol">POL</label>
+            {{ form.pol }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_pod">POD</label>
+            {{ form.pod }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_final_destination">Final Destination</label>
+            {{form.final_destination}}
+        </div>
+        {% if module == 'sea_export' or module == 'sea_import' %}
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_shipping_line">Shipping Line</label>
+            {{ form.shipping_line }}
+        </div>
+        {% else %}
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_shipping_line">Air Line</label>
+            {{ form.air_line }}
+        </div>
+        {% endif %}
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_container_no">Container No.</label>
+            {{ form.container_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_move_type">Move Type</label>
+            {{ form.move_type }}
+        </div>
+
+
+
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_mbl">MBL</label>
+            {{ form.mbl }}
+        </div>
+
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_mbl_date">MBL Date</label>
+            {{ form.mbl_date }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_party_name">POD Date</label>
+            {{ form.pod_date }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_fpd_date">FPD date</label>
+            {{ form.fpd_date }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_vessel_voyage">Vessel & Voyage No.</label>
+            {{ form.vessel_voyage }}
+        </div>
+
+
+
+
+     
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_it_location">IT Location</label>
+            {{form.it_location}}
+        </div>
+
+      
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_it_no">IT No.</label>
+            {{form.it_no}}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_it_date">IT Date</label>
+            {{form.it_date}}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_eta">ETA</label>
+            {{form.eta}}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_etd">ETD</label>
+            {{form.etd}}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_ams_hbl">AMS HBL</label>
+            {{form.ams_hbl}}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_firm_code">Firm Code</label>
+            {{form.firm_code}}
+        </div>
+        <!-- <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_firm_phone">Firm Phone</label>
+            {{form.firm_phone}}
+        </div> -->
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_freight_location">Freight Location</label>
+            {{form.freight_location}}
+        </div>
+
+        <div class="col-12 row">
+
+            <div class="col-md-4 col-sm-12 mb-1">
+                <div class="row">
+                    <div class="col-12">
+                        <label for="id_notify_party_1">Notify party</label>
+                        {{form.notify_party_1}}
+                    </div>
+                    <div class="col-12">
+                        <label for="id_notify_party_1_location">Notify party Location</label>
+                        {{form.notify_party_1_location}}
+                    </div>
+                </div>
+               
+            </div>
+            <div class="col-md-4 col-sm-12 mb-1">
+                <div class="row">
+                    <div class="col-12">
+                        <label for="id_shipper">Shipper</label>
+                {{ form.shipper }}
+                    </div>
+                    <div class="col-12">
+                        <label for="id_notify_party_2_location">Shipper Location</label>
+                        {{form.notify_party_2_location}}
+                    </div>
+                </div>
+               
+            </div>
+            <div class="col-md-4 col-sm-12 mb-1">
+                <div class="row">
+                    <div class="col-12">
+                        <label for="id_consignee">Consignee</label>
+                        {{ form.consignee }}
+                    </div>
+                    <div class="col-12">
+                        <label for="id_consignee_location">Consignee Location</label>
+                        {{form.consignee_location}}
+                    </div>
+                </div>
+               
+            </div>
+        
+    
+        </div>
+
+      
+        
+      
+
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_marks">Marks and Numbers</label>
+            {{form.marks}}
+        </div>
+
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_no_of_packages">No of Packages</label>
+            {{form.no_of_packages}}
+        </div>
+
+        <div class="col-md-4 col-sm-12 mb-1">
+            <label for="id_desc_of_packages">Description of Packages</label>
+            {{form.desc_of_packages}}
+        </div>
+
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_gross_weight">Gross Weight</label>
+            {{form.gross_weight}}
+        </div>
+
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_measurement">Measurement</label>
+            {{form.measurement}}
+        </div>
+
+
+
+
+
+
+
+    </div>
+
+    <button type="submit" id="submitBtn" class="btn btn-primary">
+        {% if update %}
+        Update Cargo Arrival Notice Details
+        {% else %}
+        Submit
+        {% endif %}
+
+
+
+    </button>
+
+
+    {% if update %}
+    <input type="hidden" id="is_update" value="true">
+
+    {% else %}
+    <input type="hidden" id="is_update" value="false">
+    {% endif %}
+    <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+    integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+{% endblock %}
+
+{% block js %}
+
+
+<script>
+    if(document.getElementById('is_update').value == 'false'){
+        document.getElementById('id_company_type').value = document.getElementById('user_company').value
+    }
+    $("#id_job").change(function () {
+        var url = $("#can_form").attr("data-job-url");
+        var job_no = $(this).val();
+        $.ajax({
+            url: url,
+            data: { 'job_no': job_no },
+            dataType: 'json',
+            success: function (data) {
+                const job = data.job[0]
+              
+              
+                $("#id_pol").val(job.port_of_loading_id);
+                $("#id_pod").val(job.port_of_discharge_id);
+                $("#id_shipping_line").val(job.shipping_line_id);
+                $("#id_air_line").val(job.air_line_id);
+                $("#id_container_no").val(job.container_no);
+                
+                $("#id_mbl").val(job.mbl_no);
+                
+                $("#id_mbl_date").val(job.mbl_date);
+                $("#id_gigm").val(job.gigm);
+                $("#id_ligm").val(job.ligm);
+                $("#id_etd").val(job.etd_date);
+                $("#id_eta").val(job.eta_date);
+                $("#id_vessel_voyage").val(job.vessel_voy_name);
+               
+                $("#id_final_destination").val(job.final_destination_id);
+                $("#id_no_of_packages").val(job.no_of_packages);
+                
+             
+
+            }
+        });
+    });
+
+    $("#id_hbl").change(function () {
+        var url = $("#can_form").attr("data-hbl-url");
+        var hbl_no = $(this).val();
+        $.ajax({
+            url: url,
+            data: { 'hbl_no': hbl_no },
+            dataType: 'json',
+            success: function (data) {
+                const hbl = data.hbl[0]
+                console.log(hbl)
+              
+                $("#id_marks").val(hbl.marks_and_number);
+                $("#id_gross_weight").val(hbl.gross_weight);
+                $("#id_measurement").val(hbl.measurement);
+                $("#id_hbl_date").val(hbl.date);
+            
+                $("#id_desc_of_packages").val(hbl.description_of_commodities);
+                $("#id_consignee_location").val(hbl.consigned_address);
+                $("#id_notify_party_2_location").val(hbl.exporter_address);
+                $("#id_shipper").val(hbl.exporter_name_id);
+                $("#id_consignee").val(hbl.consigned_name_id);
+                $("#id_notify_party_1").val(hbl.notify_party_id);
+                $("#id_notify_party_1_location").val(hbl.notify_party_address);
+            }
+        });
+    });
+
+    function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for (i = L; i >= 0; i--) {
+            selectElement.remove(i);
+        }
+    }
+
+    document.getElementById('id_company_type').addEventListener('change', getOnlyCompanyJobs)
+    async function getOnlyCompanyJobs() {
+        try {
+
+            const company = document.getElementById('id_company_type').value
+            var jobs = await axios.get('/api/v1/jobs/details?company_type=' + company)
+            jobs = jobs.data
+            const select = document.getElementById('id_job');
+            const value = select.value
+            removeOptions(select);
+
+            select.required = true
+            var newOption = new Option("Choose Job", "")
+            select.add(newOption);
+
+
+
+            jobs.map(item => {
+                var newOption = new Option(item.job_no, item.id)
+                if (item.id == value) {
+                    newOption.selected = true
+                }
+                select.add(newOption);
+
+            })
+
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    getOnlyCompanyJobs()
+
+
+    function handleAdresses(id,address_id,value){
+        var url = $("#can_form").attr("data-party-url");
+        var party = value == 0 ? document.getElementById(id).value : value;
+      
+        if(party){
+            $.ajax({
+                url: url,
+                data: { 'party': party },
+                dataType: 'json',
+                success: function (data) {    
+                    const party = data.party[0]
+                    document.getElementById(address_id).textContent = party.registered_address
+                }
+            });
+        }else{
+            document.getElementById(address_id).textContent = ''
+
+        }
+  }
+
+  document.getElementById('id_notify_party_1').addEventListener('change',()=>handleAdresses('id_notify_party_1','id_notify_party_1_location',0))
+  document.getElementById('id_shipper').addEventListener('change',()=>handleAdresses('id_shipper','id_notify_party_2_location',0))
+  document.getElementById('id_consignee').addEventListener('change',()=>handleAdresses('id_consignee','id_consignee_location',0))
+
+  function removeOptions(selectElement) {
+    var i, L = selectElement.options.length - 1;
+    for(i = L; i >= 0; i--) {
+       selectElement.remove(i);
+    }
+    }
+    async function getOnlyJobHBL(){
+        try{
+    
+            const job = document.getElementById('id_job').value
+            console.log(job)
+            var hbls = await axios.get('/api/v1/mbl/details?job_no='+job)
+            hbls = hbls.data
+            const select = document.getElementById('id_hbl'); 
+            const value = select.value
+            removeOptions(select);
+            
+            select.required = true
+            var newOption = new Option("Choose HBL","")
+            select.add(newOption);
+   
+            hbls.map(item=>{
+                var newOption = new Option(item.mbl_no,item.id)
+                if(item.id == value){
+                    newOption.selected = true
+                }
+                select.add(newOption);
+            })
+        }catch(err){
+            console.log(err)
+        }
+      }
+
+      document.getElementById('id_job').addEventListener('change',getOnlyJobHBL)
+      document.getElementById('id_job').addEventListener('keyup',getOnlyJobHBL)
+    
+</script>
+
+
+{% endblock %}

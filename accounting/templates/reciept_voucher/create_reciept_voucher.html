@@ -1,0 +1,617 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+Reciept Voucher
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 badge badge-primary mb-0 text-white">
+    Reciept Voucher
+</h1>
+
+<style>
+    table th, table td{
+        padding: 0!important;
+       
+    }
+    
+</style>
+
+<a href="{% url 'accounting:reciept_voucher_details' module=module %}"
+    class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+
+<form enctype="multipart/form-data" id="reciept_form" method="post" data-reciept_bill_details-url="{% url 'home:ajax_reciept_bill_details' %}">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+
+        
+        <div class="col-md-2 col-sm-12 mb-1">
+
+            {{ form.paid_amount }}
+            
+            <label for="id_voucher_no" class="required">Voucher No</label>
+            {{ form.voucher_no }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            
+            <label for="id_company_type" class="required">Company</label>
+            {{ form.company_type }}
+        </div>
+    
+       
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required" for="id_voucher_date">Recieving Date</label>
+            {{ form.voucher_date }}
+        </div>
+        
+        
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required" for="id_recieve_in">Bank/Cash</label>
+            {{ form.recieve_in }}
+        </div>
+
+        <div class="col-md-2 col-sm-12 mb-1" id="instrument_div">
+            <label class="required" for="id_instrument_no">Insrument No</label>
+            {{ form.instrument_no }}
+        </div>
+        
+        <div class="col-md-2 col-sm-12 mb-1" id="bank_div">
+            <label class="required" for="id_from_bank">Bank</label>
+            {{ form.bank }}
+        </div>
+        
+        <div class="col-md-2 col-sm-12 mb-1" id="cash_div" style="display: none;">
+            <label class="required" for="id_cash">Cash</label>
+            {{ form.cash }}
+        </div>
+
+        <div class="col-12"><hr></div>   
+
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required" for="id_bank_charges">Bank Charges</label>
+            {{ form.bank_charges }}
+        </div>
+       
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required" for="id_bank_charges_cgst">CGST</label>
+            {{ form.bank_charges_cgst }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required" for="id_bank_charges_sgst">SGST</label>
+            {{ form.bank_charges_sgst }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required" for="id_bank_charges_igst">IGST</label>
+            {{ form.bank_charges_igst }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required" for="id_bank_charges_tax">Total Tax</label>
+            {{ form.bank_charges_tax }}
+        </div>
+      
+     
+        <div class="col-md-12 col-sm-12 mb-1">
+            <label for="id_narration">Narration</label>
+            {{ form.narration }}
+        </div>
+       
+
+        <div class="col-12">
+            {% if update %}
+                <input type="hidden" name="total_rows" id="total_rows" value="{{form.instance.rec_voucher_detail.all|length}}">
+            {% else %}
+                <input type="hidden" name="total_rows" id="total_rows" value="0">
+            {% endif %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="party_payment">
+    
+                    <tr>
+                        <th class="required">Reciept&nbsp;Type</th>
+                        <th class="required" style="width: 150px;" >Account</th>
+                        <th class="required" >Address&nbsp;(if app.)</th>
+                        <th class="required" style="width: 150px;" >Bills</th>
+                        <th class="required" >TDS&nbsp;Amount</th>
+                        <th class="required" >Reciept&nbsp;Amount</th>
+                        <th class="required" >Adjustment&nbsp;Amount</th>
+                        <th></th>
+                    </tr>
+                    {% if update %}
+                    {% for i in form.instance.rec_voucher_detail.all %}
+                    <tr id="entry-{{forloop.counter}}">
+    
+
+                        
+                        <td>
+                            <input type="hidden" name="is_active-{{forloop.counter}}" value="yes" id="is_active-{{forloop.counter}}">
+                            <input type="hidden" name="is_update-{{forloop.counter}}" value="yes" id="is_update-{{forloop.counter}}">
+                            <input type="hidden" name="voucher_id-{{forloop.counter}}" value="{{i.id}}" id="voucher_id-{{forloop.counter}}">
+    
+                           <select class="form-control"  onkeyup="handlePaymentType('{{forloop.counter}}')" onchange="handlePaymentType('{{forloop.counter}}')" name="payment_type-{{forloop.counter}}" required id="payment_type-{{forloop.counter}}">
+                            {% if i.payment_type == "BW" %}
+                            <option value="BW" selected>Bill Wise</option>
+                            <option value="OAC">On A/C</option>
+                            {% else %}
+                            <option value="BW">Party</option>
+                            <option value="OAC" selected>On A/C</option>
+                            {% endif %}
+                           </select>
+                        </td>
+
+
+                        <td>
+                         
+    
+                           <select class="form-control" onchange="getOnlyPartyAdress('party-{{forloop.counter}}','party_address-{{forloop.counter}}'); getPendingBills('{{forloop.counter}}'); handleDirectOrIndirect('{{forloop.counter}}');" onkeyup="getOnlyPartyAdress('party-{{forloop.counter}}','party_address-{{forloop.counter}}'); getPendingBills('{{forloop.counter}}'); handleDirectOrIndirect('{{forloop.counter}}');" required id="party-{{forloop.counter}}" name="party-{{forloop.counter}}">
+                            <option value="" selected>Choose Party</option>
+                            {% for account in global_ledgers %}
+                                {% if i.ledger == account %}
+                                <option value="L_{{account.id}}" selected>{{account}}</option>
+                                {% else  %}
+                                <option value="L_{{account.id}}">{{account}}</option>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% for account in global_vendors %}
+                                {% if i.vendor == account %}
+                                <option value="V_{{account.id}}" selected>{{account}}</option>
+                                {% else  %}
+                                <option value="V_{{account.id}}">{{account}}</option>
+                                {% endif %}
+                            {% endfor %}
+                                
+                            {% for party in global_voucher_parties %}
+                            {% if i.party == party %}
+                            <option value="P_{{party.id}}" selected>{{party}}</option>
+                            {% else %}
+                            <option value="P_{{party.id}}">{{party}}</option>
+                            {% endif %}
+                            {% endfor %}
+
+
+                           </select>
+
+
+                        </td>
+                        <td>
+                            <select class="form-control" name="party_address-{{forloop.counter}}" disabled id="party_address-{{forloop.counter}}">
+                                {% if i.party_address %}
+                                <option value="{{i.party_address.id}}" selected>{{i.party_address}}</option>
+                                {% endif %}
+                            </select>
+                            
+                            
+                        </td>
+                       
+
+                        <td>
+                            <span id="recieved_amount-{{forloop.counter}}"></span>
+                            <select class="form-control" name="bill-{{forloop.counter}}" required id="bill-{{forloop.counter}}">
+                               
+                                <option value="{{i.invoice.id}}" selected>{{i.invoice}}</option>
+                               
+                            </select>
+                            
+                            
+                        </td>
+
+                        <td>
+                            <span id="tds-{{forloop.counter}}"></span>
+                            <input class="form-control" onchange="calculatePaidAmount()" onkeyup="calculatePaidAmount()" type="number" step="0.01" id="tds_amount-{{forloop.counter}}" required value="{{i.tds_amount}}" min="0" name="tds_amount-{{forloop.counter}}">
+                        </td>
+                        <td>
+                            <span id="pending_amount-{{forloop.counter}}"></span>
+                            <input class="form-control" onchange="calculatePaidAmount()" onkeyup="calculatePaidAmount()" type="number" step="0.01" id="amount-{{forloop.counter}}" required  value="{{i.received_amount}}" min="0" name="amount-{{forloop.counter}}">
+                        </td>
+                        <td>
+                            
+                            <input class="form-control" onchange="calculatePaidAmount()" onkeyup="calculatePaidAmount()" type="number" step="0.01" id="adjustment_amount-{{forloop.counter}}" required  value="{{i.adjustment_amount}}" min="0" name="adjustment_amount-{{forloop.counter}}">
+                        </td>
+                        <td>
+                            <div class="btn btn-sm btn-danger" onclick="deleteRow('{{forloop.counter}}')">Remove</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                   
+                </table>
+            </div>
+            <div class="text-right w-100">
+                <button type="button" class="btn btn-sm btn-primary" onclick="addRow()"> Add More </button>
+            </div>
+        </div>
+
+    </div>
+ 
+    <button type="submit"  class="btn btn-primary" id="submit-btn">
+        {% if update %}
+        Save Update
+        {% else %}
+        Save Create
+        {% endif %}
+
+    </button>
+
+    {% if update %}
+    <input type="hidden" id="is_update" value="true">
+
+
+    {% else %}
+    <input type="hidden" id="is_update" value="false">
+    {% endif %}
+    <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+    <input type="hidden" id="user_back_permission" value="{{ request.user.user_account.can_backlog }}">
+</form>
+
+
+
+
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+    if(document.getElementById('user_back_permission').value == "False"){
+        setDateLimit(3,document.getElementById('id_voucher_date'))
+    }
+
+
+    function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for(i = L; i >= 0; i--) {
+           selectElement.remove(i);
+        }
+        }
+
+        async function getOnlyPartyAdress(id,address_id){
+            try{
+                
+                var party = document.getElementById(id).value.split('_')
+                if(party[0] != 'P'){
+                    return
+                }
+                
+                var adresses = await axios.get('/api/v1/party/details?party='+party[1])
+                adresses = adresses.data
+                const select = document.getElementById(address_id); 
+                if(is_update){
+                var value = select.value
+                }
+                else{
+                    var  value = 0
+                }
+                removeOptions(select);
+                select.innerHTML = ''
+                select.required = true
+                var newOption = new Option("Choose Address","")
+                select.add(newOption);
+                
+                adresses.map(item=>{
+                    var newOption = new Option(item.branch,item.id)
+                    if(item.id == value || adresses.length == 1){
+                        newOption.selected = true
+                    }
+                    select.add(newOption);
+                })
+        
+            }catch(err){
+                
+            }
+          }
+    
+          var is_update = document.getElementById('is_update').value == "true"
+
+    var currentRowNumber = parseInt(document.getElementById('total_rows').value) || 0
+    var availableRowNumber = parseInt(document.getElementById('total_rows').value) || 0
+
+    const addRow = () => {
+        currentRowNumber += 1
+        availableRowNumber += 1
+        
+        var newRow = document.getElementById('party_payment').insertRow(-1)
+        newRow.id = `entry-${currentRowNumber}`
+        newRow.classList.add("entry")
+        var payment_type = newRow.insertCell(0)
+        var party = newRow.insertCell(1)
+        var party_address = newRow.insertCell(2)
+        var bills = newRow.insertCell(3)
+        var tds_amount = newRow.insertCell(4)
+        var amount = newRow.insertCell(5)
+        var adjustment_amount = newRow.insertCell(6)
+        var delete_cell = newRow.insertCell(7)
+
+       
+        payment_type.innerHTML = `
+        <input type="hidden" name="is_active-${currentRowNumber}" value="yes" id="is_active-${currentRowNumber}">
+        <input type="hidden" name="is_update-${currentRowNumber}" value="no" id="is_update-${currentRowNumber}">
+        
+        <select class="form-control" onkeyup="handlePaymentType(${currentRowNumber})" onchange="handlePaymentType(${currentRowNumber})" name="payment_type-${currentRowNumber}" required id="payment_type-${currentRowNumber}">                
+            <option value="OAC" selected>On A/C</option>
+            <option value="BW">Bill Wise</option>  
+        </select>
+        `
+        party.innerHTML = `
+       
+        <select required class="form-control" name="party-${currentRowNumber}" onchange="getOnlyPartyAdress('party-${currentRowNumber}','party_address-${currentRowNumber}'); getPendingBills(${currentRowNumber}); handleDirectOrIndirect(${currentRowNumber});" onkeyup="getOnlyPartyAdress('party-${currentRowNumber}','party_address-${currentRowNumber}'); getPendingBills(${currentRowNumber}); handleDirectOrIndirect(${currentRowNumber});" id="party-${currentRowNumber}">
+            
+            <option value="" selected disabled hidden>Choose Party</option>
+
+            {% for account in global_ledgers %}                
+                <option value="L_{{account.id}}">{{account}}</option>
+            {% endfor %}
+            
+            {% for account in global_vendors %}                
+                <option value="V_{{account.id}}">{{account}}</option>
+            {% endfor %}
+
+            {% for i in global_voucher_parties %}
+                <option value="P_{{i.id}}">{{i}}</option>
+            {% endfor %}
+        </select>
+        `
+
+        party_address.innerHTML = `
+        <select class="form-control" required name="party_address-${currentRowNumber}" required id="party_address-${currentRowNumber}"></select>
+        `
+       
+        bills.innerHTML = `
+        <span id="recieved_amount-${currentRowNumber}"></span>
+        <select class="form-control" onchange="getPendingBillDetails(${currentRowNumber})" onkeyup="getPendingBillDetails(${currentRowNumber})" name="bill-${currentRowNumber}" disabled required id="bill-${currentRowNumber}">
+            <option value="" selected disabled hidden>Choose Bills</option>
+        </select>
+        `
+
+        tds_amount.innerHTML = `
+            <span id="tds-${currentRowNumber}"></span>
+            <input class="form-control" value='0' onchange="calculatePaidAmount()" onkeyup="calculatePaidAmount()" type="number" required step="0.01" id="tds_amount-${currentRowNumber}" name="tds_amount-${currentRowNumber}">
+        `
+        amount.innerHTML = `
+            <span id="pending_amount-${currentRowNumber}"></span>
+            <input class="form-control"  value='0'  onchange="calculatePaidAmount()" onkeyup="calculatePaidAmount()" type="number" required step="0.01" id="amount-${currentRowNumber}" name="amount-${currentRowNumber}">
+        `
+        adjustment_amount.innerHTML = `
+            <input class="form-control"  value='0'  onchange="calculatePaidAmount()" onkeyup="calculatePaidAmount()" type="number" required step="0.01" id="adjustment_amount-${currentRowNumber}" name="adjustment_amount-${currentRowNumber}">
+        `
+
+        
+
+        delete_cell.innerHTML = `
+                <div class="btn btn-sm btn-danger" onclick="deleteRow(${currentRowNumber})">Remove</div>
+            `
+        document.getElementById('total_rows').value = currentRowNumber
+
+        $('#party-'+currentRowNumber).select2({
+            placeholder: 'Choose Ledger',
+            templateSelection: function (data, container) {
+                // Add custom attributes to the <option> tag for the selected option
+                    $(data.element).attr('data-custom-attribute', data.customValue);
+                    return data.text;
+                } 
+        })
+    }
+
+
+
+    const deleteRow = (index) => {
+        document.getElementById(`is_active-${index}`).value = "no"
+        document.getElementById(`party-${index}`).required = false
+        document.getElementById(`party_address-${index}`).required = false
+        document.getElementById(`amount-${index}`).required = false
+        document.getElementById(`adjustment_amount-${index}`).required = false
+        document.getElementById(`entry-${index}`).style.display = 'none'
+        availableRowNumber -= 1
+        calculatePaidAmount()
+    }
+
+
+    const calculatePaidAmount = () => {
+        var amount = 0
+        for(var i=1; i<=currentRowNumber; i++){
+            if(document.getElementById('is_active-'+i).value == "yes"){
+                amount += parseFloat(document.getElementById('tds_amount-'+i).value)
+                amount += parseFloat(document.getElementById('amount-'+i).value)
+            }
+        }
+
+        document.getElementById('id_paid_amount').value = amount.toFixed(2)
+    }
+    
+    
+    
+    const handlePaymentType = (index) => {
+        const bill = document.getElementById(`bill-${index}`)
+        var payment_type = document.getElementById(`payment_type-${index}`).value
+        bill.required = false
+        bill.disabled = false
+        
+        if(payment_type == "OAC"){
+            bill.disabled = true
+            
+        }
+        if(payment_type == "Indirect"){
+            bill.disabled = false
+            bill.required = true
+        }
+    }
+
+    
+    
+    const handlePayFrom = () => {
+        const instrument_div = document.getElementById(`instrument_div`)
+        const bank_div = document.getElementById(`bank_div`)
+        const cash_div = document.getElementById(`cash_div`)
+        const recieve_in = document.getElementById(`id_recieve_in`).value
+        
+        const bank = document.getElementById(`id_bank`)
+        const cash = document.getElementById(`id_cash`)
+        const instrument_no = document.getElementById(`id_instrument_no`)
+
+        bank.required = false
+        cash.required = false
+        instrument_no.required = false
+
+        cash_div.style.display = 'none'
+        bank_div.style.display = 'none'
+        instrument_div.style.display = 'none'
+        
+        if(recieve_in == "CASH"){
+            cash_div.style.display = 'block'
+            cash.required = true
+        }
+        if(recieve_in == "BANK"){
+            bank_div.style.display = 'block'
+            instrument_div.style.display = 'block'
+            bank.required = true
+            instrument_no.required = true
+                
+        }
+    }
+
+
+    if(is_update){
+        handlePayFrom()
+    }
+
+    const handleDirectOrIndirect = (index) => {
+        const party = document.getElementById(`party-${index}`)
+        const party_address = document.getElementById(`party_address-${index}`)
+        var party_type = party.value.split('_')
+        party.required = true
+        party_address.required = false
+        party_address.disabled = true
+        
+        if(party_type[0] == "P"){
+            party_address.required = true
+            party_address.disabled = false
+           
+        }
+       
+    }
+
+    if(is_update){
+        for(var i=1; i<=currentRowNumber; i++){
+            handleDirectOrIndirect(i)
+        }
+    }
+   
+   var report = []
+    const getPendingBills = (index) => {
+        var url = $("#reciept_form").attr("data-reciept_bill_details-url");
+        var party = document.getElementById(`party-${index}`).value.split('_')
+
+        var party_id = null
+        if(party[0] == 'P'){
+            party_id = party[1]
+        }
+        else{
+            return
+        }
+
+        if(!party_id){
+            return
+        }
+        
+        $.ajax({
+          url: url,
+          data: {'party_id':party_id },
+          dataType: 'json',
+          success: function (data) {
+            console.log(data)
+            report  = data.report
+            const select = document.getElementById(`bill-${index}`); 
+            if(is_update){
+                var value = select.value
+            }
+            else{
+                var  value = 0
+            }
+            removeOptions(select);
+            select.innerHTML = ''
+            select.required = true
+            var newOption = new Option("Choose Bills","")
+            select.add(newOption);
+            
+            report.map(item=>{
+                
+                    var newOption = new Option(item.invoice_no,item.id)
+                    if(item.id == value){
+                        newOption.selected = true
+                    }
+                    select.add(newOption);
+                
+            })
+
+            if(is_update){
+                getPendingBillDetails(index)
+            }
+        }
+        });
+      
+      
+    }
+
+   
+    const getPendingBillDetails = (index) => {
+        var invoice_id = document.getElementById(`bill-${index}`).value
+        var amount = document.getElementById(`amount-${index}`)
+
+        var paid_amount = document.getElementById(`recieved_amount-${index}`)
+        var tds_amount = document.getElementById(`tds-${index}`)
+        var pending_amount = document.getElementById(`pending_amount-${index}`)
+
+        var invoice_data = report.filter(item=>item.id==invoice_id)
+        if(invoice_data){
+            invoice_data = invoice_data[0]
+            console.log(invoice_data)
+            paid_amount.innerHTML = `Net&nbsp;-&nbsp;${invoice_data.net_amount}`
+            tds_amount.innerHTML = `TDS&nbsp;-&nbsp;${invoice_data.tds_amount}`
+            pending_amount.innerHTML = `Pending&nbsp;-&nbsp;${invoice_data.pending_amount}`
+            if(!is_update){
+                amount.max = invoice_data.pending_amount
+                amount.min = 0
+            }
+        }
+      
+    }
+
+   
+    if(is_update){
+        for(var i=1; i<=currentRowNumber; i++){
+            handlePaymentType(i)
+            getPendingBills(i)
+            
+        }
+    }
+
+    document.getElementById('id_recieve_in').addEventListener('change',handlePayFrom)
+    document.getElementById('id_recieve_in').addEventListener('keyup',handlePayFrom)
+
+
+</script>
+
+
+<script>
+
+    const handleTaxes = () => {
+        var cgst = parseFloat(document.getElementById('id_bank_charges_cgst').value)
+        var sgst = parseFloat(document.getElementById('id_bank_charges_sgst').value)
+        var igst = parseFloat(document.getElementById('id_bank_charges_igst').value)
+        var total_tax = document.getElementById('id_bank_charges_tax')
+        total_tax.value = cgst + sgst + igst
+    }
+    document.getElementById('id_bank_charges_cgst').addEventListener('keyup',handleTaxes)
+    document.getElementById('id_bank_charges_cgst').addEventListener('change',handleTaxes)
+    document.getElementById('id_bank_charges_sgst').addEventListener('keyup',handleTaxes)
+    document.getElementById('id_bank_charges_sgst').addEventListener('change',handleTaxes)
+    document.getElementById('id_bank_charges_igst').addEventListener('keyup',handleTaxes)
+    document.getElementById('id_bank_charges_igst').addEventListener('change',handleTaxes)
+</script>
+
+{% endblock %}

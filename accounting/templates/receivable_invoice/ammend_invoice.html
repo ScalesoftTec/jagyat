@@ -1,0 +1,478 @@
+{% extends 'dashboard/index.html' %}
+
+
+
+{% block dashoard_title %} 
+Invoice Receivables Ammend - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    {% if not update %}
+    Ammend Invoice Receivables
+    {% else %}
+    Ammend Receivables
+    {% endif %}
+</h1>
+
+<a href="{% url 'accounting:recievable_invoice_details' module=module  %}"
+    class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+{% if update %}
+<input type="hidden" id="is_update" value="true">
+
+{% else %}
+<input type="hidden" id="is_update" value="false">
+{% endif %}
+
+
+<input type="hidden" id="module" value="{{ module }}">
+<input type="hidden" id="extra_module" value="{{ extra_module }}">
+
+
+<input type="hidden" id="pre_invoice" value="{{ settings.pre_recievable_invoice }}">
+
+<form enctype="multipart/form-data" method="post" autocomplete="off" onsubmit="disableSubmit(); return checkValidations();" id="inv_rec_form" data-job-url="{% url 'home:ajax_load_jobdetails' %}" data-job_gr-url = "{% url 'home:ajax_job_gr_details' %}">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+        
+      
+       
+        {% if update %}
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label class="required"  for="id_final_invoice_no">Invoice No.</label>
+            {{ form.final_invoice_no }}
+        </div>
+        {% endif %}
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label class="required"  for="id_einvoice_date">Invoice Date</label>
+            {{ form.einvoice_date }}
+        </div>
+       
+      
+       
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label class="required"  for="id_type_of_invoice">Type of Invoice</label>
+            {{ form.type_of_invoice }}
+        </div>
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label class="required"  for="id_gst_applicable">Invoice Category (E-Invoice)</label>
+            {{ form.category }}
+        </div>
+   
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label class="required"  for="id_bill_to">Bill To</label>
+            {{ form.bill_to }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label class="required"  for="id_bill_to_address">Bill To Address</label>
+            {{ form.bill_to_address }}
+        </div>
+        
+      
+
+
+      
+        <input type="hidden" name="invoice-heads-total" id="invoice-heads-total" value="{{data.recievable_invoice_reference.all|length}}">
+        
+
+        <div class="col-12">
+            <div class="row my-4" id="invoice_heads">
+              
+                {% for head in data.recievable_invoice_reference.all %}
+                <div class="col-12 mb-1" id="invoice-head-{{forloop.counter}}">
+
+                    <input type="hidden" name="isActive_{{forloop.counter}}" value="1"
+                        id="isActive_{{forloop.counter}}">
+
+                    <div class="row">
+                        <div class="col-md-2 col-sm-12">
+                            <label class="required"  for="billing_head_{{forloop.counter}}">Billing Head</label>
+                            <select required class="form-control" name="billing_head_{{forloop.counter}}"
+                                id="billing_head_{{forloop.counter}}" onchange="getGSTFromBillingHead('{{forloop.counter}}')"  onkeyup="getGSTFromBillingHead('{{forloop.counter}}')">
+
+                                {% for bill in global_billing_head %}
+                                {% if head.billing_head.id == bill.id %}
+                                <option value="{{bill.id}}" selected>{{bill}}</option>
+                                {% else %}
+                                <option value="{{bill.id}}">{{bill}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label class="required"  for="currency_{{forloop.counter}}">Currency</label>
+                            <select required class="form-control" name="currency_{{forloop.counter}}"
+                                id="currency_{{forloop.counter}}">
+                                <option value="" disabled selected>-----</option>
+                                {% for currency in global_currencies %}
+                                {% if head.currency.id == currency.id %}
+
+                                <option value="{{currency.id}}" selected>{{currency.short_name}}</option>
+                                {% else %}
+
+                                <option value="{{currency.id}}">{{currency.short_name}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label class="required"  for="ex_rate_{{forloop.counter}}">Ex Rate</label>
+                            <input required type="text" value="{{head.ex_rate}}" onkeyup="calculateInvoiceTotals()"
+                                name="ex_rate_{{forloop.counter}}" id="ex_rate_{{forloop.counter}}"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label class="required"  for="rate_{{forloop.counter}}">Rate</label>
+                            <input required type="text" value="{{head.rate}}" onkeyup="calculateInvoiceTotals()"
+                                name="rate_{{forloop.counter}}" id="rate_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label class="required"  for="qty_{{forloop.counter}}">Qty</label>
+                            <input required type="text" value="{{head.qty_unit}}" onkeyup="calculateInvoiceTotals()"
+                                name="qty_{{forloop.counter}}" id="qty_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label  class="required" for="tax_applicable_{{forloop.counter}}">Tax App.</label>
+                           <select name="tax_applicable_{{forloop.counter}}" class="form-control" id="tax_applicable_{{forloop.counter}">
+                            {% if not head.tax_applicable or head.tax_applicable == 'T'  %}
+                            <option value="T" selected>Taxable</option>
+                            {% else %}
+                            <option value="T">Taxable</option>
+                            {% endif %}
+                            {% if head.tax_applicable == 'L' %}
+                            <option value="L" selected>Nil</option>
+                           {% else %}
+                           <option value="L">Nil</option>
+                           {% endif %}
+                           {% if head.tax_applicable == 'E' %}
+                           <option value="E" selected>Exempt</option>
+                           {% else %}
+                           <option value="E">Exempt</option>
+                           {% endif %}
+                           {% if head.tax_applicable == 'N' %}
+                           <option value="N" selected>Non GST</option>
+                           {% else %}
+                           <option value="N">Non GST</option>
+                           {% endif %}
+                           {% if head.tax_applicable == 'F' %}
+                           <option value="F" selected>Free Supplies</option>
+                           {% else %}
+                           <option value="F">Free Supplies</option>
+                           {% endif %}
+                        </select>
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label class="required"  for="gst_{{forloop.counter}}">Tax %</label>
+                            <input required type="text" value="{{head.gst}}" onkeyup="calculateInvoiceTotals()"
+                                name="gst_{{forloop.counter}}" id="gst_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <label class="required"  for="amount_{{forloop.counter}}">Amount</label>
+                            <input required type="text" value="{{head.amount}}" name="amount_{{forloop.counter}}"
+                                id="amount_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-2 col-sm-12">
+                            <label class="required"  for="total_{{forloop.counter}}">Total</label>
+                            <input required type="text" value="{{head.total}}" name="total_{{forloop.counter}}"
+                                id="total_{{forloop.counter}}" class="form-control">
+                        </div>
+                        <div class="col-md-1 col-sm-12">
+                            <i class="fas fa-times" onclick="deleteRow('{{forloop.counter}}');"
+                                style="margin-top: 40px; color:red; cursor:pointer;"></i>
+                        </div>
+                        <input type="hidden" name="inv_gst_amount_{{forloop.counter}}" value="{{head.gst_amount}}"
+                            id="inv_gst_amount_{{forloop.counter}}">
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+
+            <button class="btn btn-primary mb-4" type="button" onclick="addMore();"> + Add More</button>
+
+        </div>
+
+
+        <div class="col-md-12 col-sm-12 mb-1">
+            <div class="row">
+                <div class="col-md-3 col-sm-12 mb-1">
+                    <label for="id_fin_non_fin">Advance Amount (if Any)</label>
+                    {{ form.advance_amount }}
+                </div>
+                <div class="col-md-3 col-sm-12 mb-1">
+                    <label for="id_fin_non_fin">Gross Amount</label>
+                    {{ form.gross_amount }}
+                </div>
+                <div class="col-md-3 col-sm-12 mb-1">
+                    <label for="id_fin_non_fin">Tax Amount</label>
+                    {{ form.gst_amount }}
+                </div>
+                <div class="col-md-3 col-sm-12 mb-1">
+                    <label for="id_fin_non_fin">Net Amount</label>
+                    {{ form.net_amount }}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <button type="submit" id="submitBtn" class="btn btn-primary">
+       
+        Save Invoice
+       
+    </button>
+
+    <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+
+
+</form>
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+    const is_update = document.getElementById('is_update').value
+
+   
+
+    
+   
+
+    function removeOptions(selectElement) {
+        var  L = selectElement.options.length - 1;
+        for(i = L; i >= 0; i--) {
+           selectElement.remove(i);
+        }
+        }
+   
+
+</script>
+
+
+
+
+ 
+    
+    <script>
+     
+   
+    
+    var currentRowNumber = parseInt(document.getElementById('invoice-heads-total').value)
+    var availableRowNumber = parseInt(document.getElementById('invoice-heads-total').value)
+    var currency_data = []
+    var billing_data = []
+ 
+    const billingsContent = document.getElementById('invoice_heads');
+
+    
+    const addMore = () => {
+        currentRowNumber += 1;
+        availableRowNumber += 1;
+
+        var newElement = document.createElement('div')
+        newElement.classList.add('col-12')
+        newElement.setAttribute('id', `invoice-head-${currentRowNumber}`)
+        newElement.classList.add('mb-1')
+
+        newElement.innerHTML = `
+        <div class="row">
+            <input type="hidden" name="isActive_${currentRowNumber}" value="1" id="isActive_${currentRowNumber}">
+            <div class="col-md-2 col-sm-12">
+                <label for="billing_head_${currentRowNumber}">Billing Head</label>
+                <select required class="form-control" name="billing_head_${currentRowNumber}" id="billing_head_${currentRowNumber}" onkeyup="getGSTFromBillingHead(${currentRowNumber})" onchange="getGSTFromBillingHead(${currentRowNumber})">
+                    <option value="" disabled selected>-----</option>
+                    {% for head in global_billing_head %}
+                                
+                    <option value="{{head.id}}">{{head}}</option>
+                            
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="currency_${currentRowNumber}">Currency</label>
+                <select required class="form-control" name="currency_${currentRowNumber}" id="currency_${currentRowNumber}">
+                    {% for head in global_currencies %}
+                                
+                        <option value="{{head.id}}">{{head.short_name}}</option>
+                            
+                    {% endfor %}
+                    
+                </select>
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="ex_rate_${currentRowNumber}">Ex Rate</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" name="ex_rate_${currentRowNumber}" id="ex_rate_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="rate_${currentRowNumber}">Rate</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" name="rate_${currentRowNumber}" id="rate_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="qty_${currentRowNumber}">Qty</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" name="qty_${currentRowNumber}" id="qty_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="tax_applicable_${currentRowNumber}">Tax App.</label>
+               <select name="tax_applicable_${currentRowNumber}" class="form-control" id="tax_applicable_${currentRowNumber}">
+                <option value="T" selected>Taxable</option>
+                <option value="L">Nil</option>
+                <option value="E">Exempt</option>
+                <option value="N">Non GST</option>
+                <option value="F">Free Supplies</option>
+                </select>
+            
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="gst_${currentRowNumber}">Tax %</label>
+                <input required type="text" onkeyup="calculateInvoiceTotals()" name="gst_${currentRowNumber}" id="gst_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <label for="amount_${currentRowNumber}">Amount</label>
+                <input required type="text" name="amount_${currentRowNumber}" id="amount_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <label for="total_${currentRowNumber}">Total</label>
+                <input required type="text" name="total_${currentRowNumber}" id="total_${currentRowNumber}" class="form-control">
+            </div>
+            <div class="col-md-1 col-sm-12">
+                <i class="fas fa-times" onclick="deleteRow(${currentRowNumber});" style="margin-top: 40px; color:red; cursor:pointer;"></i>
+            </div>
+            <input type="hidden" name="inv_gst_amount_${currentRowNumber}" value="0" id="inv_gst_amount_${currentRowNumber}">
+        </div>
+        `
+
+        billingsContent.append(newElement)
+        document.getElementById('invoice-heads-total').value = currentRowNumber
+
+    }
+
+    const deleteRow = (index) => {
+
+        availableRowNumber -= 1;
+        document.getElementById(`isActive_${index}`).value = '0'
+        document.getElementById(`billing_head_${index}`).required = false
+        document.getElementById(`currency_${index}`).required = false
+        document.getElementById(`ex_rate_${index}`).required = false
+        document.getElementById(`rate_${index}`).required = false
+        document.getElementById(`qty_${index}`).required = false
+        document.getElementById(`gst_${index}`).required = false
+        document.getElementById(`amount_${index}`).required = false
+        document.getElementById(`total_${index}`).required = false
+        document.getElementById(`invoice-head-${index}`).style.display = 'none'
+        calculateInvoiceTotals()
+    }
+
+    const calculateInvoiceTotals = () => {
+        var grossAmt = 0
+        var gstAmt = 0
+        var netAmt = 0
+        for (var i = 1; i <= currentRowNumber; i++) {
+            if (document.getElementById(`isActive_${i}`).value == '1') {
+
+                var ex_rate = parseFloat(document.getElementById(`ex_rate_${i}`).value)
+                var rate = parseFloat(document.getElementById(`rate_${i}`).value)
+                var qty = parseFloat(document.getElementById(`qty_${i}`).value)
+                var gst = parseFloat(document.getElementById(`gst_${i}`).value)
+                var amount = document.getElementById(`amount_${i}`)
+                var total = document.getElementById(`total_${i}`)
+
+                var before_gst_amt = ex_rate * rate * qty
+                amount.value = Math.round((before_gst_amt)*100)/100
+                var gst_amt = Math.round(((before_gst_amt * gst) / 100) * 100 )/100;
+                document.getElementById(`inv_gst_amount_${i}`).value = gst_amt
+                total.value =  Math.round((gst_amt + before_gst_amt) * 100) / 100
+
+                gstAmt += Math.round((gst_amt) * 100) /100;
+                netAmt +=  Math.round((gst_amt + before_gst_amt) * 100) / 100
+                grossAmt += Math.round((before_gst_amt) * 100) /100;
+
+            }
+
+        }
+
+        document.getElementById('id_gross_amount').value = Math.round((grossAmt) * 100)/100
+        document.getElementById('id_gst_amount').value = Math.round((gstAmt) * 100)/100
+        document.getElementById('id_net_amount').value = Math.round((netAmt) * 100)/100
+        if (isNaN((document.getElementById('id_gross_amount').value))) {
+            document.getElementById('id_gross_amount').value = 'Calculating ...'
+        }
+        if (isNaN((document.getElementById('id_gst_amount').value))) {
+            document.getElementById('id_gst_amount').value = 'Calculating ...'
+        }
+        if (isNaN((document.getElementById('id_net_amount').value))) {
+            document.getElementById('id_net_amount').value = 'Calculating ...'
+        }
+    }
+
+    document.getElementById('id_advance_amount').addEventListener('keyup', () => {
+        calculateInvoiceTotals();
+        var advance_amount = parseFloat(document.getElementById('id_advance_amount').value) || 0
+        var net_amount = parseFloat(document.getElementById('id_net_amount').value) || 0
+        if ((net_amount - advance_amount) >= 0) {
+            document.getElementById('id_net_amount').value = net_amount - advance_amount
+        }
+        else {
+            document.getElementById('id_net_amount').value = 'Please enter valid values...'
+
+        }
+    })
+    const checkValidations = () => {
+        if (availableRowNumber <= 0) {
+            Snackbar.show({ text: 'Please Choose at invoice head.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+            event.preventDefault();
+            return false
+        }
+        else {
+            var flag = 0
+            for (var i = 1; i <= currentRowNumber; i++) {
+                if (document.getElementById(`isActive_${i}`).value == '1') {
+                    if (isNaN((document.getElementById(`id_amount_${i}`).value))) {
+                        flag = 1
+                    }
+                    if (isNaN((document.getElementById(`id_total_${i}`).value))) {
+                        flag = 1
+                    }
+                    if (isNaN((document.getElementById('id_gross_amount').value))) {
+                        flag = 1
+                    }
+                    if (isNaN((document.getElementById('id_gst_amount').value))) {
+                        flag = 1
+                    }
+                    if (isNaN((document.getElementById('id_net_amount').value))) {
+                        flag = 1
+                    }
+                }
+
+            }
+
+            if (flag == 1) {
+                Snackbar.show({ text: 'Please Check Form Again.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+                event.preventDefault();
+                return false
+            }
+
+        }
+    }
+
+
+    const getGSTFromBillingHead = async(index) => {
+        const billing_head = document.getElementById(`billing_head_${index}`).value
+        const res = await axios.get(`/api/v1/billing-head/details/${billing_head}/`)
+        const data = res.data
+        document.getElementById(`gst_${index}`).value = data.gst
+
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,332 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+{% if update %}
+Update Delivery Order - 
+{% else %}
+Create Delivery Order - 
+{% endif %}
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Delivery Order Details
+    {% else %}
+    Create New Delivery Order
+    {% endif %}
+</h1>
+
+<a href="{% url 'operations:do_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post"  onsubmit="disableSubmit()" id="do_form" data-job-url="{% url 'home:ajax_load_jobdetails' %}" data-job_hbl-url="{% url 'home:ajax_job_hbl_details' %}">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+
+        {% if request.user.user_account.create_global_data %}
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_company_type">Choose Company</label>
+            {{ form.company_type }}
+        </div>
+        {% else %}
+            <input type="hidden" name="id_company_type" id="id_company_type" value="{{ request.user.user_account.office.id }}">
+        {% endif %}
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_job">Select Job</label>
+            {{ form.job }}
+        </div>
+        
+      
+
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_date">Date</label>
+            {{ form.date }}
+        </div>
+
+        <!-- <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_gigm">GIGM</label>
+            {{ form.gigm }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_gigm_date">GIGM Date</label>
+            {{ form.gigm_date }}
+        </div>
+
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_ligm">LIGM</label>
+            {{ form.ligm }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_ligm_date">LIGM date</label>
+            {{ form.ligm_date }}
+        </div> -->
+
+       
+
+
+
+        <!-- <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_container_no">Container No.</label>
+            {{ form.container_no }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_container_type">Container Type</label>
+            {{ form.container_type }}
+        </div> -->
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_consignee">Consignee</label>
+            {{ form.consignee }}
+        </div>
+        <!-- <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_hbl">HBL No.</label>
+            {{ form.hbl }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_mbl">MBL No.</label>
+            {{ form.mbl }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_hbl_date">HBL Date</label>
+            {{ form.hbl_date }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_mbl_date">MBL Date</label>
+            {{ form.mbl_date }}
+        </div> -->
+        
+
+        <!-- <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_weight">Weight</label>
+            {{ form.weight }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_total_packages">Total Packages</label>
+            {{ form.total_packages }}
+        </div>
+
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_manager_location">Manager Location</label>
+            {{ form.manager_location }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_manager_state">Manager State</label>
+            {{ form.manager_state }}
+        </div> -->
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_desc_of_goods">Description Of Goods</label>
+            {{ form.desc_of_goods }}
+        </div>
+
+        <div class="col-md-12 col-sm-12 mb-1" id="hbl_tab">
+            <label  for="id_hbl_options">HBL</label>
+            {{ form.hbl_options }}
+        </div>
+
+
+
+
+    </div>
+
+    <button type="submit" id="submitBtn" class="btn btn-primary">
+        {% if update %}
+        Update Delivery Order Details
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+
+    {% if update %}
+    <input type="hidden" id="is_update" value="true">
+
+    {% else %}
+    <input type="hidden" id="is_update" value="false">
+    {% endif %}
+    <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+
+
+
+
+</form>
+
+
+{% endblock %}
+
+
+{% block js %}
+
+
+<script>
+    if(document.getElementById('is_update').value == 'false'){
+        document.getElementById('id_company_type').value = document.getElementById('user_company').value
+    }
+     
+  $("#id_job").change(function () {
+    var url = $("#do_form").attr("data-job-url");
+    var job_no = $(this).val();
+    
+    $.ajax({
+      url: url,
+      data: { 'job_no': job_no },
+      dataType: 'json',
+      success: function (data) {
+      
+
+      const job = data.job[0]
+      console.log(job)
+          
+      $("#id_shipper").val(job.shipper_id);
+    
+      $("#id_container_type").val(job.container_type);
+      $("#id_hbl_date").val(job.hbl_date);
+      $("#id_mbl_date").val(job.mbl_date);
+      $("#id_mbl").val(job.mbl_no);
+      $("#id_hbl").val(job.hbl_no);
+      $("#id_weight").val(job.net_weight);
+      $("#id_total_packages").val(job.no_of_packages);
+      $("#id_container_no").val(job.container_no);
+      $("#id_consignee").val(job.importer_id);
+      $("#id_gigm").val(job.gigm);
+      $("#id_ligm").val(job.ligm);
+      $("#id_gigm_date").val(job.gigm_date);
+      $("#id_ligm_date").val(job.ligm_date);
+      $("#id_desc_of_goods").val(job.commodity);
+     
+    
+
+      }
+    });
+  });
+
+  function removeOptions(selectElement) {
+    var i, L = selectElement.options.length - 1;
+    for(i = L; i >= 0; i--) {
+       selectElement.remove(i);
+    }
+    }
+
+  document.getElementById('id_company_type').addEventListener('change',getOnlyCompanyJobs)
+  async function getOnlyCompanyJobs(){
+    try{
+
+        const company = document.getElementById('id_company_type').value
+        var jobs = await axios.get('/api/v1/jobs/details?company_type='+company)
+        jobs = jobs.data
+        const select = document.getElementById('id_job'); 
+        const value = select.value
+        removeOptions(select);
+
+        select.required = true
+        var newOption = new Option("Choose Job","")
+        select.add(newOption);
+        
+        jobs.map(item=>{
+            var newOption = new Option(item.job_no,item.id)
+            if(item.id == value){
+                newOption.selected = true
+            }
+            select.add(newOption);
+        })
+
+    }catch(err){
+        console.log(err)
+    }
+  }
+
+  getOnlyCompanyJobs()
+
+
+
+
+  document.getElementById('id_hbl_options').style.maxHeight = '120px';
+    document.getElementById('id_hbl_options').style.overflowY = 'auto';
+    if(document.getElementById('is_update').value == 'false'){
+        document.getElementById('hbl_tab').style.display = 'none';
+    }
+    function load_hbl_job(){
+        try{
+
+        
+        var url = $("#do_form").attr("data-job_hbl-url");
+        var job_no = $('#id_job').val();
+        if(job_no !== ""){
+        $.ajax({
+          url: url,
+          data: { 'job': job_no },
+          dataType: 'json',
+          success: function (data) {
+          const job_hbl = data.job_hbl
+        
+          if(document.getElementById('is_update').value == 'false'){
+            document.getElementById('hbl_tab').style.display = 'block';
+
+        }
+        if(job_hbl.length == 0){
+            document.getElementById('hbl_tab').style.display = 'none';
+        }
+          
+          var hbl_option = document.getElementsByName('hbl_options')
+          for(var i = 0;i<hbl_option.length;i++){
+            document.getElementById(`id_hbl_options_${i}`).parentElement.style.display = 'block';
+          }
+            for(var i = 0;i<hbl_option.length;i++){
+                var flag = 0
+                for(var j=0; j<job_hbl.length; j++){
+                    if(hbl_option[i].value == job_hbl[j].id){
+                        flag = 1;
+                    }
+                }
+                if(flag == 0){
+                   
+                  
+                    document.getElementById(`id_hbl_options_${i}`).parentElement.style.display = 'none';
+                 
+                }
+            }
+
+          }
+        });
+    
+    
+    }
+    }
+    
+    
+    catch(err){
+
+    }
+   
+    }
+    $('#id_job').on('change',()=>{
+        load_hbl_job() 
+    })
+    try{
+
+        load_hbl_job()
+    }catch(err){
+
+    }
+
+
+
+</script>
+
+
+
+{% endblock %}

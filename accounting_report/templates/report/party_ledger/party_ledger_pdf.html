@@ -1,0 +1,203 @@
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+<html>
+<head>
+    <title>Party Ledger - {{ledger_name}}</title>
+    <style>
+        * {
+            margin-bottom: 0px !important;
+            margin-top: 0px !important;
+        }
+
+        .align-right {
+            text-align: right !important;
+        }
+
+        tr td, tr th {
+            font-size: 11px !important;
+       
+        }
+        div h1{
+            font-size: 18px !important;
+            text-transform: uppercase!important;
+       
+        }
+
+        .border-right-r {
+            border: 0.5px solid black;
+            border-top: none;
+            border-right: none;
+            border-collapse: collapse;
+        }
+
+        @page {
+            size: a3 landscape;
+            border: 1px solid black;
+
+            @frame header_frame {
+                /* Static Frame */
+                -pdf-frame-content: header_content;
+                left: 10pt;
+                right: 10pt;
+                top: 40pt;
+                height: 130pt;
+                padding-top: 10px;
+                text-transform: uppercase;
+            }
+
+            @frame content_frame {
+                /* Content Frame */
+                left: 10pt;
+                right: 10pt;
+                top: 170pt;
+            }
+
+           
+        
+        }
+
+     
+    </style>
+</head>
+
+<body>
+
+    
+    <div id="header_content">
+      <center > <h1>{{company_name}}</h1></center>
+      <center > <h1>PARTY LEDGER</h1></center>
+      <center class="margin-top:0px;"><h1> {{ledger_name}}</h1></center>
+       
+    </div>
+
+
+
+<table>
+    <thead>
+        <tr style="border:1px solid black; padding: 2px;">
+            <th style="width: 80px;">Date</th>
+            <th style="width: 25px;">&nbsp;</th>
+            <th>Particulars</th>
+            <th style="width: 130px;">Bill Wise Adjusted Ref.</th>
+            <th style="width: 180px;">Remarks</th>
+            <th style="width: 120px;">Invoice No.</th>
+            <th style="width: 130px;">Debit</th>
+            <th style="width: 130px;">Credit</th>
+            <th style="width: 130px;">Balance</th>
+        </tr>
+    </thead>
+    
+    <tbody>
+        <tr style="border:1px solid black; padding: 2px;">
+        <td>&nbsp;</td>
+        <td>
+            {% if opening_balance > 0 %}
+            TO
+            {% else %}
+            BY
+            {% endif %}
+        </td>
+       
+        <td>OPENING BALANCE</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        {% if opening_balance > 0 %}
+        <td data-order="{{opening_balance|floatformat:0|floatformat:2}}" align="right">{{opening_balance|floatformat:0|floatformat:2}}</td>
+        {% else %}
+        <td data-order="0" align="right">0</td>
+        {% endif %}
+
+        {% if opening_balance < 0 %}
+        <td data-order="{{opening_balance|mul:-1|floatformat:0|floatformat:2}}" align="right">{{opening_balance|mul:-1|floatformat:0|floatformat:2}}</td>
+        {% else %}
+        <td data-order="0" align="right">0</td>
+        {% endif %}
+
+            {% if opening_balance < 0 %}
+            <td data-order="{{opening_balance|mul:-1|floatformat:0|floatformat:2}}" align="right">{{opening_balance|mul:-1|floatformat:0|floatformat:2}} Cr.</td>
+            {% else %}
+            <td data-order="{{opening_balance|floatformat:0|floatformat:2}}" align="right">{{opening_balance|floatformat:0|floatformat:2}} Dr.</td>
+            
+            {% endif %}
+      
+        </tr>
+        {% if report %}
+        {% for data in report %}
+        {% if data.color %}
+        <tr style="background-color: #c6e0b4; border:1px solid black; padding: 2px;">
+            {% else %}
+            <tr style="border:1px solid black; padding: 2px;">
+            {% endif %}
+            <td align="center">{{data.date}}</td>
+            <td>{{data.by_to}}&nbsp;</td>
+            <td>{{data.particulars}}</td>
+            <td>&nbsp;</td>
+            <td>{{data.remarks}}&nbsp;</td>
+            <td>{{data.invoice_no}}&nbsp;</td>
+            <td align="right">{{data.dr_amount|floatformat:0|floatformat:2}}&nbsp;</td>
+            <td align="right">{{data.cr_amount|floatformat:0|floatformat:2}}&nbsp;</td>
+            {% if data.current_balance < 0 %}
+            <td align="right" >{{data.current_balance|mul:-1|floatformat:0|floatformat:2}} {{data.balance_in}}</td>
+            {% else %}
+            <td align="right">{{data.current_balance|floatformat:0|floatformat:2}} {{data.balance_in}}</td>
+            {% endif %}
+        </tr>
+
+        {% if data.adjustments %}
+        {% for adjustment in data.adjustments %}
+        {% if adjustment.invoice_no == "Advance" %}
+        <tr style="background-color: #b4c6e7; border:1px solid black; padding: 2px;">
+            {% else %}
+            <tr style="background-color: #ffe699; border:1px solid black; padding: 2px;">
+            {% endif %}
+            <td align="center" style="background-color: white!important; color:rgba(250, 240, 230, 0)!important;" >{{data.date}}</td>
+            <td>&nbsp;</td>
+            <td>{{adjustment.particulars}}  &nbsp;</td>
+            
+            <td>{{adjustment.invoice_no}} &nbsp;</td>
+            <td>&nbsp;</td>
+            <td align="right">
+                {% if adjustment.dr_amount > 0 %}
+               <span>{{adjustment.dr_amount|floatformat:0|floatformat:2}} Dr.</span>
+                {% endif %}
+                {% if adjustment.cr_amount > 0 %}
+                <span>{{adjustment.cr_amount|floatformat:0|floatformat:2}} Cr.</span>
+                {% endif %}
+            </td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </tbody>
+    
+</table>
+
+
+{% if debit_balance > 0 or credit_balance > 0 %}
+<table>
+    <tr style="border:1px solid black; padding:2px;">
+        <th align="right">Total Debit</th>
+        <td class="text-right" align="right">{{debit_balance|floatformat:0|floatformat:2|intcomma}}</td>
+    </tr>
+
+    <tr style="border:1px solid black; padding:2px;">
+        <th align="right"> Total Credit</th>
+        <td class="text-right" align="right">{{credit_balance|floatformat:0|floatformat:2|intcomma}}</td>
+    </tr>
+  
+    <tr style="border:1px solid black; padding:2px;">
+        <th align="right">Net Balance</th>
+        <td class="text-right" align="right"><strong>{{debit_balance|sub:credit_balance|floatformat:0|floatformat:2|intcomma}}</strong> </td>
+    </tr>
+
+</table>
+{% endif %}
+</body>
+</html>

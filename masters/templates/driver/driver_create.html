@@ -1,0 +1,187 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Driver Detail
+    {% else %}
+    Create New Driver Detail
+    {% endif %}
+
+</h1>
+
+<a href="{% url 'masters:driver_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post"  onsubmit="disableSubmit()">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_driver_name">Driver Name</label>
+            {{ form.driver_name }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_phone_1">Mobile Phone 1</label>
+            {{ form.phone_1 }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_phone_2">Mobile Phone 2</label>
+            {{ form.phone_2 }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_address_1">Address 1</label>
+            {{ form.address_1 }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_address_2">Address 2</label>
+            {{ form.address_2 }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_address_3">Address 3</label>
+            {{ form.address_3 }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_address_4">Address 4</label>
+            {{ form.address_4 }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_email">Email</label>
+            {{ form.email }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_driving_licence_no">Driving Licence No</label>
+            {{ form.driving_licence_no }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_lic_date">LIC Date</label>
+            {{ form.lic_date }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_account_no">Acccount No</label>
+            {{ form.account_no }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_bank_name">Bank Name</label>
+            {{ form.bank_name }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_bank_ifsc">Bank IFSC</label>
+            {{ form.bank_ifsc }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_bank_address">Bank Address</label>
+            {{ form.bank_address }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_aadhar_no">Aadhar No</label>
+            {{ form.aadhar_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_driver_dob">Driver DOB</label>
+            {{ form.driver_dob }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_nominee_name">Nominee Name</label>
+            {{ form.nominee_name }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_nominee_bank">Nominee Bank</label>
+            {{ form.nominee_bank }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_nominee_account">Nominee Account</label>
+            {{ form.nominee_account }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_nominee_dob">Nominee DOB</label>
+            {{ form.nominee_dob }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_relation">Relation</label>
+            {{ form.relation }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_status">Status</label>
+            {{ form.status }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_joining_date">Joining Date</label>
+            {{ form.joining_date }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_pan_file">PAN File</label>
+            {{ form.pan_file }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_lic_file">LIC File</label>
+            {{ form.lic_file }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_kyc1_file">KYC1 File</label>
+            {{ form.kyc1_file }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_kyc2_file">KYC2 File</label>
+            {{ form.kyc2_file }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_kyc3_file">KYC3 File</label>
+            {{ form.kyc3_file }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_photo">Photo</label>
+            {{ form.photo }}
+        </div>
+
+    
+
+        
+
+      
+       
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update Driver Details
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+</form>
+
+
+
+{% endblock %}

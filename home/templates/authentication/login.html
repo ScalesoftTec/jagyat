@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Logistics Solution</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'snackbar/dist/snackbar.min.css' %}">
+    <script src="{% static 'snackbar/dist/snackbar.min.js' %}"></script>
+</head>
+<body>
+    {% if messages %}
+    {% for message in messages %}
+
+    <input type="hidden" value="{{message}}" id="message" >
+
+    <script>
+        var message = document.getElementById('message').value
+
+            Snackbar.show({ text: message, pos: 'bottom-right', actionText: "", alertScreenReader: true, duration: 3000 });
+    </script>
+
+    {% endfor %}
+    {% endif %}
+    <div class="center">
+        
+        <h1>Login</h1>
+        <form action="{% url 'home:handle_login' %}" method="post">
+            {% csrf_token %}
+            <div class="txt_field">
+                <input type="text" id="username" name="username" required>
+                <span></span>
+                <label for="username">Username</label>
+            </div>
+            <div class="txt_field">
+                <input type="password" id="password" name="password" required>
+                <span></span>
+                <label for="password">Password</label>
+            </div>
+            <input type="submit" class="login_submit" value="Login">
+        </form>
+    </div>
+
+ 
+
+</body>
+</html>

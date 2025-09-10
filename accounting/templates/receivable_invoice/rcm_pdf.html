@@ -1,0 +1,492 @@
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+<html>
+
+<head>
+    <title>RCM Invoice - {{data.final_invoice_no}}</title>
+
+    <style>
+        * {
+            margin-bottom: 0px !important;
+            margin-top: 0px !important;
+        }
+
+        .align-right {
+            text-align: right !important;
+        }
+
+        div {
+            font-size: 10px !important;
+            line-height: 4px;
+        }
+
+        .border-right-r {
+            border: 0.5px solid black;
+            border-top: none;
+            border-right: none;
+            border-collapse: collapse;
+        }
+
+        @page {
+            size: a4 portrait;
+            border: 1px solid black;
+
+            @frame header_frame {
+                /* Static Frame */
+                -pdf-frame-content: header_content;
+                left: 10pt;
+                right: 10pt;
+                top: 40pt;
+                height: 80pt;
+            }
+
+            @frame content_frame {
+                /* Content Frame */
+                left: 10pt;
+                right: 10pt;
+                top: 120pt;
+                height: 510pt;
+                border-bottom: none !important;
+            }
+
+            @frame footer_frame {
+                /* Another static Frame */
+                -pdf-frame-content: footer_content;
+                left: 10pt;
+                right: 10pt;
+                top: 630pt;
+                height: 160pt;
+                bottom: 20pt;
+                border-top: 0px!important;
+                padding: 2px;
+            }
+        }
+
+        @page page2 {
+            size: a4 portrait;
+            
+
+            @frame header_frame {
+                /* Static Frame */
+                -pdf-frame-content: header_content2;
+                left: 20pt;
+                right: 20pt;
+                top:00pt;
+                height: 0pt;
+              
+            }
+
+            @frame content_frame {
+                /* Content Frame */
+                border: 1px solid black;
+                left: 20pt;
+                right: 20pt;
+                top: 40pt;
+                bottom: 40pt;
+                border-bottom: none !important;
+            }
+
+            @frame footer_frame {
+                /* Another static Frame */
+                -pdf-frame-content: footer_content2;
+                left: 20pt;
+                right: 20pt;
+                top: 650pt;
+                height: 150pt;
+                bottom: 20pt;
+                border-top: none !important;
+                padding: 2px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    
+    <div id="header_content">
+        <table style="border-top:1px solid black;">
+            <tr>
+                <td style="width:70%"> <img width="100%" height="auto" src="{{ head.letter_head.url }}" alt="" /></td>
+                <td align="left"  style="width:30%"> 
+                   
+                    <h2 style="text-align: center;">INVOICE FOR GTA SERVICES</h2>
+                
+                    <h2 style="text-align: center;">
+                        {% if data.inv_type_2 %}
+                        &nbsp;{{data.inv_type_2}}
+                        {% endif %}
+                    </h2>
+                </td>
+            </tr>
+        </table>
+       
+    </div>
+
+    
+
+    <table border="0.5px" style="padding:2px;">
+        <tr>
+            <td rowspan="3" style="text-align:left;vertical-align:top;padding:2px;width: 50%;">
+                <div><strong>Invoice To: </strong></div>
+                <div>{{data.bill_to.party_name}}</div>
+                <div>{{data.bill_to_address.corp_address_line1}}</div>
+                <div>{{data.bill_to_address.corp_address_line2}}</div>
+                <div>{{data.bill_to_address.corp_address_line3}}</div>
+
+                <div style="margin-top: 3px!important;">
+                    <div>
+                        <div><strong>Customer State : </strong> {{data.bill_to_address.corp_state}} <strong>State Code : </strong> {{data.bill_to_address.corp_state.gst_code}}</div>
+                        <div></div>
+                        <div><strong>GSTIN/UIN : </strong> {{data.bill_to_address.corp_gstin}}</div>
+                    </div>
+
+                </div>
+            </td>
+
+            <td style="text-align:left;vertical-align:top;padding:2px;width: 30%;">
+                <table>
+
+                    <tr style="margin: 0px; padding: 0.3px;">
+                        <td><strong>Bill No.</strong></td>
+                        <td><strong>Date</strong></td>
+                        
+                    </tr>
+                    <tr style="margin: 0px; padding: 0.3px;">
+                        {% if data.is_einvoiced and data.final_invoice_no %}
+                        <td>{{data.final_invoice_no}}</td>
+                        {% else %}
+                        <td>{{data.invoice_no}}</td>
+                        {% endif %}
+                        {% if data.is_einvoiced and data.einvoice_date %}
+                        <td>{{data.einvoice_date|date:'d-m-Y' }}</td>
+                        {% else %}
+                        <td>{{data.date_of_invoice}}</td>
+                        {% endif %}
+                   
+                    </tr>
+                </table>
+
+            </td>
+
+            <td rowspan="3" style="text-align:left;vertical-align:top;padding:0px;width: 20%;">
+                <div>
+                    {% if data.qr_code_image %}
+                    <img src="{{data.qr_code_image.url}}" alt="">
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+
+        <tr align="top">
+
+            <td style="text-align:left;vertical-align:top;padding:2px; height:60;">
+
+                <div><strong>Container No. :</strong> 
+                    {% if data.job_no.container_no %}
+                    {{data.job_no.container_no}}
+                    {% endif %}
+                </div>
+               
+            </td>
+
+        </tr>
+
+        <tr align="top">
+
+            <td style="text-align:left;vertical-align:top;padding:2px;">
+
+                <div><strong>Job Reference :</strong> {{data.job_no.job_no}}</div>
+               
+            </td>
+
+        </tr>
+
+
+
+
+    </table>
+
+    <table border="0.5px" style="padding-top:1px; padding-left:1px; padding-bottom:0px;">
+        <tr>
+            <td >
+                <div><strong>LR/GR NO. / DT</strong></div>
+                <div>AS ATTACHED ANNEXURE</div>
+            </td>
+            <td >
+                <div><strong>TRAILOR NO.</strong></div>
+                <div>AS ATTACHED ANNEXURE</div>
+            </td>
+
+            <td >
+                <div><strong>Shipper</strong></div>
+                <div>{{data.shipper.party_name}}</div>
+            </td>
+
+           
+        </tr>
+        <tr>
+            <td>
+                <div><strong>Loading Point</strong></div>
+                <div>AS ATTACHED ANNEXURE
+                </div>
+            </td>
+
+            <td>
+                <div><strong>Off Loading Point</strong></div>
+                <div>AS ATTACHED ANNEXURE
+                </div>
+            </td>
+            <td>
+                <div><strong>Shipping Line</strong></div>
+                <div>{{data.job_no.shipping_line}}</div>
+            </td>
+
+           
+        </tr>
+        <tr>
+            <td>
+                <div><strong>Port of Discharge</strong></div>
+                <div>{{data.job_no.port_of_discharge}}</div>
+            </td>
+
+            <td>
+                <div><strong>Gr.Wt.(Kg/Mt)</strong></div>
+                {% if data.job_no.gross_weight  %}
+                <div>{{data.job_no.gross_weight}}</div>
+                {% else %}
+                <div>
+                    {{data.job_no.job_container.first.gross_wt}}
+                    
+                </div>
+                {% endif %}
+            </td>
+         <td>
+            <div><strong>Due Date</strong></div>
+                <div>{{data.due_date}}</div>
+         </td>
+
+           
+        </tr>
+     
+    </table>
+
+    <table style="padding-top:1px; border-collapse:collapse; padding-left:1px; padding-bottom:0px; font-size: 8px;">
+        <tr style="border: 0.3px solid black;">
+            <th style="width: 30px;">Sr. No.</th>
+            <th style="width: 210px;" >Description</th>
+            <th  style="width: 40px;">SAC</th>
+            <th style="width: 290px;" >Narration</th>
+            <th  style="width: 45px;">QTY / CBM</th>
+            <th  style="width: 30px;">Curr</th>
+            <th  style="width: 30px;">Ex Rate</th>
+            <th  style="width: 50px;">Rate</th>
+            
+           
+            <th  >Amount in {{data.invoice_currency}}</th>
+        </tr>
+       
+        {% for head in data.recievable_invoice_reference.all %}
+        <tr style="border: 0.3px solid black; border-bottom:none; border-top:none;">
+            <td>{{forloop.counter}}</td>
+            <td>{{head.billing_head.billing_head}}</td>
+            <td align="center" class="align-center">{{head.billing_head.hsn_code}}</td>
+            <td>&nbsp;</td>
+            <td align="center"  class="align-center">{{head.qty_unit|floatformat:3}}</td>
+            <td align="center" class="align-center">{{head.currency}}</td>
+            <td align="center" class="align-center">{{head.ex_rate}}</td>
+            <td  class="align-right">{{head.rate|floatformat:2|intcomma}}</td>
+           
+            
+
+            <td align="center" >{{head.total|floatformat:2|intcomma}}</td>
+        </tr>
+        {% endfor %}
+
+
+
+        {% for value in blank %}
+
+        <tr style="border: 0.3px solid black; border-bottom:none; border-top:none;">
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        
+            <td>&nbsp;</td>
+           
+            <td>&nbsp;</td>
+        </tr>
+
+        {% endfor %}
+      
+       
+       
+      
+        <tr style="border: 0.5px solid black; padding-top:5px!important; border-bottom:none; border-left:none;">
+           
+            <td colspan="8"><strong> Total Amount :</strong></td>
+            <td colspan="1"><strong> {{data.net_amount|floatformat:0|floatformat:2}}</strong></td>
+            
+        </tr>
+        <tr style="border: 0.5px solid black; padding-top:5px!important; border-bottom:none; border-left:none;">
+           
+            <td colspan="8"><strong> Total Amount :</strong></td>
+            <td colspan="1"><strong> {{data.net_amount|floatformat:0|floatformat:2}}</strong></td>
+            
+        </tr>
+        <tr style="border: 0.5px solid black; padding-top:5px!important; border-bottom:none; border-left:none;">
+           
+            <td colspan="9"><strong> Amount In {{data.invoice_currency}} : {{ data.net_amount|floatformat:0 |num_to_text }} ONLY</strong></td>
+            
+        </tr>
+        <tr style="border: 0.5px solid black; padding-top:5px!important; border-bottom:none; border-left:none;">
+           
+            <td colspan="9" align="center"><h1> <strong > GST TO BE BORNE & PAID BY PARTY UNDER REVERSE CHARGES </strong></h1>
+           
+            </td>
+            
+        </tr>
+        <tr style="border: 0.5px solid black; padding-top:5px!important; border-bottom:none; border-left:none;">
+           
+            <td colspan="9" > <div>
+                <span><strong>Remarks : </strong> 
+                    {% if data.remark_on_invoice %}
+                    {{data.remark_on_invoice}}
+                    {% endif %}
+
+                    {% for i in data.parent_invoice.all %}
+                    <span>{{i.job_no}}</span>
+                    {% endfor %}
+                 </span>
+            </div></h1>
+           
+            </td>
+            
+        </tr>
+        <tr style="border: 0.5px solid black; padding-top:5px!important; border-bottom:none; border-left:none;">
+           
+            <td colspan="9" > <div>
+                <span><strong>IRN No. : </strong> 
+                    {% if data.irn_no %}
+                    {{data.irn_no}}
+                    {% endif %}
+                 </span>
+            </div></h1>
+            </td>
+            
+        </tr>
+    </table>
+    <div id="footer_content">
+        <div style="position:relative">
+            <div style="display: flex; flex-direction: row;">
+                <table>
+                    <tr>
+                        <td style="width:70%">{{data.company_type.terms_and_conditions|safe}}</td>
+                        <td align="top"  style="width:30%">
+                            <h6 class="" style="font-size: 11px; margin-bottom:30px!important; text-align:right; font-weight:bold;">
+                                {{data.company_type.for_company}}
+                            </h6>
+                            <br />
+                            <br />
+                            <h6 style="font-size: 11px; padding-top: 30px!important; text-align:right; font-weight:bold;">Auth. Sign.</h6>
+                        </td>
+                    </tr>
+                </table>
+               
+            </div>
+            
+            
+        </div>
+        <br>
+        <br>
+        <br>
+        
+        <br>
+        <h6 style="font-size: 10px; text-align:center; font-weight:bold;">  All detail of reimbursable expenditures are enclosed under contractual obligation</h6>
+        <h6 style="font-size: 10px; text-align:center; font-weight:bold;">  This is computer generated invoice no signature required</h6>
+    </div>
+
+    
+    {% if data.gr_options.all|length > 0  %}
+    <pdf:nextpage name="page2" />
+    <div id="header_content2">
+    
+    </div>
+    <div id="footer_content2"></div>
+
+    <h1 style="text-align: center; margin-bottom: -22px; padding-top: 10px;">Annexure</h1>
+    <table border="0.5px">
+        <tr style="vertical-align: center; padding: 2px;">
+            <th>Container No</th>
+            <th>Container Type</th>
+            <th>Line Seal No</th>
+            {% if data.job_no.module == 'Transport' %}
+            <th>Trailor No</th>
+            {% endif %}
+            <th>Place of Loading</th>
+            <th>Place of Unloading</th>
+        </tr>
+        {% for i in data.gr_options.all %}
+        <tr style="padding:2px" >
+            <td>&nbsp; {{i.container_no}}</td>
+            <td>&nbsp; {{i.job.container_type}}</td>
+            <td>&nbsp; {{i.seal_no}}</td>
+            {% if data.job_no.module == 'Transport' %}
+            <th>&nbsp; {{i.trailor_no}}</th>
+            {% endif %}
+            <td>&nbsp; {{ i.pickup_from.name }}</td>
+            <td>&nbsp; {{ i.drop_location.name }}</td>
+        
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    
+   
+    
+    {% if data.job_no.job_container.all|length > 0  %}
+    <pdf:nextpage name="page2" />
+    <div id="header_content2">
+    
+    </div>
+    <div id="footer_content2"></div>
+
+    <h1 style="text-align: center; margin-bottom: -22px; padding-top: 10px;">Annexure</h1>
+
+    <table border="0.5px">
+        <tr style="vertical-align: center; padding: 2px;">
+            <th>Container No</th>
+            <th>Container Type</th>
+            <th>Line Seal No</th>
+            {% if data.job_no.module == 'Transport' %}
+            <th>Trailor No</th>
+            {% endif %}
+            <th>Place of Loading</th>
+            <th>Place of Unloading</th>
+        </tr>
+        {% for i in data.job_no.job_container.all %}
+        <tr style="padding:2px" >
+            <td>&nbsp; {{i.job_container_no}}</td>
+            <td>&nbsp; {{i.container_type}}</td>
+            <td>&nbsp; {{i.line_seal}}</td>
+            {% if data.job_no.module == 'Transport' %}
+            <th>&nbsp; {{i.trailor_no}}</th>
+            {% endif %}
+            <td>&nbsp; {{ i.place_of_loading.name }}</td>
+            <td>&nbsp; {{ i.place_of_unloading.name }}</td>
+        
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+
+</body>
+
+</html>

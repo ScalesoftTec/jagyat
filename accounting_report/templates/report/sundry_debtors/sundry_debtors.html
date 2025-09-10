@@ -1,0 +1,184 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% block dashoard_title %} 
+Sundry Debtors - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+Sundry Debtors
+</h1>
+
+<style>
+  table td, th{
+    padding: 1px!important;
+  }
+</style>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+<div class="mb-2">
+
+
+  <form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    <input type="hidden" id="selected_fields" name="selected_fields" value="">
+    <input type="hidden" id="list_selected" name="list_selected" value="0">
+    <div class="row">
+      <div class="col-2">
+        <label for="region">Choose Country</label>
+        <select name="region" id="region" required class="form-control">
+          {% if not selected_region %}
+          <option value="" selected hidden disabled>Choose Country</option>
+          {% endif %}
+
+          {% for i in company_regions %}
+          {% if i.region == selected_region %}
+          <option value="{{i.region}}" selected >{{i.region}}</option>
+          {% else %}
+          <option value="{{i.region}}">{{i.region}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-2">
+        <label for="from_date">From Date</label>
+        <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control" id="from_date" />
+    </div>
+
+    <div class="col-2">
+        <label for="to_date">To Date</label>
+        <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control" id="to_date" />
+    </div>
+   
+      
+   
+      <div class="col-md-3">
+        <button type="submit" id="submitBtn" class="btn btn-primary mt-4 btn-sm">Filter</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+
+
+<div class="table-repsonsive">
+
+<table class="table table-primary table-bordered table-hover" id="purchase_account_table">
+    <thead>
+      <tr>
+
+        <th scope="col" style="width:75%" rowspan="2">Particulars</th>
+        <th scope="col" class="text-center" colspan="2">Closing Balance</th>
+      </tr>
+      <tr>
+
+    
+        <th scope="col" class="text-center">Debit</th>
+        <th scope="col" class="text-center">Credit</th>
+
+        
+      </tr>
+   
+    </thead>
+    <tbody>
+  
+    {% for data in report %}
+    {% if not data.outstanding == 0 %}
+    <tr >
+      <td>
+        {% if data.party.party_name %}
+        {{data.party.party_name}}
+        {% else %}
+        {{data.party.vendor_name}}
+        {% endif %}
+    </td>
+      {% if data.outstanding > 0 %}
+      <td align="right" data-order="{{data.outstanding|floatformat:0|floatformat:2}}">{{data.outstanding|floatformat:0|floatformat:2}}</td>
+      <td align="right" data-order="0">0</td>
+      {% else %}
+      <td align="right" data-order="0">0</td>
+      <td align="right" data-order="{{data.outstanding|mul:-1|floatformat:0|floatformat:2}}">{{data.outstanding|mul:-1|floatformat:0|floatformat:2}}</td>
+      {% endif %}
+    </tr>
+    {% endif %}
+  
+    {% endfor %}
+
+   
+   
+
+    </tbody>
+   <tfoot>
+    <tr>
+      <td class="text-white">Total Amount</td>
+      <td class="text-right text-white"></td>
+      <td class="text-right text-white"></td>
+    </tr>
+   </tfoot>
+  </table>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  $(document).ready(function () {
+
+    jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+      return this.flatten().reduce( function ( a, b ) {
+          var x = parseFloat(a) ;
+          var y = parseFloat($(b).attr('data-order')) ;
+  
+          return parseFloat((x+y)).toFixed(2)
+      }, 0 );
+  } );
+
+  let table = new DataTable('#purchase_account_table', {
+      // options
+      dom: 'BQlfrtip',
+     
+      columnDefs: [
+          ],
+          lengthMenu: [
+              [10, 25, 50, -1],
+              [10, 25, 50, 'All'],
+          ],
+         
+      buttons: [
+          {
+              extend: 'collection',
+              text: 'Export',
+              buttons: [
+                { extend: 'copy', footer: true, header:true},
+                { extend: 'excel', footer: true, header:true},
+                { extend: 'csv', footer: true, header:true},
+                { extend: 'pdf', footer: true, header:true},
+               
+              ]
+          }
+          ],
+          drawCallback: function () {
+            var api = this.api();
+            $( api.table().column(1).footer() ).html(
+                api.column( 1, {page:'current'} ).nodes().sum()
+            );
+            $( api.table().column(2).footer() ).html(
+                api.column( 2, {page:'current'} ).nodes().sum()
+            );
+           
+          
+         
+          
+           
+          }
+  });
+  document.querySelector('.dtsb-title').style.display = 'none'
+})
+</script>
+{% endblock %}

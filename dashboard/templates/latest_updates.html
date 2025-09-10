@@ -1,0 +1,44 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Latest Updates
+
+</h1>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+{% for data in page_obj %}
+<div class="card mt-1">
+    <h6 class="card-header">{{data.title}}</h6>
+    <div class="card-body">
+      <h6 class="card-title">Requested By / Date :- {{data.requested_by}} On {{data.requested_date}}</h6>
+      <p style="font-size: small;">{{data.description}}</p>
+      <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+    </div>
+  </div>
+{% endfor %}
+<div class="mt-2">
+
+    {% if  page_obj.has_next or page_obj.has_previous %}
+    <nav aria-label="Page navigation pt-3">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+            {% endif %}
+            {% for index in page %}
+            <li class="page-item"><a class="page-link" href="?page={{index.number}}">{{index.number}}</a></li>
+            
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
+    {% endblock %}

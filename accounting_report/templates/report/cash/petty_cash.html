@@ -1,0 +1,171 @@
+{% extends 'dashboard/index.html' %}
+{% load custom_tags %}
+{% load mathfilters %}
+{% load humanize %}
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+   Petty Cashbook
+</h1>
+
+{% endblock %}
+{% block dashoard_title %} Petty Cashbook | {% endblock %}
+
+{% block dashboard_content %}
+
+<style>
+  .dtsb-button{
+    margin: 0!important;
+    padding: 5px 10px!important;
+    font-size: 12px!important;
+    border-radius: 10px!important;
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-button:hover{
+    
+    font-size: 12px!important;
+  
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-criteria select{
+    font-size: 12px!important;
+  }
+  tfoot tr td{
+    color: white!important;
+  }
+</style>
+
+
+<div>
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-2">
+                <label for="from_date">From</label>
+                <input type="date" name="from_date" id="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" required />
+            </div>
+            <div class="col-2">
+                <label for="to_date">To</label>
+                <input type="date" name="to_date" id="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" required />
+            </div>
+            
+            <div class="col-2 mt-4">
+               <button class="btn btn-sm btn-primary" type="submit">Get Report</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% if petty_cash %}
+
+
+<div class="table-reponsive">
+
+<table class="table table-primary table-bordered  compact display" id="invoice_table">
+    <thead>
+      <tr>
+        <th scope="col">Company</th>
+        <th scope="col">Description</th>
+        <th scope="col">Date</th>
+        <th scope="col">Debit</th>
+        <th scope="col">Credit</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in petty_cash %}
+      <tr>
+        <td>{{data.voucher.company_type}}</td>
+        <td>{{data.description}}</td>
+        <td>{{data.date}}</td>
+        {% if data.type == "Debit" %}
+        <td align="right" data-order="{{data.amount|floatformat:0|floatformat:2}}">{{data.amount|floatformat:0|floatformat:2|intcomma}}</td>
+        {% else %}
+        <td align="center" data-order="0">-</td>
+        {% endif %}
+
+        {% if data.type == "Credit" %}
+        <td align="right" data-order="{{data.amount|floatformat:0|floatformat:2}}">{{data.amount|floatformat:0|floatformat:2|intcomma}}</td>
+        {% else %}
+        <td align="center" data-order="0">-</td>
+        {% endif %}
+        
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+    <tfoot>
+        <td colspan="3">Total</td>
+  
+        <td class="text-right" align="right"></td>
+        <td class="text-right" align="right"></td>
+       
+    </tfoot>
+  </table>
+</div>
+
+
+{% endif %}
+
+{% endblock %}
+
+{% block js %}
+
+<script src="https://cdn.datatables.net/plug-ins/1.13.4/api/sum().js"></script>
+<script>
+  var selected_ids = []
+  $(document).ready(function () {
+
+    jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+      return this.flatten().reduce( function ( a, b ) {
+          var x = parseFloat(a) ;
+          var y = parseFloat($(b).attr('data-order')) ;
+  
+          return parseFloat(x + y).toFixed(2)
+      }, 0 );
+  } );
+
+  let table = new DataTable('#invoice_table', {
+      // options
+      dom: 'BQlfrtip',
+      "columnDefs": [
+      { "type": "date", "targets":  2}
+    ],
+    order: [[2, 'desc']],
+      lengthMenu: [
+    [10, 25, 50, -1],
+    [10, 25, 50, 'All'],
+],
+buttons: [
+{
+  extend: 'collection',
+  text: 'Export',
+  buttons: [
+    'copy',
+    'excel',
+    'csv',
+    'pdf',
+
+  ]
+},
+
+],
+drawCallback: function () {
+  var api = this.api();
+  $( api.table().column(3).footer() ).html(
+      api.column( 3, {page:'current'} ).nodes().sum()
+  );
+ 
+  $( api.table().column(4).footer() ).html(
+      api.column( 4, {page:'current'} ).nodes().sum()
+  );
+ 
+
+ 
+}
+    
+  });
+document.querySelector('.dtsb-title').style.display = 'none'
+        })
+</script>
+{% endblock %}

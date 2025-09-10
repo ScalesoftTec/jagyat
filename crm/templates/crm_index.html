@@ -1,0 +1,166 @@
+{% extends 'dashboard/index.html' %} 
+{% block dashoard_title %} CRM | {% endblock %} 
+{% block dashboard_heading %}
+<style>
+  table.table th, td{
+    font-size: 12px!important;
+  }
+  .ec-title{
+    font-size: 18px!important;
+  }
+</style>
+
+<h1 class="h3 mb-0 text-gray-800">
+  <span class="greeting-text">{{greeting}}</span>, {{ request.user.first_name }}
+  {{ request.user.last_name }}
+</h1>
+
+{% endblock %}
+
+{% block dashboard_content %}
+<input type="hidden" id="user_type" value="{{request.user.is_staff}}">
+
+<div class="row">
+  <div class="col-12">
+    <h5><i class="bi bi-calendar-event"></i> Today Schedule</h5>
+    <hr>
+  </div>
+  <div class="col-md-6 col-sm-12">
+    
+    <div class="table-responsive">
+      <table class="table-bordered display compact table-primary" style="font-size: 12px!important;" id="event_table">
+        <thead>
+          <tr>
+            <th scope="col">Title</th> 
+            {% if request.user.is_staff %}
+            <th scope="col">To</th>
+            {% endif %}
+            <th scope="col">Start</th>
+            <th scope="col">Customer</th>
+            <th scope="col">End</th>
+            <th scope="col">Description</th>
+          </tr>
+        </thead>
+
+        <tbody>
+      {% for data in events %}
+      <tr>
+        <td>{{data.title}}</td>
+        {% if request.user.is_staff %}
+        <td>{{data.user.first_name}}</td>
+        {% endif %}
+        <td>{{data.start}}</td>
+        <td>{{data.customer}}</td>
+        <td>{{data.end}}</td>
+        <td>{{data.description}}</td>
+     
+      </tr>
+      {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+  </div>
+  <div class="col-md-6 col-sm-12">
+    
+    <div id="ec"></div>
+    
+  </div>
+</div>
+
+<input type="hidden" id="user" value="{{request.user.id}}">
+
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+  let table = new DataTable('#event_table', {
+    dom: 'BQlfrtip',
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+           
+        ]
+    },
+
+    ]
+
+});
+
+document.querySelector('.dtsb-title').style.display = 'none'
+
+
+function showAddPopup(triggeringLink) {
+   
+    href = triggeringLink;
+    var win = window.open(href, name, 'height=700,width=1200,resizable=yes,scrollbars=yes');
+    win.focus();
+    return false;
+}
+
+var events = []
+const getEvents = async() => {
+  var user = document.getElementById('user').value
+  var url = '/api/v1/event-api/details'
+  if(document.getElementById('user_type').value == "False"){
+    url += `?user=${user}`
+  }
+  
+  const res = await axios.get(url)
+ 
+  res.data.map(item=>{
+    console.log('--i----',item.customer)
+  if(!item.remarks){
+    var backgroundColor = "#b81828"
+  }
+  else{
+    var backgroundColor = "#419e53"
+
+  }
+  if(item.customer.party_short){
+    var party_s_name=item.customer.party_short
+  }else{
+    var party_s_name='Please add party short name'
+
+  }
+  var party_s_name=
+  events.push({
+    'id':item.id,
+    'allDay':true,
+    'start':new Date(item.start).toISOString(),
+    'end':new Date(item.end).toISOString(),
+    'title':party_s_name,
+    'editable':true,
+    'durationEditable':true,
+    'startEditable':false,
+    'display':'auto',
+    'backgroundColor':backgroundColor
+
+  })
+  })
+  let ec = new EventCalendar(document.getElementById('ec'), {
+    view: 'dayGridMonth',
+    events: events,
+    eventClick: (el,event) => {
+      console.log(el.event.id)
+      showAddPopup('/dashboard/crm/event/update/'+el.event.id)
+
+    }
+});
+}
+
+getEvents()
+
+
+</script>
+
+{% endblock %}

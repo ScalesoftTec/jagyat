@@ -1,0 +1,142 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    
+    Create New User
+    
+</h1>
+
+<a href="{% url 'masters:user_list' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form action="{% url 'masters:create_user' module=module %}" method='POST' enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    <div class="row">
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="office">Office</label>
+            <select name="office" id="office" class="form-control">
+                {% for office in offices %}
+                <option value="{{office.id}}">{{office.company_name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" name="username" id="username">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="first_name">First Name</label>
+            <input type="text" class="form-control" name="first_name" id="first_name">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="last_name">Last Name</label>
+            <input type="text" class="form-control" name="last_name" id="last_name">
+        </div>
+        <div class="col-md-12 col-sm-12 mb-3">
+            <label for="email">Email</label>
+            <input type="text" class="form-control" name="email" id="email">
+        </div>
+        <div class="col-md-6 col-sm-12 mb-3">
+            <label for="password">Password</label>
+            <input type="text" class="form-control" name="password" id="password">
+        </div>
+        <div class="col-md-6 col-sm-12 mb-3">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="text" class="form-control" name="confirm_password" id="confirm_password">
+        </div>
+
+        <div class="col-12 my-4">
+            <h5 class="mb-4">User Rights :</h5>
+            <div class="row">
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="is_admin" id="is_admin">
+                    <label for="is_admin">Is Admin</label>
+                </div>
+
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="is_sea_export" id="is_sea_export">
+                    <label for="is_sea_export">Is Sea Export</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="is_sea_import" id="is_sea_import">
+                    <label for="is_sea_import">Is Sea Import</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="is_air_export" id="is_air_export">
+                    <label for="is_air_export">Is Air Export</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="is_air_import" id="is_air_import">
+                    <label for="is_air_import">Is Air Import</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="is_finance" id="is_finance">
+                    <label for="is_finance">Is Accounting</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="is_crm" id="is_crm">
+                    <label for="is_crm">Is CRM</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="is_bi" id="is_bi">
+                    <label for="is_bi">Is Business Intelligence</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="is_operations" id="is_operations">
+                    <label for="is_operations">Is Operations</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="is_transportation" id="is_transportation">
+                    <label for="is_transportation">Is Transportation</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="can_report" id="can_report">
+                    <label for="can_report">View Report</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="see_global_data" id="see_global_data">
+                    <label for="see_global_data">See Global Data</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="create_global_data" id="create_global_data">
+                    <label for="create_global_data">Create Global Data</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="also_handle_other_work" id="also_handle_other_work">
+                    <label for="also_handle_other_work">Also Handle Other Work (Within Branch)</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="can_delete" id="can_delete">
+                    <label for="can_delete">Has Delete Permission</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="handle_masters" id="handle_masters">
+                    <label for="handle_masters">Handle Masters</label>
+                </div>
+                <div class="col-auto mb-3">
+                    <input type="checkbox" name="is_special_access" id="is_special_access">
+                    <label for="is_special_access">Special Access</label>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <button type="submit" class="btn btn-primary my-3">
+  
+    Create New User
+    
+    </button>
+
+</form>
+
+{% endblock %}

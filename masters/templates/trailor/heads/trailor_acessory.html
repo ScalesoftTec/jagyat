@@ -1,0 +1,149 @@
+<div class="row" id="acessory-row">
+    {% if update and obj.trailor_accesory_ref.all|length > 0 %}
+    {% for i in obj.trailor_accesory_ref.all %}
+    <div class="col-12 mb-2" id="acessory-row-{{forloop.counter}}">
+        <div class="row" >
+            <div class="col-md-3">
+                <input type="hidden" name="is_acessory_active_{{forloop.counter}}" id="is_acessory_active_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_acessory_update_{{forloop.counter}}" id="is_acessory_update_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_acessory_id_{{forloop.counter}}" id="is_acessory_id_{{forloop.counter}}" value="{{i.id}}" />
+                <label for="acessory_{{forloop.counter}}">Acessory</label>
+                <input type="text"  value="{{ i.acessory }}" name="acessory_{{forloop.counter}}" id="acessory_{{forloop.counter}}" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <label for="price_{{forloop.counter}}">Price</label>
+                <input type="text" value="{{i.price}}"  name="price_{{forloop.counter}}" id="price_{{forloop.counter}}" class="form-control">
+            </div>
+           
+            <div class="col-md-2">
+                <label for="acessory_from_date_{{forloop.counter}}">From Date</label>
+                <input type="date" value="{{ i.from_date|date:'Y-m-d' }}"  name="acessory_from_date_{{forloop.counter}}" id="acessory_from_date_{{forloop.counter}}" class="form-control">
+            </div>
+           
+           
+            <div class="col-md-2">
+                <label for="acessory_to_date_{{forloop.counter}}">To Date</label>
+                <input type="date" value="{{ i.to_date|date:'Y-m-d' }}"  name="acessory_to_date_{{forloop.counter}}" id="acessory_to_date_{{forloop.counter}}" class="form-control">
+            </div>
+           
+           
+            <div class="col-md-2">
+                <label for="acessory_remarks_{{forloop.counter}}">Remarks</label>
+                <input type="text" value="{{i.remarks}}"  name="acessory_remarks_{{forloop.counter}}" id="acessory_remarks_{{forloop.counter}}" class="form-control">
+            </div>
+          
+           
+           
+            <div class="col-md-1">
+                
+                <button type="button" onclick="deleteAcessoryRow({{forloop.counter}})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+    
+        </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12 mb-2" id="acessory-row-1">
+
+        <div class="row" >
+            <div class="col-md-3">
+                <input type="hidden" name="is_acessory_active_1" id="is_acessory_active_1" value="yes" />
+                <input type="hidden" name="is_acessory_update_1" id="is_acessory_update_1" value="no" />
+                <label for="acessory_1">Acessory</label>
+                <input type="text"  name="acessory_1" id="acessory_1" class="form-control">
+            </div>
+           
+            <div class="col-md-2">
+                <label for="price_1">Price</label>
+                <input type="text"  name="price_1" id="price_1" class="form-control">
+            </div>
+           
+            <div class="col-md-2">
+                <label for="acessory_from_date_1">From Date</label>
+                <input type="date"  name="acessory_from_date_1" id="acessory_from_date_1" class="form-control">
+            </div>
+           
+           
+            <div class="col-md-2">
+                <label for="acessory_to_date_1">To Date</label>
+                <input type="date"  name="acessory_to_date_1" id="acessory_to_date_1" class="form-control">
+            </div>
+           
+           
+            <div class="col-md-2">
+                <label for="acessory_remarks_1">Remarks</label>
+                <input type="text"  name="acessory_remarks_1" id="acessory_remarks_1" class="form-control">
+            </div>
+           
+            
+            <div class="col-md-1">
+                
+                <button type="button" onclick="deleteAcessoryRow(1)" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+    
+        </div>
+    {% endif %}
+    
+</div>
+
+<button class="btn btn-primary mb-3" type="button" onclick="addAcessoryRow()">Add More</button>
+
+<script>
+    var acessoryCurrentRow = parseInt(document.getElementById('trailor_acessory_total_rows').value) || 1
+    const addAcessoryRow = () => {
+        var newElement = document.createElement('div')
+        acessoryCurrentRow += 1
+        newElement.classList.add('col-12')
+        newElement.setAttribute('id', `acessory-row-${acessoryCurrentRow}`)
+        newElement.classList.add('mb-2')
+        newElement.innerHTML = `
+        <div class="row">
+            <div class="col-md-3">
+                <input type="hidden" name="is_acessory_active_${acessoryCurrentRow}" id="is_acessory_active_${acessoryCurrentRow}" value="yes" />
+                <input type="hidden" name="is_acessory_update_${acessoryCurrentRow}" id="is_acessory_update_${acessoryCurrentRow}" value="no" />
+                <label for="acessory_${acessoryCurrentRow}">Acessory</label>
+                <input type="text"  name="acessory_${acessoryCurrentRow}" id="acessory_${acessoryCurrentRow}" class="form-control">
+            </div>
+           
+            <div class="col-md-2">
+                <label for="price_${acessoryCurrentRow}">Price</label>
+                <input type="text"  name="price_${acessoryCurrentRow}" id="price_${acessoryCurrentRow}" class="form-control">
+            </div>
+           
+            <div class="col-md-2">
+                <label for="acessory_from_date_${acessoryCurrentRow}">From Date</label>
+                <input type="date"  name="acessory_from_date_${acessoryCurrentRow}" id="acessory_from_date_${acessoryCurrentRow}" class="form-control">
+            </div>
+           
+           
+            <div class="col-md-2">
+                <label for="acessory_to_date_${acessoryCurrentRow}">To Date</label>
+                <input type="date"   name="acessory_to_date_${acessoryCurrentRow}" id="acessory_to_date_${acessoryCurrentRow}" class="form-control">
+            </div>
+           
+           
+            <div class="col-md-2">
+                <label for="acessory_remarks_${acessoryCurrentRow}">Remarks</label>
+                <input type="text"  name="acessory_remarks_${acessoryCurrentRow}" id="acessory_remarks_${acessoryCurrentRow}" class="form-control">
+            </div>
+           
+            <div class="col-md-1">
+                
+                <button type="button" onclick="deleteAcessoryRow(${acessoryCurrentRow})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+        `
+        document.getElementById('acessory-row').append(newElement)
+        document.getElementById('trailor_acessory_total_rows').value = acessoryCurrentRow
+    }
+
+    const deleteAcessoryRow = (index) => {
+        console.log(index)
+        document.getElementById(`acessory-row-${index}`).style.display = "none";
+        document.getElementById(`is_acessory_active_${index}`).value = "no";
+    }
+
+  
+</script>

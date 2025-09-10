@@ -1,0 +1,276 @@
+{% load static %}
+{% load mathfilters %}
+<html>
+
+<head>
+    <title>PDF : Cargo Arrival Notice</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style type="text/css">
+        @page {
+            size: A4;
+            margin: 5mm;
+        }
+
+        @media print {
+            #printbtn {
+                display: none;
+            }
+
+            title {
+                display: none;
+            }
+        }
+
+        table th,
+        table td {
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        th span {
+            font-size: 15px;
+        }
+        h6{
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 1px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+
+    {% if not send_pdf %}
+    <div class="container-fluid my-3">
+        <input id="printbtn" class="btn btn-sm btn-danger" type="button" value="Print this page"
+            onclick="window.print()">
+    </div>
+    {% endif %}
+
+    <div class="container-fluid">
+        <table style="display: inline-table; width:100%;">
+            <thead>
+                <tr>
+                    <th>
+                        <img width="85%" height="100" src="{{ data.company_type.letter_head.url }}" alt="">
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="row ">
+                            <table class="table-bordered border-dark">
+                                <tr>
+                                    <th colspan="4"><span>REF #: {{data.arrival_notice_no}}</span></th>
+                                </tr>
+                                <tr>
+                                    <td style="width: 100px;">Shipper : </td>
+                                    <td style="width: 230px;">{{data.shipper.party_name}}</td>
+                                    <td style="width: 100px;">Origin : </td>
+                                    <td style="width: 230px;"><span class="d-flex justify-content-between w-100">
+                                            {{data.pol.name}} <span>ETD : {{data.etd}}</span> </span></td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 100px;">Cnee : </td>
+                                    <td style="width: 230px;">{{data.consignee.party_name}}</td>
+                                    <td style="width: 100px;">POD : </td>
+                                    <td style="width: 230px;"><span class="d-flex justify-content-between w-100">
+                                            {{data.pod.name}} <span>ETA : {{data.eta}}</span> </span></td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 100px;" rowspan="4">Contact : </td>
+                                    <td style="width: 230px;" rowspan="4">{{data.consignee_location|linebreaks}}</td>
+                                    <td style="width: 100px;">Final Dest : </td>
+                                    <td style="width: 230px;"><span class="d-flex justify-content-between w-100">
+                                            {{data.final_destination.name}} <span>ETA : {{data.eta}}</span> </span></td>
+                                </tr>
+                                <tr>
+
+                                    <td style="width: 100px;">Carrier : </td>
+                                    <td style="width: 230px;"><span class="d-flex justify-content-between w-100">
+                                            {{data.shipping_line.name}}</span></td>
+                                </tr>
+                                <tr>
+
+                                    <td style="width: 100px;">Vessel : </td>
+                                    <td style="width: 230px;"><span class="d-flex justify-content-between w-100">
+                                            {{data.vessel_voyage}}</span></td>
+                                </tr>
+                                <tr>
+
+                                    <td style="width: 100px;">Master B/L : </td>
+                                    <td style="width: 230px;"><span class="d-flex justify-content-between w-100">
+                                            {{data.mbl}}</td>
+                                </tr>
+
+                                <tr>
+                                    <td style="width: 100px;" rowspan="3">Notify : </td>
+                                    <td style="width: 230px;" rowspan="3">
+                                        <div>
+                                            {{data.notify_party_1}}
+                                        </div>
+                                        {{data.notify_party_1_location|linebreaks}}
+                                    </td>
+                                    <td style="width: 100px;">House B/L : </td>
+                                    <td style="width: 230px;"><span class="d-flex justify-content-between w-100">
+                                            {{data.hbl}} </td>
+                                </tr>
+                                <tr>
+
+                                    <td style="width: 100px;">AMS : </td>
+                                    <td style="width: 230px;"><span class="d-flex justify-content-between w-100">
+                                            {{data.ams_hbl}}</td>
+                                </tr>
+                                <tr>
+
+                                    <td style="width: 100px;">Move Type : </td>
+                                    <td style="width: 230px;"><span class="d-flex justify-content-between w-100"> </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="width: 100px;" rowspan="2">Cargo Loc : </td>
+                                    <td style="width: 230px;" rowspan="2">
+                                        <div>
+                                            {{data.freight_location.name}}
+                                        </div>
+                                        {{data.freight_address|linebreaks}}
+                                    </td>
+                                    <td style="width: 100px;">Notify 2 : </td>
+                                    <td style="width: 230px;">
+                                        <div>
+                                            {{data.notify_party_2.party_name}}
+                                        </div>
+                                        {{data.notify_party_2_location|linebreaks}}
+                                    </td>
+                                </tr>
+
+
+                                <tr>
+
+                                    <td style="width: 100px;">I.T. : </td>
+                                    <td style="width: 230px;"><span class="d-flex justify-content-between w-100">
+                                            {{data.it_no}} <span>I.T. Date : {{data.it_date}}</span> </span> </td>
+                                </tr>
+                                <tr>
+
+                                    <td style="width: 100px;">Firms : </td>
+                                    <td style="width: 230px;">{{data.firm_code}} </td>
+
+                                    <td style="width: 100px;">IT Location : </td>
+                                    <td style="width: 230px;"><span class="d-flex justify-content-between w-100">
+                                            {{data.it_location.name}} </span> </td>
+                                </tr>
+
+
+
+                            </table>
+                        </div>
+                        <div class="row">
+                            <table class="table-bordered">
+                                <tr>
+                                    <th style="text-align: center; width: 100px;">Marks & No.s</th>
+                                    <th style="text-align: center; width: 80px;">pkgs</th>
+                                    <th style="text-align: center;">description of goods</th>
+                                    <th style="text-align: center; width: 80px;">kgs</th>
+                                    <th style="text-align: center; width: 100px;">cbm</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        {{data.marks|linebreaks}}
+                                    </td>
+                                    <td>
+                                        {{data.no_of_packages|linebreaks}}
+                                    </td>
+                                    <td>
+                                        {{data.desc_of_packages|linebreaks}}
+                                    </td>
+                                    <td>
+                                        {{data.gross_weight|linebreaks}}
+                                    </td>
+                                    <td>
+                                        {{data.measurement|linebreaks}}
+
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="row ">
+                           <div class="col-4 p-0">
+
+                               <table class="table-bordered border-dark w-100">
+                                   <tr>
+                                        <th style="text-align: center; width:150px;">Billing</th>
+                                        <th style="text-align: center; width:50px;">USD</th>
+                                    </tr>
+                                    {% for i in  data.job.manifest_job.first.manifest_charges_collect.all %}
+                                    <tr>
+                                        <td>{{i.billing_head.billing_head}}</td>
+                                        <td style="text-align: end;">{{i.total}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <th style="text-align: center;">Total Collect</th>
+                                        <th style="text-align: end;">{{total_collect}}</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="2" style="text-align:center; color:#85cffb;">Original Bill Of Lading Required</th>
+                                    </tr>
+                                </table>
+                                <div>
+                                    <span>Please make all check payable to pinkcity Transoceanic Inc.</span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-8 pt-2 px-5">
+                                <div class="border  border-dark">
+                                    <h6 class="text-center" style="color:#85cffb;">
+                                        Please Transfer
+                                    </h6>
+                                    <h6 class="text-center" style="color:#85cffb;">
+                                        PinkCity Transoceanic Inc.
+                                    </h6>
+                                    <div>
+                                        <span> A/C # - 237034433238 </span>
+                                    </div>
+                                    <div>
+                                        <span>Bank of America, NA </span>
+                                    </div>
+                                    
+                                    
+                                    <div>
+                                       <strong> <span>222 Broadway, New York </span></strong>
+                                    </div>
+                                    <div>
+                                       <strong> <span> New York, 10038 </span></strong>
+                                    </div>
+                                    <div>
+                                        <span>Swift Code - BOFAUS3N </span>
+                                    </div>
+                                    <div>
+                                        <span>Routing Number - 053000196 </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="w-100 mt-2 text-center">
+                            <strong>
+                                <span>Regs. Off : 10DB Deshire Lane, Morrisville, NC 27560, North Carolina, Tel.: +1(919)521-5270</span>
+                            </strong>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+
+</body>
+
+</html>

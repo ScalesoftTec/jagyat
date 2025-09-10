@@ -1,0 +1,186 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+Lead Details |
+{% endblock %}
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Lead Details 
+</h1>
+
+<a href="{% url 'crm:create_lead' module=module %}" class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Lead</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+<div class="table-responsive">
+
+
+<table class="table table-primary table-bordered compact display " id="leads_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Branch</th>
+        <th scope="col">Sale Person</th>
+        <th scope="col">Create By</th>
+        <th scope="col">Create At</th>
+        <th scope="col">Update By</th>
+        <th scope="col">Last Update</th>
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in leads %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ data.company_type.branch_name }}</td>
+        <td>{{ data.sales_person }}</td>
+        <td>{{ data.created_by }}</td>
+        <td>{{ data.created_at }}</td>
+        <td>{{ data.updated_by }}</td>
+        <td>{{ data.updated_at }}</td>
+
+        <td>
+            <a href="{% url 'crm:lead_update' module=module id=data.id %}" class="btn btn-xs btn-info "><i class="fas fa-edit"></i></a>
+
+
+            <button type="button" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#viewModal1{{ forloop.counter }}">
+                <i class="bi bi-eye"></i>
+            </button>
+
+
+             <!-- Modal -->
+            <div class="modal fade" id="viewModal1{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="viewModal{{ forloop.counter }}Label" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="viewModal{{ forloop.counter }}Label">View  Leads - {{data.sales_person}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                   
+                    <table class="table compact table-bordered ">
+                        <thead>
+                        <tr>
+                            <th style="background-color: #2d045c;">Sno.</th>
+                            <th style="background-color: #2d045c;">Company</th>
+                            <th style="background-color: #2d045c;">Contact person</th>
+                            <th style="background-color: #2d045c;">Contact Email</th>
+                            <th style="background-color: #2d045c;">Phone</th>
+                            <th style="background-color: #2d045c;">Location</th>
+                            <th style="background-color: #2d045c;">Remarks</th>
+                        
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for entry in data.leads_details_data.all %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ entry.company_name }}</td>
+                            <td>{{ entry.contact_person }}</td>
+                            <td>{{ entry.contact_email }}</td>
+                            <td>{{ entry.phone }}</td>
+                            <td>{{ entry.location }}</td>
+                            <td>{{entry.remarks}}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                    
+                    
+                    </div>
+                    <div class="modal-footer">
+                    
+                    
+                   
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.name}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ data.name }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'crm:lead_delete' module=module id=data.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+
+      
+
+        </td>
+    
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+
+</div>
+
+
+  
+
+{% endblock %}
+
+
+{% block js %}
+ 
+  <script>
+    
+
+  let table = new DataTable('#leads_table', {
+    dom: 'BQlfrtip',
+    lengthMenu: [
+    [10, 25, 50, -1],
+    [10, 25, 50, 'All'],
+    ],
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+           
+        ]
+    },
+
+    ]
+
+});
+
+document.querySelector('.dtsb-title').style.display = 'none'
+
+
+
+  </script>
+{% endblock %}

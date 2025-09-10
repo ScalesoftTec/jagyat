@@ -1,0 +1,1356 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load custom_tags %}
+
+{% block dashoard_title %}
+Job Cost Sheet -
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+  Job Cost Sheet List
+</h1>
+
+<style>
+  table th,
+  td {
+
+    padding: 0px !important;
+  }
+  .modal table th{
+    color:white!important;
+    font-weight: 500;
+  }
+</style>
+
+{% endblock %}
+
+{% block dashboard_content %}
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" id="selected_fields" name="selected_fields" value="">
+  <input type="hidden" id="list_selected" name="list_selected" value="0">
+  <div class="row mb-2">
+    <div class="col-2">
+      <label for="region">Choose Country</label>
+      <select name="region" id="region" required class="form-control">
+        {% if not selected_region %}
+        <option value="" selected hidden disabled>Choose Country</option>
+        {% endif %}
+
+        {% for i in company_regions %}
+        {% if i.region == selected_region %}
+        <option value="{{i.region}}" selected >{{i.region}}</option>
+        {% else %}
+        <option value="{{i.region}}">{{i.region}}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-12">
+      <label for="company">Company</label>
+      <select name="company" id="company" class="form-control form-control-sm">
+        {% if selected_company == "A" or not selected_company %}
+        <option value="A" selected>All</option>
+        {% else %}
+        <option value="A">All</option>
+        {% endif %}
+        {% for company in global_companies %}
+        {% if company.id == selected_company %}
+        <option value="{{company.id}}" selected>{{company}}</option>
+        {% else %}
+        <option value="{{company.id}}">{{company}}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+   
+    <div class="col-md-2 col-sm-12">
+      <label for="party">Party</label>
+      <select name="party" id="party" class="form-control form-control-sm">
+        {% if selected_party == "A" or not selected_party %}
+        <option value="A" selected>All</option>
+        {% else %}
+        <option value="A">All</option>
+        {% endif %}
+        {% for party in global_parties %}
+        {% if party.id == selected_party %}
+        <option value="{{party.id}}" selected>{{party}}</option>
+        {% else %}
+        <option value="{{party.id}}">{{party}}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-12">
+      <label for="job_status">Job Status</label>
+      <select name="job_status" id="job_status" class="form-control form-control-sm">
+        
+        {% if job_status == "A" %}
+        <option value="A" selected>All</option>
+        {% else %}
+        <option value="A">All</option>
+        {% endif %}
+
+        {% if job_status == "O" %}
+        <option value="O" selected>Unfinalized</option>
+        {% else %}
+        <option value="O">Unfinalized</option>
+        {% endif %}
+     
+        {% if job_status == "C" %}
+        <option value="C" selected>Finalized</option>
+        {% else %}
+        <option value="C">Finalized</option>
+        {% endif %}
+     
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-12">
+      <label for="job_date_filter">Date From</label>
+      <select name="job_date_filter" id="job_date_filter" class="form-control form-control-sm">
+        
+       
+
+        {% if job_date_filter == "J" or job_date_filter == "" %}
+        <option value="J" selected>Job Date</option>
+        {% else %}
+        <option value="J">Job Date</option>
+        {% endif %}
+     
+        {% if job_date_filter == "I" %}
+        <option value="I" selected>Sales Invoice</option>
+        {% else %}
+        <option value="I">Sales Invoice</option>
+        {% endif %}
+     
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-12">
+      <label for="from_date">From</label>
+      <input type="date" value="{{from_date|date:'Y-m-d'}}" name="from_date" required id="from_date"
+        class="form-control form-control-sm" />
+    </div>
+    <div class="col-md-2 col-sm-12">
+      <label for="  ">To</label>
+      <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" required id="to_date"
+        class="form-control form-control-sm" />
+    </div>
+    <div class="col-md-2 col-sm-12" id="action_form" style="display: none;">
+      <label for="status">Update Job Status To</label>
+      <select name="status" id="status" class="form-control form-control-sm" required>
+        <option value="C" selected>Close</option>
+    
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-12">
+      <button  type="submit" id="getReportButton" class="btn btn-sm btn-primary mt-4">Get Report</button>
+    </div>
+  </div>
+</form>
+
+
+
+<div class="large-table-fake-top-scroll-container-3">
+  <div>&nbsp;</div>
+</div>
+
+
+
+<div class="table-responsive">
+
+  <table class="table table-primary compact table-bordered " id="job_cost_sheet_table">
+    <thead>
+      <tr>
+
+        <th scope="col" style="min-width: 80px!important;">Company</th>
+       
+        <th scope="col" style="min-width: 100px!important;">Job&nbsp;No.</th>
+        <th scope="col" style="min-width: 100px!important;">Container&nbsp;Count</th>
+        <th scope="col" style="min-width: 100px!important;">Date</th>
+        <th scope="col" style="min-width: 200px!important;">Party</th>
+        <th scope="col" style="min-width: 100px!important;">Sales&nbsp;Person</th>
+        <th scope="col" style="min-width: 80px!important;">Module</th>
+        <th scope="col" style="min-width: 80px!important;">Shipment&nbsp;Type</th>
+        <th scope="col" style="min-width: 80px!important;">MBL</th>
+        <th scope="col" style="min-width: 80px!important;">HBL</th>
+        <th scope="col" style="min-width: 80px!important;">Sales</th>
+        <th scope="col" style="min-width: 100px!important;">DRN</th>
+        <th scope="col" style="min-width: 100px!important;">Dir.&nbsp;Purchase</th>
+        <th scope="col" style="min-width: 100px!important;">CRN</th>
+        <th scope="col" style="min-width: 100px!important;">Ind.&nbsp;Exp.</th>
+        <th scope="col" style="min-width: 100px!important;">Net&nbsp;Purch.</th>
+        <th scope="col" style="min-width: 100px!important;">Total&nbsp;P/L</th>
+        <th scope="col" style="min-width: 50px!important;">% P/L</th>
+
+
+
+
+        <th scope="col">PDF</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for data in report_list %}
+      {% if job_status == "A" and data.job.job_status == "Close" %}
+      <tr class="table-primary">
+        {% elif job_status == "A" and not data.job.job_status == "Close" %}
+        <tr  class="table-success">
+          {% else %}
+          <tr>
+          {% endif %}
+        <td>
+          <input type="hidden" value="{{data.job.id}}" id="job_{{forloop.counter}}" name="job_{{forloop.counter}}">
+          {{data.job.company_type}}</td>
+       
+        <td>
+          {% if data.job.module == "Sea Export" %}
+          <a href="{% url 'operations:job_update' module='sea_export' id=data.job.id %}" target="_blank">{{data.job.job_no}}</a>
+          {% elif data.job.module == "Sea Import" %}
+          <a href="{% url 'operations:job_update' module='sea_import' id=data.job.id %}" target="_blank">{{data.job.job_no}}</a>
+          {% elif data.job.module == "Air Export" %}
+          <a href="{% url 'operations:job_update' module='air_export' id=data.job.id %}" target="_blank">{{data.job.job_no}}</a>
+          {% elif data.job.module == "Air Import" %}
+          <a href="{% url 'operations:job_update' module='air_import' id=data.job.id %}" target="_blank">{{data.job.job_no}}</a>
+          {% elif data.job.module == "Transport" %}
+          <a href="{% url 'operations:job_update' module='transportation' id=data.job.id %}" target="_blank">{{data.job.job_no}}</a>
+          {% else %}
+          {{data.job.job_no}}
+          {% endif %}
+        </td>
+        <td class="text-center">
+          <a href="#"  data-toggle="modal" data-target="#job_contaier_count_modal{{ forloop.counter }}">
+           
+            {{data.job.job_container.count}}
+          
+          </a>
+        </td>
+
+        <td>{{data.job.job_date|date:"Y-m-d"}}</td>
+        <td>{{data.job.account.party_name}}</td>
+        <td>{{data.job.account_manager}}</td>
+        <td>{{data.job.module}}</td>
+        <td>{{data.job.shipment_type}}</td>
+        <td>{{data.job.mbl_no}}</td>
+        <td>
+          {% for hbl in data.job.job_hbl.all %}
+         <div>  {{hbl.job_hbl_no}} </div>
+          {% endfor %}
+        </td>
+      
+
+       
+        <td class="text-right" data-order="{{data.sales_invoice.sum|floatformat:0|floatformat:2}}">
+          <a href="#"  data-toggle="modal" data-target="#salesViewModal{{ forloop.counter }}">
+            {{data.sales_invoice.sum|floatformat:0|floatformat:2}}
+           
+          </a>
+    
+         
+        </td>
+        <td class="text-right" data-order="{{data.debit_note.sum|floatformat:0|floatformat:2}}">
+          <a href="#"  data-toggle="modal" data-target="#drnViewModal{{ forloop.counter }}">
+            {{data.debit_note.sum|floatformat:0|floatformat:2}}
+           
+          </a>
+    
+         
+        </td>
+
+       
+          <td class="text-right" data-order="{{data.purchase_invoice.sum|floatformat:0|floatformat:2}}">
+          
+          <a href="#"  data-toggle="modal" data-target="#purchaseViewModal{{ forloop.counter }}">
+
+         
+          {{data.purchase_invoice.sum|floatformat:0|floatformat:2}}
+       
+        </a>
+  
+       
+      </td>
+ 
+      <td class="text-right" data-order="{{data.credit_note.sum|floatformat:0|floatformat:2}}">
+   
+
+          <a href="#"  data-toggle="modal" data-target="#crnViewModal{{ forloop.counter }}">
+   
+          {{data.credit_note.sum|floatformat:0|floatformat:2}}
+    
+          </a>
+    
+
+        </td>
+        <td class="text-right" data-order="{{data.indirect_expense.sum|floatformat:0|floatformat:2}}">
+          
+         
+          <a href="#"  data-toggle="modal" data-target="#jobExpenseViewModal{{ forloop.counter }}">
+            {{data.indirect_expense.sum|floatformat:0|floatformat:2}}
+          </a>
+    
+     
+        </td>
+       
+        <td align="right" data-order="{{data.total_purchase|floatformat:0|floatformat:2}}">{{data.total_purchase|floatformat:0|floatformat:2}}</td>
+        <td class="text-right" data-order="{{data.profit_loss|floatformat:0|floatformat:2}}">
+          
+          <a href="#"  data-toggle="modal" data-target="#PandLViewModal{{ forloop.counter }}">
+            {{data.profit_loss|floatformat:0|floatformat:2}}
+     
+          </a>
+    
+     
+        </td>
+        
+        <td align="right">{{data.profit_percent}}</td>
+        <td align="right"><a href="{% url 'acr:job_cost_sheet_pdf' id=data.job.id %}" target="_blank">PDF</a></td>
+      </tr>
+    
+      {% endfor %}
+
+    </tbody>
+
+    <tfoot>
+      <tr>
+        <td colspan="9" class="text-center text-white"></td>
+        <td  class="text-center text-white">Total</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white"></td>
+        <td></td>
+      </tr>
+      
+    </tfoot>
+  </table>
+
+</div>
+
+
+
+{% for data in report_list %}
+ <!-- Container Count Modal -->
+ <div class="modal fade" id="job_contaier_count_modal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="job_contaier_count_modal{{ forloop.counter }}Label" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+      <div class="modal-header">
+      <h6 class="modal-title" id="job_contaier_count_modal{{ forloop.counter }}Label">View Container Count
+      </h6>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+      </div>
+      <div class="modal-body">
+        <table class="table compact display table-primary table-bordered">
+          <thead>
+            <tr>
+              <th>Container&nbsp;Type</th>
+              <th>Container&nbsp;Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in data.job.get_job_container_group %}
+            <tr>
+              <td>{{i.container_type}}</td>
+              <td>{{i.count}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        
+
+      </div>
+      <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+     
+      </div>
+  </div>
+  </div>
+</div>
+<!-- End of Container Count Modal -->
+
+<!-- Sales Modal -->
+ <div class="modal fade" id="salesViewModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="salesViewModal{{ forloop.counter }}Label" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+      <div class="modal-header">
+      <h6 class="modal-title" id="salesViewModal{{ forloop.counter }}Label">View Sales Invoice
+      </h6>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+      </div>
+      <div class="modal-body">
+        <table class="table compact table-bordered table-md-responsive">
+     
+            <tr>
+              <td align="left">Booking Party</td>
+              <td align="left">{{data.job.booking_party.party_name}}</td>
+            </tr>
+            <tr>
+              <td align="left">Invoice Party</td>
+              <td align="left">{{data.job.account.party_name}}</td>
+            </tr>
+          
+            <tr>
+              <td align="left">Line</td>
+              <td align="left">{{data.job.shipping_line}}</td>
+            </tr>
+          
+            <tr>
+              <td align="left">Booking No.</td>
+              <td align="left">{{data.job.booking_no}}</td>
+            </tr>
+            <tr>
+              <td align="left">Container No.</td>
+              <td align="left">{{data.job.container_no}}</td>
+            </tr>
+            <tr>
+              <td align="left">POL</td>
+              <td align="left">{{data.job.port_of_loading.name}}</td>
+            </tr>
+          
+          
+          
+        </table>
+
+
+        <table class="table table-bordered compact">
+          <thead>
+            <tr>
+              <th align="center" style="background-color: #2d045c;">Billing Head</th>
+              <th align="center" style="background-color: #2d045c;">Qty.</th>
+              <th align="center" style="background-color: #2d045c;">Ex. Rate</th>
+              <th align="center" style="background-color: #2d045c;">Charges</th>
+              <th align="center" style="background-color: #2d045c;">Total Amount</th>
+              <th align="center" style="background-color: #2d045c;">GST%</th>
+              <th align="center" style="background-color: #2d045c;">GST</th>
+              <th align="center" style="background-color: #2d045c;">Net Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in data.sales_invoice.data %}
+
+            <tr>
+              <th colspan="8" style="background-color: #2d045c;" class="text-white text-center">{{i.invoice.final_invoice_no}} ({{i.invoice.invoice_currency.short_name}} - {{i.invoice.currency_ex_rate}})</th>
+            </tr>
+            <tr>
+              <th colspan="8" style="background-color: #2d045c;" class="text-white text-center">Data - {{i.invoice.einvoice_date|date:"d-b-Y"}}</th>
+            </tr>
+            {% for j in i.data %}
+          
+            <tr>
+              <td class="text-left">{{j.billing_head}}</td>
+              <td align="right">{{j.qty_unit}}</td>
+              <td align="right">{{j.ex_rate}}</td>
+              <td align="right">{{j.rate}}</td>
+              <td align="right">{{j.amount|floatformat:0|floatformat:2}}</td>
+              <td align="right">{{j.gst}}</td>
+              <td align="right">{{j.gst_amount|floatformat:0|floatformat:2}}</td>
+              <td align="right">{{j.total|floatformat:0|floatformat:2}}</td>
+            </tr>
+     
+            {% endfor %}
+
+            <tr class="bg-primary">
+        
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>Total</td>
+               
+                  <td align="right">{{i.invoice.gross_amount|floatformat:0|floatformat:2}}</td>
+                  <td align="right"></td>
+                  <td align="right">{{i.invoice.gst_amount|floatformat:0|floatformat:2}}</td>
+                  <td align="right">{{i.invoice.net_amount|floatformat:0|floatformat:2}}</td>
+           
+            </tr>
+
+       
+            {% endfor %}
+          </tbody>
+          
+        </table>
+
+      </div>
+      <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+     
+      </div>
+  </div>
+  </div>
+</div>
+<!-- End of Sales Modal -->
+
+
+<!-- DRN Modal -->
+ <div class="modal fade" id="drnViewModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="drnViewModal{{ forloop.counter }}Label" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+      <div class="modal-header">
+      <h6 class="modal-title" id="drnViewModal{{ forloop.counter }}Label">View Debit Note
+      </h6>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+      </div>
+      <div class="modal-body">
+        <table class="table compact table-bordered table-md-responsive">
+     
+            
+          
+          
+          
+        </table>
+
+
+        <table class="table table-bordered compact">
+          <thead>
+            <tr>
+              <th align="center" style="background-color: #2d045c;">Billing Head</th>
+              <th align="center" style="background-color: #2d045c;">Qty.</th>
+              <th align="center" style="background-color: #2d045c;">Ex. Rate</th>
+              <th align="center" style="background-color: #2d045c;">Charges</th>
+              <th align="center" style="background-color: #2d045c;">Total Amount</th>
+              <th align="center" style="background-color: #2d045c;">GST%</th>
+              <th align="center" style="background-color: #2d045c;">GST</th>
+              <th align="center" style="background-color: #2d045c;">Net Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in data.debit_note.data %}
+
+            <tr>
+              <th colspan="8" style="background-color: #2d045c;" class="text-white text-center">{{i.invoice.debit_note_no}} ({{i.invoice.invoice_currency.short_name}} - {{i.invoice.currency_ex_rate}})</th>
+            </tr>
+            {% for j in i.data %}
+          
+            <tr>
+              <td class="text-left">{{j.billing_head}}</td>
+              <td align="right">{{j.qty_unit}}</td>
+              <td align="right">{{j.ex_rate}}</td>
+              <td align="right">{{j.rate}}</td>
+              <td align="right">{{j.amount|floatformat:0|floatformat:2}}</td>
+              <td align="right">{{j.gst}}</td>
+              <td align="right">{{j.gst_amount|floatformat:0|floatformat:2}}</td>
+              <td align="right">{{j.total|floatformat:0|floatformat:2}}</td>
+            </tr>
+     
+            {% endfor %}
+
+            <tr class="bg-primary">
+        
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>Total</td>
+               
+                  <td align="right">{{i.invoice.gross_amount|floatformat:0|floatformat:2}}</td>
+                  <td align="right"></td>
+                  <td align="right">{{i.invoice.gst_amount|floatformat:0|floatformat:2}}</td>
+                  <td align="right">{{i.invoice.net_amount|floatformat:0|floatformat:2}}</td>
+           
+            </tr>
+
+       
+            {% endfor %}
+          </tbody>
+          
+        </table>
+
+      </div>
+      <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+     
+      </div>
+  </div>
+  </div>
+</div>
+<!-- End of DRN Modal -->
+
+
+ <!-- Purchase Modal -->
+ <div class="modal fade" id="purchaseViewModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="purchaseViewModal{{ forloop.counter }}Label" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+      <div class="modal-header">
+      <h6 class="modal-title" id="purchaseViewModal{{ forloop.counter }}Label">View Purchase Invoice
+      </h6>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+      </div>
+      <div class="modal-body">
+        <table class="table compact table-bordered table-md-responsive">
+     
+            <tr>
+              <td align="left" >Booking Party</td>
+              <td align="left" >{{data.job.booking_party.party_name}}</td>
+            </tr>
+            <tr>
+              <td align="left" >Invoice Party</td>
+              <td align="left" >{{data.job.account.party_name}}</td>
+            </tr>
+          
+            <tr>
+              <td align="left" >Line</td>
+              <td align="left" >{{data.job.shipping_line}}</td>
+            </tr>
+          
+            <tr>
+              <td align="left" >Booking No.</td>
+              <td align="left" >{{data.job.booking_no}}</td>
+            </tr>
+            <tr>
+              <td align="left" >Container No.</td>
+              <td align="left" >{{data.job.container_no}}</td>
+            </tr>
+            <tr>
+              <td align="left" >POL</td>
+              <td align="left" >{{data.job.port_of_loading.name}}</td>
+            </tr>
+          
+          
+        </table>
+
+
+        <table class="table table-bordered compact">
+          <thead>
+            <tr>
+              <th style="background-color: #2d045c;">Billing Head</th>
+              <th style="background-color: #2d045c;">Qty.</th>
+              <th style="background-color: #2d045c;">Ex. Rate</th>
+              <th style="background-color: #2d045c;">Charges</th>
+              <th style="background-color: #2d045c;">Total Amount</th>
+              <th style="background-color: #2d045c;">GST%</th>
+              <th style="background-color: #2d045c;">GST</th>
+              <th style="background-color: #2d045c;">Net Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in data.purchase_invoice.data %}
+           
+            <tr>
+              <th colspan="8" style="background-color: #2d045c;" class="text-white text-center">{{i.invoice.purchase_invoice_no}} ({{i.invoice.invoice_currency.short_name}} - {{i.invoice.currency_ex_rate}})</th>
+            </tr>
+            {% for j in i.data %}
+           
+            <tr>
+              <td class="text-left">{{j.billing_head}}</td>
+              <td align="right">{{j.qty_unit}}</td>
+              <td align="right">{{j.ex_rate}}</td>
+              <td align="right">{{j.rate}}</td>
+              <td align="right">{{j.amount|floatformat:0|floatformat:2}}</td>
+              <td align="right">{{j.gst}}</td>
+              <td align="right">{{j.gst_amount|floatformat:0|floatformat:2}}</td>
+              <td align="right">{{j.total|floatformat:0|floatformat:2}}</td>
+            </tr>
+            
+            {% endfor %}
+
+            <tr class="bg-primary">
+          
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>Total</td>
+             
+                <td align="right">{{i.invoice.gross_amount|floatformat:0|floatformat:2}}</td>
+                <td align="right"></td>
+                <td align="right">{{i.invoice.gst_amount|floatformat:0|floatformat:2}}</td>
+                <td align="right">{{i.invoice.net_amount|floatformat:0|floatformat:2}}</td>
+         
+          </tr>
+
+            
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+     
+      </div>
+  </div>
+  </div>
+</div>
+<!-- End of Purchase Modal -->
+
+
+  <!-- Credit Note Modal -->
+  <div class="modal fade" id="crnViewModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="crnViewModal{{ forloop.counter }}Label" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h6 class="modal-title" id="crnViewModal{{ forloop.counter }}Label">View Credit Note
+        </h6>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered compact">
+            <thead>
+              <tr>
+                <th style="background-color: #2d045c;">Billing Head</th>
+                <th style="background-color: #2d045c;">Qty.</th>
+                <th style="background-color: #2d045c;">Ex. Rate</th>
+                <th style="background-color: #2d045c;">Charges</th>
+                <th style="background-color: #2d045c;">Total Amount</th>
+                <th style="background-color: #2d045c;">GST%</th>
+                <th style="background-color: #2d045c;">GST</th>
+                <th style="background-color: #2d045c;">Net Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in data.credit_note.data %}
+             <tr>
+              <th style="background-color: #2d045c;" class="text-center" colspan="8">{{i.invoice.final_invoice_no}}({{i.invoice.invoice_currency.short_name}} - {{i.invoice.currency_ex_rate}})</th>
+             </tr>
+              {% for j in i.data %}
+      
+              <tr>
+                <td class="text-left">{{j.billing_head.billing_head}}</td>
+                <td align="right">{{j.qty_unit}}</td>
+                <td align="right">{{j.ex_rate}}</td>
+                <td align="right">{{j.rate}}</td>
+                <td align="right">{{j.amount|floatformat:0|floatformat:2}}</td>
+                <td align="right">{{j.gst}}</td>
+                <td align="right">{{j.gst_amount|floatformat:0|floatformat:2}}</td>
+                <td align="right">{{j.total|floatformat:0|floatformat:2}}</td>
+              </tr>
+            
+              {% endfor %}
+
+              <tr class="bg-primary">
+          
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>Total</td>
+                
+                  <td align="right">{{i.invoice.gross_amount|floatformat:0|floatformat:2}}</td>
+                  <td align="right"></td>
+                  <td align="right">{{i.invoice.gst_amount|floatformat:0|floatformat:2}}</td>
+                  <td align="right">{{i.invoice.net_amount|floatformat:0|floatformat:2}}</td>
+            
+            </tr>
+
+            
+              {% endfor %}
+            </tbody>
+          </table>
+
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        
+        </div>
+    </div>
+    </div>
+</div>
+<!-- End of Credit Note Modal -->
+
+<!-- Indirect Expense Modal -->
+<div class="modal fade" id="jobExpenseViewModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="jobExpenseViewModal{{ forloop.counter }}Label" aria-hidden="true">
+<div class="modal-dialog modal-lg" role="document">
+<div class="modal-content">
+    <div class="modal-header">
+    <h6 class="modal-title" id="jobExpenseViewModal{{ forloop.counter }}Label">View Job Expense
+    </h6>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    </div>
+    <div class="modal-body">
+  
+
+      <table class="table table-bordered compact">
+        <thead>
+          <tr>
+            <th style="background-color: #2d045c;">Billing Head</th>
+            <th style="background-color: #2d045c;">Amount</th>
+            <th style="background-color: #2d045c;">From</th>
+            <th style="background-color: #2d045c;">Bill No.</th>
+            <th style="background-color: #2d045c;">Entry Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in data.indirect_expense.data %}
+          
+          {% for j in i.data %}
+        
+          <tr>
+            <td class="text-left">{{j.billing_head}}</td>
+            <td class="text-left">{{i.invoice.vendor.vendor_name}}</td>
+            <td class="text-left">{{i.invoice.bill_no}}</td>
+            <td class="text-left">{{i.invoice.bill_date|date:"Y-m-d"}}</td>
+            <td align="right">{{j.total|floatformat:0|floatformat:2}}</td>
+        
+          </tr>
+          
+          {% endfor %}
+
+          <tr class="bg-primary">
+      
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Total</td>
+            <td align="right">{{i.invoice.gross_amount|floatformat:0|floatformat:2}}</td>
+        </tr>
+
+         
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+    <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    
+    </div>
+</div>
+</div>
+</div>
+<!-- End of Indirect Expense Modal -->
+
+
+<!-- Trailor Expense Modal -->
+<div class="modal fade" id="jobTrailorViewModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="jobTrailorViewModal{{ forloop.counter }}Label" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+      <div class="modal-header">
+      <h6 class="modal-title" id="jobTrailorViewModal{{ forloop.counter }}Label">View Job Expense
+      </h6>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+      </div>
+      <div class="modal-body">
+    
+
+        <table class="table table-bordered compact">
+          <thead>
+            <tr>
+              <th style="background-color: #2d045c;">Billing Head</th>
+              <th style="background-color: #2d045c;">Vendor</th>
+              <th style="background-color: #2d045c;">Payment Type</th>
+              <th style="background-color: #2d045c;">Amount</th>
+  
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in data.trailor_expense.data %}
+            
+            <tr>
+              <td class="bg-primary text-center text-white" colspan="4">
+                {{i.invoice.trailor_no.trailor_no}}
+              </td>
+            </tr>
+            {% for j in i.data %}
+          
+            
+            <tr>
+              <td class="text-left">{{j.billing_head.billing_head}}</td>
+              <td class="text-left">{{j.vendor.vendor_name}}</td>
+              <td class="text-left">{{j.payment_type}}</td>
+              <td align="right">{{j.charges|floatformat:0|floatformat:2}}</td>
+            
+          
+            </tr>
+            
+            {% endfor %}
+
+            
+            
+            <tr class="bg-success">
+            <th colspan="3">Net Amount</th>
+            <td class="text-right">{{i.invoice.net_amount|floatformat:0|floatformat:2}}</td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      
+      </div>
+  </div>
+  </div>
+</div>
+<!-- End Trailor Expense Modal -->
+
+
+<!-- Profit Loss Modal -->
+<div class="modal fade" id="PandLViewModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="PandLViewModal{{ forloop.counter }}Label" aria-hidden="true">
+<div class="modal-dialog modal-lg" role="document">
+<div class="modal-content">
+    <div class="modal-header">
+    <h6 class="modal-title" id="PandLViewModal{{ forloop.counter }}Label">View Profit Loss Summary
+    </h6>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    </div>
+    <div class="modal-body">
+  
+
+      <table class="table table-bordered compact">
+        <thead>
+          <tr>
+            <th style="background-color: #2d045c;" class="text-center" align="center" colspan="8">Sales Invoice</th>
+          </tr>
+          <tr>
+            <th style="background-color: #2d045c;">Billing Head</th>
+            <th style="background-color: #2d045c;">Qty.</th>
+            <th style="background-color: #2d045c;">Ex. Rate</th>
+            <th style="background-color: #2d045c;">Charges</th>
+            <th style="background-color: #2d045c;">Total Amount</th>
+            <th style="background-color: #2d045c;">GST%</th>
+            <th style="background-color: #2d045c;">GST</th>
+            <th style="background-color: #2d045c;">Net Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in data.sales_invoice.data %}
+         
+          <tr>
+            <td colspan="8" class="text-center">{{i.invoice.final_invoice_no}} ({{i.invoice.invoice_currency.short_name}} - {{i.invoice.currency_ex_rate}})</td>
+          </tr>
+          {% for j in i.data %}
+    
+          <tr>
+            <td class="text-left">{{j.billing_head.billing_head}}</td>
+            <td align="right">{{j.qty_unit}}</td>
+            <td align="right">{{j.ex_rate}}</td>
+            <td align="right">{{j.rate}}</td>
+            <td align="right">{{j.amount|floatformat:0|floatformat:2}}</td>
+            <td align="right">{{j.gst}}</td>
+            <td align="right">{{j.gst_amount|floatformat:0|floatformat:2}}</td>
+            <td align="right">{{j.total|floatformat:0|floatformat:2}}</td>
+          </tr>
+          
+          {% endfor %}
+          <tr class="bg-primary">
+      
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Total</td>
+            
+              <td align="right">{{i.invoice.gross_amount|floatformat:0|floatformat:2}}</td>
+              <td align="right"></td>
+              <td align="right">{{i.invoice.gst_amount|floatformat:0|floatformat:2}}</td>
+              <td align="right">{{i.invoice.net_amount|floatformat:0|floatformat:2}}</td>
+        
+        </tr>
+        
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <table class="table table-bordered compact">
+        <thead>
+          <tr>
+            <th style="background-color: #2d045c;" class="text-center" align="center" colspan="8">Purchase Invoice</th>
+          </tr>
+          <tr>
+            <th align="center" style="background-color: #2d045c;">Billing Head</th>
+            <th align="center" style="background-color: #2d045c;">Qty.</th>
+            <th align="center" style="background-color: #2d045c;">Ex. Rate</th>
+            <th align="center" style="background-color: #2d045c;">Charges</th>
+            <th align="center" style="background-color: #2d045c;">Total Amount</th>
+            <th align="center" style="background-color: #2d045c;">GST%</th>
+            <th align="center" style="background-color: #2d045c;">GST</th>
+            <th align="center" style="background-color: #2d045c;">Net Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in data.purchase_invoice.data %}
+         
+          <tr>
+            <td colspan="8" class="text-center">{{i.invoice.purchase_invoice_no}} ({{i.invoice.invoice_currency.short_name}} - {{i.invoice.currency_ex_rate}})</td>
+          </tr>
+          {% for j in i.data %}
+
+          
+          <tr>
+            <td class="text-left">{{j.billing_head.billing_head}}</td>
+            <td align="right">{{j.qty_unit}}</td>
+            <td align="right">{{j.ex_rate}}</td>
+            <td align="right">{{j.rate}}</td>
+            <td align="right">{{j.amount|floatformat:0|floatformat:2}}</td>
+            <td align="right">{{j.gst}}</td>
+            <td align="right">{{j.gst_amount|floatformat:0|floatformat:2}}</td>
+            <td align="right">{{j.total|floatformat:0|floatformat:2}}</td>
+          </tr>
+
+          {% endfor %}
+          <tr class="bg-primary">
+      
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Total</td>
+            
+              <td align="right">{{i.invoice.gross_amount|floatformat:0|floatformat:2}}</td>
+              <td align="right"></td>
+              <td align="right">{{i.invoice.gst_amount|floatformat:0|floatformat:2}}</td>
+              <td align="right">{{i.invoice.net_amount|floatformat:0|floatformat:2}}</td>
+        
+        </tr>
+         
+      
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <table>
+        <tr>
+          <td class="text-left">Net Recievable</td>
+          <td align="right">
+          
+            {{data.sales_invoice.sum|floatformat:0|floatformat:2}}
+            
+          </td>
+        </tr>
+        <tr>
+          <td class="text-left">Net Payable</td>
+          <td align="right">
+          
+            {{data.total_purchase|floatformat:0|floatformat:2}}
+            
+          </td>
+        </tr>
+        <tr>
+          <td class="text-left">Difference</td>
+          <td align="right">
+            
+            {{data.sales_invoice.sum|sub:data.total_purchase|floatformat:0|floatformat:2}}
+            
+          </td>
+        </tr>
+      </table>
+
+      <table class="table table-bordered compact">
+        <thead>
+          <tr>
+            <th style="background-color: #2d045c;" class="text-center" align="center" colspan="7">Reciept Report</th>
+          </tr>
+          <tr>
+            <th align="center" style="background-color: #2d045c;">Voucher No.</th>
+            <th align="center" style="background-color: #2d045c;">Instrument No.</th>
+            <th align="center" style="background-color: #2d045c;">Invoice Amount</th>
+            <th align="center" style="background-color: #2d045c;">Recieved Amount</th>
+            <th align="center" style="background-color: #2d045c;">TDS Amount</th>
+            <th align="center" style="background-color: #2d045c;">Adjust Amount</th>
+            <th align="center" style="background-color: #2d045c;">Balance Amount</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in data.sales_invoice.data %}
+          
+          <tr>
+            <td colspan="7" class="text-center">{{i.invoice.final_invoice_no}}</td>
+          </tr>
+          {% for j in i.vouchers %}
+          
+          <tr>
+            <td class="text-left">{{j.voucher.voucher_no}}</td>
+            <td class="text-left">{{j.voucher.instrument_no}}</td>
+            <td align="right">{{i.net_amount|floatformat:0|floatformat:2}}</td>
+            <td align="right">{{j.received_amount|floatformat:0|floatformat:2}}</td>
+            <td align="right">{{j.tds_amount|floatformat:0|floatformat:2}}</td>
+            <td align="right">{{j.adjustment_amount|floatformat:0|floatformat:2}}</td>
+            <td align="right">{{j.pending_amount|floatformat:0|floatformat:2}}</td>
+          </tr>
+          
+          {% endfor %}
+    
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <table class="table table-bordered compact">
+        <thead>
+          <tr>
+            <th style="background-color: #2d045c;" class="text-center" align="center" colspan="7">Payment Report</th>
+          </tr>
+          <tr>
+            <th align="center" style="background-color: #2d045c;">Voucher No.</th>
+            <th align="center" style="background-color: #2d045c;">Instrument No.</th>
+            <th align="center" style="background-color: #2d045c;">Invoice Amount</th>
+            <th align="center" style="background-color: #2d045c;">Paid Amount</th>
+            <th align="center" style="background-color: #2d045c;">TDS Amount</th>
+            <th align="center" style="background-color: #2d045c;">Adjust Amount</th>
+            <th align="center" style="background-color: #2d045c;">Balance Amount</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in data.purchase_invoice.data %}
+         
+          <tr>
+            <td colspan="7" class="text-center">{{i.invoice.purchase_invoice_no}}</td>
+          </tr>
+          {% for j in i.ivouchers %}
+          
+          <tr>
+
+            <td class="text-left">{{j.voucher.voucher_no}}</td>
+            <td class="text-left">{{j.voucher.instrument_no}}</td>
+            <td align="right">{{i.net_amount|floatformat:0|floatformat:2}}</td>
+            <td align="right">{{j.paid_amount|floatformat:0|floatformat:2}}</td>
+            <td align="right">{{j.tds_amount|floatformat:0|floatformat:2}}</td>
+            <td align="right">{{j.adjustment_amount|floatformat:0|floatformat:2}}</td>
+            <td align="right">{{j.pending_amount|floatformat:0|floatformat:2}}</td>
+            
+          </tr>
+          
+          {% endfor %}
+         
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+    <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    
+    </div>
+</div>
+</div>
+</div>
+<!-- End Profit Loss Modal -->
+
+{% endfor %}
+
+
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+  var selected_ids = []
+  $(document).ready(function () {
+    jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+      return this.flatten().reduce( function ( a, b ) {
+          var x = parseFloat(a) ;
+          var y = parseFloat($(b).attr('data-order')) ;
+  
+          return parseFloat(x + y).toFixed(2)
+      }, 0 );
+  } );
+    var job_cost_sheet = []
+
+    var table = new DataTable('#job_cost_sheet_table', {
+      // options
+      dom: 'BQlfrtip',
+      "columnDefs": [
+        { "type": "date", "targets": 3 }
+      ],
+      select: {
+        style: "multiple",
+      },
+    
+      
+      lengthMenu: [
+        [10, 25, 50, -1],
+        [10, 25, 50, 'All'],
+      ],
+      buttons: [
+      {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+              { extend: 'copy', footer: true, header:true,exportOptions: {
+                format: {
+                  body: function ( data, row, column, node ) {
+                      //replace ampersands and other special chars
+                      data = data.replace(/&gt;/g, '>')
+                                 .replace(/&lt;/g, '<')
+                                 .replace(/&amp;/g, '&')
+                                 .replace(/&quot;/g, '"')
+                                 .replace(/&#163;/g, '£')
+                                 .replace(/&#39;/g, '\'')
+                                 .replace(/&#10;/g, '\n');
+                      //replace html tags with one space
+                      data = data.replace(/<[^>]*>/g, ' ');
+                      //replace multiple spaces and tabs etc with one space
+                      return data.replace(/\s\s+/g, ' ');
+                  },
+              }
+              }   },
+              { extend: 'excel', footer: true, header:true,
+              exportOptions: {
+                format: {
+                  body: function ( data, row, column, node ) {
+                    
+                      //replace ampersands and other special chars
+                      data = data.replace(/&gt;/g, '>')
+                                 .replace(/&lt;/g, '<')
+                                 .replace(/&amp;/g, '&')
+                                 .replace(/&quot;/g, '"')
+                                 .replace(/&#163;/g, '£')
+                                 .replace(/&#39;/g, '\'')
+                                 .replace(/&#10;/g, '\n');
+                      //replace html tags with one space
+                      data = data.replace(/<[^>]*>/g, ' ');
+                      //replace multiple spaces and tabs etc with one space
+                      return data.replace(/\s\s+/g, ' ');
+                  },
+              }
+              }  
+           },
+           
+              { extend: 'csv', footer: true, header:true,exportOptions: {
+                format: {
+                  body: function ( data, row, column, node ) {
+                      //replace ampersands and other special chars
+                      data = data.replace(/&gt;/g, '>')
+                                 .replace(/&lt;/g, '<')
+                                 .replace(/&amp;/g, '&')
+                                 .replace(/&quot;/g, '"')
+                                 .replace(/&#163;/g, '£')
+                                 .replace(/&#39;/g, '\'')
+                                 .replace(/&#10;/g, '\n');
+                      //replace html tags with one space
+                      data = data.replace(/<[^>]*>/g, ' ');
+                      //replace multiple spaces and tabs etc with one space
+                      return data.replace(/\s\s+/g, ' ');
+                  },
+              }
+              }   },
+              { extend: 'pdf', footer: true, header:true , orientation: 'landscape',exportOptions: {
+                format: {
+                  body: function ( data, row, column, node ) {
+                      //replace ampersands and other special chars
+                      data = data.replace(/&gt;/g, '>')
+                                 .replace(/&lt;/g, '<')
+                                 .replace(/&amp;/g, '&')
+                                 .replace(/&quot;/g, '"')
+                                 .replace(/&#163;/g, '£')
+                                 .replace(/&#39;/g, '\'')
+                                 .replace(/&#10;/g, '\n');
+                      //replace html tags with one space
+                      data = data.replace(/<[^>]*>/g, ' ');
+                      //replace multiple spaces and tabs etc with one space
+                      return data.replace(/\s\s+/g, ' ');
+                  },
+              }
+              }  },
+           
+              ]
+      },
+
+    ],
+ 
+ 
+      drawCallback: function () {
+
+
+        var api = this.api();
+        
+        var list = [10,11,12,13,14,15,16]
+      
+        list.forEach(item=>{
+          $( api.table().column(item).footer() ).html(
+              api.column( item, {page:'current'} ).nodes().sum()
+          );
+         
+      
+        })
+      
+      
+       
+      }
+
+    });
+
+
+    table.on('select', function (e, dt, type, indexes) {
+      var rowData = table.rows(indexes).data().toArray();
+      console.log(rowData)
+      indexes.map(index => {
+  
+        var selected_fields = document.getElementById('selected_fields')
+  
+        var indexValue = document.getElementById(`job_${index + 1}`).value
+   
+        selected_ids.push(indexValue)
+        selected_fields.value = selected_ids
+  
+  
+      })
+  
+      if (selected_ids.length > 0) {
+        var action_form = document.getElementById('action_form')
+        action_form.style.display = 'block'
+        document.getElementById('status').required = true
+        document.getElementById('list_selected').value = 1
+        document.getElementById('getReportButton').innerText = "Update"
+      }
+    })
+      .on('deselect', function (e, dt, type, indexes) {
+        var rowData = table.rows(indexes).data().toArray();
+        console.log("Index Length is : " + indexes[0])
+        indexes.map(index => {
+  
+          var selected_fields = document.getElementById('selected_fields')
+  
+          var indexValue = document.getElementById(`job_${index + 1}`).value
+       
+       
+        
+          selected_ids = selected_ids.filter(item => item !== indexValue)
+  
+  
+    
+          selected_fields.value = selected_ids
+      
+  
+        })
+  
+        if (selected_ids.length == 0) {
+          var action_form = document.getElementById('action_form')
+          action_form.style.display = 'none'
+          document.getElementById('status').required = false
+          document.getElementById('list_selected').value = 0
+          document.getElementById('getReportButton').innerText = "Get Report"
+        }
+  
+      })
+  
+document.querySelector('.dtsb-title').style.display = 'none'
+   })
+   $(function() {
+  var tableContainer = $(".table-responsive");
+  var table = $(".table-responsive table");
+  var fakeContainer = $(".large-table-fake-top-scroll-container-3");
+  var fakeDiv = $(".large-table-fake-top-scroll-container-3 div");
+
+  var tableWidth = table.width();
+  fakeDiv.width(tableWidth);
+
+  fakeContainer.scroll(function() {
+tableContainer.scrollLeft(fakeContainer.scrollLeft());
+  });
+})
+
+
+
+
+
+</script>
+
+{% endblock %}

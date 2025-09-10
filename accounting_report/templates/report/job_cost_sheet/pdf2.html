@@ -1,0 +1,477 @@
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+<html>
+
+<head>
+    <title>Job Cost Sheet - {{job.job_no}}</title>
+    <style>
+        * {
+            margin-bottom: 0px !important;
+            margin-top: 0px !important;
+        }
+
+        .align-right {
+            text-align: right !important;
+        }
+
+        div {
+            font-size: 9px !important;
+            line-height: 3px;
+        }
+
+        .border-right-r {
+            border: 0.5px solid black;
+            border-top: none;
+            border-right: none;
+            border-collapse: collapse;
+        }
+
+        @page {
+            size: a4 portrait;
+            border: 1px solid black;
+            
+            @frame header_frame {
+                /* Static Frame */
+                -pdf-frame-content: header_content;
+                left: 10pt;
+                right: 10pt;
+                top: 40pt;
+                height: 80pt;
+            }
+
+            @frame content_frame {
+                /* Content Frame */
+                left: 10pt;
+                right: 10pt;
+                top: 120pt;
+        
+                border-bottom: none !important;
+            }
+
+           
+        }
+
+      
+    </style>
+
+
+</head>
+
+<body>
+
+    
+    <div id="header_content">
+        <table style="border-top:1px solid black; border-left:1px solid black;">
+            <tr>
+                <td style="width:80%"> <img width="100%" height="auto" src="{{ job.company_type.letter_head.url }}" alt="" /></td>
+                <td align="left"  style="width:20%; border-left:none;"> 
+                    
+                    <h3 style="text-align: center; font-size: 15px;">JOB COST SHEET</h3>
+                    <h2 style="text-align: center; font-size: 16px;">{{job.job_no}}</h2>
+                    
+                   
+                </td>
+            </tr>
+        </table>
+       
+    </div>
+
+    
+
+    <table border="0.5px" style="padding:2px;">
+        
+        <tr>
+            <td  style="text-align:left;vertical-align:top;padding:2px;width: 30%;">
+                <div><strong>Customer: </strong></div>
+                <div>{{job.account.party_name}}</div>
+                <div>{{job.account_address.corp_address_line1}}</div>
+                <div>{{job.account_address.corp_address_line2}}</div>
+                <div>{{job.account_address.corp_address_line3}}</div>
+
+                <div style="margin-top: 3px!important;">
+                    <div>
+                        <div><strong>Supply State : </strong> {{job.account_address.corp_state}}</div>
+                        <div><strong>State Code : </strong> {{job.account_address.corp_state.gst_code}}</div>
+                        <div><strong>GSTIN/UIN : </strong> {{job.account_address.corp_gstin}}</div>
+                    </div>
+
+                </div>
+            </td>
+
+            <td>
+                <div><strong>Shipment Type</strong></div>
+                <div>{{job.shipment_type}}</div>
+                <div><strong>Importer</strong></div>
+                <div>{{job.importer}} </div>
+                <div><strong>Shipping Line</strong></div>
+                <div>{{job.shipping_line}} </div>
+                <div><strong>ETA</strong></div>
+                <div>{{job.eta_date}} </div>
+                
+            </td>
+
+            <td>
+                <div><strong>ETD</strong></div>
+                <div>{{job.etd_date}} </div>
+                <div><strong>POL</strong></div>
+                <div>{{job.port_of_loading}} {{data.job_no.mbl_date}}</div>
+                <div><strong>POD</strong></div>
+                <div>{{job.port_of_discharge}} {{data.job_no.mbl_date}}</div>
+                <div><strong>FPOD</strong></div>
+                <div>{{job.final_destination}} {{data.job_no.mbl_date}}</div>
+                <div><strong>Sales Person</strong></div>
+                <div>{{job.account_manager}} {{data.job_no.mbl_date}}</div>
+           
+
+            </td>
+
+            
+            
+
+        </tr>
+       
+   
+    </table>
+
+
+    <table style="padding-top:1px; border-collapse:collapse; padding-left:1px; padding-bottom:0px; font-size: 8px;">
+        <th colspan="10"><strong>HBL DETAILS</strong></th>
+        <tr style="border: 0.3px solid black;">
+            <th>HBL</th>
+            <th>Container</th>
+            <th>Container type</th>
+            <th>MBL</th>
+            <th>Vessel name</th>
+            <th>Commodity</th>
+            <th>Commodity type&nbsp;</th>
+            <th>No of package</th>
+            <th>Package type</th>
+            <th>Volume </th>
+            <th>Net weight</th>
+            <th>Gross weight</th>
+            
+        </tr>
+
+        {% for i in job.job_hbl.all %}
+
+        <tr style="border: 0.3px solid black;  border-top:none;">
+            <td>{{i.job_hbl_no}}</td>
+            <td>
+                {% for j in i.job_container_hbl.all %}
+                {{j.job_container_no}}, 
+                {% endfor %}
+            </td>
+            <td>
+                {% for j in i.job_container_hbl.all %}
+                {{j.container_type}}, 
+                {% endfor %}
+            </td>
+            <td align="center" class="text-center">{{i.mbl_no}}&nbsp;</td>
+            <td align="center" class="text-center">{{i.vessel_name}}&nbsp;</td>
+            <td align="center" class="text-center">{{i.commodity}}&nbsp;&nbsp;</td>
+            <td align="center" class="text-center">{{i.commodity_type}}&nbsp;</td>
+            <td align="center" class="text-center">{{i.no_of_packages}}&nbsp;</td>
+            <td align="center" class="text-center">{{i.packages_type}}&nbsp;</td>
+            <td align="right" class="text-right">{{i.volume}}&nbsp;</td>
+            <td align="right" class="text-right">{{i.net_weight}}&nbsp;</td>
+            <td align="right" class="text-right">{{i.gross_weight}}&nbsp;</td>
+           
+            
+
+        </tr>
+        {% endfor %}
+       
+    </table>
+
+
+   
+
+    
+    <table style="padding-top:1px; border-collapse:collapse; padding-left:1px; padding-bottom:0px; font-size: 8px;">
+        <tr style="border: 0.3px solid black;">
+        <th colspan="12"><strong> Sales Invoice</strong></th>
+            </tr>
+        <tr style="border: 0.3px solid black;">
+            <th style="width: 140px;">Description</th>
+            <th>SAC</th>
+            <th>Unit</th>
+            <th>Rate</th>
+            <th>Curr.</th>
+            <th>Ex. Rate</th>
+            <th>Amount</th>
+            
+            <th>IGST</th>
+            <th>CGST</th>
+            <th>SGST</th>
+            
+            <th>Tax Amt</th>
+            <th>Total</th>
+        </tr>
+      
+        {% for inv in recievable_invoices %}
+        {% for head in inv.recievable_invoice_reference.all %}
+        <tr style="border: 0.3px solid black; border-bottom:none; border-top:none;">
+            
+            <td>{{head.billing_head.billing_head}}</td>
+            <td align="center" class="text-center">{{head.billing_head.hsn_code}}</td>
+            <td align="right" class="text-right">{{head.qty_unit}}</td>
+            <td align="right" class="text-right">{{head.rate}}</td>
+            <td align="center" class="text-center">{{head.currency}}</td>
+            <td align="right" class="text-right">{{head.ex_rate}}</td>
+            <td align="right" class="text-right">{{head.amount}}</td>
+           
+            {% if inv.company_type.company_gst_code == inv.bill_to_address.corp_state.gst_code and not head.billing_head.always_igst  %}
+
+            <td align="right" class="text-right">0.00</td>
+            <td align="right" class="text-right">{{ head.gst|div:2 }}</td>
+            <td align="right" class="text-right">{{ head.gst|div:2 }}</td>
+
+            {% else %}
+
+            <td align="right" class='text-right'>{{head.gst}}</td>
+            <td align="right" class='text-right'>0.00</td>
+            <td align="right" class='text-right'>0.00</td>
+
+            {% endif %}
+           
+            <td align="right" class="text-right">{{head.gst_amount}}</td>
+            <td align="right" class="text-right">{{head.total}}</td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+
+        <tfoot>
+            <tr style="border: 0.3px solid black;">
+            
+           
+                <td colspan="5"></td>
+                <td>Total</td>
+                <td align="right">{{invoice_rec_gross}}</td>
+              
+                <td colspan="3">&nbsp;</td>
+               
+      
+                
+                
+               
+                <td  align="right">{{invoice_rec_gst_amount}}</td>
+                <td align="right">{{invoice_rec_net}}</td>
+        </tr>
+        </tfoot>
+
+      
+   
+
+
+
+    </table>
+
+    
+    <table style="padding-top:1px; border-collapse:collapse; padding-left:1px; padding-bottom:0px; font-size: 8px;">
+        <tr style="border: 0.3px solid black;">
+        <th colspan="12"><strong> Purchase Invoice</strong></th>
+            </tr>
+        <tr style="border: 0.3px solid black;">
+            <th style="width: 140px;">Description</th>
+            <th>SAC</th>
+            <th>Unit</th>
+            <th>Rate</th>
+            <th>Curr.</th>
+            <th>Ex. Rate</th>
+            <th>Amount</th>
+            
+            <th>IGST</th>
+            <th>CGST</th>
+            <th>SGST</th>
+           
+            <th>Tax Amt</th>
+            <th>Total</th>
+        </tr>
+      
+        {% for inv in payable_invoices %}
+        {% for head in inv.payable_invoice_reference.all %}
+        <tr style="border: 0.3px solid black; border-bottom:none; border-top:none;">
+            
+            <td>{{head.billing_head.billing_head}}</td>
+            <td align="center" class="text-center">{{head.billing_head.hsn_code}}</td>
+            <td align="right" class="text-right">{{head.qty_unit}}</td>
+            <td align="right" class="text-right">{{head.rate}}</td>
+            <td align="center" class="text-center">{{head.currency}}</td>
+            <td align="right" class="text-right">{{head.ex_rate}}</td>
+            <td align="right" class="text-right">{{head.amount}}</td>
+            {% if inv.company_type.company_gst_code == inv.bill_from_address.corp_state.gst_code and not head.billing_head.always_igst  %}
+            <td align="right" class="text-right">0.00</td>
+            <td align="right" class="text-right">{{head.gst|div:2 }}</td>
+            <td align="right" class="text-right">{{head.gst|div:2}}</td>
+            {% else %}
+            <td align="right" class='text-right'>{{head.gst}}</td>
+            <td align="right" class='text-right'>0.00</td>
+            <td align="right" class='text-right'>0.00</td>
+            {% endif %}
+            
+            
+
+            <td align="right" class="text-right">{{head.gst_amount}} &nbsp;</td>
+            <td align="right" class="text-right">{{head.total}}</td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+
+        <tfoot>
+            <tr style="border: 0.3px solid black;">
+            
+           
+                <td colspan="5"></td>
+                <td>Total</td>
+                <td align="right">{{invoice_pay_gross}} &nbsp;</td>
+               
+                <td colspan="3"></td>
+                
+            
+                <td  align="right">{{invoice_pay_gst}} &nbsp;</td>
+                <td align="right">{{invoice_pay_net}} &nbsp; </td>
+        </tr>
+        </tfoot>
+
+      
+   
+
+
+
+    </table>
+
+    
+    <table style="padding-top:1px; border-collapse:collapse; padding-left:1px; padding-bottom:0px; font-size: 8px;">
+        <tr style="border: 0.3px solid black;">
+        <th colspan="15" align="center"><strong> Head Wise Summary</strong></th>
+            </tr>
+        <tr style="border: 0.3px solid black;">
+            <th style="width: 140px;">Description</th>
+            <th>SAC</th>
+            <th>Sale Unit</th>
+            <th>Sale Rate</th>
+            <th>Ex. Rate</th>
+            <th>Sale Gross</th>
+            <th>Sale Tax Amt</th>
+            <th>Sale Total</th>
+            <th>Pay Unit</th>
+            <th>Pay Rate</th>
+            <th>Pay Gross</th>
+            <th>Pay Tax Amt</th>
+            <th>Pay Total</th>
+            <th>Amt. W/O Tax</th>
+            <th>Amt. With Tax </th>
+        </tr>
+      
+        {% for head in billing_head_summary %}
+        <tr style="border: 0.3px solid black; border-bottom:none; border-top:none;">
+            
+            <td>{{head.billing_head}}</td>
+            <td align="center">{{head.billing_head.hsn_code}}</td>
+            <td align="right">{{head.sale_qty}}</td>
+            <td align="right">{{head.sale_rate|floatformat:2}}</td>
+            <td align="right">{{head.ex_rate}}</td>
+            <td align="right">{{head.sale_amount|floatformat:2}}</td>
+            <td align="right">{{head.sale_gst_amount|floatformat:2}}</td>
+            <td align="right">{{head.sale_total|floatformat:2}}</td>
+            <td align="right">{{head.pay_qty}}</td>
+            <td align="right">{{head.pay_rate|floatformat:2}}</td>
+            <td align="right">{{head.pay_amount|floatformat:2}}</td>
+            <td align="right">{{head.pay_gst_amount|floatformat:2}}</td>
+            <td align="right">{{head.pay_total|floatformat:2}}</td>
+            <td align="right">{{head.sale_amount|sub:head.pay_amount|floatformat:2}}</td>
+            <td align="right">{{head.sale_total|sub:head.pay_total|floatformat:2}}</td>
+        </tr>
+        {% endfor %}
+      
+
+        <tfoot>
+            <tr style="border: 0.3px solid black;">
+            
+           
+                <td colspan="4" align="right"></td>
+                <td>Total</td>
+                
+                <td align="right">{{net_wot_sales|floatformat:2}}</td>
+                <td align="right">&nbsp;</td>
+                <td align="right">{{net_wt_sales|floatformat:2}}</td>
+                <td align="right">&nbsp;</td>
+                <td align="right">&nbsp;</td>
+                <td align="right">{{net_wot_purchase|floatformat:2}}</td>
+                <td align="right">&nbsp;</td>
+                <td align="right">{{net_wt_purchase|floatformat:2}}</td>
+                <td align="right">{{net_wot_sales|sub:net_wot_purchase|floatformat:2}}</td>
+                <td align="right">{{net_wt_sales|sub:net_wt_purchase|floatformat:2}}</td>
+                                       
+        </tr>
+        </tfoot>
+
+      
+   
+
+
+
+    </table>
+
+    
+    <table style="padding:5px;  border-collapse:collapse; padding-left:1px; padding-bottom:0px; font-size: 12px;">
+        <tr style="border: 0.3px solid black;">
+        <th colspan="2" align="center"><strong> Cost Summary</strong></th>
+            </tr>
+     
+      
+       
+
+       
+            <tr style="border: 0.3px solid black;">
+                <th align="left">Invoice Recievable Total Amount</th>
+                <td align="right">{{ invoice_rec_gross|floatformat:2 }}</td>                        
+            </tr>
+      
+       
+            <tr style="border: 0.3px solid black;">
+                <th align="left">Invoice Payable Total Amount</th>
+                <td align="right">{{ invoice_pay_gross|floatformat:2 }}</td>                        
+            </tr>
+      
+            <tr style="border: 0.3px solid black;">
+                <th align="left">Credit Note Total Amount</th>
+                <td align="right">{{ invoice_crn_net|floatformat:2 }}</td>                        
+            </tr>
+      
+            <tr style="border: 0.3px solid black;">
+                <th align="left">Debit Note Total Amount</th>
+                <td align="right">{{ invoice_drn_net|floatformat:2 }}</td>                        
+            </tr>
+
+            <tr style="border: 0.3px solid black;">
+               <th align="left">Job Cost Total Amount</th>
+                <th align="right">{{ job_costing_amount|floatformat:2 }}
+                    {% if job_costing_amount == 0 %}
+                    (No Profit, No Loss)
+                    {% elif job_costing_amount > 0 %}
+                    (Profit)
+                    {% else %}
+                    (Loss)
+                    {% endif %}
+                </th>  
+            </tr>
+      
+
+      
+   
+
+
+
+    </table>
+
+
+   
+
+    
+   
+</body>
+
+</html>

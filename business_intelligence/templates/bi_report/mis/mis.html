@@ -1,0 +1,56 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+ {% block dashoard_title %} MIS  {% endblock %}
+ {% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">MIS</h1>
+
+{% endblock %} 
+{% block dashboard_content %}
+
+<form method="post">
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-md-2 col-sm-12 mb-3">
+        
+      <label for="choose_company">Choose Company</label>
+      <select name="choose_company" class="form-control form-control-sm" id="choose_company" >
+          {% if choose_company == 'All' %}
+          <option value="All" selected>All</option>
+          {% else %}
+          <option value="All">All</option>
+          {% endif %}
+          {% for data in global_companies %}
+          {% if choose_company == data.id %}
+          <option value="{{data.id}}" selected>{{data.company_name}}</option>
+          {% else %}
+          <option value="{{data.id}}">{{data.company_name}}</option>
+          {% endif %}
+          {% endfor %}
+      </select>
+  </div>
+
+  <div class="col-2">
+    <label for="from_date">From</label>
+    <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" required id="from_date"
+      class="form-control form-control-sm" />
+  </div>
+  <div class="col-2">
+    <label for="to_date">To</label>
+    <input type="date" name="to_date" required id="to_date" value="{{to_date|date:'Y-m-d'}}"
+      class="form-control form-control-sm" />
+  </div>
+   
+    <div class="col-md-3 col-sm-12 mb-3">
+      <button type="submit" style="margin-top: 33px" class="btn btn-primary">
+        Submit
+      </button>
+    </div>
+  </div>
+</form>
+
+
+{% endblock %} 
+{% block js %}
+
+
+{% endblock %}

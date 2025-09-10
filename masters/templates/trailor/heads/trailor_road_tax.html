@@ -1,0 +1,128 @@
+<div class="row" id="road_tax-row">
+    {% if update and obj.trailor_road_tax_ref.all|length > 0 %}
+    {% for i in obj.trailor_road_tax_ref.all %}
+    <div class="col-12 mb-2" id="road_tax-row-{{forloop.counter}}">
+        <div class="row" >
+            <div class="col-md-2">
+                <input type="hidden" name="is_road_tax_active_{{forloop.counter}}" id="is_road_tax_active_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_road_tax_update_{{forloop.counter}}" id="is_road_tax_update_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_road_tax_id_{{forloop.counter}}" id="is_road_tax_id_{{forloop.counter}}" value="{{i.id}}" />
+                <label for="road_tax_no_{{forloop.counter}}">Permit No</label>
+                <input type="text" value="{{ i.permit_no }}" name="road_tax_no_{{forloop.counter}}" id="road_tax_no_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="road_tax_file_{{forloop.counter}}">File
+                    {% if i.file %}
+                    <a href="{{i.file.url}}" target="_blank">View</a>
+                    {% endif %}
+                </label>
+                <input type="file" name="road_tax_file_{{forloop.counter}}" id="road_tax_file_{{forloop.counter}}" >
+            </div>
+            <div class="col-md-2">
+                <label for="road_tax_from_date_{{forloop.counter}}">From Date</label>
+                <input type="date" value="{{ i.from_date|date:'Y-m-d' }}" name="road_tax_from_date_{{forloop.counter}}" id="road_tax_from_date_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="road_tax_to_date_{{forloop.counter}}">To Date</label>
+                <input type="date" value="{{ i.to_date|date:'Y-m-d' }}" name="road_tax_to_date_{{forloop.counter}}" id="road_tax_to_date_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="road_tax_remarks_{{forloop.counter}}">Remarks</label>
+                <input type="text" value="{{i.remarks}}" name="road_tax_remarks_{{forloop.counter}}" id="road_tax_remarks_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deleteRoadTaxRow({{forloop.counter}})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+    
+        </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12 mb-2" id="road_tax-row-1">
+
+        <div class="row" >
+            <div class="col-md-2">
+                <input type="hidden" name="is_road_tax_active_1" id="is_road_tax_active_1" value="yes" />
+                <input type="hidden" name="is_road_tax_update_1" id="is_road_tax_update_1" value="no" />
+                <label for="road_tax_no_1">Permit No</label>
+                <input type="text"  name="road_tax_no_1" id="road_tax_no_1" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="road_tax_file_1"> File</label>
+                <input type="file"  name="road_tax_file_1" id="road_tax_file_1" >
+            </div>
+            <div class="col-md-2">
+                <label for="road_tax_from_date_1">From Date</label>
+                <input type="date"  name="road_tax_from_date_1" id="road_tax_from_date_1" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="road_tax_to_date_1">To Date</label>
+                <input type="date" name="road_tax_to_date_1" id="road_tax_to_date_1" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="road_tax_remarks_1">Remarks</label>
+                <input type="text"  name="road_tax_remarks_1" id="road_tax_remarks_1" class="form-control">
+            </div>
+            
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deleteRoadTaxRow(1)" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+    
+        </div>
+    {% endif %}
+    
+</div>
+
+<button class="btn btn-primary mb-3" type="button" onclick="addRoadTaxRow()">Add More</button>
+
+<script>
+    var road_taxCurrentRow = parseInt(document.getElementById('trailor_roadtax_total_rows').value) || 1
+    const addRoadTaxRow = () => {
+        var newElement = document.createElement('div')
+        road_taxCurrentRow += 1
+        newElement.classList.add('col-12')
+        newElement.setAttribute('id', `road_tax-row-${road_taxCurrentRow}`)
+        newElement.classList.add('mb-2')
+        newElement.innerHTML = `
+        <div class="row">
+            <div class="col-md-2">
+                <input type="hidden" name="is_road_tax_active_${road_taxCurrentRow}" id="is_road_tax_active_${road_taxCurrentRow}" value="yes" />
+                <input type="hidden" name="is_road_tax_update_${road_taxCurrentRow}" id="is_road_tax_update_${road_taxCurrentRow}" value="no" />
+                <label for="np_no_${road_taxCurrentRow}">Permit No</label>
+                <input type="text"  name="road_tax_no_${road_taxCurrentRow}" id="road_tax_no_${road_taxCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="road_tax_file_${road_taxCurrentRow}"> File</label>
+                <input type="file"  name="road_tax_file_${road_taxCurrentRow}" id="road_tax_file_${road_taxCurrentRow}" >
+            </div>
+            <div class="col-md-2">
+                <label for="road_tax_from_date_${road_taxCurrentRow}">From Date</label>
+                <input type="date"  name="road_tax_from_date_${road_taxCurrentRow}" id="road_tax_from_date_${road_taxCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="road_tax_to_date_${road_taxCurrentRow}">To Date</label>
+                <input type="date" name="road_tax_to_date_${road_taxCurrentRow}" id="road_tax_to_date_${road_taxCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="road_tax_remarks_${road_taxCurrentRow}">Remarks</label>
+                <input type="text"  name="road_tax_remarks_${road_taxCurrentRow}" id="road_tax_remarks_${road_taxCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deleteRoadTaxRow(${road_taxCurrentRow})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+        `
+        document.getElementById('road_tax-row').append(newElement)
+        document.getElementById('trailor_roadtax_total_rows').value = road_taxCurrentRow
+    }
+
+    const deleteRoadTaxRow = (index) => {
+        console.log(index)
+        document.getElementById(`road_tax-row-${index}`).style.display = "none";
+        document.getElementById(`is_road_tax_active_${index}`).value = "no";
+    }
+</script>

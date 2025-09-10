@@ -1,0 +1,201 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+TDS List - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Bill Wise TDS List
+</h1>
+
+<a href="{% url 'accounting:bill_wise_tds_create_reciept_voucher' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Book TDS</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<form action="" method="post">
+  {% csrf_token %}
+    <div class="row">
+      <div class="col-md-2 col-sm-12">
+        <label for="company">Choose Company</label>
+        <select class="form-control form-control-sm" name="company" id="company">
+          {% if selected_company == "A" or not selected_company %}
+          <option value="A" selected>All</option>
+          {% else %}
+          <option value="A">All</option>
+          {% endif %}
+          {% for data in global_companies %}
+          {% if selected_company.id == data.id %}
+          <option value="{{data.id}}" selected>{{data}}</option>
+          {% else %}
+          <option value="{{data.id}}">{{data}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 col-sm-12">
+        <label for="company">Choose Party</label>
+        <select name="choose_party" required class="form-control form-control-sm" id="choose_party" >
+          {% if selected_party == "A" or not selected_party %}
+          <option value="A" selected>All</option>
+          {% else %}
+          <option value="A">All</option>
+          {% endif %}
+        
+          {% for party in global_parties %}
+          {% if selected_party == party %}
+          <option value="{{party.id}}" selected>{{party}}</option>
+          {% else %}
+          <option value="{{party.id}}">{{party}}</option>
+          {% endif %}
+          {% endfor %}
+      </select>
+      </div>
+      <div class="col-2">
+        <label for="from_date">From</label>
+        <input type="date" name="from_date" id="from_date" value="{{from_date|date:'Y-m-d'}}"
+          class="form-control form-control-sm" required />
+      </div>
+
+      <div class="col-2">
+        <label for="to_date">To</label>
+        <input type="date" name="to_date" id="to_date" value="{{to_date|date:'Y-m-d'}}"
+          class="form-control form-control-sm" required />
+      </div>
+      
+
+
+
+
+      <div class="col-md-2 col-sm-12">
+        <button type="submit" class="btn btn-primary btn-sm mt-4">Search</button>
+      </div>
+    </div>
+  </form>
+
+<div class="table-responsive mt-2">
+<table class="table compact table-primary table-bordered table-md-responsive" id="receipt_voucher_table">
+    <thead>
+      <tr>
+   
+        <th scope="col" style="width: 40px!important;">Company</th>
+        <th scope="col">Party</th>
+        <th scope="col">Party Add.</th>
+        <th scope="col">Date</th>
+        <th scope="col">Invoice</th>
+        <th scope="col">TDS Amt.</th>
+        <th scope="col">Created At</th>
+        <th scope="col">Created By</th>
+        
+        <th scope="col" style="width:100px;">Actions</th>
+    
+ 
+      </tr>
+    </thead>
+    <tbody>
+      {% for data in vouchers %}
+
+      
+      
+        <tr>
+       
+        <td>{{data.company_type}}</td>
+        
+        <td>{{ data.party_name }}</td>
+        <td>{{ data.party_address.branch }}</td>
+        <td>{{ data.voucher_date|date:"Y-m-d"  }}</td>
+       
+        <td align="left">{{data.rec_voucher_detail.first.invoice.final_invoice_no}}</td>
+        <td align="right">{{data.reciept_tds_amount|floatformat:0|floatformat:2}}</td>
+        <td align="left">{{data.created_at|date:"Y-m-d"}}</td>
+        <td align="left">{{data.created_by}}</td>
+   
+        
+
+        <td>
+          
+         
+          <a class="btn btn-xs btn-primary" target="_blank" href="{% url 'accounting:edit_bill_wise_tds_reciept_voucher' module=module id=data.id sub_id=data.rec_voucher_detail.first.id %}"><i class="fas fa-edit"></i></a>
+
+    
+
+        {% if request.user.user_account.can_delete %}
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.voucher_no}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ data.voucher_no }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'accounting:bill_wise_tds_reciept_voucher_delete' module=module id=data.id %}" target="_blank" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+    {% endif %}
+
+
+        
+
+      </td>
+    
+      </tr>
+ 
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block js %}
+
+<script>
+    let table = new DataTable('#receipt_voucher_table', {
+        // options
+        dom: 'BQlfrtip',
+        order: [[8, 'desc']],
+        "pageLength": 50,
+        buttons: [
+        {
+            extend: 'collection',
+            text: 'Export',
+            buttons: [
+                'copy',
+                'excel',
+                'csv',
+                'pdf',
+               
+            ]
+        },
+
+        ]
+
+    });
+  
+    document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+
+{% endblock %}

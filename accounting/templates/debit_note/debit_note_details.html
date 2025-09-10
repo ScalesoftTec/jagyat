@@ -1,0 +1,179 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% block dashoard_title %} 
+Debit Note Details - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Debit Note List
+</h1>
+
+<div class="">
+    <a href="{% url 'accounting:create_debit_note' module=module %}" class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create New</a>
+    
+</div>
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+<div class="">
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-2">
+                <label for="from_date">From Date</label>
+                <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="start_date">
+            </div>
+            <div class="col-2">
+                <label for="to_date">To Date</label>
+                <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="to_date">
+            </div>
+            
+           
+            <div class="col-2">
+                <button type="submit" class="btn btn-primary btn-sm mt-4">Filter</button>
+            </div>
+        </div>
+    </form>
+  
+  </div>
+
+<div class="table-responsive">
+
+
+<table class="table compact table-primary table-bordered table-md-responsive" id="drn_table">
+    <thead>
+      <tr>
+
+          <th scope="col">Branch</th>
+        <th scope="col">Job&nbsp;No.</th>
+        <th scope="col">Debit&nbsp;Note&nbsp;No.</th>
+        <th scope="col">Party</th>
+        <th scope="col">Date</th>
+        <th scope="col">Ref&nbsp;Invoice&nbsp;No.</th>
+        <th scope="col">Currency</th>
+        <th scope="col">Narration</th>
+        <th scope="col">Gross&nbsp;Amount</th>
+        <th scope="col">Tax&nbsp;Amount</th>
+        <th scope="col">Net&nbsp;Amount</th>
+        <th scope="col">Actions</th>
+        <th scope="col">PDF</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in notes %}
+
+       
+        
+      <tr>
+        
+        <td>{{ data.company_type }}</td>
+        <td>{{ data.job_no }}</td>
+        <td>{{ data.debit_note_no }}</td>
+        {% if data.party_type == "Direct" %}
+        <td>{{ data.bill_from.party_name }}</td>
+        {% else %}
+        <td>{{ data.bill_from_vendor.vendor_name }}</td>
+        {% endif %}
+        <td>{{ data.date_of_note|date:"Y-m-d" }}</td>
+        
+    
+        <td>{{ data.invoice_no }}</td>
+        <td>{{data.invoice_currency.short_name}}</td>
+        <td>{{data.remark_on_note}}</td>
+
+        {% if data.invoice_currency.short_name == "INR" %}
+        <td align="right">{{ data.gross_amount|floatformat:2 }}</td>
+        <td align="right">{{ data.gst_amount|floatformat:2 }}</td>
+        <td align="right">{{ data.net_amount|floatformat:2 }}</td>
+        {% else %}
+        <td align="right">{{ data.gross_amount|mul:data.currency_ex_rate|floatformat:2 }}</td>
+        <td align="right">{{ data.gst_amount|mul:data.currency_ex_rate|floatformat:2 }}</td>
+        <td align="right">{{ data.net_amount|mul:data.currency_ex_rate|floatformat:2 }}</td>
+        {% endif %}
+        <td>
+        <a href="{% url 'accounting:debit_note_update' module=module id=data.id %}" class="btn btn-info btn-xs mr-3"><i class="fas fa-edit"></i></a>
+          
+        {% if request.user.user_account.can_delete %}
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+                <i class="fas fa-trash"></i>
+            </button>
+  
+            <!-- Modal -->
+            <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.debit_note_no}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                    Are you sure want to delete {{ data.debit_note_no }}?
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <a href="{% url 'accounting:debit_note_delete' module=module id=data.id %}" class="btn btn-primary">Confirm Delete</a>
+                    </div>
+                </div>
+                </div>
+            </div>
+        {% endif %}
+
+
+        </td>
+        <td>
+          <a class="btn btn-xs btn-primary" href="{% url 'accounting:debit_note_pdf' id=data.id %}" target="_blank"><i class="fas fa-file-pdf"></i></a>
+        </td>
+      
+    
+      </tr>
+       
+
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+</div>
+ 
+ 
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+    let table = new DataTable('#drn_table', {
+        // options
+        dom: 'BQlfrtip',
+        "pageLength": 50,
+        buttons: [
+        {
+            extend: 'collection',
+            text: 'Export',
+            buttons: [
+                'copy',
+                'excel',
+                'csv',
+                'pdf',
+               
+            ]
+        },
+
+        ]
+
+    });
+    document.querySelector('.dtsb-title').style.display = 'none'
+   
+   
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,459 @@
+{% load static %}
+{% load mathfilters %}
+<html>
+<head>
+    <title>PDF : Invoice Payable</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style type="text/css">
+        *{
+            user-select: none;
+        }
+        span{
+            font-size: 13px;
+        }
+        @page { size: auto;  margin: 5mm; }
+        @media print {
+            #printbtn {
+                display: none;
+            }
+            title{
+                display: none;
+            }
+        }
+        table th, table table td{
+            padding: 0!important;
+            margin: 0!important;
+            font-size: 13px;
+        }
+        p{
+            margin-bottom: 0px!important;
+        }
+        p small{
+            font-size: 12px!important;
+        }
+        p strong{
+            font-size: 13px!important;
+        }
+    </style>
+    
+</head>
+<body onload="window.print()">
+
+
+    
+<div class="container-fluid my-0">
+    <input id="printbtn" class="btn btn-sm btn-danger" type="button" value="Print this page" onclick="window.print()">
+</div>
+
+<div class="container-fluid">
+    <table style="display: table-header-group;">
+        <thead>
+            <tr>
+                <th>
+                    <img width="100%" height="150" src="{{ data.company_type.letter_head.url }}" alt="">
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>
+                    <div class="row mb-0 p-0">
+                        <div class="col-6 border border-dark">
+                            <span><strong>Bill From:</strong></span>
+                            <br>
+                            <span>{{data.bill_from.party_name}}</span>
+                            <br>
+                            <span>{{data.bill_from_address.corp_address_line1}}</span>
+                            <br>
+                            <span>{{data.bill_from_address.corp_address_line2}}</span>
+                            <br>
+                            <span>{{data.bill_from_address.corp_address_line3}}</span>
+                            <br>
+                            <div class="row">
+                                <div class="col-6"><span>State : {{data.bill_from_address.corp_state}}</span></div>
+                                <div class="col-6"><span>GST Code : {{data.bill_from_address.corp_state.gst_code}}</span></div>
+                            </div>
+                            <div class="row border border-dark border-bottom-0 border-start-0 border-end-0">
+                              
+                                <div class="col-12"><span>GSTIN : {{data.bill_from_address.corp_gstin}}</span></div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 border-start-0 border border-dark">
+                            <div class="row border border-dark border-top-0 border-start-0 border-end-0">
+                                
+                                <div class="col-12">
+                                    <span style="font-size: 12px;"><strong> Tax Invoice : {{data.invoice_no}} &nbsp; &nbsp; {{data.date_of_invoice}}</strong></span>
+                                    
+                                </div>
+
+                                
+
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-5"><span>Shipper :</span></div>
+                                <div class="col-7"><span>{{data.job_no.shipper}}</span></div>
+                            </div>
+                           
+                            
+                           
+                            <div class="row">
+                                <div class="col-5"><span>Consignee :</span></div>
+                                <div class="col-7"><span>{{ data.job_no.consignee }}</span></div>
+                            </div>
+                           
+                            <div class="row">
+                                <div class="col-5"><span>Job No. :</span></div>
+                                <div class="col-7"><span>{{ data.job_no }}</span></div>
+                            </div>
+                           
+                       
+                            <div class="row border border-dark border-start-0 border-end-0 border-bottom-0">
+                                <div class="col-12">
+                                    <div class="row">
+                                        {% if data.job_no.module == "Air Export" or data.job_no.module == "Air Import" %}
+                                        <div class="col-5"><span>AWMBL No. :</span></div>
+                                        <div class="col-7"><span>{{ data.mbl_no }}</span></div>
+                                        {% else %}
+                                        <div class="col-5"><span>MBL No. :</span></div>
+                                        <div class="col-7"><span>{{ data.mbl_no }}</span></div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row">
+                                        {% if data.job_no.module == "Air Export" or data.job_no.module == "Air Import" %}
+                                        <div class="col-5"><span>AWHBL No. :</span></div>
+                                        <div class="col-7"><span>{{ data.hbl_no }}</span></div>
+                                        {% else %}
+                                        <div class="col-5"><span>HBL No. :</span></div>
+                                        <div class="col-7"><span>{{ data.hbl_no }}</span></div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            
+                        </div>
+
+
+                        <div class="col-12 py-0 border border-top-0 border-dark">
+                            {% if data.job_no.module == "Air Export" or data.job_no.module == "Air Import" %}
+                            <span> <strong> AWB No. : </strong> {{data.job_no.awb_no}}</span>
+                            <br />
+                            <span> <strong> Docket No. : </strong> {{data.job_no.docket_no}}</span>
+                            {% else %}
+                            <span> <strong> Container No. : </strong> {{data.container_no}}</span>
+                            <br />
+                            <span> <strong> Container Type : </strong> {{data.container_type}}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12 py-0 border border-top-0 border-dark">
+                            <div class="row">
+                            <div class="col-6 ">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>Port of Loading : </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> {{data.job_no.port_of_loading}}  </span>
+                                    </div>
+                                </div>
+                                {% if data.job_no.module == "Air Export" or data.job_no.module == "Air Import" %}
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>Flight No. : </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> {{data.job_no.flight_no}} </span>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>Vessel No. : </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> {{data.vessel_voyage_id}} </span>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>Commodity : </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> {{data.commodity}} </span>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-6  ">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>Final Destination : </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> {{data.job_no.final_destination}}  </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>No. of Packages : </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> {{data.total_packages}} {{data.total_packages_type}} </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>Gross Weight : </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> {{data.gross}}  </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div class="col-12 border border-top-0  border-bottom-0 border-dark">
+                            <table class="table ">
+                                <thead class="">
+                                    <tr>
+                                        <th>Sno.</th>
+                                        <th>Description</th>
+                                        <th>SAC</th>
+                                        <th>Unit</th>
+                                        <th>Rate</th>
+                                        <th>Curr.</th>
+                                        <th>Ex. Rate</th>
+                                        <th>Amount</th>
+                                        {% if data.company_type.tax_policy == 'GST' %}
+                                        <th>IGST</th>
+                                        <th>CGST</th>
+                                        <th>SGST</th>
+                                        {% elif data.company_type.tax_policy == 'VAT' %}
+                                        <th>VAT</th>
+                                        {% endif %}
+                                        <th>Tax Amt</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+    
+                                <tbody>
+                                    {% for head in data.payable_invoice_reference.all %}
+                                    <tr>
+                                        <td>{{forloop.counter}}</td>
+                                        <td>{{head.billing_head}}</td>
+                                        <td>{{head.billing_head.hsn_code}}</td>
+                                        <td>{{head.qty_unit}}</td>
+                                        <td>{{head.rate}}</td>
+                                        <td>{{head.currency}}</td>
+                                        <td>{{head.ex_rate}}</td>
+                                        <td>{{head.amount}}</td>
+                                        {% if data.company_type.tax_policy == 'GST' %}
+                                        {% if data.company_type.company_gst_code == data.bill_from_address.corp_state.gst_code  %}
+                                        <td>0.00</td>
+                                        <td>{{head.gst|div:2 }}</td>
+                                        <td>{{head.gst|div:2}}</td>
+                                        {% else %}
+                                        <td>{{head.gst}}</td>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                        {% endif %}
+                                        
+                                        {% elif data.company_type.tax_policy == 'VAT' %}
+                                        <td>{{head.gst}}</td>
+                                        {% endif %}
+
+                                        <td>{{head.gst_amount}}</td>
+                                        <td>{{head.total}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+    
+    
+                                <tfoot class="">
+                                    <tr>
+                                        <td colspan="6"></td>
+                                        <td>Total</td>
+                                        {% if data.company_type.tax_policy == 'GST' %}
+                                        <td colspan="4">{{data.gross_amount}}</td>
+                                        {% else %}
+                                        <td colspan="2">{{data.gross_amount}}</td>
+                                        {% endif %}
+                                        <td>{{data.gst_amount}}</td>
+                                        <td>{{data.net_amount}}</td>
+                                    </tr>
+                                </tfoot>
+    
+                            </table>
+                        </div>
+
+                        <div class="col-12 border py-0 border-dark" style="margin-top: -16px;">
+                            <div class="row">
+                            <div class="col-6 border border-start-0 border-top-0 border-bottom-0 border-dark ">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <span><strong>Bank Details : </strong></span>
+                                    </div>
+                                    <div class="col-5">
+                                        <span>Account No. : </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> {{data.account_number.account_no}}  </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>Branch Name : </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> {{data.account_number.beneficiary_name}} </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>Beneficiary Name : </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> {{data.account_number.branch_name}} </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>IFSC Code : </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> {{data.account_number.ifsc_code}} </span>
+                                    </div>
+                                </div>
+                                {% if data.account_no.swift_code %}
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>Swift Code : </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> {{data.account_number.swift_code}} </span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+
+
+                            <div class="col-6  ">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span> <strong> Gross Amount </strong> </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> <strong> {{data.gross_amount}} </strong>  </span>
+                                    </div>
+                                </div>
+
+                                {% if data.company_type.tax_policy == 'GST' %}
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span> <strong> CGST Amount </strong> </span>
+                                    </div>
+                                    <div class="col-7">
+                                        {% if data.company_type.company_gst_code == data.bill_from_address.corp_state.gst_code  %}
+                                        <span> <strong>{{data.gst_amount|div:2 }} </strong> </span>
+                                        {% else %}
+                                        <span> <strong>0</strong> </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span> <strong> SGST Amount </strong> </span>
+                                    </div>
+                                    <div class="col-7">
+                                        {% if data.company_type.company_gst_code == data.bill_from_address.corp_state.gst_code  %}
+                                        <span> <strong>{{data.gst_amount|div:2 }} </strong> </span>
+                                        {% else %}
+                                        <span> <strong>0</strong> </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        
+                                        <span> <strong> IGST Amount </strong> </span>
+                                    </div>
+                                    <div class="col-7">
+                                        {% if not data.company_type.company_gst_code == data.bill_from.corp_state.gst_code  %}
+                                        <span><strong>{{data.gst_amount }}</strong> </span>
+                                        {% else %}
+                                        <span> <strong>0</strong> </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="row">
+                                    <div class="col-5">
+                                        
+                                        <span> <strong> VAT </strong> </span>
+                                    </div>
+                                    <div class="col-7">
+                                       
+                                        <span><strong>{{data.gst_amount }}</strong> </span>
+                                        
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <div class="row border border-bottom-0 border-start-0 border-end-0 border-dark ">
+                                    <div class="col-5">
+                                        <span> <strong> Net Amount </strong> </span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span> <strong>{{data.net_amount}} </strong> </span>
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        </div>
+
+                        <div class="col-12 border border-top-0 py-0 border-dark">
+                            <span style='font-size:14px;'> <strong> Amount In Words : </strong> <span style="text-transform: capitalize;
+                            "> {{amount_in_words}}</span></span>
+                            </div>
+    
+                            <div class="col-12 border border-top-0 py-0 border-dark">
+                            {{data.company_type.terms_and_conditions|safe}}
+                            </div>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+
+            <tr >
+                <td style=" text-align:right;">
+                    <h6>{{data.company_type.for_company}}</h6>
+                    <img src="{{ data.company_type.stamp.url }}" width='130px' height='100px' alt="">
+                </td>
+            </tr>
+
+        </tfoot>
+    </table>
+</div>
+    
+</body>
+<script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+</script>
+</html>

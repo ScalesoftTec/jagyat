@@ -1,0 +1,152 @@
+<div class="tab-pane fade" id="purchase-invoice" role="tabpanel" aria-labelledby="purchase-invoice-tab">
+    <div class="col-12">
+        <h6>Total Purchase Invoice : <span id="total_purchase"></span></h6>
+    </div>
+    <div class="col-12 row">
+        {% if update %}
+        <input type="hidden" name="purchase_total_head" id="purchase_total_head" value="{{purchase_count}}">
+        {% else %}
+        <input type="hidden" name="purchase_total_head" id="purchase_total_head" value="0">
+        {% endif %}
+        <table class="table table-bordered" id="purchase_entry">
+            <tr>
+                <th style="min-width: 20px!important;">Final</th>
+                <th class="required">Date</th>
+                <th class="required">Invoice No.</th>
+                <th class="required">Amount</th>
+              
+                <th style="min-width: 50px!important;">Action</th>
+            </tr>
+            {% if update %}
+            {% for i in ledger.ledger_opening_details.all %}
+            {% if i.invoice_payable %}
+            <tr id="purchase_entry-{{forloop.counter}}">
+                
+                <td style="min-width: 30px!important;" class="text-center">
+                    
+                    {% if not i.purchase_is_final %}
+                    <input class="my-2" onclick="handleLocalpurchaseConfirmSignal('{{forloop.counter}}')" type="checkbox" name="purchase_is_final-{{forloop.counter}}" id="purchase_is_final-{{forloop.counter}}">
+                    {% endif %}
+                </td>
+                <td>
+                    <input type="hidden" name="purchase_is_active-{{forloop.counter}}" value="yes"  id="purchase_is_active-{{forloop.counter}}" />
+                    <input type="date" required value="{{i.date|date:'Y-m-d'}}" name="purchase_date-{{forloop.counter}}" id="purchase_date-{{forloop.counter}}" class="form-control" />
+                </td>
+                <td><input type="text" required value="{{i.invoice_no}}" name="purchase_invoice_no-{{forloop.counter}}"
+                        id="purchase_invoice_no-{{forloop.counter}}" class="form-control" onkeyup="checkInvoiceNo('{{forloop.counter}}')" /></td>
+                <td><input type="number" required step="0.01" value="{{i.amount}}" onkeyup="calculatePurchaseSum()" name="purchase_amount-{{forloop.counter}}"
+                        id="purchase_amount-{{forloop.counter}}" class="form-control" /></td>
+               
+                <td style="min-width: 50px!important;">
+                    <input type="hidden" value="{{i.id}}" name="purchase_existing_id_{{forloop.counter}}">
+                    {% if not i.purchase_is_final %}
+                    
+                    {%  if i.invoice_payable %}
+                  
+                    {% if not i.invoice_payable.net_amount == i.invoice_payable.pending_amount %}
+                    <input type="hidden" value="0" name="purchase_is_deletable_{{forloop.counter}}">
+                    {% else %}
+                    <input type="hidden" value="1" name="purchase_is_deletable_{{forloop.counter}}">
+                   
+                    
+                    <div class="btn btn-sm btn-danger" onclick="purchaseDeleteRow('{{forloop.counter}}')">Remove</div>
+                    {% endif %}
+                    {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        </table>
+        <div class="col-12">
+            <div class="text-right w-100">
+                <button type="button" class="btn btn-sm btn-primary" onclick="purchaseAddRow();"> Add More </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+       var purchaseCurrentRowNumber = parseInt(document.getElementById('purchase_total_head').value) || 0
+    var purchaseAvailableRowNumber = parseInt(document.getElementById('purchase_total_head').value) || 0
+    const purchaseAddRow = () => {
+        purchaseCurrentRowNumber += 1
+        purchaseAvailableRowNumber += 1
+        var newRow = document.getElementById('purchase_entry').insertRow(-1)
+        newRow.id = `purchase_entry-${purchaseCurrentRowNumber}`
+        newRow.classList.add("entry")
+        var final = newRow.insertCell(0)
+        var date = newRow.insertCell(1)
+        var invoice_no = newRow.insertCell(2)
+        var amount = newRow.insertCell(3)
+  
+        var delete_cell = newRow.insertCell(4)
+        final.setAttribute('style','min-width:30px!important;')
+        delete_cell.setAttribute('style','min-width:50px!important;')
+        final.setAttribute('class','text-center')
+        final.innerHTML = `
+        <td><input onclick="handleLocalpurchaseConfirmSignal(${purchaseCurrentRowNumber})" type="checkbox" name="purchase_is_final-${purchaseCurrentRowNumber}" class="my-2" id="purchase_is_final-${purchaseCurrentRowNumber}"></td>
+        `
+
+
+        date.innerHTML = `
+        <input type="hidden" name="purchase_is_active-${purchaseCurrentRowNumber}" value="yes"  id="purchase_is_active-${purchaseCurrentRowNumber}" />
+        <input type="date" value="{{i.date}}" required name="purchase_date-${purchaseCurrentRowNumber}" id="purchase_date-${purchaseCurrentRowNumber}" class="form-control" />
+            `
+        invoice_no.innerHTML = `
+                <input type="text" value="{{i.invoice_no}}" required name="purchase_invoice_no-${purchaseCurrentRowNumber}" id="purchase_invoice_no-${purchaseCurrentRowNumber}" class="form-control" onkeyup="checkInvoiceNo(${purchaseCurrentRowNumber})" />
+            `
+        amount.innerHTML = `
+               <input type="number" step="0.01" value="{{i.amount}}" required onkeyup="calculatePurchaseSum()" required name="purchase_amount-${purchaseCurrentRowNumber}" id="purchase_amount-${purchaseCurrentRowNumber}" class="form-control" />
+            `
+  
+        delete_cell.innerHTML = `
+             <input type="hidden" value="0" name="purchase_existing_id_${purchaseCurrentRowNumber}">
+                <input type="hidden" value="0" name="purchase_is_deletable_${purchaseCurrentRowNumber}">
+                <div class="btn btn-sm btn-danger" onclick="purchaseDeleteRow(${purchaseCurrentRowNumber})">Remove</div>
+            `
+        document.getElementById('purchase_total_head').value = purchaseCurrentRowNumber
+       
+        
+    }
+
+    const purchaseDeleteRow = (index) => {
+        document.getElementById(`purchase_is_active-${index}`).value = "no"
+        
+        document.getElementById(`purchase_date-${index}`).required = false
+        document.getElementById(`purchase_invoice_no-${index}`).required = false
+        document.getElementById(`purchase_amount-${index}`).required = false
+        document.getElementById(`purchase_entry-${index}`).style.display = 'none'
+        purchaseAvailableRowNumber -= 1
+        calculatePurchaseSum()
+    }
+
+    const calculatePurchaseSum = () => {
+        var total_purchase = 0
+        for(var i=1; i<=purchaseCurrentRowNumber; i++){
+            var purchase = parseFloat(document.getElementById(`purchase_amount-${i}`).value) || 0
+            if(!isNaN(purchase)  && document.getElementById(`purchase_is_active-${i}`).value == 'yes'){
+                total_purchase += purchase
+            }
+        }
+        document.getElementById('total_purchase').innerText = total_purchase
+
+    }
+    calculatePurchaseSum()
+
+
+    const handleLocalpurchaseConfirmSignal = (index) => {
+        var checkboxStatus = document.getElementById(`purchase_is_final-${index}`).checked
+        if(checkboxStatus){
+            var status = confirm('After check you not able to edit or delete this entry please confirm and check.')
+           if (!status.valueOf()){
+            document.getElementById(`purchase_is_final-${index}`).checked = false;
+           }
+        }
+    }
+
+
+</script>

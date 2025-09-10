@@ -1,0 +1,138 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+
+    Document Approvers
+
+</h1>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+
+<form action="" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-6 mb-3">
+            <label for="company_type">Select Company</label>
+            <select name="company_type" id="company_type" class="form-control" required>
+                <option value="" selected hidden disabled>Choose Company</option>
+                {% for company in global_companies %}
+                <option value="{{company.id}}">{{company}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-6 mb-3">
+            <label for="user">Select User</label>
+            <select name="user" id="user" class="form-control" required>
+                <option value="" selected hidden disabled>Choose User</option>
+                {% for user in users %}
+                <option value="{{user.id}}">{{user.first_name}} {{user.last_name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="checkbox" name="is_sea_ex_job" id="is_sea_ex_job" />
+            <label for="is_sea_ex_job">Is Sea Export Job</label>                        
+        </div>
+        <div class="col-auto">
+            <input type="checkbox" name="is_sea_im_job" id="is_sea_im_job" />
+            <label for="is_sea_im_job">Is Sea Import Job</label>                    
+        </div>
+        <div class="col-auto">
+            <input type="checkbox" name="is_air_im_job" id="is_air_im_job" />
+            <label for="is_air_im_job">Is Air Import Job</label>                    
+        </div>
+        <div class="col-auto">
+            <input type="checkbox" name="is_air_ex_job" id="is_air_ex_job" />
+            <label for="is_air_ex_job">Is Air Export Job</label>                    
+        </div>
+        <div class="col-auto">
+            <input type="checkbox" name="is_transport_job" id="is_transport_job" />
+            <label for="is_transport_job">Is Transport Job</label>                    
+        </div>
+        <div class="col-auto">
+            <input type="checkbox" name="is_rec_invoice" id="is_rec_invoice" />
+            <label for="is_rec_invoice">Is Rec. Invoice</label>                        
+        </div>
+        
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<div class="table-responsive mt-4">
+    <table class="table-bordered table">
+        <thead class="table-dark">
+            <th>User</th>
+            <th>Company</th>
+            <th>Sea Ex Job</th>
+            <th>Sea Im Job</th>
+            <th>Air Im Job</th>
+            <th>Air Ex job</th>
+            <th>Transport job</th>
+            <th>Rec. Invoice</th>
+            
+      
+        
+        </thead>
+        <tbody>
+            {% for handler in handlers %}
+            <tr>
+                <td>{{handler.user.first_name}} {{ handler.last_name }}</td>
+                <td>{{ handler.company_type }}</td>
+                <td>
+                    {% if handler.is_sea_ex_job %}
+                    <span class="badge rounded-pill bg-success">True</span>
+                    {% else %}
+                    <span class="badge rounded-pill bg-danger">False</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if handler.is_sea_im_job %}
+                    <span class="badge rounded-pill bg-success">True</span>
+                    {% else %}
+                    <span class="badge rounded-pill bg-danger">False</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if handler.is_air_im_job %}
+                    <span class="badge rounded-pill bg-success">True</span>
+                    {% else %}
+                    <span class="badge rounded-pill bg-danger">False</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if handler.is_air_ex_job %}
+                    <span class="badge rounded-pill bg-success">True</span>
+                    {% else %}
+                    <span class="badge rounded-pill bg-danger">False</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if handler.is_transport_job %}
+                    <span class="badge rounded-pill bg-success">True</span>
+                    {% else %}
+                    <span class="badge rounded-pill bg-danger">False</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if handler.is_rec_invoice %}
+                    <span class="badge rounded-pill bg-success">True</span>
+                    {% else %}
+                    <span class="badge rounded-pill bg-danger">False</span>
+                    {% endif %}
+                </td>
+               
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+{% endblock %}

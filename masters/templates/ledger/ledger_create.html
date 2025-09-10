@@ -1,0 +1,162 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %}
+Ledger Master -
+{% endblock %}
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Ledger
+    {% else %}
+    Create New Ledger
+    {% endif %}
+    <style>
+        .table th, .table td{
+            padding: 0!important;
+            min-width: 250px!important;
+        }
+    </style>
+
+</h1>
+
+
+<a href="{% url 'masters:ledger_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post" >
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+        
+        <div class="col-md-2 col-sm-12 mb-3">
+            <label class="required" for="id_company_type">Company Type</label>
+            {{ form.company_type }}
+        </div>
+       
+        <div class="col-md-2 col-sm-12 mb-3">
+            <label class="required" for="id_ledger_name">Ledger Name</label>
+            {{ form.ledger_name }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-3">
+            <label class="required" for="id_tally_group">Grouped Under</label>
+            {{ form.tally_group }}
+        </div>
+        
+        <div class="col-md-2 col-sm-12 mb-3">
+            <label class="required" for="id_balance_in">Dr./Cr. </label>
+            {{ form.balance_in }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-3">
+            <label required for="id_opening_date">Opening Balance Date </label>
+            {{ form.opening_date }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-3">
+            <label  class="required" for="id_opening_balance">Opening Balance</label>
+            {{ form.opening_balance }}
+        </div>
+     
+
+    </div>
+
+    <button type="submit"  class="btn btn-primary" >
+        Save
+
+    </button>
+
+  
+   
+
+
+
+    {% if update %}
+    <input type="hidden" id="is_update" value="true">
+    {% else %}
+    <input type="hidden" id="is_update" value="false">
+    {% endif %}
+
+
+</form>
+
+
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    
+    var ledgers = []
+    var is_update = document.getElementById('is_update').value
+    var already_ledger_name = document.getElementById('id_ledger_name').value
+    var invoiceDuplicate = false
+    var opening_balance = 0
+
+
+
+    async function checkLedger() {
+        try {
+            ledgers = await axios.get('/api/v1/ledger/details')
+            ledgers = ledgers.data
+            var ledger_name = document.getElementById('id_ledger_name').value
+            var company = document.getElementById('id_company_type').value
+
+            var foundExistingLedger = ledgers.find(item => item.ledger_name.toLowerCase() == ledger_name.toLowerCase() && item.company_type == company )
+
+            if (foundExistingLedger) {
+                
+                alert('Already ledger exist')
+                
+            }
+            else {
+                document.getElementById('submitBtn').disabled = false
+              
+                
+            }
+            
+            getLedgersNames()
+            
+
+
+        } catch (err) {
+
+        }
+    }
+
+  
+    const getLedgersNames = () => {
+        const ledger_names = ledgers.map(item => item.ledger_name)
+        $("#id_ledger_name").autocomplete({
+            minLength: 1,
+            delay: 100,
+            source: ledger_names,
+
+        });
+
+    }
+   
+   
+   
+   
+
+    document.getElementById('id_company_type').addEventListener('keyup', checkLedger)
+    document.getElementById('id_company_type').addEventListener('change', checkLedger)
+    document.getElementById('id_ledger_name').addEventListener('change', checkLedger)
+    document.getElementById('id_ledger_name').addEventListener('click', checkLedger)
+
+
+    $("#id_ledger_under").select2({
+    placeholder: "Choose Option",
+    templateSelection: function (data, container) {
+      // Add custom attributes to the <option> tag for the selected option
+      $(data.element).attr("data-custom-attribute", data.customValue);
+      return data.text;
+    },
+  });
+
+</script>
+
+{% endblock %}

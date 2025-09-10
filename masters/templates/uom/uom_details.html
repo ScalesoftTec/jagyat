@@ -1,0 +1,102 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    UOM List
+</h1>
+
+<a href="{% url 'masters:create_uom' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Unit of Measurement</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<table class="table compact table-primary table-bordered table-md-responsive" id="party_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Name</th>
+        <th scope="col">Short Name</th>
+        <th scope="col">Decimal Places</th>
+     
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in uom %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ data.name }}</td>
+        <td>{{ data.short_name }}</td>
+        <td>{{ data.decimal_places }}</td>
+        
+        <td>
+          <a href="{% url 'masters:uom_update' module=module id=data.id %}" class="btn btn-info mr-3"><i class="fas fa-edit"></i></a>
+          {% if not party.is_transfered_to_tally %}
+          <!-- Tally Button trigger modal -->
+          <button type="button" class="btn btn-info" data-toggle="modal" data-target="#tally{{ forloop.counter }}">
+            <i class="bi bi-arrow-down-up"></i>
+          </button>
+    
+          <!-- Tally Modal -->
+          <div class="modal fade" id="tally{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="tally{{ forloop.counter }}Label" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                  <div class="modal-header">
+                  <h5 class="modal-title" id="tally{{ forloop.counter }}Label">Transfer {{data.name}}</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+                  </div>
+                  <div class="modal-body">
+                  <form action="{% url 'masters:uom_to_tally' module=module id=data.id %}" method="post">
+                  {% csrf_token %}
+                  Are you sure want to transfer {{ data.name }}?
+                  <div class="my-2">
+                        <select name="company" id="company" required class="form-control">
+                          <option value="" selected hidden disabled>Choose Company</option>
+                          {% for company in global_companies %}
+                          {% if company.is_connected_to_tally %}
+                          <option value="{{company.id}}">{{company.company_name}}</option>
+                          {% endif %}
+                          {% endfor %}
+                        </select>
+                        <select name="url" id="url" required class="form-control">
+                          <option value="" selected hidden disabled>Choose URL</option>
+                          {% for data in global_ip_address %}
+                          <option value="{{data.ip_url}}">{{data.ip_url}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" >Submit</button>
+                  
+                  </div>
+                </form>
+              </div>
+              </div>
+          </div>
+          {% endif %}
+        </td>
+    
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+
+
+  <script>
+    let table = new DataTable('#party_table', {
+        // options
+    });
+  </script>
+
+{% endblock %}

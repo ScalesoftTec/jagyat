@@ -1,0 +1,52 @@
+{% load humanize %}
+{% load mathfilters %}
+{% load custom_tags %}
+
+
+{% if not data.depth > 0 %}
+<tr  style="padding-top: 3px;">
+  <td style="text-align: left;">
+    <strong> {{data.category.name}} </strong>
+  </td>
+  <td>&nbsp;</td>
+  <td style="text-align: right;">{{data.total|floatformat:2|intcomma}}</td>
+</tr>
+
+{% else %}
+<tr  style="padding-top: 3px;">
+  <td style="font-size: 12px; text-align: left; margin-left: {{data.depth|add:10}}px;">
+    <i>{{data.category.name}}</i>
+  </td>
+  {% if forloop.last or data.ledger_report %}
+  <td  style="border-bottom: 1px solid black; font-size: 12px; text-align: right; margin-left: {{data.depth|add:20}}px;">
+    {{data.total|floatformat:2|intcomma}}
+  </td>
+  {% else %}
+  <td style="font-size: 12px; text-align: right; margin-left: {{data.depth|add:10}}px;">  
+    {{data.total|floatformat:2|intcomma}}
+  </td>
+  {% endif %}
+  <td>&nbsp;</td>
+</tr>
+{% endif %}
+
+{% for ledger in data.ledger_report %}
+<tr style="padding-top: 3px;">
+    <td style="font-size: 11px; font-weight: 400; text-align: left; padding-left: {{data.depth|add:12}}px;">
+              <i> {{ledger.particulars}} </i>
+    </td>
+    <td  style="font-size: 11px; font-weight: 400; text-align: right;">
+        {% if ledger.debit|sub:ledger.credit >= 0 %} 
+        {{ledger.debit|sub:ledger.credit|floatformat:2}} Dr.   
+        {% else %}
+        {{ledger.debit|sub:ledger.credit|mul:-1|floatformat:2}} Cr.   
+        {% endif %}
+    </td>
+    <td >&nbsp;</td>
+
+</tr>
+{% endfor %}
+
+{% for data in data.report %}
+    {% include 'report/balance_sheet_report_category/pdf/list.html' %}
+{% endfor %}

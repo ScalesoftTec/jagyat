@@ -1,0 +1,229 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% block dashoard_title %}
+Export Party Excel -
+{% endblock %}
+
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Party List
+</h1>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<style>
+  .dtsb-button{
+    margin: 0!important;
+    padding: 5px 10px!important;
+    font-size: 12px!important;
+    border-radius: 10px!important;
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-button:hover{
+    
+    font-size: 12px!important;
+  
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-criteria select{
+    font-size: 12px!important;
+  }
+</style>
+
+<input type="hidden" id="set_tally_group_url" value="{% url 'accounting:set_party_tally_group' %}">
+
+
+
+<div class="table-responsive">
+  <form  method="post" 
+  enctype="multipart/form-data" target="_blank">
+  {% csrf_token %}
+  <input type="hidden" id="selected_fields" name="selected_fields" value="">
+  <div class="row" id="action_form"  style="display: none;">
+  
+    <div class="col-auto">
+      
+      <!-- <input type="submit" name="export_type" value="EXPORT XML" class="btn btn-primary" /> -->
+      <input type="submit" name="export_type" value="EXPORT EXCEL" class="btn btn-primary" />
+    </div>
+  </div>
+<table class="table table-primary table-bordered table-md-responsive compact display" id="party_table">
+    <thead>
+      <tr>
+        <th scope="col">Select</th>
+        <th style="width: 150px!important;" scope="col">Under</th>
+        <th scope="col">Party Name</th>
+        <th scope="col">Primary&nbsp;Branch</th>
+        <th scope="col">Primary&nbsp;Country</th>
+        <th scope="col">Primary&nbsp;State</th>
+        <th scope="col">Primary&nbsp;City</th>
+        <th scope="col">Other&nbsp;Address</th>
+      
+      </tr>
+    </thead>
+    <tbody>
+        {% for party in parties %}
+      
+      <tr>
+        
+       <td>
+        <input type="hidden" id="party_index_{{forloop.counter}}" name="index_{{forloop.counter}}"
+        value="{{party.id}}">
+       </td>
+       
+        <td>
+          <select name="party_under-{{party.id}}" onchange="handlePartyTallyGroup('{{party.id}}')" onkeyup="handlePartyTallyGroup('{{party.id}}')" id="party_under-{{party.id}}" class="form-control form-control-sm">
+            <option selected>-----</option>
+            {% for category in global_category %}
+            {% if category == party.tally_group %}
+            <option value="{{category.id}}" selected>{{category}}</option>
+            {% else %}
+            <option value="{{category.id}}">{{category}}</option>
+            {% endif %}
+            {% endfor %}
+
+          </select>
+        </td>
+        <td>{{ party.party_name }}</td>
+        <td>{{ party.party_address.first.branch }}</td>
+        <td>{{ party.party_address.first.corp_country }}</td>
+        <td>{{ party.party_address.first.corp_state }}</td>
+        <td>{{ party.party_address.first.corp_city }}</td>
+        <td>{{ party.party_address.count|sub:1 }}</td>
+        
+
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+</form>
+</div>
+
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+  var selected_ids = []
+  $(document).ready(function () {
+
+  
+  let table = new DataTable('#party_table', {
+      // options
+      dom: 'BQlfrtip',
+      lengthMenu: [
+    [10, 25, 50, -1],
+    [10, 25, 50, 'All'],
+],
+
+"columnDefs": [
+        {
+            orderable: false,
+            className: 'select-checkbox',
+            targets: 0
+        },
+        
+      ],
+    
+
+    select: {
+        style: 'multi',
+        selector: 'td:first-child'
+    },
+
+    buttons: [
+    
+        {
+            text: 'Select all',
+            action: function () {
+                selected_ids = []
+                table.rows({ page: 'current' }).select();
+
+            }
+        },
+        {
+            text: 'Deselect all',
+            action: function () {
+                table.rows({ page: 'current' }).deselect();
+                selected_ids = []
+            }
+        },
+
+    ],
+
+  });
+  table.on('select', function (e, dt, type, indexes) {
+              var rowData = table.rows(indexes).data().toArray();
+            
+              indexes.map(index => {
+
+                  var selected_fields = document.getElementById('selected_fields')
+                  try{
+
+                    var indexValue = document.getElementById(`party_index_${index + 1}`).value
+                    document.getElementById('party_under-'+indexValue).required = true
+                    handlePartyTallyGroup(indexValue)
+                    selected_ids.push(indexValue)
+                  
+                    selected_fields.value = selected_ids
+                    
+                  }catch{
+
+                  }
+
+              })
+
+              if (selected_ids.length > 0) {
+                  var action_form = document.getElementById('action_form')
+                  action_form.style.display = 'block'
+              }
+          })
+          .on('deselect', function (e, dt, type, indexes) {
+              var rowData = table.rows(indexes).data().toArray();
+             
+              indexes.map(index => {
+
+                  var selected_fields = document.getElementById('selected_fields')
+                  try{
+
+                    var indexValue = document.getElementById(`party_index_${index + 1}`).value
+                    document.getElementById('party_under-'+indexValue).required = false
+                    selected_ids = selected_ids.filter(item => item !== indexValue)
+                   
+                    selected_fields.value = selected_ids
+                  
+                  }catch{
+
+                  }
+
+              })
+
+              if (selected_ids.length == 0) {
+                  var action_form = document.getElementById('action_form')
+                  action_form.style.display = 'none'
+              }
+
+          })
+
+          document.querySelector('.dtsb-title').style.display = 'none'
+          
+        })
+
+
+        const handlePartyTallyGroup = (party_id) => {
+          const url = document.getElementById('set_tally_group_url').value
+          const party_under = document.getElementById('party_under-'+party_id).value
+          if (party_under){
+            //window.location = url + `?party_id=${party_id}&tally_group=${party_under}`
+          }
+        }
+</script>
+{% endblock %}

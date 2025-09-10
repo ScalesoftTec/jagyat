@@ -1,0 +1,166 @@
+<div class="tab-pane fade" id="on-account-rec" role="tabpanel" aria-labelledby="on-account-rec-tab">
+    <div class="col-12">
+        <h6>Total Reciepts : <span id="total_reciepts"></span></h6>
+    </div>
+    <div class="col-12 row">
+        {% if update %}
+        <input type="hidden" name="rec_voucher_total_head" id="rec_voucher_total_head" value="{{reciept_count}}">
+        {% else %}
+        <input type="hidden" name="rec_voucher_total_head" id="rec_voucher_total_head" value="0">
+        {% endif %}
+        <table class="table table-bordered" id="rec_entry">
+            <tr>
+                <th style="min-width: 20px!important;">Final</th>
+                <th class="required">Date</th>
+                <th class="required">Voucher/Instrument No.</th>
+                <th class="required">Bank</th>
+                <th class="required">Amount</th>
+              
+                <th style="min-width: 50px!important;">Action</th>
+            </tr>
+            {% if update %}
+            {% for i in ledger.ledger_opening_details.all %}
+            {% if i.reciept_voucher %}
+            <tr id="rec_voucher_entry-{{forloop.counter}}">
+                
+                <td style="min-width: 30px!important;" class="text-center">
+                    
+                    {% if not i.rec_voucher_is_final %}
+                    <input class="my-2" onclick="handleLocalrec_voucherConfirmSignal('{{forloop.counter}}')" type="checkbox" name="rec_voucher_is_final-{{forloop.counter}}" id="rec_voucher_is_final-{{forloop.counter}}">
+                    {% endif %}
+                </td>
+                <td>
+                    <input type="hidden" name="rec_voucher_is_active-{{forloop.counter}}" value="yes"  id="rec_voucher_is_active-{{forloop.counter}}" />
+                    <input type="date" required value="{{i.date|date:'Y-m-d'}}" name="rec_voucher_date-{{forloop.counter}}" id="rec_voucher_date-{{forloop.counter}}" class="form-control" />
+                </td>
+                <td><input type="text" required value="{{i.invoice_no}}" name="rec_voucher_invoice_no-{{forloop.counter}}"
+                        id="rec_voucher_invoice_no-{{forloop.counter}}" class="form-control" onkeyup="checkInvoiceNo('{{forloop.counter}}')" /></td>
+                <td>
+                    <select name="rec_voucher_bank-{{forloop.counter}}" id="rec_voucher_bank-${rec_voucherCurrentRowNumber}" class="form-control">
+                        {% for bank in global_banks %}
+                        {% if i.reciept_voucher.to_bank == bank %}
+                        <option value="{{bank.id}}" selected>{{bank}}</option>
+                        {% else %}
+                        <option value="{{bank.id}}">{{bank}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </td>
+                <td><input type="number" required step="0.01" value="{{i.amount}}" onkeyup="calculateRecSum()" name="rec_voucher_amount-{{forloop.counter}}"
+                        id="rec_voucher_amount-{{forloop.counter}}" class="form-control" /></td>
+               
+                <td style="min-width: 50px!important;">
+                    <input type="hidden" value="{{i.id}}" name="rec_voucher_existing_id_{{forloop.counter}}">
+                    {% if not i.rec_voucher_is_final %}
+                    
+                 
+                
+                    <input type="hidden" value="1" name="rec_voucher_is_deletable_{{forloop.counter}}">
+                   
+                    
+                    <div class="btn btn-sm btn-danger" onclick="rec_voucherDeleteRow('{{forloop.counter}}')">Remove</div>
+                    
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        </table>
+        <div class="col-12">
+            <div class="text-right w-100">
+                <button type="button" class="btn btn-sm btn-primary" onclick="rec_voucherAddRow();"> Add More </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+       var rec_voucherCurrentRowNumber = parseInt(document.getElementById('rec_voucher_total_head').value) || 0
+    var rec_voucherAvailableRowNumber = parseInt(document.getElementById('rec_voucher_total_head').value) || 0
+    const rec_voucherAddRow = () => {
+        rec_voucherCurrentRowNumber += 1
+        rec_voucherAvailableRowNumber += 1
+        var newRow = document.getElementById('rec_entry').insertRow(-1)
+        newRow.id = `rec_voucher_entry-${rec_voucherCurrentRowNumber}`
+        newRow.classList.add("entry")
+        var final = newRow.insertCell(0)
+        var date = newRow.insertCell(1)
+        var invoice_no = newRow.insertCell(2)
+        var bank_option = newRow.insertCell(3)
+        var amount = newRow.insertCell(4)
+  
+        var delete_cell = newRow.insertCell(5)
+        final.setAttribute('style','min-width:30px!important;')
+        delete_cell.setAttribute('style','min-width:50px!important;')
+        final.setAttribute('class','text-center')
+        final.innerHTML = `
+        <td><input onclick="handleLocalrec_voucherConfirmSignal(${rec_voucherCurrentRowNumber})" type="checkbox" name="rec_voucher_is_final-${rec_voucherCurrentRowNumber}" class="my-2" id="rec_voucher_is_final-${rec_voucherCurrentRowNumber}"></td>
+        `
+
+
+        date.innerHTML = `
+        <input type="hidden" name="rec_voucher_is_active-${rec_voucherCurrentRowNumber}" value="yes"  id="rec_voucher_is_active-${rec_voucherCurrentRowNumber}" />
+        <input type="date" value="{{i.date}}" required name="rec_voucher_date-${rec_voucherCurrentRowNumber}" id="rec_voucher_date-${rec_voucherCurrentRowNumber}" class="form-control" />
+            `
+        invoice_no.innerHTML = `
+                <input type="text" required name="rec_voucher_invoice_no-${rec_voucherCurrentRowNumber}" id="rec_voucher_invoice_no-${rec_voucherCurrentRowNumber}" class="form-control" onkeyup="checkInvoiceNo(${rec_voucherCurrentRowNumber})" />
+            `
+        bank_option.innerHTML = `
+                <select name="rec_voucher_bank-${rec_voucherCurrentRowNumber}" id="rec_voucher_bank-${rec_voucherCurrentRowNumber}" class="form-control">
+                       {% for bank in global_banks %}
+                        <option value="{{bank.id}}" selected>{{bank}}</option>
+                       {% endfor %}
+                    </select>
+            `
+        amount.innerHTML = `
+               <input type="number" step="0.01" value="{{i.amount}}" required onkeyup="calculateRecSum()" required name="rec_voucher_amount-${rec_voucherCurrentRowNumber}" id="rec_voucher_amount-${rec_voucherCurrentRowNumber}" class="form-control" />
+            `
+  
+        delete_cell.innerHTML = `
+             <input type="hidden" value="0" name="rec_voucher_existing_id_${rec_voucherCurrentRowNumber}">
+                <input type="hidden" value="0" name="rec_voucher_is_deletable_${rec_voucherCurrentRowNumber}">
+                <div class="btn btn-sm btn-danger" onclick="rec_voucherDeleteRow(${rec_voucherCurrentRowNumber})">Remove</div>
+            `
+        document.getElementById('rec_voucher_total_head').value = rec_voucherCurrentRowNumber
+       
+        
+    }
+
+    const rec_voucherDeleteRow = (index) => {
+        document.getElementById(`rec_voucher_is_active-${index}`).value = "no"
+        
+        document.getElementById(`rec_voucher_date-${index}`).required = false
+        document.getElementById(`rec_voucher_invoice_no-${index}`).required = false
+        document.getElementById(`rec_voucher_amount-${index}`).required = false
+        document.getElementById(`rec_voucher_entry-${index}`).style.display = 'none'
+        rec_voucherAvailableRowNumber -= 1
+        calculateRecSum()
+    }
+
+    const calculateRecSum = () => {
+        var totalRecSum = 0
+        for(var i=1; i<=rec_voucherCurrentRowNumber; i++){
+            var sales = parseFloat(document.getElementById(`rec_voucher_amount-${i}`).value) || 0
+            if(!isNaN(sales)  && document.getElementById(`rec_voucher_is_active-${i}`).value == 'yes'){
+                totalRecSum += sales
+            }
+        }
+        document.getElementById('total_reciepts').innerText = totalRecSum
+
+    }
+    calculateRecSum()
+
+    const handleLocalrec_voucherConfirmSignal = (index) => {
+        var checkboxStatus = document.getElementById(`rec_voucher_is_final-${index}`).checked
+        if(checkboxStatus){
+            var status = confirm('After check you not able to edit or delete this entry please confirm and check.')
+           if (!status.valueOf()){
+            document.getElementById(`rec_voucher_is_final-${index}`).checked = false;
+           }
+        }
+    }
+
+
+</script>

@@ -1,0 +1,82 @@
+<table class="table compact table-bordered table-primary" id="job_table">
+    <thead>
+<tr>
+    <th scope="col">S. No.</th>
+    <th>Job No</th>
+    <th>Date</th>
+    <th>Company</th>
+    <th>Alt. Company</th>
+    <th>Booking Party</th>
+    <th>Account</th>
+    <th>Account Address</th>
+    <th>Place of Reciept</th>
+    <th>Place of Loading</th>
+    <th>Place of loading date</th>
+    <th>Place of unloading</th>
+    <th>unloading date</th>
+    <th>commodity</th>
+    <th>Gross weight</th>
+	<th>Container no</th>
+    <th>Container type</th>
+    <th>DO date</th>
+    <!-- <th>Eway VALID date</th> -->
+    <th>Gr no</th>
+    <th>Trailor no</th>
+
+
+    <th>Approved</th>
+    <!-- <th scope="col">Actions</th> -->
+    
+</tr>
+</thead>
+<tbody>
+    {% for data in jobs %}
+    <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{data.job_no}}</td>
+        <td>{{data.job_date}}</td>
+        <td>{{data.company_type}}</td>
+        <td>{{data.alternate_company}}</td>
+
+        <td>{{data.booking_party}}</td>
+        <td>{{data.account}}</td>
+        <td>{{data.account_address.branch}}</td>
+        <td>{{data.place_of_reciept}}</td>
+        <td>{{data.place_of_loading}}</td>
+        <td>{{data.place_of_unloading_date}}</td>
+        <td>{{data.place_of_unloading}}</td>
+        <td>{{data.place_of_unloading_date}}</td>
+        <td>{{data.commodity}}</td>
+        <td>{{data.gross_weight}}</td>
+        <td>{{data.container_no}}</td>
+        <td>{{data.container_type}}</td>
+        <td>{{data.do_date}}</td>
+     
+        <td>{{data.gr_no}}</td>
+        <td>{{data.trailor_no}}</td>
+        
+
+    
+
+    {% if data.company_type.is_job_approve_required  %}
+    
+    {% if data.is_approved and data.application_handler %}
+    <td><span class="badge rounded-pill bg-success">Approved</span></td>
+    {% elif data.is_approved and not data.application_handler %}
+    <td><span class="badge rounded-pill bg-success">N/A</span></td>
+    {% else %}
+    <td><span class="badge rounded-pill bg-danger">Pending</span></td>
+    {% endif %}
+    
+    {% else %}
+    <td><span class="badge rounded-pill bg-danger">N/A</span></td>
+    {% endif %}
+
+   
+
+   
+    </tr>
+  {% endfor %}
+ 
+</tbody>
+</table>

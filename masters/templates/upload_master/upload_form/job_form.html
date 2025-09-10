@@ -1,0 +1,38 @@
+<div class="tab-pane fade" id="jobs" role="tabpanel" aria-labelledby="jobs-tab">
+            
+    <h5>Job File <span style="font-size: 14px;">Total Jobs : {{jobs_global_length}}</span></h5>
+    <div class="row">
+        <div class="col-12 mb-2">Please enter correct field name as per your excel file <i class="far fa-question-circle text-danger" style="cursor: pointer;"  data-toggle="tooltip" data-placement="right" title="Please enter correct field name as per your excel file"></i></div>
+
+        <div class="col-md-12 col-sm-12 mb-3">
+            <label for="id_company_type">Choose Company</label>
+            <select name="company_type" id="id_company_type" class="form-control">
+                <option value="" selected hidden disabled>--------</option>
+                {% for company in companies %}
+                <option value="{{ company.id }}">{{ company }}</option>
+                {% endfor %}
+            </select>
+            <hr>
+        </div>
+
+        {% for i in job_data_fields %}
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_{{i.name}}">{{i.label_name}}  </label>
+            <input type="text" name="{{i.name}}" id="id_{{i.name}}" value="{{i.name}}"  class="form-control">
+        </div>
+        {% endfor %}
+
+        
+        <div class="col-12 mb-3">
+            <label for="job_file">Job File</label>
+            <input type="file" class="form-control"  name="job_file"
+             id="job_file">
+        </div>
+        
+        <div class="col-12 mb-3">
+            <input type="checkbox" name="job_upload" id="job_upload">
+            <label for="job_upload">I want to upload Job file</label>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,212 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+{% if update %}
+Update VGM - 
+{% else %}
+Create VGM - 
+{% endif %}
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update VGM
+    {% else %}
+    Create New VGM
+    {% endif %}
+
+</h1>
+
+<a href="{% url 'operations:vgm_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post" id="vgm_form" data-job-url="{% url 'home:ajax_load_jobdetails' %}">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+        
+        {% if request.user.user_account.create_global_data %}
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_company_type">Choose Company</label>
+            {{ form.company_type }}
+        </div>
+        {% else %}
+            <input type="hidden" name="id_company_type" id="id_company_type" value="{{ request.user.user_account.office.id }}">
+        {% endif %}
+
+        
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_job">Job</label>
+            {{ form.job }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_shipper">Shipper</label>
+            {{ form.shipper }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_container_size">Container Size</label>
+            {{ form.container_size }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_shipper_licence_no">Shipper Licence No.</label>
+            {{ form.shipper_licence_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_auth_shipper_name">Name of Authorized Shipper</label>
+            {{ form.auth_shipper_name }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_auth_shipper_designation">Designation of Authorized Shipper</label>
+            {{ form.auth_shipper_designation }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_shipper_contact">Shipper Contact</label>
+            {{ form.shipper_contact }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_vgm_type">Type</label>
+            {{ form.vgm_type }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_vgm_class">VGM(Haz,UN No., IMDG Class)</label>
+            {{ form.vgm_class }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_booking_cont_no">Booking No./Container No.</label>
+            {{ form.booking_cont_no }}
+        </div>
+       
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_max_permissible_weight">Maximum Permissible Weight</label>
+            {{ form.max_permissible_weight }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_verified_gross_mass">Verified Gross Mass Of Container</label>
+            {{ form.verified_gross_mass }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_date_of_weighing">Date Of Weighing</label>
+            {{ form.date_of_weighing }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_time_of_weighing">Time Of Weighing</label>
+            {{ form.time_of_weighing }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_weighing_slip_no">Weighing Slip No.</label>
+            {{ form.weighing_slip_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_weighbridge_register_no">Weighbridge Registration No.</label>
+            {{ form.weighbridge_register_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_weighbridge_address">Weighbridge Address</label>
+            {{ form.weighbridge_address }}
+        </div>
+
+       
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update VGM
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+
+    {% if update %}
+    <input type="hidden" id="is_update" value="true">
+
+    {% else %}
+    <input type="hidden" id="is_update" value="false">
+    {% endif %}
+    <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+
+
+</form>
+
+{% endblock %}
+
+{% block js %}
+
+
+<script>
+    if(document.getElementById('is_update').value == 'false'){
+        document.getElementById('id_company_type').value = document.getElementById('user_company').value
+    }
+    
+  $("#id_job").change(function () {
+    var url = $("#vgm_form").attr("data-job-url");
+    var job_no = $(this).val();
+    
+    $.ajax({
+      url: url,
+      data: { 'job_no': job_no },
+      dataType: 'json',
+      success: function (data) {
+      
+
+      const job = data.job[0]
+          
+      $("#id_shipper").val(job.shipper_id);
+    
+      $("#id_container_size").val(job.container_type);
+     
+    
+
+      }
+    });
+  });
+
+  function removeOptions(selectElement) {
+    var i, L = selectElement.options.length - 1;
+    for(i = L; i >= 0; i--) {
+       selectElement.remove(i);
+    }
+    }
+
+  document.getElementById('id_company_type').addEventListener('change',getOnlyCompanyJobs)
+  async function getOnlyCompanyJobs(){
+    try{
+
+        const company = document.getElementById('id_company_type').value
+        var jobs = await axios.get('/api/v1/jobs/details?company_type='+company)
+        jobs = jobs.data
+        const select = document.getElementById('id_job'); 
+        const value = select.value
+        removeOptions(select);
+
+        select.required = true
+        var newOption = new Option("Choose Job","")
+        select.add(newOption);
+        
+        jobs.map(item=>{
+            var newOption = new Option(item.job_no,item.id)
+            if(item.id == value){
+                newOption.selected = true
+            }
+            select.add(newOption);
+        })
+
+    }catch(err){
+        console.log(err)
+    }
+  }
+
+  getOnlyCompanyJobs()
+
+
+
+</script>
+
+
+{% endblock %}

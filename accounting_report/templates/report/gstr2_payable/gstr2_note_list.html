@@ -1,0 +1,99 @@
+{% load custom_tags %}
+{% load humanize %}
+{% load mathfilters %}
+{% if data.invoice.is_final %}
+<tr style="background-color: rgb(203, 255, 203);">
+  {% else %}
+<tr style="background-color: indianred;">
+  {% endif %}
+  <td>{{forloop.counter}}</td>
+  <td>
+    <input type="hidden" value="{{data.invoice.id}}" id="invoice_{{forloop.counter}}" name="invoice_{{forloop.counter}}">
+    <input type="hidden" value="N" id="invoice_type_{{forloop.counter}}" name="invoice_type_{{forloop.counter}}">
+    
+    {{data.invoice.company_type.company_gst_code}}</td>
+  <td>{{data.invoice.invoice_no}}</td>
+  {% if data.invoice.is_rcm %}
+  <td> <span class="badge badge-primary">RCM</span> </td>
+  {% else %}
+  <td> <span class="badge badge-primary">REG</span> </td>
+  {% endif %}
+  <td>
+    
+    
+    {{data.invoice.date_of_note|date:"Y-m-d"}}
+    
+  </td>
+  <td>{{data.invoice.job_no.job_no}}</td>
+  <td>{{data.invoice.job_no.module}}</td>
+  <td>{{data.invoice.bill_from_address.branch}}</td>
+  <td>{{data.invoice.bill_from_address.corp_gstin}}</td>
+  <td>{{data.invoice.bill_from_address.corp_state.name}}</td>
+  <td>{{data.invoice.bill_from.party_name}}</td>
+  <td>{{data.invoice.invoice_currency}}</td>
+  {% if data.invoice.invoice_currency.short_name == "INR" %}
+  <td align="right" data-order="-{{data.invoice.net_amount}}">-{{data.invoice.net_amount|floatformat:2|intcomma}}</td>
+  {% else %}
+  <td align="right" data-order="-{{data.invoice.net_amount|mul:data.invoice.currency_ex_rate}}">-{{data.invoice.net_amount|mul:data.invoice.currency_ex_rate|floatformat:2|intcomma}}</td>
+  {% endif %}
+
+
+  {% if filter_percent == "All" %}
+  <td align="right" data-order="-{{data.non_taxable_amount}}">-{{data.non_taxable_amount|floatformat:2|intcomma}}</td>
+  {% endif %}
+
+  {% if filter_percent == "5" or filter_percent == "All" %}
+  <td align="right" data-order="-{{data.taxable_5 }}">{{data.taxable_5|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.cs_5 }}">-{{data.cs_5|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.cs_5 }}">-{{data.cs_5|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.i_5}}">-{{data.i_5|floatformat:2|intcomma}}</td>
+
+  <td align="right" data-order="-{{data.other_cs_5 }}">-{{data.other_cs_5|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.other_cs_5 }}">-{{data.other_cs_5|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.other_i_5}}">-{{data.other_i_5|floatformat:2|intcomma}}</td>
+  {% endif %}
+
+  {% if filter_percent == "12" or filter_percent == "All" %}
+  <td align="right" data-order="-{{data.taxable_12}}">-{{data.taxable_12|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.cs_12}}">-{{data.cs_12|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.cs_12}}">-{{data.cs_12|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.i_12}}">-{{data.i_12|floatformat:2|intcomma}}</td>
+
+  <td align="right" data-order="-{{data.other_cs_12}}">-{{data.other_cs_12|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.other_cs_12}}">-{{data.other_cs_12|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.other_i_12}}">-{{data.other_i_12|floatformat:2|intcomma}}</td>
+  {% endif %}
+
+  {% if filter_percent == "18" or filter_percent == "All" %}
+  <td align="right" data-order="-{{data.taxable_18}}">-{{data.taxable_18|floatformat:2|intcomma}}</td>
+
+  <td align="right" data-order="-{{data.cs_18}}">-{{data.cs_18|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.cs_18}}">-{{data.cs_18|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.i_18}}">-{{data.i_18|floatformat:2|intcomma}}</td>
+
+  <td align="right" data-order="-{{data.other_cs_18}}">-{{data.other_cs_18|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.other_cs_18}}">-{{data.other_cs_18|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.other_i_18}}">-{{data.other_i_18|floatformat:2|intcomma}}</td>
+  {% endif %}
+
+  {% if filter_percent == "28" or filter_percent == "All" %}
+  <td align="right" data-order="-{{data.taxable_28}}">-{{data.taxable_28|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.cs_28}}">-{{data.cs_28|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.cs_28}}">-{{data.cs_28|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.i_28}}">-{{data.i_28|floatformat:2|intcomma}}</td>
+
+  <td align="right" data-order="-{{data.other_cs_28}}">-{{data.other_cs_28|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.other_cs_28}}">-{{data.other_cs_28|floatformat:2|intcomma}}</td>
+  <td align="right" data-order="-{{data.other_i_28}}">-{{data.other_i_28|floatformat:2|intcomma}}</td>
+  {% endif %}
+
+  <td align="right" data-order="-{{data.invoice.gst_amount}}">-{{data.invoice.gst_amount|floatformat:2|intcomma}}</td>
+
+  <td>
+    {% if data.invoice.is_final %}
+    <span class="badge badge-primary">Y</span>
+    {% else %}
+    <span class="badge badge-danger">N</span>
+    {% endif %}
+  </td>
+</tr>

@@ -1,0 +1,157 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+Not Approved/Pending Job List - 
+{% endblock %}
+{% block dashboard_heading %}
+<h5 class="h5 mb-0 text-gray-800">
+    Not Approved/Pending Jobs List
+</h5>
+
+<a href="{% url 'operations:create_job' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Job</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<table class="table  table-bordered table-md-responsive table-primary" id="party_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Job No.</th>
+        <th scope="col">Job Date</th>
+        <th scope="col">Module</th>
+        <th scope="col">Company</th>
+        <th scope="col">Shipper</th>
+        <th scope="col">Consignee</th>
+        <th scope="col">POL</th>
+        <th scope="col">POD</th>
+        <th scope="col">Created By</th>
+        <th scope="col">Created On</th>
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+      {% for data in jobs %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ data.job_no }}</td>
+        <td>{{ data.job_date }}</td>
+        <td>{{ data.module }}</td>
+        <td>{{ data.company_type }}</td>
+        <td>{{ data.shipper }}</td>
+        <td>{{ data.consignee }}</td>
+        <td>{{ data.port_of_loading }}</td>
+        <td>{{ data.port_of_discharge }}</td>
+        <td>{{ data.created_by }}</td>
+        <td>{{ data.created_at }}</td>
+        <td>
+            <a href="{% url 'operations:job_update' module=module id=data.id %}" class="btn btn-info mr-3"><i class="fas fa-edit"></i></a>
+
+          
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary mr-3" data-toggle="modal" data-target="#approveModal{{ forloop.counter }}">
+            <i class="bi bi-check2-square"></i>
+        </button>
+    
+        <!-- Modal -->
+        <div class="modal fade" id="approveModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="approveModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="approveModal{{ forloop.counter }}Label">Approve {{data.job_no}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure want to approve {{ data.job_no }}?
+                    <form action="{% url 'operations:approve_job' module=module id=data.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="text" name="verify_job_no" placeholder="Enter Job No." required class="form-control" />
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" >Submit</button>
+                      
+                    </div>
+                </form>
+            </div>
+            </div>
+        </div>
+        {% if request.user.user_account.can_delete %}
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+    
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.job_no}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ data.job_no }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'operations:job_delete' module=module id=data.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+        {% endif %}
+        </td>
+        </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+
+
+  <script>
+    let table = new DataTable('#party_table', {
+        // options
+        dom: 'BQlfrtip',
+        buttons: [
+        {
+            extend: 'pdf',
+            exportOptions: {
+                columns: [ 0, 1, 2,3,4,5,6,7 ]
+            }
+        },
+        {
+            extend: 'csv',
+            exportOptions: {
+                columns: [ 0, 1, 2,3,4,5,6,7 ]
+            }
+        },
+        {
+            extend: 'excel',
+            exportOptions: {
+                columns: [ 0, 1, 2,3,4,5,6,7 ]
+            }
+        },
+        {
+            extend: 'print',
+            exportOptions: {
+                columns: [ 0, 1, 2,3,4,5,6,7 ]
+            }
+        },
+            
+        ]
+    });
+  
+   
+</script>
+
+{% endblock %}

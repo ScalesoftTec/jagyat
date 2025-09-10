@@ -1,0 +1,200 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    DSR List
+
+</h1>
+
+<style>
+  .table th, td{
+   
+    padding: 3px!important;
+    font-size: 13px!important;
+  }
+</style>
+
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+<div class="">
+  <form  method="post" action="{% url 'operations:dsr_actions' module=module %}" target="_blank">
+    {% csrf_token %}
+    <input type="hidden" id="selected_fields" name="selected_fields" value="">
+    <input type="hidden" id="list_selected" name="list_selected" value="0">
+    <div class="row">
+      <div class="col-md-2 col-sm-12" id="action_form" style="display: none;  flex-direction: row; justify-content: flex-start;" >
+       <input type="submit" name="action_type" value="EXPORT DSR" class="btn btn-sm btn-primary" />
+       <input type="submit" name="action_type" value="SEND DSR" class="ml-2 btn btn-sm btn-primary" />
+      
+      </div>
+    </div>
+  </form>
+</div>
+
+
+<div class="mt-2">
+  <form action="" method="post">
+      {% csrf_token %}
+      <div class="row">
+          <div class="col-2">
+              <label for="from_date">From Date</label>
+              <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="start_date">
+          </div>
+          <div class="col-2">
+              <label for="to_date">To Date</label>
+              <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="to_date">
+          </div>
+          
+          
+          <div class="col-2">
+              <button type="submit" class="btn btn-primary btn-sm mt-4">Filter</button>
+          </div>
+      </div>
+  </form>
+</div>
+
+<div class="table-responsive">
+<table class="table compact display table-primary table-bordered " id="dsr_table">
+    <thead>
+      <tr>
+        <th>#</th>
+
+        <th>Date</th>
+        <th>Job</th>
+        <th>Importer</th>
+        <th>Shipper</th>
+        <th>POL</th>
+        <th>POD</th>
+
+        <th>S/L</th>
+        <th>FPOD</th>
+        <th>HBL</th>
+        <th>MBL</th>
+        <th>Conatiner No</th>
+        <th>vessel Voy</th>
+        <th>No. of Packages</th>
+        <th>Status</th>
+        <th>Rail Out</th>        
+        <th>Sales Person</th>        
+      </tr>
+    </thead>
+    <tbody>
+    {% for data in dsrs %}
+      <tr>
+        <th scope="row">
+          <input type="hidden" value="{{data.id}}" id="dsr_{{forloop.counter}}" name="dsr_{{forloop.counter}}">
+          {{ forloop.counter }}
+        </th>
+          
+
+          <td> {{data.job.job_date}} </td>
+          <td> {{data.job.job_no}} </td>
+          <td> {{data.job.importer}} </td>
+          <td> {{data.job.shipper}} </td>
+          <td> {{data.job.port_of_loading}} </td>
+          <td> {{data.job.port_of_discharge}} </td>
+          <td> {{data.job.shipping_line}}</td>
+          <td> {{data.job.final_destination}} </td>
+          <td> {{data.job_hbl_no}} </td>
+          <td> {{data.job.mbl_no}} </td>
+          <td>
+            {% for i in data.job_container_hbl.all %}
+
+            {{i.container_type}} / {{i.job_container_no}}   ,
+          {% endfor %}
+
+          </td>
+          
+          
+          <td> {{data.job.no_of_packages}} </td>
+          <td> {{data.job.vessel_voy_name}} </td>
+          <td> {{data.job.status}} </td>
+          <td> {{data.job_container_hbl.first.railout_date}} </td>
+          <td> {{data.job.sales_person}} </td>
+
+          
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+</div>
+ 
+  
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  $(document).ready(function () {
+    var selected_ids = []
+
+
+  let table = new DataTable('#dsr_table', {
+      // options
+      dom: 'Qlfrtip',
+      "pageLength": 50,
+      lengthMenu: [
+      [10, 25, 50, -1],
+      [10, 25, 50, 'All'],
+      ],
+      select: {
+        style: 'multi',
+  
+      },
+     });
+
+  table.on('select', function (e, dt, type, indexes) {
+    var rowData = table.rows(indexes).data().toArray();
+    
+    indexes.map(index => {
+
+      var selected_fields = document.getElementById('selected_fields')
+
+      var indexValue = document.getElementById(`dsr_${index + 1}`).value
+      selected_ids.push(indexValue)
+   
+      selected_fields.value = selected_ids
+
+
+    })
+
+    if (selected_ids.length > 0) {
+      var action_form = document.getElementById('action_form')
+      action_form.style.display = 'flex'
+      document.getElementById('list_selected').value = 1
+    
+    }
+  })
+    .on('deselect', function (e, dt, type, indexes) {
+      var rowData = table.rows(indexes).data().toArray();
+
+      indexes.map(index => {
+
+        var selected_fields = document.getElementById('selected_fields')
+
+        var indexValue = document.getElementById(`dsr_${index + 1}`).value
+        selected_ids = selected_ids.filter(item => item !== indexValue)
+  
+        selected_fields.value = selected_ids
+    
+
+      })
+
+      if (selected_ids.length == 0) {
+        var action_form = document.getElementById('action_form')
+        action_form.style.display = 'none'
+        document.getElementById('list_selected').value = 0
+      }
+
+    })
+  document.querySelector('.dtsb-title').style.display = 'none'
+})
+</script>
+{% endblock %}

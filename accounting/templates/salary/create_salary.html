@@ -1,0 +1,76 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Salary
+    {% else %}
+    Create New Salary
+    {% endif %}
+
+</h1>
+
+<a href="{% url 'accounting:salary_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+
+        <div class="col-md-3 col-sm-12">
+            <label for="id_company_type">Company / Branch</label>
+            {{ form.company_type }}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label for="id_date">Book Date</label>
+            {{ form.date }}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label for="id_employee">Employee</label>
+            {{ form.employee }}
+        </div>
+       
+        <div class="col-md-3 col-sm-12">
+            <label for="id_salary_currency">Currency</label>
+            {{ form.salary_currency }}
+        </div>
+       
+        <div class="col-md-3 col-sm-12">
+            <label for="id_basic">Basic Amount</label>
+            {{ form.basic }}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label for="id_tds_amount">TDS Amount</label>
+            {{ form.tds_amount }}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label for="id_esi_amount">ESI Amount</label>
+            {{ form.esi_amount }}
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <label for="id_pf_amount">PF Amount</label>
+            {{ form.pf_amount }}
+        </div>
+
+      
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">
+        {% if update %}
+        Save Update
+        {% else %}
+        Save
+        {% endif %}
+
+    </button>
+</form>
+
+
+
+{% endblock %}

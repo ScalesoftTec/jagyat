@@ -1,0 +1,454 @@
+{% extends 'dashboard/index.html' %}
+{% load custom_tags %}
+{% load mathfilters %}
+{% load humanize %}
+
+{% block dashoard_title %} Bank Ledger ({{selected_bank.bank_name}}) | {% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+  Bank Statement ({{selected_bank.bank_name}})
+</h1>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<style>
+  .dtsb-button {
+    margin: 0 !important;
+    padding: 5px 10px !important;
+    font-size: 12px !important;
+    border-radius: 10px !important;
+    background-color: #280466 !important;
+    color: #ffffff !important;
+  }
+
+  .dtsb-button:hover {
+
+    font-size: 12px !important;
+
+    background-color: #280466 !important;
+    color: #ffffff !important;
+  }
+
+  .dtsb-criteria select {
+    font-size: 12px !important;
+  }
+
+  tfoot tr td {
+    color: white !important;
+  }
+</style>
+
+<div>
+  <form action="" name="bankForm" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-2">
+        <label for="status">Choose Status</label>
+        <select name="status" id="status" class="form-control form-control-sm">
+          {% if status == "A" or not status %}
+          <option value="A" selected>Clear & Unclear Both</option>
+          {% else %}
+          <option value="A">Clear & Unclear Both</option>
+          {% endif %}
+          {% if status == "OC" %}
+          <option value="OC" selected>Only Clear</option>
+          {% else %}
+          <option value="OC">Only Clear</option>
+          {% endif %}
+          {% if status == "OUC" %}
+          <option value="OUC" selected>Only Un-Clear</option>
+          {% else %}
+          <option value="OUC">Only Un-Clear</option>
+          {% endif %}
+        </select>
+      </div>
+     
+      <div class="col-2">
+        <label for="from_date">From</label>
+        <input type="date" name="from_date" id="from_date" value="{{from_date|date:'Y-m-d'}}"
+          class="form-control form-control-sm" required />
+      </div>
+
+      <div class="col-2">
+        <label for="to_date">To</label>
+        <input type="date" name="to_date" id="to_date" value="{{to_date|date:'Y-m-d'}}"
+          class="form-control form-control-sm" required />
+      </div>
+   
+      <div class="col-2">
+        <label for="Bank">Choose Bank</label>
+        <select name="bank" id="bank" class="form-control form-control-sm" required>
+          <option value="" selected disabled>Choose Bank A/C</option>
+          {% for bank in banks %}
+          {% if selected_bank == bank %}
+          <option value="{{bank.id}}" selected>{{bank.bank_name}} ({{bank.account_no}})</option>
+          {% else %}
+          <option value="{{bank.id}}">{{bank.bank_name}} ({{bank.account_no}})</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-2">
+        <label for="opening_balance">Type</label>
+        <select name="opening_balance_type" id="opening_balance_type" class="form-control form-control-sm">
+          {% if opening_balance_type == 'WOP' %}
+          <option value="WOP" selected>Only Within Date Range</option>
+          {% else %}
+          <option value="WOP">Only Within Date Range</option>
+          {% endif %}
+          {% if opening_balance_type == 'WP' %}
+          
+          <option value="WP" selected>With Opening Balance</option>
+          {% else %}
+          <option value="WP">With Opening Balance</option>
+        
+          {% endif %}
+        </select>
+      </div>
+      <div class="col-2 mt-4">
+        <button class="btn btn-sm btn-primary" type="submit">Get Report</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% if report %}
+
+<div class="table-reponsive">
+
+  <table class="table table-primary table-bordered  compact display" id="invoice_table">
+    <thead>
+      <tr>
+
+        <th scope="col">Company</th>
+        <th scope="col">Cheque Clear Date</th>
+        <th scope="col">Customer</th>
+        <th scope="col">Cheque No</th>
+        <th scope="col">Cheque Date</th>
+        <th scope="col">Debit Amount</th>
+        <th scope="col">Credit Amount</th>
+
+
+      </tr>
+    </thead>
+    <tbody>
+      {% if opening_balance_type == "WP" %}
+      <tr>
+
+        <td>-</td>
+        <td>-</td>
+
+        <td>
+
+          {{opening_report.customer}}
+         
+        </td>
+       
+        <td>-</td>
+     
+        <td></td>
+
+        {% if opening_report.type == "Debit" %}
+        <td align="right" data-order="{{opening_report.amount|floatformat:2}}">
+        
+          
+            {{ opening_report.amount|floatformat:2|intcomma }}
+         
+        </td>
+        {% else %}
+        <td align="center" data-order="0">-</td>
+        {% endif %}
+
+        {% if opening_report.type == "Credit" %}
+        <td align="right" data-order="{{opening_report.amount|floatformat:2}}">
+          {{ opening_report.amount|floatformat:2|intcomma }}
+       </td>
+        {% else %}
+        <td align="center" data-order="0">-</td>
+        {% endif %}
+
+
+      </tr>
+      {% endif %}
+      {% for data in report %}
+      <tr>
+
+        <td>{{data.company}}</td>
+        <td><span id="date_{{forloop.counter}}">{{data.clearing_date|date:'Y-m-d'}}</span></td>
+
+        <td>
+          {% if data.customer %}
+          {{data.customer}}
+          {% else %}
+          Self
+          {% endif %}
+        </td>
+        {% if data.no %}
+        <td>{{data.no}}</td>
+        {% else %}
+        <td>-</td>
+        {% endif %}
+        <td>{{data.date|date:'Y-m-d'}}</td>
+
+        {% if data.type == "Debit" %}
+        <td align="right" data-order="{{data.amount|floatformat:2}}">
+        {% if not data.clearing_date %}
+          <a href="#"  data-toggle="modal" data-target="#debitModal{{ forloop.counter }}">
+            {{ data.amount|floatformat:2|intcomma }}
+          </a>
+          {% else %}
+          <a href="#">
+            {{ data.amount|floatformat:2|intcomma }}
+          </a>
+          {% endif %}
+        </td>
+        {% else %}
+        <td align="center" data-order="0">-</td>
+        {% endif %}
+
+        {% if data.type == "Credit" %}
+        <td align="right" data-order="{{data.amount|floatformat:2}}">
+          {% if not data.clearing_date %}
+            <a href="#"  data-toggle="modal" data-target="#debitModal{{ forloop.counter }}">
+              {{ data.amount|floatformat:2|intcomma }}
+            </a>
+            {% else %}
+            <a href="#">
+              {{ data.amount|floatformat:2|intcomma }}
+            </a>
+            {% endif %}
+          </td>
+        {% else %}
+        <td align="center" data-order="0">-</td>
+        {% endif %}
+
+
+      </tr>
+      
+      {% endfor %}
+
+      
+    </tbody>
+    <tfoot>
+      <tr>
+
+        <td colspan="4"></td>
+        <td>Total</td>
+        
+        <td class="text-right" align="right"></td>
+        <td class="text-right" align="right"></td>
+      </tr>
+      <tr>
+        <td colspan="4"></td>
+      
+        <th class="text-white">Closing Balance</th>
+        <td colspan="2" class="text-white"><h6 class="text-white">{{closing_balance|floatformat:2|intcomma}}</h6></td>
+        
+  
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+
+
+{% for data in report %}
+
+<div class="modal fade" id="debitModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="debitModal{{ forloop.counter }}Label" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+      <div class="modal-header">
+      <h6 class="modal-title" id="debitModal{{ forloop.counter }}Label">View Details
+
+       <strong> {{data.invoice.final_invoice_no}}</strong>
+
+      
+      </h6>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+      </div>
+      <div class="modal-body">
+        <table class="table compact table-bordered table-md-responsive">
+          <thead>
+            <tr>
+              {% if data.type == "Debit" %}
+              <th class="p-1 text-white" style="background-color: #2d045c;">Reciept Amount</th>
+              {% else %}
+              <th class="p-1 text-white" style="background-color: #2d045c;">Payment Amount</th>
+              {% endif %}
+              <th class="p-1 text-white" style="background-color: #2d045c;">Cheque No.</th>
+              <th class="p-1 text-white" style="background-color: #2d045c;">Cheque Date</th>
+              <th class="p-1 text-white" style="background-color: #2d045c;">Customer Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if  data.data.has_childs %}
+            {% if data.type == "Debit" %}
+            {% for entry in data.data.advance_voucher.all %}
+
+            <tr>
+              <td class="p-1">{{entry.received_amount|floatformat:2|intcomma}}</td>
+              <td class="p-1">{{ entry.instrument_no }}</td>
+              <td class="p-1">{{entry.voucher_date}}</td>
+              <td class="p-1">{{ entry.party_name.party_name }}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+
+            {% if data.type == "Credit" %}
+            {% for entry in data.data.payment_voucer_advance.all %}
+
+            <tr>
+              <td class="p-1">{{entry.paid_amount|floatformat:2|intcomma}}</td>
+              <td class="p-1">{{ entry.instrument_no }}</td>
+              <td class="p-1">{{entry.voucher_date}}</td>
+              <td class="p-1">{{ entry.party_name.party_name }}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+
+
+            {% else %}
+            <tr>
+              <td class="p-1">{{data.amount|floatformat:2|intcomma}}</td>
+              <td class="p-1">{{ data.no }}</td>
+              <td class="p-1">{{data.date}}</td>
+              <td class="p-1">{{ data.customer }}</td>
+            </tr>
+            {% endif %}
+
+          </tbody>
+        </table>
+        <form action="#" name="certForm{{data.id}}" onsubmit="setDate('{{forloop.counter}}',event);" >
+  
+          <input type="hidden" name="type_{{forloop.counter}}"  id="type_{{forloop.counter}}" value="{{data.from}}" />
+          <input type="hidden" name="id_{{forloop.counter}}" id="id_{{forloop.counter}}" value="{{data.id}}" />
+          <input type="hidden" name="index" value="{{forloop.counter}}" />
+          <div class="my-2">
+            <label for="bank_clearing_date_{{forloop.counter}}">Cheque Clearing Date</label>
+            <input type="date" name="bank_clearing_date_{{forloop.counter}}" class="form-control form-control-sm" id="bank_clearing_date_{{forloop.counter}}">
+          </div>
+      
+          <button type="submit"  class="btn btn-sm btn-primary">Submit</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+  </div>
+  </div>
+</div>
+
+
+{% endfor %}
+{% endif %}
+
+{% endblock %}
+
+{% block js %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+
+<script src="https://cdn.datatables.net/plug-ins/1.13.4/api/sum().js"></script>
+<script>
+  var selected_ids = []
+  $(document).ready(function () {
+
+    jQuery.fn.dataTable.Api.register('sum()', function () {
+      return this.flatten().reduce(function (a, b) {
+        var x = parseFloat(a);
+        var y = parseFloat($(b).attr('data-order'));
+
+        return parseFloat(x + y).toFixed(2)
+      }, 0);
+    });
+
+    let table = new DataTable('#invoice_table', {
+      // options
+      dom: 'BQlfrtip',
+      "columnDefs": [
+        { "type": "date", "targets": 4 }
+      ],
+
+      lengthMenu: [
+        [10, 25, 50, -1],
+        [10, 25, 50, 'All'],
+      ],
+      buttons: [
+        {
+          extend: 'collection',
+          text: 'Export',
+          "ordering": false,
+          buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+         
+          ]
+        },
+
+      ],
+      drawCallback: function () {
+        var api = this.api();
+        $(api.table().column(5).footer()).html(
+          api.column(5, { page: 'current' }).nodes().sum()
+        );
+        $(api.table().column(6).footer()).html(
+          api.column(6, { page: 'current' }).nodes().sum()
+        );
+
+
+
+
+      }
+
+    });
+    document.querySelector('.dtsb-title').style.display = 'none'
+  })
+
+  const setDate = async(index,event) => {
+    event.preventDefault();
+    try{
+      axios.defaults.xsrfCookieName = 'csrftoken'
+      axios.defaults.xsrfHeaderName = "X-CSRFTOKEN"
+      var dateValue = document.getElementById(`date_${index}`)
+      dateValue.innerText = document.getElementById(`bank_clearing_date_${index}`).value
+      const id = document.getElementById(`id_${index}`).value
+      const type = document.getElementById(`type_${index}`).value
+      var url = ''
+      console.log(type)
+      if(type == "R"){
+        url = `/api/v1/rv/update/${id}`
+      }
+      if(type == "P"){
+        url  = `/api/v1/pv/update/${id}`
+      }
+      if(type == "C"){
+        url  = `/api/v1/cv/update/${id}`
+      }
+      
+      const res = await axios.put(url,{
+        bank_clearing_date : document.getElementById(`bank_clearing_date_${index}`).value
+      })
+
+      Snackbar.show({ text: 'Success, Bank Clearing Date Added', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+      $('#debitModal'+index).modal('hide')
+      $('.modal-backdrop').remove()
+    }catch(err){
+      Snackbar.show({ text: 'Fail, Bank Clearing Date Not Added', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+
+      $('#debitModal'+index).modal('hide')
+      $('.modal-backdrop').remove()
+    }
+  }
+
+  
+
+</script>
+{% endblock %}

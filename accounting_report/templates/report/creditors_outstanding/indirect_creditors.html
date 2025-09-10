@@ -1,0 +1,541 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+
+{% block dashoard_title %} 
+Indirect Creditors Report ({{selected_party.vendor_name}}) - 
+{% endblock %}
+
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Indirect Creditors Outstanding Report
+</h1>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<style>
+  .dtsb-button{
+    margin: 0!important;
+    padding: 5px 10px!important;
+    font-size: 12px!important;
+    border-radius: 10px!important;
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-button:hover{
+    
+    font-size: 12px!important;
+  
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-criteria select{
+    font-size: 12px!important;
+  }
+  tfoot tr td{
+    color: white!important;
+  }
+  td.sorting_1{
+
+    color: black!important;
+  }
+
+  table th, td{
+    font-size: 11px!important;
+  }
+  .overdue_column{
+    background-color: #f8cbad!important;
+    color: black!important;
+
+  }
+  .overdue_column td{
+    color: black!important;
+  }
+
+  .overdue_column td{
+    color: white!important;
+  }
+  .overdue_column .sorting_1{
+    color: black!important;
+  }
+  .overdue_column td a{
+    color: white!important;
+  }
+</style>
+
+<div class="">
+
+  <form action="" class="my-2" method="post">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-2">
+        <label for="region">Choose Country</label>
+        <select name="region" id="region" required class="form-control">
+          {% if not selected_region %}
+          <option value="" selected hidden disabled>Choose Country</option>
+          {% endif %}
+
+          {% for i in company_regions %}
+          {% if i.region == selected_region %}
+          <option value="{{i.region}}" selected >{{i.region}}</option>
+          {% else %}
+          <option value="{{i.region}}">{{i.region}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-2">
+        <label for="company">Choose Company</label>
+        <select name="company" id="company" class="form-control">
+          {% if selected_company == "A" %}
+          <option value="A" selected>All</option>
+          {% else %}
+          <option value="A">All</option>
+          {% endif %}
+
+          {% for i in global_companies %}
+          {% if i.id == selected_company %}
+          <option value="{{i.id}}" selected >{{i}}</option>
+          {% else %}
+          <option value="{{i.id}}">{{i}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+    
+      <div class="col-2">
+        <label for="party">Choose Vendor</label>
+        <select name="vendor" id="vendor" class="form-control">
+          {% if not selected_party %}
+          <option value="" selected hidden disabled>Choose Vendor</option>
+          {% endif %}
+
+          {% for i in global_vendors %}
+          {% if i.id == selected_party.id %}
+          <option value="{{i.id}}" selected >{{i}}</option>
+          {% else %}
+          <option value="{{i.id}}">{{i}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-2">
+        <button type="submit" class="btn btn-primary btn-sm mt-4">Get Report</button>
+      </div>
+    </div>
+  </form>
+
+
+<div class="table-responsive">
+
+<table class="table table-primary table-bordered compact display" id="invoice_table">
+    <thead>
+      <tr>
+        
+      
+        <th scope="col">Branch</th>
+        <th style="width: 100px!important;" scope="col">Job No.</th>
+        <th scope="col">Job Type</th>
+        <th style="width: 100px!important;" scope="col">Bill No.</th>
+        <th style="width: 50px!important;" scope="col">Date</th>
+    
+        <th>Invoice Amount</th>
+        <th>Paid Amount</th>
+        <th>Balance Amount</th>
+        <th>Due Days</th>
+      
+
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in advance_amount %}
+      <tr style="background-color:#c6e0b4;">
+        <td>{{i.company_type.branch_name}}</td>
+        <td>Advance Amount / On Account</td>
+        <td></td>
+        {% if i.instrument_no %}
+        <td>{{i.instrument_no}}</td>
+        {% elif i.voucher.instrument_no %}
+        <td>{{i.voucher.instrument_no}}</td>
+        {% else %}
+        <td>{{i.voucher_no}}</td>
+        {% endif %}
+        <td>{{i.voucher_date|date:"Y-m-d"}}</td>
+       
+       
+        <td align="right" data-order="0">-</td>
+        <td align="right" data-order="{{i.advance_amount|floatformat:2}}">{{i.advance_amount|floatformat:2}}</td>
+        <td align="right" data-order="-{{i.advance_amount|floatformat:2}}">{{i.advance_amount|floatformat:2}}</td>
+        <td>0</td>
+
+
+      </tr>
+      {% endfor %}
+      
+      {% for i in rec_advance_amount %}
+      <tr style="background-color:#b4dfe0;">
+        <td>{{i.company_type.branch_name}}</td>
+        <td>Rec. Advance Amount / On Account</td>
+        <td></td>
+        {% if i.instrument_no %}
+        <td>{{i.instrument_no}}</td>
+        {% elif i.voucher.instrument_no %}
+        <td>{{i.voucher.instrument_no}}</td>
+        {% else %}
+        <td>{{i.voucher_no}}</td>
+        {% endif %}
+        <td>{{i.voucher_date|date:"Y-m-d"}}</td>
+       
+       
+        <td align="right" data-order="0">-</td>
+        <td align="right" data-order="{{i.advance_amount|floatformat:2}}">{{i.advance_amount|floatformat:2}}</td>
+        <td align="right" data-order="{{i.advance_amount|floatformat:2}}">{{i.advance_amount|floatformat:2}}</td>
+        <td>0</td>
+
+
+      </tr>
+      {% endfor %}
+ 
+      {% for i in journals %}
+      {% if i.dr_cr == 'Debit' %}
+      <tr style="background-color:#c6e0b4;">
+        <td></td>
+        <td>JOURNAL ADJUSTED</td>
+        <td></td>
+        <td>{{i.journal_entry.id}}</td>
+        <td>{{i.journal_entry.date|date:"Y-m-d"}}</td>
+
+        <td align="right" data-order="0">-</td>
+        <td align="right" data-order="{{i.amount|floatformat:2}}">{{i.amount|floatformat:0|floatformat:2}}</td>
+        <td align="right" data-order="-{{i.amount|floatformat:2}}">{{i.amount|floatformat:0|floatformat:2}}</td>
+        <td>0</td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+
+      {% for i in debit_notes %}
+      <tr style="background-color:#ffe699;">
+        <td>{{i.company_type.branch_name}}</td>
+        <td>{{i.job_no.job_no}}</td>
+        <td>{{i.job_no.module}}</td>
+        <td>{{i.debit_note_no}}</td>
+        <td>{{i.date_of_note|date:"Y-m-d"}}</td>
+        
+        <td align="right" data-order="0">-</td>
+        <td align="right" data-order="{{i.net_amount|floatformat:2}}">{{i.net_amount|floatformat:2}}</td>
+        <td align="right" data-order="-{{i.net_amount|floatformat:2}}">{{i.net_amount|floatformat:2}}</td>
+        <td>0</td>
+
+
+      </tr>
+      {% endfor %}
+     
+
+        {% for data in invoices_list %}
+
+       
+          <tr>
+     
+       
+
+        <td style="color: black!important;">
+          <input type="hidden" id="party_index_{{forloop.counter}}" name="index_{{forloop.counter}}"
+          value="{{data.id}}">
+          {{ data.invoice.company_type.branch_name }}</td>
+        <td style="color: black!important;">{{ data.invoice.job_no.job_no }}</td>
+        <td style="color: black!important;">{{ data.invoice.job_no.module }}</td>
+       
+        <td style="color: black!important;">{{ data.invoice.bill_no }}</td>
+       
+        
+        <td style="color: black!important;" align="center">{{ data.invoice.bill_date|date:'Y-m-d' }}</td>
+      
+        <td style="color: black!important;" align="right" data-order="{{ data.net_amount|floatformat:2 }}">{{ data.net_amount|floatformat:2 }}</td>
+    
+      
+              <td align="right" data-order="{{ data.paid_amount|floatformat:2 }}">
+                    <!-- Button trigger modal -->
+                    <a href="#" style="color: black!important;"  data-toggle="modal" data-target="#viewModal{{ forloop.counter }}">
+                      {{ data.paid_amount|floatformat:2 }}
+                    </a>
+          
+        
+        </td>
+      
+
+        <td style="color: black!important;" align="right" data-order="{{ data.balance_amount|floatformat:2 }}">{{ data.balance_amount|floatformat:2 }}</td>
+       
+        <td style="color: black!important;">
+        {% if data.invoice.due_date %}
+          {{ data.invoice.due_date |days_until }}
+          {% else %}
+         0
+        {% endif %}
+        </td>
+        
+
+      </tr>
+      {% endfor %}
+     
+
+        {% for data in trailor_expense_list %}   
+        <tr>
+        <td style="color: black!important;">
+          <input type="hidden" id="party_index_{{forloop.counter}}" name="index_{{forloop.counter}}"
+          value="{{data.id}}">
+          {{ data.invoice.expense.company_type.branch_name }}</td>
+        <td style="color: black!important;">{{ data.invoice.expense.job_no.job_no }}</td>
+        <td style="color: black!important;">{{ data.invoice.expense.job_no.module }}</td>
+       
+        <td style="color: black!important;">{{ data.invoice.expense.trailor_no }}</td>
+       
+        
+        <td style="color: black!important;" align="center">{{ data.invoice.date|date:'Y-m-d' }}</td>
+      
+        <td style="color: black!important;" align="right" data-order="{{ data.net_amount|floatformat:2 }}">{{ data.net_amount|floatformat:2 }}</td>
+    
+      
+              <td align="right" data-order="{{ data.paid_amount|floatformat:2 }}">
+                    <!-- Button trigger modal -->
+                    <a href="#" style="color: black!important;"  data-toggle="modal" data-target="#viewModal{{ forloop.counter }}">
+                      {{ data.paid_amount|floatformat:2 }}
+                    </a>
+        </td>
+      
+        <td style="color: black!important;" align="right" data-order="{{ data.balance_amount|floatformat:2 }}">{{ data.balance_amount|floatformat:2 }}</td>
+       
+        <td style="color: black!important;">
+        {% if data.invoice.expense.due_date %}
+          {{ data.invoice.expense.due_date |days_until }}
+          {% else %}
+         0
+        {% endif %}
+        </td>
+        
+
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="4"></td>
+        <td class="text-right">Total</td>
+        
+        
+        <td class="text-right"></td>
+        <td class="text-right"></td>
+        <td class="text-right"></td>
+      </tr>
+    </tfoot>
+  </table>
+
+
+
+  {% for data in invoices_list %}
+  <div class="modal fade" id="viewModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="viewModal{{ forloop.counter }}Label" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h6 class="modal-title" id="viewModal{{ forloop.counter }}Label">View Payment Details
+
+         <strong> {{data.invoice.bill_no}}</strong>
+ 
+        
+        </h6>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+          <table class="table compact table-bordered table-md-responsive">
+            <thead>
+              <tr>
+                <th class="text-white" style="background-color: #2d045c;">Sno.</th>
+                <th class="text-white" style="background-color: #2d045c;">Date</th>
+                
+                <th class="text-white" style="background-color: #2d045c;">Pending Amount</th>
+                <th class="text-white" style="background-color: #2d045c;">Paid Amount</th>
+                <th class="text-white" style="background-color: #2d045c;">TDS Amount</th>
+                <th class="text-white" style="background-color: #2d045c;">Adjustment Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+        
+              {% for entry in data.invoice.exp_payment_inv.all %}
+              <tr>
+                <th>{{ forloop.counter }}</th>
+                <th>{{ entry.voucher.voucher_date|date:"Y-m-d" }}</th>
+              
+                <th>{{ entry.pending_amount|floatformat:2 }}</th>
+                <th>{{ entry.paid_amount|floatformat:2 }}</th>
+                <th>{{ entry.tds_amount|floatformat:2 }}</th>
+                <th>{{ entry.adjustment_amount|floatformat:2 }}</th>
+                
+              </tr>
+              {% endfor %}
+
+              {% if data.invoice.tds_amount %}
+              TDS Deducted on creation - {{data.invoice.tds_amount|floatformat:2}}
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+       
+        </div>
+    </div>
+    </div>
+</div>
+  {% endfor %}
+  
+</div>
+</div> 
+<input type="hidden" value="{{party_name}}" id="party_ledger_name" />
+{% endblock %}
+
+{% block js %}
+<script src="https://cdn.datatables.net/plug-ins/1.13.4/api/sum().js"></script>
+<script>
+  var selected_ids = []
+  $(document).ready(function () {
+    jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+      return this.flatten().reduce( function ( a, b ) {
+          var x = parseFloat(a) ;
+          var y = parseFloat($(b).attr('data-order')) ;
+  
+          return parseFloat(x+y).toFixed(2)
+      }, 0 );
+  } );
+  
+  let table = new DataTable('#invoice_table', {
+      // options
+      dom: 'BQlfrtip',
+      order: [[4, 'desc']],
+      columnDefs: [
+      { "type": "date", "targets":  [4],"displayFormat": 'dddd D MMMM YYYY'}
+    ],
+    buttons: [
+        {
+          extend: 'collection',
+          text: 'Export',
+          buttons: [
+                { extend: 'copy', footer: true, header:true,exportOptions: {
+                  format: {
+                    body: function ( data, row, column, node ) {
+                        //replace ampersands and other special chars
+                        data = data.replace(/&gt;/g, '>')
+                                   .replace(/&lt;/g, '<')
+                                   .replace(/&amp;/g, '&')
+                                   .replace(/&quot;/g, '"')
+                                   .replace(/&#163;/g, '£')
+                                   .replace(/&#39;/g, '\'')
+                                   .replace(/&#10;/g, '\n');
+                        //replace html tags with one space
+                        data = data.replace(/<[^>]*>/g, ' ');
+                        //replace multiple spaces and tabs etc with one space
+                        return data.replace(/\s\s+/g, ' ');
+                    },
+                }
+                }   },
+                { extend: 'excel', footer: true, header:true,
+                exportOptions: {
+                  format: {
+                    body: function ( data, row, column, node ) {
+                      
+                        //replace ampersands and other special chars
+                        data = data.replace(/&gt;/g, '>')
+                                   .replace(/&lt;/g, '<')
+                                   .replace(/&amp;/g, '&')
+                                   .replace(/&quot;/g, '"')
+                                   .replace(/&#163;/g, '£')
+                                   .replace(/&#39;/g, '\'')
+                                   .replace(/&#10;/g, '\n');
+                        //replace html tags with one space
+                        data = data.replace(/<[^>]*>/g, ' ');
+                        //replace multiple spaces and tabs etc with one space
+                        return data.replace(/\s\s+/g, ' ');
+                    },
+                }
+                }  
+             },
+             
+                { extend: 'csv', footer: true, header:true,exportOptions: {
+                  format: {
+                    body: function ( data, row, column, node ) {
+                        //replace ampersands and other special chars
+                        data = data.replace(/&gt;/g, '>')
+                                   .replace(/&lt;/g, '<')
+                                   .replace(/&amp;/g, '&')
+                                   .replace(/&quot;/g, '"')
+                                   .replace(/&#163;/g, '£')
+                                   .replace(/&#39;/g, '\'')
+                                   .replace(/&#10;/g, '\n');
+                        //replace html tags with one space
+                        data = data.replace(/<[^>]*>/g, ' ');
+                        //replace multiple spaces and tabs etc with one space
+                        return data.replace(/\s\s+/g, ' ');
+                    },
+                }
+                }   },
+                { extend: 'pdf', footer: true, header:true , orientation: 'landscape',exportOptions: {
+                  format: {
+                    body: function ( data, row, column, node ) {
+                        //replace ampersands and other special chars
+                        data = data.replace(/&gt;/g, '>')
+                                   .replace(/&lt;/g, '<')
+                                   .replace(/&amp;/g, '&')
+                                   .replace(/&quot;/g, '"')
+                                   .replace(/&#163;/g, '£')
+                                   .replace(/&#39;/g, '\'')
+                                   .replace(/&#10;/g, '\n');
+                        //replace html tags with one space
+                        data = data.replace(/<[^>]*>/g, ' ');
+                        //replace multiple spaces and tabs etc with one space
+                        return data.replace(/\s\s+/g, ' ');
+                    },
+                }
+                }  },
+             
+                ]
+        },
+
+      ],
+   
+   
+      lengthMenu: [
+    [10, 25, 50, -1],
+    [10, 25, 50, 'All'],
+],
+drawCallback: function () {
+
+
+  var api = this.api();
+  
+  var list = [5,6,7]
+
+  list.forEach(item=>{
+    $( api.table().column(item).footer() ).html(
+        api.column( item, {page:'current'} ).nodes().sum()
+    );
+   
+
+  })
+
+
+ 
+}
+    
+  });
+
+document.querySelector('.dtsb-title').style.display = 'none'
+        })
+</script>
+
+{% endblock %}

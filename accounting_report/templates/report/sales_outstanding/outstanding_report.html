@@ -1,0 +1,578 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+
+{% block dashoard_title %} 
+Sales Outstanding Report () - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Outstanding Report
+</h1>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<style>
+  .dtsb-button{
+    margin: 0!important;
+    padding: 5px 10px!important;
+    font-size: 12px!important;
+    border-radius: 10px!important;
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-button:hover{
+    
+    font-size: 12px!important;
+  
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-criteria select{
+    font-size: 12px!important;
+  }
+  tfoot tr td{
+    color: white!important;
+  }
+  td.sorting_1{
+
+    color: black!important;
+  }
+
+  table th, td{
+    font-size: 11px!important;
+  }
+  .overdue_column{
+    background-color: #f8cbad!important;
+    color: black!important;
+
+  }
+  .overdue_column td{
+    color: black!important;
+  }
+
+  .overdue_column td{
+    color: white!important;
+  }
+  .overdue_column .sorting_1{
+    color: black!important;
+  }
+  .overdue_column td a{
+    color: white!important;
+  }
+</style>
+
+<div class="">
+
+  <form action="" class="my-2" method="post">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-2">
+        <label for="region">Choose Country</label>
+        <select name="region" id="region" required class="form-control">
+          {% if not selected_region %}
+          <option value="" selected hidden disabled>Choose Country</option>
+          {% endif %}
+
+          {% for i in company_regions %}
+          {% if i.region == selected_region %}
+          <option value="{{i.region}}" selected >{{i.region}}</option>
+          {% else %}
+          <option value="{{i.region}}">{{i.region}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-2">
+        <label for="company">Choose Company</label>
+        <select name="company" id="company" class="form-control">
+          {% if selected_company == "A" %}
+          <option value="A" selected>All</option>
+          {% else %}
+          <option value="A">All</option>
+          {% endif %}
+
+          {% for i in global_companies %}
+          {% if i.id == selected_company %}
+          <option value="{{i.id}}" selected >{{i}}</option>
+          {% else %}
+          <option value="{{i.id}}">{{i}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 col-sm-12">
+        <label for="from_date">From</label>
+        <input type="date"  name="from_date" required id="from_date"
+          class="form-control form-control-sm" />
+      </div>
+      <div class="col-md-2 col-sm-12">
+        <label for="  ">To</label>
+        <input type="date" name="to_date" required id="to_date"
+          class="form-control form-control-sm" />
+      </div>
+    
+      <!-- <div class="col-2">
+        <label for="party">Choose Party</label>
+        <select name="party" id="party" class="form-control">
+          {% if not selected_party %}
+          <option value="" selected hidden disabled>Choose Party</option>
+          {% endif %}
+
+          {% for i in global_parties %}
+          {% if i.id == selected_party.id %}
+          <option value="{{i.id}}" selected >{{i}}</option>
+          {% else %}
+          <option value="{{i.id}}">{{i}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div> -->
+      <div class="col-2">
+        <button type="submit" class="btn btn-primary btn-sm mt-4">Get Report</button>
+      </div>
+    </div>
+  </form>
+
+
+  
+  <div class="large-table-fake-top-scroll-container-3">
+    <div>&nbsp;</div>
+  </div>
+
+
+<div class="table-responsive">
+
+<table class="table table-primary table-bordered compact display" id="invoice_table">
+    <thead>
+      <tr>
+        
+      
+        <th scope="col">Branch</th>
+        <th style="width: 100px!important;" scope="col">Job No.</th>
+        <th scope="col">Job Type</th>
+        <th style="width: 100px!important;" scope="col">E-Bill No.</th>
+        <th style="width: 50px!important;" scope="col">Date</th>
+        <th scope="col">Customer Invoice No.</th>
+        <th scope="col">Customer Name</th>
+        <th scope="col">Party Branch</th>
+        <th scope="col">PAN No</th>
+        <th scope="col">GST No</th>
+        <th scope="col">Sales Person</th>
+        <th scope="col">MBL</th>
+        <th scope="col">HBL</th>
+        <th scope="col">Consignee Name</th>
+        <th scope="col">POL</th>
+        <th scope="col">POD</th>
+        <th scope="col">Container No</th>
+        <th scope="col">Taxable Amount</th>
+        <th scope="col">Invoice Amount</th>
+        <th>Rec. Amount</th>
+        <th>Balance Amount</th>
+        <th>Recieved Date</th>
+        
+        <th>Due Date</th>
+        <th>Due Days</th>
+    
+       
+        
+    
+      
+
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in advance_amount %}
+      <tr style="background-color:#c6e0b4;">
+        <td>{{i.company_type.branch_name}}</td>
+        <td>Advance Amount / On Account</td>
+        <td></td>
+        <td>{{i.voucher_no}}</td>
+        <td>{{i.voucher_date|date:"Y-m-d"}}</td>
+        <td></td>
+       
+        <td>{{i.party_name}}</td>
+        <td>{{i.party_address.branch}}</td>
+        <td align="center">-</td>
+        <td align="center">-</td>
+        <td align="center">-</td>
+        <td align="center">-</td>
+        <td align="center">-</td>
+        <td align="center">-</td>
+        <td align="center">-</td>
+        <td align="center">-</td>
+        <td align="center">-</td>
+        <td align="right" data-order="0">0</td>
+       
+       
+        <td align="right" data-order="0">0</td>
+        <td align="right" data-order="{{i.advance_amount|floatformat:0}}">{{i.advance_amount|floatformat:0|floatformat:2}}</td>
+        <td align="right" data-order="-{{i.advance_amount|floatformat:0}}">{{i.advance_amount|floatformat:0|floatformat:2}}</td>
+        <td align="center">-</td>
+        <td align="center">-</td>
+        <td>0</td>
+
+
+      </tr>
+      {% endfor %}
+      {% for i in credit_notes %}
+      <tr style="background-color:#ffe699;">
+        <td>{{i.company_type.branch_name}}</td>
+        <td>{{i.job_no.job_no}}</td>
+        <td>{{i.job_no.module}}</td>
+        <td>{{i.final_invoice_no}}</td>
+        <td>{{i.einvoice_date|date:"Y-m-d"}}</td>
+        <td>{{i.invoice_no}}</td>
+        <td>{{i.bill_to}}</td>
+        <td>{{i.bill_to_address.branch}}</td>
+        <td>{{i.bill_to_address.corp_pan}}</td>
+        <td>{{i.bill_to_address.corp_gstin}}</td>
+        <td align="center">{{i.job_no.account_manager}}</td>
+        <td>{{i.job_no.mbl_no}}</td>
+        <td>{{i.job_no.hbl_no}}</td>
+       
+        <td>{{i.job_no.importer}}</td>
+        <td>{{i.job_no.port_of_loading}}</td>
+        <td>{{i.job_no.port_of_discharge}}</td>
+        <td>
+            {% for j in i.job_no.job_container.all %}
+            {{j.job_container_no}}
+            {% endfor %}
+        </td>
+        <td align="right" data-order="-{{i.gross_amount|floatformat:2 }}">-{{i.gross_amount|floatformat:2}}</td>
+        <td align="right" data-order="-{{i.net_amount|floatformat:2 }}">-{{i.net_amount|floatformat:2}}</td>
+        <td align="right" data-order="-{{i.net_amount|floatformat:2 }}">-{{i.net_amount|floatformat:2}}</td>
+        <td align="right" data-order="0">0</td>
+        <td align="center">-</td>
+        <td align="center">-</td>
+        <td>0</td>
+
+
+      </tr>
+      {% endfor %}
+
+        {% for data in invoices_list %}
+
+        {% if data.invoice.due_date %}
+        {% if data.invoice.due_date|days_until <= 0 and data.invoice.pending_amount > 0 %}
+        <tr class="overdue_column">
+          {% else %}
+          <tr>
+        {% endif %}
+        {% else %}
+        <tr>
+      {% endif %}
+    
+       
+
+        <td style="color: black!important;">
+          <input type="hidden" id="party_index_{{forloop.counter}}" name="index_{{forloop.counter}}"
+          value="{{data.id}}">
+          {{ data.invoice.company_type.branch_name }}</td>
+        <td style="color: black!important;">{{ data.invoice.job_no.job_no }}</td>
+        <td style="color: black!important;">{{ data.invoice.job_no.module }}</td>
+        {% if data.invoice.final_invoice_no %}
+        <td style="color: black!important;"> <a style="color: black!important;" href="{% url 'accounting:recievable_invoice_pdf' id=data.invoice.id %}" target="_blank"> {{ data.invoice.final_invoice_no }} </a></td>
+        {% else %}
+        <td style="color: black!important;"><a style="color: black!important;" href="{% url 'accounting:recievable_invoice_pdf' id=data.invoice.id %}" target="_blank">{{ data.invoice.invoice_no }}</a></td>
+        {% endif %}
+
+        
+        <td style="color: black!important;" align="center">{{ data.invoice.einvoice_date|date:'Y-m-d' }}</td>
+        <td>{{data.invoice}}</td>
+      
+
+        <td style="color: black!important;">
+          {{data.invoice.bill_to}}
+        </td>
+        
+        <td style="color: black!important;">{{data.invoice.bill_to_address.branch}}</td>
+
+      
+        <td>{{data.invoice.bill_to_address.corp_pan}}</td>
+        
+        <td>{{data.invoice.bill_to_address.corp_gstin}}</td>
+        <td>{{data.invoice.job_no.account_manager}}</td>
+        <td>{{data.invoice.job_no.mbl_no}}</td>
+        <td>{{data.invoice.job_no.hbl_no}}</td>
+        <td>{{data.invoice.job_no.importer}}</td>
+        <td>{{data.invoice.job_no.port_of_loading}}</td>
+        <td>{{data.invoice.job_no.port_of_discharge}}</td>
+        <td>
+            {% for i in data.invoice.job_no.job_container.all %}
+            {{i.job_container_no}}
+            {% endfor %}
+        </td>
+        <td align="right" data-order="{{data.invoice.gross_amount}}">{{data.invoice.gross_amount}}</td>
+        
+   
+       
+        <td style="color: black!important;" align="right" data-order="{{ data.net_amount|floatformat:2 }}">{{ data.net_amount|floatformat:0|floatformat:2 }}</td>
+    
+      
+        <td align="right" data-order="{{ data.recieved_amount|floatformat:2 }}">
+            <!-- Button trigger modal -->
+            <a href="#" style="color: black!important;"  data-toggle="modal" data-target="#viewModal{{ forloop.counter }}">
+                {{ data.recieved_amount|floatformat:0|floatformat:2 }}
+            </a>
+          
+        
+        </td>
+      
+        <td style="color: black!important;" align="right" data-order="{{ data.balance_amount|floatformat:2 }}">{{ data.balance_amount|floatformat:0|floatformat:2 }}</td>
+
+        <td>{{data.recieved_date}}</td>
+        <td>{{data.invoice.due_date}}</td>
+        
+       
+        <td style="color: black!important;">
+        {% if data.invoice.due_date %}
+          {{ data.invoice.due_date |days_until }}
+          {% else %}
+         0
+        {% endif %}
+        </td>
+        
+        
+
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="16"></td>
+        <td class="text-right">Total</td>
+        
+        
+        <td class="text-right"></td>
+        <td class="text-right"></td>
+        <td class="text-right"></td>
+      </tr>
+    </tfoot>
+  </table>
+
+
+
+  {% for data in invoices_list %}
+  <div class="modal fade" id="viewModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="viewModal{{ forloop.counter }}Label" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h6 class="modal-title" id="viewModal{{ forloop.counter }}Label">View Reciept Details
+
+         <strong> {{data.invoice.final_invoice_no}}</strong>
+ 
+        
+        </h6>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+          <table class="table compact table-bordered table-md-responsive">
+            <thead>
+              <tr>
+                <th class="text-white" style="background-color: #2d045c;">Sno.</th>
+                <th class="text-white" style="background-color: #2d045c;">Date</th>
+                
+                <th class="text-white" style="background-color: #2d045c;">Pending Amount</th>
+                <th class="text-white" style="background-color: #2d045c;">Recieved Amount</th>
+                <th class="text-white" style="background-color: #2d045c;">TDS Amount</th>
+                <th class="text-white" style="background-color: #2d045c;">Adjustment Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+        
+              {% for entry in data.invoice.reciept_rec_inv.all %}
+              <tr>
+                <th>{{ forloop.counter }}</th>
+                <th>{{ entry.voucher.voucher_date|date:"Y-m-d" }}</th>
+              
+                <th>{{ entry.pending_amount|floatformat:0|floatformat:2 }}</th>
+                <th>{{ entry.received_amount|floatformat:0|floatformat:2 }}</th>
+                <th>{{ entry.tds_amount|floatformat:0|floatformat:2 }}</th>
+                <th>{{ entry.adjustment_amount|floatformat:0|floatformat:2 }}</th>
+                
+              </tr>
+              {% endfor %}
+ 
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+       
+        </div>
+    </div>
+    </div>
+</div>
+  {% endfor %}
+  
+</div>
+</div> 
+<input type="hidden" value="{{party_name}}" id="party_ledger_name" />
+{% endblock %}
+
+{% block js %}
+<script src="https://cdn.datatables.net/plug-ins/1.13.4/api/sum().js"></script>
+<script>
+  var selected_ids = []
+  $(document).ready(function () {
+    jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+      return this.flatten().reduce( function ( a, b ) {
+          var x = parseFloat(a) ;
+          var y = parseFloat($(b).attr('data-order')) ;
+  
+          return parseFloat(x+y).toFixed(2)
+      }, 0 );
+  } );
+  
+  let table = new DataTable('#invoice_table', {
+      // options
+      dom: 'BQlfrtip',
+      order: [[4, 'desc']],
+      columnDefs: [
+      { "type": "date", "targets":  [4],"displayFormat": 'dddd D MMMM YYYY'}
+    ],
+    buttons: [
+        {
+          extend: 'collection',
+          text: 'Export',
+          buttons: [
+                { extend: 'copy', footer: true, header:true,exportOptions: {
+                  format: {
+                    body: function ( data, row, column, node ) {
+                        //replace ampersands and other special chars
+                        data = data.replace(/&gt;/g, '>')
+                                   .replace(/&lt;/g, '<')
+                                   .replace(/&amp;/g, '&')
+                                   .replace(/&quot;/g, '"')
+                                   .replace(/&#163;/g, '£')
+                                   .replace(/&#39;/g, '\'')
+                                   .replace(/&#10;/g, '\n');
+                        //replace html tags with one space
+                        data = data.replace(/<[^>]*>/g, ' ');
+                        //replace multiple spaces and tabs etc with one space
+                        return data.replace(/\s\s+/g, ' ');
+                    },
+                }
+                }   },
+                { extend: 'excel', footer: true, header:true,
+                exportOptions: {
+                  format: {
+                    body: function ( data, row, column, node ) {
+                      
+                        //replace ampersands and other special chars
+                        data = data.replace(/&gt;/g, '>')
+                                   .replace(/&lt;/g, '<')
+                                   .replace(/&amp;/g, '&')
+                                   .replace(/&quot;/g, '"')
+                                   .replace(/&#163;/g, '£')
+                                   .replace(/&#39;/g, '\'')
+                                   .replace(/&#10;/g, '\n');
+                        //replace html tags with one space
+                        data = data.replace(/<[^>]*>/g, ' ');
+                        //replace multiple spaces and tabs etc with one space
+                        return data.replace(/\s\s+/g, ' ');
+                    },
+                }
+                }  
+             },
+             
+                { extend: 'csv', footer: true, header:true,exportOptions: {
+                  format: {
+                    body: function ( data, row, column, node ) {
+                        //replace ampersands and other special chars
+                        data = data.replace(/&gt;/g, '>')
+                                   .replace(/&lt;/g, '<')
+                                   .replace(/&amp;/g, '&')
+                                   .replace(/&quot;/g, '"')
+                                   .replace(/&#163;/g, '£')
+                                   .replace(/&#39;/g, '\'')
+                                   .replace(/&#10;/g, '\n');
+                        //replace html tags with one space
+                        data = data.replace(/<[^>]*>/g, ' ');
+                        //replace multiple spaces and tabs etc with one space
+                        return data.replace(/\s\s+/g, ' ');
+                    },
+                }
+                }   },
+                { extend: 'pdf', footer: true, header:true , orientation: 'landscape',exportOptions: {
+                  format: {
+                    body: function ( data, row, column, node ) {
+                        //replace ampersands and other special chars
+                        data = data.replace(/&gt;/g, '>')
+                                   .replace(/&lt;/g, '<')
+                                   .replace(/&amp;/g, '&')
+                                   .replace(/&quot;/g, '"')
+                                   .replace(/&#163;/g, '£')
+                                   .replace(/&#39;/g, '\'')
+                                   .replace(/&#10;/g, '\n');
+                        //replace html tags with one space
+                        data = data.replace(/<[^>]*>/g, ' ');
+                        //replace multiple spaces and tabs etc with one space
+                        return data.replace(/\s\s+/g, ' ');
+                    },
+                }
+                }  },
+             
+                ]
+        },
+
+      ],
+   
+   
+      lengthMenu: [
+    [10, 25, 50, -1],
+    [10, 25, 50, 'All'],
+],
+drawCallback: function () {
+
+
+  var api = this.api();
+  
+  var list = [17,18,19]
+
+  list.forEach(item=>{
+    $( api.table().column(item).footer() ).html(
+        api.column( item, {page:'current'} ).nodes().sum()
+    );
+   
+
+  })
+
+
+ 
+}
+    
+  });
+
+document.querySelector('.dtsb-title').style.display = 'none'
+
+})
+
+$(function() {
+  var tableContainer = $(".table-responsive");
+  var table = $(".table-responsive table");
+  var fakeContainer = $(".large-table-fake-top-scroll-container-3");
+  var fakeDiv = $(".large-table-fake-top-scroll-container-3 div");
+
+  var tableWidth = table.width();
+  fakeDiv.width(tableWidth);
+
+  fakeContainer.scroll(function() {
+tableContainer.scrollLeft(fakeContainer.scrollLeft());
+  });
+})
+
+  
+</script>
+
+{% endblock %}

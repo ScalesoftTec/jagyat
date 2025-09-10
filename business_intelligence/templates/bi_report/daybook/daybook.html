@@ -1,0 +1,273 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+ {% block dashoard_title %} Day Book  {% endblock %}
+ {% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">Day Book</h1>
+
+{% endblock %} 
+{% block dashboard_content %}
+
+<form method="post">
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-md-2">
+        <label for="company">Company</label>
+        <select name="company" class="form-control form-control-sm" id="company">
+          {% for i in global_companies %} 
+          {% if i.id == selected_company.id %}
+          <option value="{{i.id}}" selected>{{i}}</option>
+          {% else %}
+          <option value="{{i.id}}">{{i}} </option>
+          {% endif %} 
+          {% endfor %}
+        </select>
+      </div>
+
+    <div class="col-md-2 col-sm-12 mb-3">
+          <label for="filter_date">Date</label>
+          <input
+            type="date"
+            value="{{ filter_date|date:'Y-m-d' }}"
+            name="filter_date"
+            class="form-control form-control-sm"
+            id="filter_date" />
+      
+      
+    </div>
+
+    <div class="col-md-2">
+        <label for="date_type">Filter By</label>
+        <select name="date_type" class="form-control form-control-sm" id="date_type">
+          {% if date_type == "EF" %}
+          <option value="EF" selected>Effective Date</option>
+          {% else %}
+          <option value="EF">Effective Date</option>
+          {% endif %}
+          {% if date_type == "EN" %}
+          <option value="EN" selected>Entry Date</option>
+          {% else %}
+          <option value="EN">Entry Date</option>
+          {% endif %}
+        </select>
+      </div>
+
+    <div class="col-md-3 col-sm-12 mb-3">
+      <button type="submit" style="margin-top: 33px" class="btn btn-primary">
+        Submit
+      </button>
+    </div>
+  </div>
+</form>
+
+
+<div class="my-2">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="total_shipments-tab" data-toggle="tab" data-target="#total_shipments" type="button" role="tab" aria-controls="total_shipments" aria-selected="true">No. Of Shipments</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="total_sales-tab" data-toggle="tab" data-target="#total_sales" type="button" role="tab" aria-controls="total_sales" aria-selected="false">Total Sales</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="total_purchase-tab" data-toggle="tab" data-target="#total_purchase" type="button" role="tab" aria-controls="total_purchase" aria-selected="false">Total Purchase</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="total_recieve-tab" data-toggle="tab" data-target="#total_recieve" type="button" role="tab" aria-controls="total_recieve" aria-selected="false">Total Recieve</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="total_payment-tab" data-toggle="tab" data-target="#total_payment" type="button" role="tab" aria-controls="total_payment" aria-selected="false">Total Payment</button>
+        </li>
+      </ul>
+      <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="total_shipments" role="tabpanel" aria-labelledby="total_shipments-tab">
+            <div class="table-responsive">
+                <table class="table display compact table-bordered" id="job_details">
+                    <thead>
+                        <tr>
+                            <th>Job No.</th>
+                            <th>Job Date</th>
+                            <th>Job Type</th>
+                            <th>Customer</th>
+                            <th>Job Status</th>
+                            <th>User Id</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in jobs %}
+                        <tr>
+                            <td>{{data.job_no}}</td>
+                            <td>{{data.job_date|date:"Y-m-d"}}</td>
+                            <td>{{data.module}}</td>
+                            <td>{{data.account.party_name}}</td>
+                            <td>{{data.job_status}}</td>
+                            <td>{{data.created_by.username}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="total_sales" role="tabpanel" aria-labelledby="total_sales-tab">
+            <div class="table-responsive">
+                <table class="table display compact table-bordered" id="sales_details">
+                    <thead>
+                        <tr>
+                            <th>Invoice Date</th>
+                            <th>Customer Name</th>
+                            <th>Job No.</th>
+                            <th>Job Type</th>
+                            <th>Bill No.</th>
+                            <th>Currency</th>
+                            <th>Amount</th>
+                            <th>User Id</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in day_sales %}
+                        <tr>
+                            <td>{{data.einvoice_date|date:"Y-m-d"}}</td>
+                            <td>{{data.bill_to.party_name}}</td>
+                            <td>{{data.job_no.job_no}}</td>
+                            <td>{{data.job_no.module}}</td>
+                            <td>{{data.final_invoice_no}}</td>
+                            <td>{{data.invoice_currency.short_name}}</td>
+                            <td>{{data.net_amount}}</td>
+                            <td>{{data.created_by.username}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="total_purchase" role="tabpanel" aria-labelledby="total_purchase-tab">
+            <div class="table-responsive">
+                <table class="table display compact table-bordered" id="purchase_details">
+                    <thead>
+                        <tr>
+                            <th>Invoice Date</th>
+                            <th>Customer Name</th>
+                            <th>Job No.</th>
+                            <th>Job Type</th>
+                            <th>Bill No.</th>
+                            <th>Currency</th>
+                            <th>Amount</th>
+                            <th>User Id</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in day_purchase %}
+                        <tr>
+                            <td>{{ data.date_of_invoice|date:"Y-m-d" }}</td>
+                            <td>{{ data.bill_from.party_name }}</td>
+                            <td>{{ data.job_no.job_no }}</td>
+                            <td>{{ data.job_no.module }}</td>
+                            <td>{{ data.purchase_invoice_no }}</td>
+                            <td>{{ data.invoice_currency.short_name }}</td>
+                            <td>{{ data.net_amount }}</td>
+                            <td>{{ data.created_by.username }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="total_recieve" role="tabpanel" aria-labelledby="total_recieve-tab">
+            <div class="table-responsive">
+                <table class="table display compact table-bordered" id="reciept_details">
+                    <thead>
+                        <tr>
+                            <th>Entry Date</th>
+                            <th>Customer Name</th>
+                            <th>Voucher No.</th>
+                            <th>Instrument No.</th>
+                            <th>Amount</th>
+                            <th>User Id</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in day_reciept %}
+                        <tr>
+                            <td>{{ data.voucher_date|date:"Y-m-d" }}</td>
+                            <td>{{ data.party_name.party_name }}</td>
+                            <td>{{ data.voucher_no }}</td>
+                            {% if data.instrument_no %}
+                            <td>{{ data.instrument_no }}</td>
+                            {% else %}
+                            <td>{{ data.voucher.instrument_no }}</td>
+                            {% endif %}
+                            <td>{{ data.total_recieved_amount|add:data.reciept_tds_amount|add:data.adjustment_amount }}</td>
+                           
+                            <td>{{data.created_by.username}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="total_payment" role="tabpanel" aria-labelledby="total_payment-tab">
+            <div class="table-responsive">
+                <table class="table display compact table-bordered" id="payment_details">
+                    <thead>
+                        <tr>
+                            <th>Entry Date</th>
+                            <th>Customer Name</th>
+                            <th>Voucher No.</th>
+                            <th>Instrument No.</th>
+                            <th>Amount</th>
+                            <th>User Id</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in day_payment %}
+                        <tr>
+                            <td>{{ data.voucher_date|date:"Y-m-d" }}</td>
+                            <td>
+                                {% if data.party_name.party_name %}
+                                {{ data.party_name.party_name }}
+                                {% else %}
+                                {{ data.vendor.vendor_name }}
+                                {% endif %}
+                            </td>
+                            <td>{{ data.voucher_no }}</td>
+
+                            {% if data.instrument_no %}
+                            <td>{{ data.instrument_no }}</td>
+                            {% else %}
+                            <td>{{ data.voucher.instrument_no }}</td>
+                            {% endif %}
+
+                            <td>{{ data.net_amount }}</td>
+                           
+                            <td>{{data.created_by.username}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+      </div>
+</div>
+
+{% endblock %} 
+{% block js %}
+
+<script>
+  let table = new DataTable(".table", {
+    // options
+    dom: "BQlfrtip",
+    "pageLength": 50,
+    buttons: [
+      {
+        extend: "collection",
+        text: "Export",
+        buttons: ["copy", "excel", "csv", "pdf"],
+      },
+    ],
+  });
+  document.querySelector(".dtsb-title").style.display = "none";
+
+ 
+  
+
+</script>
+{% endblock %}

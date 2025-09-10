@@ -1,0 +1,156 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+    Data Entry Changes Logs
+{% endblock %}
+    
+{% block dashboard_content %}
+   
+    <div class="row">
+        <div class="col-sm-12">  
+            <form action="" method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-2">
+                    <label for="from_date">From Date</label>
+                    <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="from_date">
+                </div>
+                
+                <div class="col-2">
+                    <label for="to_date">To Date</label>
+                    <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="to_date">
+                </div>
+                
+                <div class="col-2">
+                    <button type="submit" class="btn btn-primary btn-sm mt-4">Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class='table-responsive'>
+<table class="table wrap compact table-primary table-bordered table-md-responsive" id="log-table">
+    <thead>
+        <tr>
+            <th scope="col">Sr. No</th>
+            <th scope="col">Action</th>
+            <th scope="col" style="max-width: 150px;">Model</th>
+            <th scope="col" style="max-width: 150px;">Job No.</th>
+            <th scope="col" style="max-width: 250px !important;">Changes</th>
+            <th scope="col">Updated By</th>
+            <th scope="col">Update At</th>
+        </tr>
+    </thead> 
+    <tbody>
+        {% for event in crudevents %}
+            {% if event.content_type.model == 'jobmaster' or event.content_type.model == 'jobcontainer' %}
+
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ event.get_event_type_display }}</td>
+            <td>
+                {% if event.content_type.model == 'jobmaster' %}
+                Job Updated
+                {% endif %}
+                {% if event.content_type.model == 'jobcontainer' %}
+                Job Container Updated
+                {% endif %}
+            </td>
+            <td>{{ event.object_repr }}</td>
+            <td style="max-width: 250px !important;">
+                {% if event.is_create %}
+                    <em>New Entry</em>
+                {% elif event.is_update %}
+                    {% if event.changes_dict %}
+                        <ul>
+                        {% for field, change in event.changes_dict.items %}
+                            <li>
+                                <strong>{{ field }}:</strong> 
+                                <br>
+                                <em>Old:</em> {{ change.0 }} <br>
+                                <em>New:</em> {{ change.1 }}
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <em>No specific changes recorded</em>
+                    {% endif %}
+                {% elif event.is_delete %}
+                    <em>Object Deleted</em>
+                {% else %}
+                    <em>Other Change (e.g., Many-to-Many)</em>
+                {% endif %}
+            </td>
+            <td>{{ event.user }}</td>
+            
+           
+            
+            <td>{{ event.datetime }}</td>
+        </tr>
+        {% endif %}
+
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% block js %}
+
+<script>
+    var selected_ids = []
+    $(document).ready(function () {
+       
+
+
+        let table = new DataTable('#log-table', {
+           
+            dom: 'BQlfrtip',
+           
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+           
+            buttons: [
+                {
+                    extend: 'collection',
+                    text: 'Export',
+                    buttons: [
+                        'copy',
+                        'excel',
+                        'csv',
+                        'pdf',
+
+                    ]
+                },
+
+            ]
+
+        });
+
+        document.querySelector('.dtsb-title').style.display = 'none'
+    })
+
+    $(function() {
+  var tableContainer = $(".table-responsive");
+  var table = $(".table-responsive table");
+  var fakeContainer = $(".large-table-fake-top-scroll-container-3");
+  var fakeDiv = $(".large-table-fake-top-scroll-container-3 div");
+
+  var tableWidth = table.width();
+  fakeDiv.width(tableWidth);
+
+  fakeContainer.scroll(function() {
+tableContainer.scrollLeft(fakeContainer.scrollLeft());
+  });
+})
+
+
+  
+
+</script>
+
+{% endblock js %}
+{% endblock %}

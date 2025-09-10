@@ -1,0 +1,71 @@
+{% extends 'dashboard/index.html' %} {% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+  {% if update %}
+  Update Ledger Group 
+  {% else %}
+   Create New Ledger Group 
+   {% endif %}
+</h1>
+
+<a
+  href="{% url 'masters:ledger_categories_details' module=module %}"
+  class="d-inline-block btn btn-primary shadow-sm"
+  ><i class="fas fa-eye text-white-50"></i> View List</a>
+{% endblock %} 
+
+{% block dashboard_content %}
+
+<form enctype="multipart/form-data" method="post">
+  {% csrf_token %} {% include 'error_component.html' %}
+  <div class="row">
+    <div class="col-md-3 col-sm-12 mb-1">
+      <label for="id_head_type" class="required">Type</label>
+      {{ form.head_type }}
+    </div>
+    <div class="col-md-3 col-sm-12 mb-1">
+      <label for="id_name" class="required">Name</label>
+      {{ form.name }}
+    </div>
+    <div class="col-md-3 col-sm-12 mb-1">
+      <label for="id_parent">Parent</label>
+      {{ form.parent }}
+    </div>
+    {% if request.user.is_superuser %}
+    <div class="col-md-3 col-sm-12 mb-1">
+      <label for="id_include_in" class="required">Include In</label>
+      {{ form.include_in }}
+    </div>
+    {% endif %}
+    <div class="col-md-3 col-sm-12 mb-1">
+      <label for="id_type" class="required">Type</label>
+      {{ form.type }}
+    </div>
+  </div>
+
+  <button type="submit" class="btn mt-3 btn-primary">
+    {% if update %} 
+    Update 
+    {% else %} 
+    Save 
+    {% endif %}
+  </button>
+</form>
+
+{% endblock %} {% block js %}
+<script>
+  $("#id_parent").select2({
+    placeholder: "Choose Option",
+    templateSelection: function (data, container) {
+      // Add custom attributes to the <option> tag for the selected option
+      $(data.element).attr("data-custom-attribute", data.customValue);
+      return data.text;
+    },
+  });
+
+  $("select").on("select2:select", function () {
+    $("select").trigger("change"); // Notify any JS components that the value changed
+  });
+
+  $(".select2-arrow").append('<i class="fa fa-angle-down"></i>');
+</script>
+{% endblock %}

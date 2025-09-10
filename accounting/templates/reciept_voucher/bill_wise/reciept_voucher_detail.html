@@ -1,0 +1,331 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+Receipt Voucher List - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Bill Wise Reciept Voucher List
+</h1>
+
+<a href="{% url 'accounting:bill_wise_create_reciept_voucher' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Reciept Voucher</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<form action="" method="post">
+  {% csrf_token %}
+    <div class="row">
+      <div class="col-md-2 col-sm-12">
+        <label for="company">Choose Company</label>
+        <select class="form-control form-control-sm" name="company" id="company">
+          {% if selected_company == "A" or not selected_company %}
+          <option value="A" selected>All</option>
+          {% else %}
+          <option value="A">All</option>
+          {% endif %}
+          {% for data in global_companies %}
+          {% if selected_company.id == data.id %}
+          <option value="{{data.id}}" selected>{{data}}</option>
+          {% else %}
+          <option value="{{data.id}}">{{data}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 col-sm-12">
+        <label for="company">Choose Party</label>
+        <select name="choose_party" required class="form-control form-control-sm" id="choose_party" >
+          {% if selected_party == "A" or not selected_party %}
+          <option value="A" selected>All</option>
+          {% else %}
+          <option value="A">All</option>
+          {% endif %}
+        
+          {% for party in global_parties %}
+          {% if selected_party == party %}
+          <option value="{{party.id}}" selected>{{party}}</option>
+          {% else %}
+          <option value="{{party.id}}">{{party}}</option>
+          {% endif %}
+          {% endfor %}
+      </select>
+      </div>
+      <div class="col-2">
+        <label for="from_date">From</label>
+        <input type="date" name="from_date" id="from_date" value="{{from_date|date:'Y-m-d'}}"
+          class="form-control form-control-sm" required />
+      </div>
+
+      <div class="col-2">
+        <label for="to_date">To</label>
+        <input type="date" name="to_date" id="to_date" value="{{to_date|date:'Y-m-d'}}"
+          class="form-control form-control-sm" required />
+      </div>
+      
+
+      <div class="col-2">
+        <label for="reversed">Reversed</label>
+        <select name="reversed" id="reversed" class="form-control form-control-sm">
+          {% if reversed == "A" or not reversed %}
+          <option value="A" selected>All</option>
+          {% else %}
+          <option value="A">All</option>
+          {% endif %}
+          {% if reversed == "R" %}
+          <option value="R" selected>Reversed</option>
+          {% else %}
+          <option value="R">Reversed</option>
+          {% endif %}
+          {% if reversed == "N" %}
+          <option value="N" selected>Not Reversed</option>
+          {% else %}
+          <option value="N">Not Reversed</option>
+          {% endif %}
+        </select>
+      </div>
+
+
+
+      <div class="col-md-2 col-sm-12">
+        <button type="submit" class="btn btn-primary btn-sm mt-4">Search</button>
+      </div>
+    </div>
+  </form>
+
+<div class="table-responsive mt-2">
+<table class="table compact table-primary table-bordered table-md-responsive" id="receipt_voucher_table">
+    <thead>
+      <tr>
+   
+        <th scope="col" style="width: 40px!important;">Company</th>
+        <th scope="col"></th>
+        <th scope="col">Party</th>
+        <th scope="col">Party Add.</th>
+        <th scope="col" style="width:80px;">Vou. No.</th>
+        <th scope="col">Vou. Date</th>
+        <th scope="col">Inst. No.</th>
+        <th scope="col">Rec. Amt.</th>
+        <th scope="col">Created At</th>
+        
+        <th scope="col" style="width:100px;">Actions</th>
+    
+ 
+      </tr>
+    </thead>
+    <tbody>
+      {% for data in vouchers %}
+
+      {% if data.is_reversed %}
+      <tr style="background-color: #e0b4b4;">
+        {% else %}
+        <tr>
+        {% endif %}
+        <td>{{data.company_type}}</td>
+        <td>
+          {% if not data.settle_from == "" %}
+          <span class="badge badge-primary">{{ data.settle_from }}</span>
+          {% else %}
+          <span class="badge badge-primary">BANK*</span>
+          {% endif %}
+
+        </td>
+        <td>{{ data.party_name }}</td>
+        <td>{{ data.party_address.branch }}</td>
+        <td> <span class="badge badge-primary">{{ data.voucher_no }}</span></td>
+        <td>{{ data.voucher_date|date:"Y-m-d"  }}</td>
+        {% if data.voucher %}
+        <td>{{ data.voucher.instrument_no }}</td>
+        {% else %}
+        <td>{{ data.instrument_no }}</td>
+        {% endif %}
+        <td align="right">{{data.received_amount|floatformat:2}}</td>
+        <td align="right">{{data.created_at|date:"Y-m-d"}}</td>
+   
+        
+
+        <td>
+          
+         
+
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#viewModal{{ forloop.counter }}">
+          <i class="bi bi-eye"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="viewModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="viewModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="viewModal{{ forloop.counter }}Label">View {{data.voucher_no}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                  <table class="table compact table-bordered table-md-responsive">
+                    <thead>
+                      <tr>
+                        <th style="background-color: #2d045c;">Sno.</th>
+                        <th style="background-color: #2d045c;">Date</th>
+                        <th style="background-color: #2d045c;">Invoice No.</th>
+                        <th style="background-color: #2d045c;">Pending Amount</th>
+                        <th style="background-color: #2d045c;">Recieved Amount</th>
+                        <th style="background-color: #2d045c;">TDS Amount</th>
+                        <th style="background-color: #2d045c;">Adjustment Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for entry in data.rec_voucher_detail.all %}
+                      <tr>
+                        <th>{{ forloop.counter }}</th>
+                        <th>{{ entry.date }}</th>
+                        <th>{{entry.invoice.final_invoice_no}}</th>
+                        <th>{{ entry.pending_amount|floatformat:2 }}</th>
+                        <th>{{ entry.received_amount|floatformat:2 }}</th>
+                        <th>{{ entry.tds_amount|floatformat:2 }}</th>
+                        <th>{{ entry.adjustment_amount|floatformat:2 }}</th>
+                        
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                {% if request.user.user_account.can_delete and not data.is_reversed %}
+                <a href="{% url 'accounting:reverse_create_reciept_voucher' module=module id=data.id %}" class="btn btn-danger">Reverse</a>
+                {% endif %}
+               
+                </div>
+            </div>
+            </div>
+        </div>
+
+        {% if request.user.user_account.can_delete %}
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.voucher_no}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ data.voucher_no }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'accounting:bill_wise_reciept_voucher_delete' module=module id=data.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+    {% endif %}
+
+
+        
+
+        <!-- Edit Voucher  Start -->
+                    {% if request.user.user_account.can_delete %}
+                    <button type="button" class="btn btn-xs btn-primary" data-toggle="modal"
+                    data-target="#edit_details{{ forloop.counter }}" data-toggle="tooltip" data-placement="top" title="Edit Details">
+                    <i class="bi bi-calendar-event"></i>
+                    </button>
+
+                    {% endif %}
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="edit_details{{ forloop.counter }}" tabindex="-1" role="dialog"
+                        aria-labelledby="edit_details{{ forloop.counter }}Label" aria-hidden="true">
+                        <div class="modal-dialog " role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                   Edit Details For {{data.voucher_no}}
+                                </div>
+                                <div class="modal-body">
+
+                                    <form action="{% url 'accounting:edit_reciept_voucher' module=module id=data.id %}" method="post">
+                                        {% csrf_token %}
+                                        <div>
+                                            <label for="company_type_{{data.id}}">Company Branch</label>
+                                            <select name="company_type_{{data.id}}" id="company_type_{{data.id}}" class="form-control form-control-sm">
+                                              {% for i in global_companies %}
+                                              {% if i.id == data.company_type.id %}
+                                              <option value="{{i.id}}" selected>{{i}}</option>
+                                              {% else %}
+                                              <option value="{{i.id}}">{{i}}</option>
+                                              {% endif %}
+                                              {% endfor %}
+                                            </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Submit</button>    
+                                        </div>
+                                    </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a class="btn btn-xs btn-primary" href="{% url 'accounting:bill_wise_receipt_voucher_pdf' id=data.id %}"
+                    target="_blank"><i class="fas fa-file-pdf"></i></a>
+
+
+      </td>
+    
+      </tr>
+ 
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+
+{% endblock %}
+
+
+
+{% block js %}
+
+<script>
+    let table = new DataTable('#receipt_voucher_table', {
+        // options
+        dom: 'BQlfrtip',
+        order: [[8, 'desc']],
+        "pageLength": 50,
+        buttons: [
+        {
+            extend: 'collection',
+            text: 'Export',
+            buttons: [
+                'copy',
+                'excel',
+                'csv',
+                'pdf',
+               
+            ]
+        },
+
+        ]
+
+    });
+  
+    document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+
+{% endblock %}

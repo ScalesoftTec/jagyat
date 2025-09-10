@@ -1,0 +1,165 @@
+<div class="tab-pane fade" id="on-account-payment" role="tabpanel" aria-labelledby="on-account-payment-tab">
+    <div class="col-12">
+        <h6>Total Payments : <span id="total_payment"></span></h6>
+    </div>
+    <div class="col-12 row">
+        {% if update %}
+        <input type="hidden" name="pay_voucher_total_head" id="pay_voucher_total_head" value="{{payment_count}}">
+        {% else %}
+        <input type="hidden" name="pay_voucher_total_head" id="pay_voucher_total_head" value="0">
+        {% endif %}
+        <table class="table table-bordered" id="pay_entry">
+            <tr>
+                <th style="min-width: 20px!important;">Final</th>
+                <th class="required">Date</th>
+                <th class="required">Voucher/Instrument No.</th>
+                <th class="required">Bank</th>
+                <th class="required">Amount</th>
+              
+                <th style="min-width: 50px!important;">Action</th>
+            </tr>
+            {% if update %}
+            {% for i in ledger.ledger_opening_details.all %}
+            {% if i.payment_voucher %}
+            <tr id="pay_voucher_entry-{{forloop.counter}}">
+                
+                <td style="min-width: 30px!important;" class="text-center">
+                    
+                    {% if not i.pay_voucher_is_final %}
+                    <input class="my-2" onclick="handleLocalpay_voucherConfirmSignal('{{forloop.counter}}')" type="checkbox" name="pay_voucher_is_final-{{forloop.counter}}" id="pay_voucher_is_final-{{forloop.counter}}">
+                    {% endif %}
+                </td>
+                <td>
+                    <input type="hidden" name="pay_voucher_is_active-{{forloop.counter}}" value="yes"  id="pay_voucher_is_active-{{forloop.counter}}" />
+                    <input type="date" required value="{{i.date|date:'Y-m-d'}}" name="pay_voucher_date-{{forloop.counter}}" id="pay_voucher_date-{{forloop.counter}}" class="form-control" />
+                </td>
+                <td><input type="text" required value="{{i.invoice_no}}" name="pay_voucher_invoice_no-{{forloop.counter}}"
+                        id="pay_voucher_invoice_no-{{forloop.counter}}" class="form-control" onkeyup="checkInvoiceNo('{{forloop.counter}}')" /></td>
+                        <td>
+                            <select name="pay_voucher_bank-{{forloop.counter}}" id="pay_voucher_bank-${rec_voucherCurrentRowNumber}" class="form-control">
+                                {% for bank in global_banks %}
+                                {% if i.payment_voucher.from_bank == bank %}
+                                <option value="{{bank.id}}" selected>{{bank}}</option>
+                                {% else %}
+                                <option value="{{bank.id}}">{{bank}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </td>
+                <td><input type="number" required step="0.01" value="{{i.amount}}" onkeyup="calculatePaySum()" name="pay_voucher_amount-{{forloop.counter}}"
+                        id="pay_voucher_amount-{{forloop.counter}}" class="form-control" /></td>
+               
+                <td style="min-width: 50px!important;">
+                    <input type="hidden" value="{{i.id}}" name="pay_voucher_existing_id_{{forloop.counter}}">
+                    {% if not i.pay_voucher_is_final %}
+            
+                   
+                    <input type="hidden" value="1" name="pay_voucher_is_deletable_{{forloop.counter}}">
+                   
+                    
+                    <div class="btn btn-sm btn-danger" onclick="pay_voucherDeleteRow('{{forloop.counter}}')">Remove</div>
+                   
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        </table>
+        <div class="col-12">
+            <div class="text-right w-100">
+                <button type="button" class="btn btn-sm btn-primary" onclick="pay_voucherAddRow();"> Add More </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+       var pay_voucherCurrentRowNumber = parseInt(document.getElementById('pay_voucher_total_head').value) || 0
+    var pay_voucherAvailableRowNumber = parseInt(document.getElementById('pay_voucher_total_head').value) || 0
+    const pay_voucherAddRow = () => {
+        pay_voucherCurrentRowNumber += 1
+        pay_voucherAvailableRowNumber += 1
+        var newRow = document.getElementById('pay_entry').insertRow(-1)
+        newRow.id = `pay_voucher_entry-${pay_voucherCurrentRowNumber}`
+        newRow.classList.add("entry")
+        var final = newRow.insertCell(0)
+        var date = newRow.insertCell(1)
+        var invoice_no = newRow.insertCell(2)
+        var bank = newRow.insertCell(3)
+        var amount = newRow.insertCell(4)
+  
+        var delete_cell = newRow.insertCell(5)
+        final.setAttribute('style','min-width:30px!important;')
+        delete_cell.setAttribute('style','min-width:50px!important;')
+        final.setAttribute('class','text-center')
+        final.innerHTML = `
+        <td><input onclick="handleLocalpay_voucherConfirmSignal(${pay_voucherCurrentRowNumber})" type="checkbox" name="pay_voucher_is_final-${pay_voucherCurrentRowNumber}" class="my-2" id="pay_voucher_is_final-${pay_voucherCurrentRowNumber}"></td>
+        `
+        bank.innerHTML = `
+                <select name="pay_voucher_bank-${pay_voucherCurrentRowNumber}" id="pay_voucher_bank-${pay_voucherCurrentRowNumber}" class="form-control">
+                       {% for bank in global_banks %}
+                        <option value="{{bank.id}}" selected>{{bank}}</option>
+                       {% endfor %}
+                    </select>
+        `
+
+        date.innerHTML = `
+        <input type="hidden" name="pay_voucher_is_active-${pay_voucherCurrentRowNumber}" value="yes"  id="pay_voucher_is_active-${pay_voucherCurrentRowNumber}" />
+        <input type="date" value="{{i.date}}" required name="pay_voucher_date-${pay_voucherCurrentRowNumber}" id="pay_voucher_date-${pay_voucherCurrentRowNumber}" class="form-control" />
+            `
+        invoice_no.innerHTML = `
+                <input type="text" value="{{i.invoice_no}}" required name="pay_voucher_invoice_no-${pay_voucherCurrentRowNumber}" id="pay_voucher_invoice_no-${pay_voucherCurrentRowNumber}" class="form-control" onkeyup="checkInvoiceNo(${pay_voucherCurrentRowNumber})" />
+            `
+        amount.innerHTML = `
+               <input type="number" step="0.01" value="{{i.amount}}" required onkeyup="calculatePaySum()" required name="pay_voucher_amount-${pay_voucherCurrentRowNumber}" id="pay_voucher_amount-${pay_voucherCurrentRowNumber}" class="form-control" />
+            `
+  
+        delete_cell.innerHTML = `
+             <input type="hidden" value="0" name="pay_voucher_existing_id_${pay_voucherCurrentRowNumber}">
+                <input type="hidden" value="0" name="pay_voucher_is_deletable_${pay_voucherCurrentRowNumber}">
+                <div class="btn btn-sm btn-danger" onclick="pay_voucherDeleteRow(${pay_voucherCurrentRowNumber})">Remove</div>
+            `
+        document.getElementById('pay_voucher_total_head').value = pay_voucherCurrentRowNumber
+       
+        
+    }
+
+    const pay_voucherDeleteRow = (index) => {
+        document.getElementById(`pay_voucher_is_active-${index}`).value = "no"
+        
+        document.getElementById(`pay_voucher_date-${index}`).required = false
+        document.getElementById(`pay_voucher_invoice_no-${index}`).required = false
+        document.getElementById(`pay_voucher_amount-${index}`).required = false
+        document.getElementById(`pay_voucher_entry-${index}`).style.display = 'none'
+        pay_voucherAvailableRowNumber -= 1
+        calculatePaySum()
+    }
+
+    const calculatePaySum = () => {
+        var total_payment = 0
+        for(var i=1; i<=pay_voucherCurrentRowNumber; i++){
+            var sales = parseFloat(document.getElementById(`pay_voucher_amount-${i}`).value) || 0
+            if(!isNaN(sales)  && document.getElementById(`pay_voucher_is_active-${i}`).value == 'yes'){
+                total_payment += sales
+            }
+        }
+        document.getElementById('total_payment').innerText = total_payment
+
+    }
+    calculatePaySum()
+
+    const handleLocalpay_voucherConfirmSignal = (index) => {
+        var checkboxStatus = document.getElementById(`pay_voucher_is_final-${index}`).checked
+        if(checkboxStatus){
+            var status = confirm('After check you not able to edit or delete this entry please confirm and check.')
+           if (!status.valueOf()){
+            document.getElementById(`pay_voucher_is_final-${index}`).checked = false;
+           }
+        }
+    }
+
+
+</script>

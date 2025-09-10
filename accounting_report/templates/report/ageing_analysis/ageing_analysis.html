@@ -1,0 +1,205 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load humanize %}
+
+{% block dashoard_title %}
+Ageing Analysis -
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+  Ageing Analysis
+</h1>
+
+<style>
+  table td,
+  th {
+    padding: 0px !important;
+  }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<div class="">
+  <form method="post">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-2">
+        <label for="region">Choose Country</label>
+        <select name="region" id="region" required class="form-control">
+          {% if not selected_region %}
+          <option value="" selected hidden disabled>Choose Country</option>
+          {% endif %}
+
+          {% for i in company_regions %}
+          {% if i.region == selected_region %}
+          <option value="{{i.region}}" selected >{{i.region}}</option>
+          {% else %}
+          <option value="{{i.region}}">{{i.region}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-2">
+        <label for="company">Choose Company</label>
+        <select name="company" id="company" class="form-control">
+          <option value="overall">All</option>
+          {% for item in global_companies %}
+          {% if item.id == selected_company.id %}
+          <option value="{{ item.id }}" selected>{{item}}</option>
+          {% else %}
+          <option value="{{ item.id }}">{{item}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+     
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-sm my-3">Search</button>
+  </form>
+</div>
+
+<table class="table table-primary table-bordered table-md-responsive" id="ageing_report">
+  <thead>
+    <tr>
+
+      <th scope="col">Party</th>
+      <th scope="col">Party Branch</th>
+      <th scope="col">Account Manager</th>
+      <th scope="col">Credit Period</th>
+      <th scope="col">00-15 (Days)</th>
+      <th scope="col">15-30 (Days)</th>
+      <th scope="col">30-45 (Days)</th>
+      <th scope="col">45+ (Days)</th>
+      <!-- <th scope="col">Advance / TDS / Adjustment</th> -->
+      <!-- <th scope="col">Credit Note</th> -->
+      <th scope="col">Balance</th>
+
+
+    </tr>
+  </thead>
+  <tbody>
+    {% for i in result %}
+    <tr>
+      <td>{{i.party}}</td>
+      <td>{{i.address.branch}}</td>
+      <td>{{i.party.account_manager}}</td>
+      {% if i.party.credit_days %}
+      <td>{{i.party.credit_days|floatformat:0}} Days</td>
+      {% else %}
+
+      <td>0 Days</td>
+      {% endif %}
+      <td align="right" data-order="{{i.start|floatformat:0|floatformat:2}}">
+        {% if i.start > 0 and i.party %}
+         <a target="_blank" href="{% url 'acr:ageing_analysis_details' module=module type=report_type company=company_detail party=i.party.id range='1' %}"> {{i.start|floatformat:0|floatformat:2}} </a>
+         {% else %}
+         {{i.start|floatformat:0|floatformat:2}} 
+         {% endif %}
+        </td>
+      <td align="right" data-order="{{i.medium|floatformat:0|floatformat:2}}">
+        {% if i.medium > 0 and i.party %}
+        <a target="_blank" href="{% url 'acr:ageing_analysis_details' module=module type=report_type company=company_detail party=i.party.id range='2' %}"> {{i.medium|floatformat:0|floatformat:2}} </a>
+        {% else %}
+        {{i.medium|floatformat:0|floatformat:2}} 
+        {% endif %}
+        
+       </td>
+      <td align="right" data-order="{{i.high|floatformat:0|floatformat:2}}">
+        {% if i.high > 0 and i.party %}
+        <a target="_blank" href="{% url 'acr:ageing_analysis_details' module=module type=report_type company=company_detail party=i.party.id range='3' %}"> {{i.high|floatformat:0|floatformat:2}} </a>
+        {% else %}
+        {{i.high|floatformat:0|floatformat:2}} 
+        {% endif %}
+        </td>
+      <td align="right" data-order="{{i.greater|floatformat:0|floatformat:2}}">
+        {% if i.greater > 0 and i.party %}
+        <a target="_blank" href="{% url 'acr:ageing_analysis_details' module=module type=report_type company=company_detail party=i.party.id range='4' %}"> {{i.greater|floatformat:0|floatformat:2}} </a>
+        {% else %}
+        {{i.greater|floatformat:0|floatformat:2}} 
+        {% endif %}
+        </td>
+      <!-- <td align="right" data-order="{{i.advance_amount|floatformat:0|floatformat:2}}">{{i.advance_amount|floatformat:0|floatformat:2}}</td> -->
+      <!-- <td align="right" data-order="{{i.credit_note_sum|floatformat:0|floatformat:2}}">{{i.credit_note_sum|floatformat:0|floatformat:2}}</td> -->
+      <td align="right" data-order="{{i.total|floatformat:0|floatformat:2}}">{{i.total|floatformat:0|floatformat:2}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+
+  <tfoot>
+    <tr>
+      <td style="color: white!important;" colspan="3"></td>
+      <td style="color: white!important;">Total</td>
+      <td class="text-right" style="color: white!important;">0</td>
+      <td class="text-right" style="color: white!important;">0</td>
+      <td class="text-right" style="color: white!important;">0</td>
+      <td class="text-right" style="color: white!important;">0</td>
+      <!-- <td class="text-right" style="color: white!important;">0</td> -->
+      <!-- <td class="text-right" style="color: white!important;">0</td> -->
+      <td class="text-right" style="color: white!important;">0</td>
+    </tr>
+  </tfoot>
+</table>
+
+{% endblock %}
+
+
+{% block js %}
+<script>
+  $(document).ready(function () {
+
+    jQuery.fn.dataTable.Api.register('sum()', function () {
+      return this.flatten().reduce(function (a, b) {
+        var x = parseFloat(a);
+        var y = parseFloat($(b).attr('data-order'));
+
+        return parseFloat((x + y)).toFixed(2)
+      }, 0);
+    });
+
+    let table = new DataTable('#ageing_report', {
+      dom: 'BQlfrtip',
+      buttons: [
+        {
+          extend: 'collection',
+          text: 'Export',
+          lengthMenu: [
+          [10, 25, 50, -1],
+          [10, 25, 50, 'All'],
+        ],
+    
+          buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+            'print'
+          ]
+        },
+
+      ],
+      drawCallback: function () {
+        var api = this.api();
+
+        var array = [4,5,6,7,8]
+        array.forEach((item)=>{
+
+          $(api.table().column(item).footer()).html(
+            api.column(item, { page: 'current' }).nodes().sum()
+          );
+        })
+     
+
+
+
+
+      }
+    });
+    document.querySelector('.dtsb-title').style.display = 'none'
+  })
+</script>
+{% endblock %}

@@ -1,0 +1,25 @@
+<!-- Country File Content Here -->
+<div class="tab-pane fade show active" id="country" role="tabpanel" aria-labelledby="country-tab">
+            
+    <h5>Country File <span style="font-size: 14px;">Total Countries : {{countries_global_length}}</span></h5>
+    <div class="row">
+        <div class="col-12 mb-2">Please enter correct field name as per your excel file <i class="far fa-question-circle text-danger" style="cursor: pointer;"  data-toggle="tooltip" data-placement="right" title="If Country Code Is Not In Excel File Then You Create a Field for the same and make value is 00 and enter field name in correct place."></i></div>
+
+
+        <div class="col-md-12 col-sm-12 mb-3">
+            <label for="country_name">For Country Name</label>
+            <input type="text" class="form-control" name="country_name" id="country_name">
+        </div>
+     
+        <div class="col-12 mb-3">
+            <label for="country_file">Country File</label>
+            <input type="file" class="form-control" name="country_file" id="country_file">
+        </div>
+        
+        <div class="col-12 mb-3">
+            <input type="checkbox" name="country_upload" id="country_upload">
+            <label for="country_upload">I want to upload country file</label>
+        </div>
+    </div>
+
+</div>

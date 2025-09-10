@@ -1,0 +1,150 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+Lead Form |
+{% endblock %}
+{% block dashboard_heading %}
+<h3 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Lead
+    {% else %}
+    Create New Lead
+    {% endif %}
+
+</h3>
+
+<a href="{% url 'crm:lead_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+
+        {% if request.user.user_account.create_global_data %}
+        <div class="col-md-6 col-sm-12 mb-1">
+            <label for="id_company_type">Choose Company</label>
+            {{ form.company_type }}
+        </div>
+        {% else %}
+            <input type="hidden" name="id_company_type" id="id_company_type" value="{{ request.user.user_account.office.id }}">
+        {% endif %}
+
+
+        <div class="col-md-6 col-sm-12 mb-1">
+            <label for="id_sales_person">Sales Person</label>
+            {{ form.sales_person }}
+        </div>
+        <div class="col-md-6 col-sm-12 mb-1">
+            <label for="id_status">Lead Status</label>
+            {{ form.status}}
+        </div>
+
+        <div class="col-md-12 col-sm-12 mb-1">
+            <h6 class="mt-3">Details</h6>
+            <hr>
+            {% include 'lead/sub_leads.html' %}
+        </div>
+
+        <div class="col-md-12 col-sm-12 mb-1">
+            <label for="id_manager_remarks">Manager Remarks</label>
+            {{ form.manager_remarks }}
+        </div>
+
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update Lead
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+</form>
+
+
+<script>
+  
+    var currentRowNumber = parseInt(document.getElementById('leads-heads-total').value) ||0
+    var availableRowNumber = parseInt(document.getElementById('leads-heads-total').value) ||0
+    const leads_content_data =document.getElementById('leads_heads')
+    const addMore = () => {
+        currentRowNumber += 1;
+        availableRowNumber += 1;
+        var newElement = document.createElement('div')
+        newElement.classList.add('col-12')
+        newElement.setAttribute('id', `leads-data-${currentRowNumber}`)
+        newElement.classList.add('mb-1')
+
+        newElement.innerHTML=`
+            <input type="hidden" name="isActive_${currentRowNumber}" value="1" id="isActive_${currentRowNumber}">
+
+            <div class="row">
+                <div class="col-md-3 col-sm-12">
+                <label for="company_name-${currentRowNumber}">Company Name</label>
+                <input type="text"name='company_name-${currentRowNumber}' id="company_name-${currentRowNumber}"  class="form-control" >
+                </div>
+                <div class="col-md-3 col-sm-12">
+                    <label for="contact_person-${currentRowNumber}">Contact Person</label>
+                    <input type="text"name='contact_person-${currentRowNumber}' id="contact_person-${currentRowNumber}"  class="form-control" >
+                    
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <label for="contact_email-${currentRowNumber}">Contact Email</label>
+                    <input type="text"name='contact_email-${currentRowNumber}' id="contact_email-${currentRowNumber}"  class="form-control" >
+                    
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <label for="phone_no-${currentRowNumber}">Phone No.</label>
+                    <input type="number" name='phone_no-${currentRowNumber}' id="phone_no-${currentRowNumber}"  class="form-control" >
+                            
+                </div>
+                
+                
+                <div class="col-md-2 col-sm-12">
+                    <label for="location-${currentRowNumber}">Location</label>
+                    <input type="text"name='location-${currentRowNumber}' id="location-${currentRowNumber}"  class="form-control" >
+                    
+                </div>
+                
+               
+                <div class="col-md-11 col-sm-12 mb-1" >
+                    <label for="remarks-${currentRowNumber}">Remarks</label>
+                    <input type="text" name="remarks-${currentRowNumber}",id='remarks-${currentRowNumber}' class="form-control">
+                </div>
+
+                <div class="col-md-1 col-sm-12" style="margin-bottom:50px;">
+                    <button class="btn btn-danger mt-4" type="button" onclick="deleteRow(${currentRowNumber});">
+                                <i class="fas fa-times"></i> 
+                            </button>
+                </div>
+           
+        `
+        leads_content_data.append(newElement)
+        document.getElementById('leads-heads-total').value = currentRowNumber
+
+
+    }
+
+    const deleteRow = (index)=>{
+       
+        availableRowNumber -= 1;
+        document.getElementById(`isActive_${index}`).value = '0'
+        document.getElementById(`leads-data-${index}`).style.display = 'none'
+    }
+
+
+
+
+</script>
+
+
+
+{% endblock %}
+

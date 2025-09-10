@@ -1,0 +1,308 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Trailor Detail
+    {% else %}
+    Create New Trailor Detail
+    {% endif %}
+
+</h1>
+
+<a href="{% url 'masters:trailor_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<style>
+  .nav-tabs button{
+    border: none;
+    outline: none;
+    font-size: 14px;
+  }
+</style>
+
+
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_invoice_no">Invoice No</label>
+            {{ form.invoice_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_invoice_date">Invoice Date</label>
+            {{ form.invoice_date }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+          <label for="id_trailor_no">Trailor No</label>
+          {{ form.trailor_no }}
+      </div>
+     
+      <div class="col-md-3 col-sm-12 mb-3">
+          <label for="id_model_no">Model No</label>
+          {{ form.model_no }}
+      </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+          <label for="id_finance_bank">Finance Bank</label>
+          {{ form.finance_bank }}
+        </div>
+          <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_engine_no">Engine No</label>
+            
+            {{ form.engine_no }}
+        </div>
+          <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_chasis_no">Chasis No.</label>
+            {{ form.chasis_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+          <label for="id_registration_no">Registration No</label>
+          {{ form.registration_no }}
+       </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+          <label for="id_rto_office">RTO Office</label>
+          {{ form.rto_office }}
+        </div>
+  
+        
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_tax_details">Tax Details</label>
+            {{ form.tax_details }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_valid_upto">Valid Upto</label>
+            {{ form.valid_upto }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_fast_card_no">Fast Card no</label>
+            {{ form.fast_card_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_diesel_card_no">Diesel Card No</label>
+            {{ form.diesel_card_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_average">Average</label>
+            {{ form.average }}
+        </div>
+       
+       
+      
+
+
+        <div class="col-12 mb-3 " >
+          <div class="">
+            <div class="nav nav-tabs mb-3" id="myTab" role="tablist" >
+               
+                  <button class="nav-link active" id="driver-tab" data-toggle="tab" data-target="#driver" type="button" role="tab" aria-controls="driver" aria-selected="true">Drivers</button>
+               
+             
+                  <button class="nav-link" id="horse_tyre-tab" data-toggle="tab" data-target="#horse_tyre" type="button" role="tab" aria-controls="horse_tyre" aria-selected="false">Tyre (Horse)</button>
+              
+                
+                  <button class="nav-link" id="horse_trailor-tab" data-toggle="tab" data-target="#horse_trailor" type="button" role="tab" aria-controls="horse_trailor" aria-selected="false">Tyre (Trolley)</button>
+                
+                  <button class="nav-link" id="fitness-tab" data-toggle="tab" data-target="#fitness" type="button" role="tab" aria-controls="fitness" aria-selected="false">Fitness</button>
+               
+                  <button class="nav-link" id="national_permit-tab" data-toggle="tab" data-target="#national_permit" type="button" role="tab" aria-controls="national_permit" aria-selected="false">National Permit</button>
+               
+                  <button class="nav-link" id="national_good_permit-tab" data-toggle="tab" data-target="#national_good_permit" type="button" role="tab" aria-controls="national_good_permit" aria-selected="false">National Good Permit</button>
+              
+                  <button class="nav-link" id="insurance-tab" data-toggle="tab" data-target="#insurance" type="button" role="tab" aria-controls="insurance" aria-selected="false">Insurance</button>
+             
+                  <button class="nav-link" id="road_tax-tab" data-toggle="tab" data-target="#road_tax" type="button" role="tab" aria-controls="road_tax" aria-selected="false">Road Tax</button>
+                
+                  <button class="nav-link" id="puc-tab" data-toggle="tab" data-target="#puc" type="button" role="tab" aria-controls="puc" aria-selected="false">PUC</button>
+              
+                  <button class="nav-link" id="rc_book-tab" data-toggle="tab" data-target="#rc_book" type="button" role="tab" aria-controls="rc_book" aria-selected="false">RC Book</button>
+               
+                  <button class="nav-link" id="orginv-tab" data-toggle="tab" data-target="#orginv" type="button" role="tab" aria-controls="orginv" aria-selected="false">Org INV</button>
+                
+                  <button class="nav-link" id="acessory-tab" data-toggle="tab" data-target="#acessory" type="button" role="tab" aria-controls="acessory" aria-selected="false">Acessory</button>
+               
+                  <button class="nav-link" id="event-tab" data-toggle="tab" data-target="#event" type="button" role="tab" aria-controls="event" aria-selected="false">Event</button>
+               
+                  <button class="nav-link" id="service-tab" data-toggle="tab" data-target="#service" type="button" role="tab" aria-controls="service" aria-selected="false">Service</button>
+
+                  <button class="nav-link" id="location-tab" data-toggle="tab" data-target="#location" type="button" role="tab" aria-controls="location" aria-selected="false">Location / Supervision</button>
+                
+            </div>
+              <div class="tab-content mt-2 px-4" id="myTabContent">
+                <div class="tab-pane fade show active" id="driver" role="tabpanel" aria-labelledby="driver-tab">
+                    {% if update and obj.trailor_driver_ref.all|length > 0 %}
+                    <input type="hidden" value="{{obj.trailor_driver_ref.all|length}}" name="driver_total_rows" id="driver_total_rows" />
+                    {% else %}
+                    <input type="hidden" value="1" name="driver_total_rows" id="driver_total_rows" />
+                    {% endif %}
+                    {% include 'trailor/heads/trailor_driver.html' %}
+                    
+                  </div>
+                  
+                  <div class="tab-pane fade" id="horse_tyre" role="tabpanel" aria-labelledby="horse_tyre-tab">
+                  {% if update and obj.trailor_ht_ref.all|length > 0 %}
+                  <input type="hidden" value="{{obj.trailor_ht_ref.all|length}}" name="horse_total_rows" id="horse_total_rows" />
+                  {% else %}
+                  <input type="hidden" value="1" name="horse_total_rows" id="horse_total_rows" />
+                  {% endif %}
+                  {% include 'trailor/heads/trailer_tyre_horse.html' %}
+                  
+                  
+                  
+                </div>
+                
+                <div class="tab-pane fade" id="horse_trailor" role="tabpanel" aria-labelledby="horse_trailor-tab">
+                {% if update and obj.trailor_tt_ref.all|length > 0 %}
+                <input type="hidden" value="{{obj.trailor_tt_ref.all|length}}" name="trolley_total_rows" id="trolley_total_rows" />
+                {% else %}
+                <input type="hidden" value="1" name="trolley_total_rows" id="trolley_total_rows" />
+                {% endif %}
+                {% include 'trailor/heads/trailer_tyre_trolley.html' %}
+                
+
+
+
+                </div>
+                <div class="tab-pane fade" id="fitness" role="tabpanel" aria-labelledby="fitness-tab">
+
+                  {% if update and obj.trailor_fit_ref.all|length > 0 %}
+                  <input type="hidden" value="{{obj.trailor_fit_ref.all|length}}" name="trailor_fit_total_rows" id="trailor_fit_total_rows" />
+                  {% else %}
+                  <input type="hidden" value="1" name="trailor_fit_total_rows" id="trailor_fit_total_rows" />
+                  {% endif %}
+                  {% include 'trailor/heads/trailor_fitness.html' %}
+
+                </div>
+
+
+                <div class="tab-pane fade" id="national_permit" role="tabpanel" aria-labelledby="national_permit-tab">
+                  {% if update and obj.trailor_np_ref.all|length > 0 %}
+                  <input type="hidden" value="{{obj.trailor_np_ref.all|length}}" name="trailor_np_total_rows" id="trailor_np_total_rows" />
+                  {% else %}
+                  <input type="hidden" value="1" name="trailor_np_total_rows" id="trailor_np_total_rows" />
+                  {% endif %}
+                  {% include 'trailor/heads/trailor_national_permit.html' %}
+                </div>
+                <div class="tab-pane fade" id="national_good_permit" role="tabpanel" aria-labelledby="national_good_permit-tab">
+                  {% if update and obj.trailor_ng_ref.all|length > 0 %}
+                  <input type="hidden" value="{{obj.trailor_ng_ref.all|length}}" name="trailor_ng_total_rows" id="trailor_ng_total_rows" />
+                  {% else %}
+                  <input type="hidden" value="1" name="trailor_ng_total_rows" id="trailor_ng_total_rows" />
+                  {% endif %}
+                  {% include 'trailor/heads/trailor_national_good_permit.html' %}
+                </div>
+               
+                <div class="tab-pane fade" id="insurance" role="tabpanel" aria-labelledby="insurance-tab">
+                  {% if update and obj.trailor_ins_ref.all|length > 0 %}
+                  <input type="hidden" value="{{obj.trailor_ins_ref.all|length}}" name="trailor_ins_total_rows" id="trailor_ins_total_rows" />
+                  {% else %}
+                  <input type="hidden" value="1" name="trailor_ins_total_rows" id="trailor_ins_total_rows" />
+                  {% endif %}
+                  {% include 'trailor/heads/trailor_insurance.html' %}
+                </div>
+               
+               
+                <div class="tab-pane fade" id="road_tax" role="tabpanel" aria-labelledby="road_tax-tab">
+                  {% if update and obj.trailor_road_tax_ref.all|length > 0 %}
+                  <input type="hidden" value="{{obj.trailor_road_tax_ref.all|length}}" name="trailor_roadtax_total_rows" id="trailor_roadtax_total_rows" />
+                  {% else %}
+                  <input type="hidden" value="1" name="trailor_roadtax_total_rows" id="trailor_roadtax_total_rows" />
+                  {% endif %}
+                  {% include 'trailor/heads/trailor_road_tax.html' %}
+                </div>
+               
+                <div class="tab-pane fade" id="puc" role="tabpanel" aria-labelledby="puc-tab">
+                  {% if update and obj.trailor_puc_ref.all|length > 0 %}
+                  <input type="hidden" value="{{obj.trailor_puc_ref.all|length}}" name="trailor_puc_total_rows" id="trailor_puc_total_rows" />
+                  {% else %}
+                  <input type="hidden" value="1" name="trailor_puc_total_rows" id="trailor_puc_total_rows" />
+                  {% endif %}
+                  {% include 'trailor/heads/trailor_puc.html' %}
+                </div>
+              
+                <div class="tab-pane fade" id="rc_book" role="tabpanel" aria-labelledby="rc_book-tab">
+                  {% if update and obj.trailor_rc_ref.all|length > 0 %}
+                  <input type="hidden" value="{{obj.trailor_rc_ref.all|length}}" name="trailor_rc_total_rows" id="trailor_rc_total_rows" />
+                  {% else %}
+                  <input type="hidden" value="1" name="trailor_rc_total_rows" id="trailor_rc_total_rows" />
+                  {% endif %}
+                  {% include 'trailor/heads/trailor_rc.html' %}
+                </div>
+               
+                <div class="tab-pane fade" id="orginv" role="tabpanel" aria-labelledby="orginv-tab">
+                  {% if update and obj.trailor_orginv_ref.all|length > 0 %}
+                  <input type="hidden" value="{{obj.trailor_orginv_ref.all|length}}" name="trailor_org_inv_total_rows" id="trailor_org_inv_total_rows" />
+                  {% else %}
+                  <input type="hidden" value="1" name="trailor_org_inv_total_rows" id="trailor_org_inv_total_rows" />
+                  {% endif %}
+                  {% include 'trailor/heads/trailor_orginv.html' %}
+                </div>
+               
+               
+               
+                <div class="tab-pane fade" id="acessory" role="tabpanel" aria-labelledby="acessory-tab">
+                  {% if update and obj.trailor_accesory_ref.all|length > 0 %}
+                  <input type="hidden" value="{{obj.trailor_accesory_ref.all|length}}" name="trailor_acessory_total_rows" id="trailor_acessory_total_rows" />
+                  {% else %}
+                  <input type="hidden" value="1" name="trailor_acessory_total_rows" id="trailor_acessory_total_rows" />
+                  {% endif %}
+                  {% include 'trailor/heads/trailor_acessory.html' %}
+                  
+                </div>
+
+                <div class="tab-pane fade" id="event" role="tabpanel" aria-labelledby="event-tab">
+                  {% if update and obj.trailor_event_ref.all|length > 0 %}
+                  <input type="hidden" value="{{obj.trailor_event_ref.all|length}}" name="trailor_event_total_rows" id="trailor_event_total_rows" />
+                  {% else %}
+                  <input type="hidden" value="1" name="trailor_event_total_rows" id="trailor_event_total_rows" />
+                  {% endif %}
+                  {% include 'trailor/heads/trailor_event.html' %}
+                </div>
+
+                <div class="tab-pane fade" id="service" role="tabpanel" aria-labelledby="service-tab">
+                  {% if update and obj.trailor_service_ref.all|length > 0 %}
+                  <input type="hidden" value="{{obj.trailor_service_ref.all|length}}" name="trailor_service_total_rows" id="trailor_service_total_rows" />
+                  {% else %}
+                  <input type="hidden" value="1" name="trailor_service_total_rows" id="trailor_service_total_rows" />
+                  {% endif %}
+                  {% include 'trailor/heads/trailor_service.html' %}
+                </div>
+
+                <div class="tab-pane fade" id="location" role="tabpanel" aria-labelledby="location-tab">
+                  {% if update and obj.trailor_location_ref.all|length > 0 %}
+                  <input type="hidden" value="{{obj.trailor_location_ref.all|length}}" name="trailor_location_total_rows" id="trailor_location_total_rows" />
+                  {% else %}
+                  <input type="hidden" value="1" name="trailor_location_total_rows" id="trailor_location_total_rows" />
+                  {% endif %}
+                  {% include 'trailor/heads/trailor_location.html' %}
+                </div>
+               
+              
+                
+              </div>
+        </div>
+        </div>
+
+
+
+    </div>
+
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update Trailor Details
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+</form>
+
+
+
+{% endblock %}

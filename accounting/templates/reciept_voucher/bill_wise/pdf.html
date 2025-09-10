@@ -1,0 +1,158 @@
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+<html>
+
+<head>
+    <title>Invoice - {{data.final_invoice_no}}</title>
+    <style>
+        * {
+            margin-bottom: 0px !important;
+            margin-top: 0px !important;
+        }
+
+        .align-right {
+            text-align: right !important;
+        }
+
+        div {
+            font-size: 9px !important;
+            line-height: 3px;
+        }
+
+        .border-right-r {
+            border: 0.5px solid black;
+            border-top: none;
+            border-right: none;
+            border-collapse: collapse;
+        }
+
+        @page {
+            size: a4 portrait;
+            border: 1px solid black;
+            
+            @frame header_frame {
+                /* Static Frame */
+                -pdf-frame-content: header_content;
+                left: 10pt;
+                right: 10pt;
+                top: 40pt;
+                height: 80pt;
+            }
+
+            @frame content_frame {
+                /* Content Frame */
+                left: 10pt;
+                right: 10pt;
+                top: 120pt;
+            
+                height: 700pt;
+                border-bottom: none !important;
+            }
+
+        }
+
+        
+
+            
+        
+    </style>
+
+
+</head>
+
+<body>
+    <div id="header_content">
+        <table style="border-top:1px solid black; border-left:1px solid black;">
+            <tr>
+                <td style="width:80%"> <img width="100%" height="auto" src="{{ head.letter_head.url }}" alt="" /></td>
+                
+            </tr>
+        </table>
+       
+    </div><br>
+
+    <div style="text-align: center;font-size:20px;"><strong>Payment Receipt</strong></div>
+    <div style="font-size: 15px; margin:15px;margin-top:15px;">
+       <span>To</span><br><br>
+       <span >{{data.party_name.party_name}}</span><br><br>
+       <span >{{data.party_address.corp_address_line1}}</span><br>
+       <span >{{data.party_address.corp_address_line2}}</span><br>
+       <span >{{data.party_address.corp_address_line3}}</span><br><br><br>
+
+       <span>Dear Sir/Madam</span><br><br>
+       
+       <span>Thanks for Paying us the Amount of {{currency}} {{data.total_recieved_amount|floatformat:2}} </span>
+       <table border="0.5px">
+        <tr style="vertical-align: center; padding: 2px;font-size:15px;">
+            <th>Date</th>
+            <th>Invoice No.</th>
+            <th>Pending Amount</th>
+            <th>Recieved Amount</th>
+            <th>TDS Amount</th>
+            <th>Adjustment Amount</th>
+        </tr>
+        {% for j in data2 %}
+       
+        <tr style="padding:2px; font-size:14px;" >
+            <td align="">&nbsp; {{j.voucher.voucher_date|date:"Y-m-d"}}</td>
+            <td align="left" style="width:150px;"> {{j.invoice.final_invoice_no}}</td>
+            <td align="right">&nbsp; {{j.pending_amount}}</td>
+            <td align="right">&nbsp; {{j.received_amount}}</td>
+           
+            <td align="right">&nbsp; {{ j.invoice.tds_payable|add:j.tds_amount }}</td>
+            <td align="right">&nbsp; {{ j.adjustment_amount }}</td>
+        
+        </tr>
+        {% endfor %}
+        </table>
+        
+        
+        
+        
+        <br>
+        <h3>Narration</h3>
+        <span>{{data.narration}}</span>
+
+       <br>
+       <br>
+       <br>
+       <br>
+       <br>
+       <br>
+       <br>
+       <br>
+       <br>
+       <br>
+       
+       <span>With Best Regards</span> <br><br>
+       <span>Finance Department </span><br><br>
+       <span>Rk container line ({{data.company_type.branch_name}}) LTD</span> 
+
+
+
+
+
+
+
+
+    </div>
+
+  
+
+
+
+
+    
+   
+
+    
+
+    
+       
+
+
+</body>
+
+</html>

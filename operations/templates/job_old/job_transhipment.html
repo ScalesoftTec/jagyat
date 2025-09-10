@@ -1,0 +1,119 @@
+<div  class="tab-pane fade" id="transhipment" role="tabpanel" aria-labelledby="transhipment-tab">
+    {% if update and data.job_transhipment.all|length > 0 %}
+    <input type="hidden" name="total_transhipment_rows" id="total_transhipment_rows" value="{{data.job_transhipment.all|length}}">
+    {% else %}
+    <input type="hidden" name="total_transhipment_rows" id="total_transhipment_rows" value="1">
+    {% endif %}
+
+    <div class="table-responsive">
+    <table class="table table-bordered" id="transhipemt_table">
+        <tr>
+            <th>Connecting Port</th>
+            <th>ETA</th>
+            <th>ETD</th>
+            <th>Connecting  Vessel/Voy</th>
+            <th>Action</th>
+        </tr>
+        {%  if update and data.job_transhipment.all|length > 0 %}
+        {% for j in  data.job_transhipment.all %}
+        <tr id="transhipment-{{forloop.counter}}">
+            <td>
+                <input type="hidden" name="transhipment_is_active-{{forloop.counter}}" id="transhipment_is_active-{{forloop.counter}}" value="yes">
+                <select name="transhipment_port-{{forloop.counter}}" id="transhipment_port-{{forloop.counter}}" class="form-control">
+                    <option value="">Choose Port</option>
+                    {% for i in global_ports %}
+                    {% if j.port.id == i.id %}
+                    <option value="{{i.id}}" selected>{{i}}</option>
+                    {% else %}
+                    <option value="{{i.id}}">{{i}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+               
+            </td>
+            <td><input type="date" value="{{j.eta_date|date:'Y-m-d' }}" name="transhipment_eta_date-{{forloop.counter}}" id="transhipment_eta_date-1" class="form-control"></td>
+            <td><input type="date" value="{{j.etd_date|date:'Y-m-d' }}" name="transhipment_etd_date-{{forloop.counter}}" id="transhipment_etd_date-1" class="form-control"></td>
+            <td><input type="text" value="{{j.vessel_voyage}}" name="transhipment_vessel_voyage-{{forloop.counter}}" id="transhipment_vessel_voyage-{{forloop.counter}}" class="form-control"></td>
+            <td><button type="button" class="btn btn-sm btn-danger" onclick="deleteRow({{forloop.counter}})">Remove</button></td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        
+        <tr id="transhipment-1">
+            <td>
+                <input type="hidden" name="transhipment_is_active-1" id="transhipment_is_active-1" value="yes">
+                <select name="transhipment_port-1" id="transhipment_port-1" class="form-control">
+                    <option value="">Choose Port</option>
+                    {% for i in global_ports %}
+                    <option value="{{i.id}}">{{i}}</option>
+                    {% endfor %}
+                </select>
+               
+            </td>
+            <td><input type="date" name="transhipment_eta_date-1" id="transhipment_eta_date-1" class="form-control"></td>
+            <td><input type="date" name="transhipment_etd_date-1" id="transhipment_etd_date-1" class="form-control"></td>
+            <td><input type="text" name="transhipment_vessel_voyage-1" id="transhipment_vessel_voyage-1" class="form-control"></td>
+            <td><button type="button" class="btn btn-sm btn-danger" onclick="deleteRow(1)">Remove</button></td>
+        </tr>
+    {% endif %}
+    </table>
+    </div>
+    <div class="text-right">
+        <button class="btn btn-sm btn-primary" type="button" onclick="addRow()">Add More</button>
+    </div>
+</div>
+
+<script>
+    var currentRowNumber = parseInt(document.getElementById('total_transhipment_rows').value) || 0
+    var availableRowNumber = parseInt(document.getElementById('total_transhipment_rows').value) || 0
+    
+    const addRow = () => {
+        currentRowNumber += 1
+        availableRowNumber += 1
+        var newRow =  document.getElementById('transhipemt_table').insertRow(-1)
+        newRow.id = `transhipment-${currentRowNumber}`
+        newRow.classList.add("transhipment-entry")
+        var transhipment_port = newRow.insertCell(0)
+        var transhipment_eta_date = newRow.insertCell(1)
+        var transhipment_etd_date = newRow.insertCell(2)
+        var transhipment_vessel_voyage = newRow.insertCell(3)
+        
+        var delete_cell = newRow.insertCell(4)
+        
+        transhipment_port.innerHTML = `
+        <input type="hidden" name="transhipment_is_active-${currentRowNumber}" id="transhipment_is_active-${currentRowNumber}" value="yes">
+        <select name="transhipment_port-${currentRowNumber}" id="transhipment_port-${currentRowNumber}" class="form-control">
+            <option value="">Choose Port</option>
+            {% for i in global_ports %}
+            <option value="{{i.id}}">{{i}}</option>
+            {% endfor %}
+        </select>
+        `
+        transhipment_eta_date.innerHTML = `
+        <input type="date" name="transhipment_eta_date-${currentRowNumber}" id="transhipment_eta_date-${currentRowNumber}" class="form-control">
+        `
+
+        transhipment_etd_date.innerHTML = `
+        <input type="date" name="transhipment_etd_date-${currentRowNumber}" id="transhipment_eta_date-${currentRowNumber}" class="form-control">
+        `
+
+        transhipment_vessel_voyage.innerHTML = `
+        <input type="text" name="transhipment_vessel_voyage-${currentRowNumber}" id="transhipment_vessel_voyage-${currentRowNumber}" class="form-control">
+        `
+
+        delete_cell.innerHTML = `
+            <div class="btn btn-sm btn-danger" onclick="deleteRow(${currentRowNumber})">Remove</div>
+        `
+        
+        document.getElementById('total_transhipment_rows').value = currentRowNumber
+    }
+
+    
+
+    const deleteRow = (index) => {
+        document.getElementById(`transhipment_is_active-${index}`).value = "no"
+        
+        document.getElementById(`transhipment-${index}`).style.display = 'none'
+        availableRowNumber -= 1
+    }
+</script>

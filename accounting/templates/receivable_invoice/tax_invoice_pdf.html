@@ -1,0 +1,1047 @@
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+<html>
+
+<head>
+    <title>Invoice - {{data.final_invoice_no}}</title>
+    <style>
+        * {
+            margin-bottom: 0px !important;
+            margin-top: 0px !important;
+        }
+
+        .align-right {
+            text-align: right !important;
+        }
+
+        div {
+            font-size: 9px !important;
+            line-height: 3px;
+        }
+
+        .border-right-r {
+            border: 0.5px solid black;
+            border-top: none;
+            border-right: none;
+            border-collapse: collapse;
+        }
+
+        @page {
+            size: a4 portrait;
+            border: 1px solid black;
+            
+            @frame header_frame {
+                /* Static Frame */
+                -pdf-frame-content: header_content;
+                left: 10pt;
+                right: 10pt;
+                top: 40pt;
+                height: 80pt;
+            }
+
+            @frame content_frame {
+                /* Content Frame */
+                left: 10pt;
+                right: 10pt;
+                top: 120pt;
+                height: 560pt;
+                border-bottom: none !important;
+            }
+
+            @frame footer_frame {
+                /* Another static Frame */
+                -pdf-frame-content: footer_content;
+                left: 10pt;
+                right: 10pt;
+                top: 680pt;
+                height: 120pt;
+                bottom: 20pt;
+                border-top: 0px!important;
+                padding: 2px;
+            }
+        }
+
+        @page page2 {
+            size: a4 portrait;
+            
+
+            @frame header_frame {
+                /* Static Frame */
+                -pdf-frame-content: header_content2;
+                left: 20pt;
+                right: 20pt;
+                top:00pt;
+                height: 80pt;
+              
+            }
+
+            @frame content_frame {
+                /* Content Frame */
+                border: 1px solid black;
+                left: 20pt;
+                right: 20pt;
+                top: 40pt;
+                bottom: 40pt;
+                border-bottom: none !important;
+            }
+
+            @frame footer_frame {
+                /* Another static Frame */
+                -pdf-frame-content: footer_content2;
+                left: 20pt;
+                right: 20pt;
+                top: 650pt;
+                height: 150pt;
+                bottom: 20pt;
+                border-top: none !important;
+                padding: 2px;
+            }
+        }
+    </style>
+
+
+</head>
+
+<body>
+
+    
+    <div id="header_content">
+        <table style="border-top:1px solid black; border-left:1px solid black;">
+            <tr>
+                <td style="width:90%; " >
+                     <img style="width: 100%;height: 100%; object-fit: contain;" src="{{ head.letter_head.url }}" alt="" />
+
+                  
+                     
+                </td>
+                
+                <td align="left"  style="width:10%; margin-right: 5px; border-left:none;"> 
+
+                        {% if data.qr_code_image %}
+                        <h2 style="text-align: center;">{{data.type_of_invoice}}</h2>
+                        {% endif %}
+
+
+
+                    <h2 style="text-align: center;">
+                        {% if data.inv_type_2 %}
+                        &nbsp;{{data.inv_type_2}}
+                        {% endif %}
+                    </h2>
+                </td>
+            </tr>
+        </table>
+       
+    </div>
+
+
+<table border="0.5px" style="padding:2px;">
+    <tr>
+        <td rowspan="2" style="text-align:left;vertical-align:top;padding:2px;width: 30%;">
+            <div><strong>Invoice To: </strong></div>
+            <div>{{data.bill_to.party_name}}</div>
+            <div>{{data.bill_to_address.corp_address_line1}}</div>
+            <div>{{data.bill_to_address.corp_address_line2}}</div>
+            <div>{{data.bill_to_address.corp_address_line3}}</div>
+
+            <div style="margin-top: 3px!important;">
+                <div>
+                    <div><strong>Supply State : </strong> {{data.bill_to_address.corp_state}}</div>
+                    <div><strong>State Code : </strong> {{data.bill_to_address.corp_state.gst_code}}</div>
+                    <div><strong>GSTIN/UIN : </strong> {{data.bill_to_address.corp_gstin}}</div>
+                </div>
+            </div>
+        </td>
+
+        <td colspan="2" style="text-align:left;vertical-align:top;padding:2px;width: 50%;">
+            <table>
+                <tr style="margin: 0px; padding: 0.3px;">
+                    <td><strong>Invoice No.</strong></td>
+                    <td><strong>Date</strong></td>
+                    <td><strong>Due Date</strong></td>
+                </tr>
+                <tr style="margin: 0px; padding: 0.3px;">
+                    {% if data.is_einvoiced and data.final_invoice_no %}
+                    <td>{{data.final_invoice_no}}</td>
+                    {% else %}
+                    <td>{{data.invoice_no}}</td>
+                    {% endif %}
+                    {% if data.is_einvoiced and data.einvoice_date %}
+                    <td>{{data.einvoice_date|date:'M d,Y'}}</td>
+                    {% else %}
+                    <td>{{data.date_of_invoice}}</td>
+                    {% endif %}
+                    <td>{{data.due_date}}</td>
+                </tr>
+            </table>
+        </td>
+
+        <td rowspan="2" style="text-align:left;vertical-align:top;padding:0px;width: 20%;">
+            <div>
+                {% if data.qr_code_image %}
+                <img src="{{data.qr_code_image.url}}" alt="">
+                {% endif %}
+
+
+                {% if not data.qr_code_image %}
+                    {% if  data.is_proforma  %}
+                        <h1 style="font-size: 25px; padding-top: 60px; padding-left: 10px; color: gray;">DRAFT</h1>
+                    {% else %}
+                        <h1 style="font-size: 25px; padding-top: 60px; padding-left: 10px; color: gray;">{{type_of_invoice}}</h1>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="text-align:left;vertical-align:top;padding:2px;width: 25%;">
+            <div><strong>Shipper :</strong></div>
+            <div>{{data.shipper.party_name}}</div>
+            <div>{{data.shipper_address.corp_address_line1}}</div>
+            <div>{{data.shipper_address.corp_address_line2}}</div>
+            <div>{{data.shipper_address.corp_address_line3}}</div>
+            <div>{{data.shipper_address.corp_state}}</div>
+        </td>
+        
+        <td style="text-align:left;vertical-align:top;padding:2px;width: 25%;">
+            <div><strong>Consignee :</strong></div>
+            {% if data.job_no.module == 'Air Import' or data.job_no.module == 'Sea Import' %}
+            <div>{{data.job_no.importer.party_name}}</div> 
+
+            {% elif data.job_no.module == 'Air Export'  or data.job_no.module == 'Sea Export'%}
+                <div>{{data.job_no.consignee.party_name}}</div> 
+            {% endif %}
+
+
+            <!-- <div>{{data.account_address.corp_address_line1}}</div>
+            <div>{{data.account_address.corp_address_line2}}</div>
+            <div>{{data.account_address.corp_address_line3}}</div> -->
+
+        </td>
+    </tr>
+</table>
+
+    <table border="0.5px" style="padding-top:1px; padding-left:1px; padding-bottom:0px;">
+        <tr>
+            <td style="width: 140px;">
+            {% if data.job_no.module == "Sea Import" or data.job_no.module == "Sea Export"  %}
+                <div><strong>MBL No. / Date</strong></div>
+                {% else %}
+                <div><strong>MAWB No. / Date</strong></div>
+            {% endif %}
+                <div>{{data.job_no.mbl_no}} {{data.job_no.mbl_date}}</div>
+            </td>
+
+            <td style="width: 140px;">
+                <!-- Label For HBL  -->
+                {% if data.job_no.module == "Sea Import" or data.job_no.module == "Sea Export"  %}
+                    <div><strong>HBL No. / Date</strong></div>
+                {% else %}
+                <div><strong>HAWB No. / Date</strong></div>
+                {% endif %}
+
+
+                <!-- Data of HBL -->
+                {% if data.job_no.module == "Sea Export" %}
+                    <div>{{data.job_no.mbl_job.first.mbl_no}} {{data.job_no.mbl_job.first.date}}</div>
+                {% endif %}
+                
+                {% if data.hbl_options.count > 0 %}
+                    {% for hbl in data.hbl_options.all %}
+                    <div>{{hbl.job_hbl_no}} / {{hbl.job_hbl_date}}</div>
+                    {% endfor %}
+                {% else %}
+                    <div>{{data.job_no.hbl_no}} / {{data.job_no.hbl_date}}</div>
+                {% endif %}
+
+
+                <!-- {% if data.job_no.module == "Sea Export" %}
+                    <div>{{data.job_no.mbl_job.first.mbl_no}} {{data.job_no.mbl_job.first.date}}</div>
+                {% elif data.hbl_options.count > 0 %}
+                    {% for hbl in data.hbl_options.all %}
+                    <div>{{hbl.job_hbl_no}} / {{hbl.job_hbl_date}}</div>
+                    {% endfor %}
+                {% else %}
+                    <div>{{data.job_no.hbl_no}} / {{data.job_no.hbl_date}}</div>
+                {% endif %} -->
+            </td>
+
+            {% if data.job_no.module == "Sea Import" or data.job_no.module == "Air Import"%}
+            <td style="width: 140px;">
+                <div><strong>B/E No. /  Date</strong></div>
+                <div>{{data.job_no.ship_bill_no}} / {{data.job_no.ship_bill_date}}</div>
+            </td>
+            {% else %}
+            <td style="width: 140px;">
+                <div><strong>S/B No. Date</strong></div>
+                <div>{{data.job_no.job_invoice.first.ship_bill_no}} {{data.job_no.job_invoice.first.ship_bill_date}}</div>
+            </td>
+            {% endif %}
+
+            <td colspan="3">
+                <div><strong>Exporter Inv. No & Date</strong></div>
+                <div>
+                    {{data.job_no.job_invoice.first.invoice_no}} 
+                    & 
+                    {% if data.job_no.job_invoice.first.invoice_date %}
+                        {{data.job_no.job_invoice.first.invoice_date}}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </div>
+            </td>
+            <td >
+                <div><strong>Job Module</strong></div>
+                <div>
+                    {{data.job_no.module}} 
+                    
+                    
+                </div>
+            </td>
+        </tr>
+        <tr>
+            {% if data.job_no.module == "Sea Import" or data.job_no.module == "Sea Export"  %}
+            <td>
+                <div><strong>Vessel Name</strong></div>
+                <div>{{data.job_no.vessel_voy_name}}</div>
+            </td>
+            {% endif %}
+
+            {% if data.job_no.module == "Air Import" or data.job_no.module == "Air Export"  %}
+            <td>
+                <div><strong>Flight No.</strong></div>
+                <div>{{data.job_no.flight_no}}</div>
+            </td>
+            {% endif %}
+
+
+
+            <td>
+                {% if data.job_no.module == "Air Import" or data.job_no.module == "Air Export"  %}
+                    <div><strong>Airport Of Loading</strong></div>
+                    {% else %}
+                    <div><strong>Port Of Loading</strong></div>
+                {% endif %}
+
+                <div>{{data.job_no.port_of_loading}}</div>
+            </td>
+
+            <td colspan="4">
+                <div><strong>Description Of Goods</strong></div>
+                <div>{{data.job_no.commodity}}</div>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {% if data.job_no.module == "Air Import" or data.job_no.module == "Air Export"  %}
+                <div><strong>Airport of Discharge</strong></div>
+                {% else %}
+                <div><strong>Port of Discharge</strong></div>
+                {% endif %}
+                <div>{{data.job_no.port_of_discharge}}</div>
+            </td>
+
+            <td>
+                <div><strong>Final Destination</strong></div>
+                <div>{{data.job_no.final_destination}}</div>
+            </td>
+
+            <td colspan="2">
+                <div><strong>Job Reference</strong></div>
+                <div>{{data.job_no.job_no}}</div>
+            </td>
+
+            <td colspan="2">
+                <div><strong>Ex Rate</strong></div>
+                <div>{{data.currency_ex_rate}}</div>
+            </td>
+        </tr>
+        <tr>
+            {% if data.job_no.module == 'Sea Import' or data.job_no.module == 'Sea Export' %} 
+            <td>
+                <div><strong>Packages / Type</strong></div>
+                <div>{{data.job_no.no_of_packages}} / {{data.job_no.packages_type}}</div>
+            </td>
+
+            <td>
+                <div><strong>Gr.Wt(Kg/MT)</strong></div>
+                <div>{{data.job_no.gross_weight}}</div>
+            </td>
+
+            <td>
+                <div><strong>No Of Container</strong></div>
+                {% if data.job_no.container_no %}
+                <div>{{data.job_no.container_no}}</div>
+                    {% else %}
+                    <div>{{data.job_no.job_container.all|length}}</div>
+                {% endif %}
+            </td>
+            
+           
+            {% endif %}
+
+            {% if data.job_no.module == 'Sea Import' or data.job_no.module == 'Sea Export' %} 
+            <td>
+                <div><strong>Shipping Line</strong></div>
+                <div>{{data.job_no.shipping_line}}</div>
+            </td>
+            {% endif %}
+
+            {% if data.job_no.module == 'Air Import' or data.job_no.module == 'Air Export' %} 
+            <td>
+                <div><strong>Air Line</strong></div>
+                <div>{{data.job_no.air_line}}</div>
+            </td>
+            {% endif %}
+            
+           
+            {% if data.job_no.module == 'Sea Import' or data.job_no.module == 'Sea Export' %} 
+            <td>
+                <div><strong>Nt.Wt(Kg/MT)</strong></div>
+                <div>{{data.job_no.net_weight}}</div>
+            </td>
+            {% endif %}
+
+
+
+            <td>
+                <div><strong>CBM</strong></div>
+                <div>
+                {% for cbm in data.job_no.job_hbl.all %}
+                    {{cbm.volume}}
+                {% endfor %}
+                </div>
+            </td>
+
+
+            <!-- Line 1 : Packet -->
+            {% if data.job_no.module == 'Air Import' or data.job_no.module == 'Air Export'%}
+            <td>
+                <div><strong>PKT</strong></div>
+                <div>{{data.job_no.no_of_packages}}</div>
+            </td>
+            {% endif %}
+
+            
+
+            <!-- Line 2 : Gross Weight -->
+            {% if data.job_no.module == 'Air Import' or data.job_no.module == 'Air Export'%}
+            <td>
+                <div><strong>Gross Weight</strong></div>
+                <div>
+                    {% for cbm in data.job_no.job_hbl.all %}
+                    {{cbm.gross_weight}}
+                {% endfor %}
+            </div>
+            </td>
+            {% endif %}
+
+
+
+            <!-- Line 3 : Chargable Weight -->
+            {% if data.job_no.module == 'Air Import' or data.job_no.module == 'Air Export' %} 
+            <td>
+                <div><strong>Chargable Weight</strong></div>
+                <!-- <div>{{data.job_no.chargable_weight}}</div> -->
+                {% for cbm in data.job_no.job_hbl.all %}
+                    {{cbm.chargeable_weight}}
+                {% endfor %}
+            </td>
+            {% endif %}
+
+
+
+            <!-- Line 4 : IGM -->
+            {% if data.job_no.module == 'Air Import' %} 
+            <td>
+                <div><strong>IGM</strong></div>
+                <div>{{data.job_no.igm_no}}</div>
+            </td>
+            {% endif %}
+
+
+
+            
+
+            
+        </tr>
+    </table>
+
+    <table style="padding-top:1px; border-collapse:collapse; padding-left:1px; padding-bottom:0px; font-size: 8px;" >
+        <tr style="border: 0.3px solid black;">
+            <th style="width: 15px;" rowspan="2">Sr.</th>
+            {% if data.gst_applicable == "Yes" %}
+            <th style="width: 170px;" rowspan="2">Description</th>
+            {% else %}
+            <th style="width: 250px;" rowspan="2">Description</th>
+            {% endif %}
+            <th rowspan="2" style="width: 40px;">SAC</th>
+            <th rowspan="2" style="width: 35px;">QTY / CBM</th>
+            <th rowspan="2" style="width: 30px;">Curr.</th>
+            <th rowspan="2" style="width: 30px;">Ex Rate</th>
+            <th rowspan="2" style="width: 50px;">Unit Rate</th>
+            <th rowspan="2" style="width: 60px;">Total Amount in {{data.invoice_currency}}</th>
+            {% if data.gst_applicable == "Yes" %}
+            <th rowspan="2" style="width: 60px;">Taxable Amount</th>
+            <th colspan="2">SGST</th>
+            <th colspan="2">CGST</th>
+            <th colspan="2">IGST</th>
+            {% endif %}
+            {% if data.gst_applicable == 'Yes' %}
+            <th rowspan="2" style="width: 60px;">Amount in {{data.invoice_currency}}</th>
+            {% else %}
+            <th rowspan="2">Amount in {{data.invoice_currency}}</th>
+            {% endif %}
+        </tr>
+        <tr style="border: 0.3px solid black;">
+            {% if data.gst_applicable == "Yes" %}
+            <th style="width: 23px;">Rate</th>
+            <th style="width: 55px;">Amount</th>
+            <th style="width: 23px;">Rate</th>
+            <th style="width: 55px;">Amount</th>
+            <th style="width: 23px;">Rate</th>
+            <th style="width: 55px;">Amount</th>
+            {% endif %}
+        </tr>
+
+        {% for head in data.recievable_invoice_reference.all %}
+        <tr style="border: 0.3px solid black; border-bottom:none; border-top:none;">
+            <td>{{forloop.counter}}</td>
+            <td>{{head.billing_head.billing_head}}</td>
+            <td align="center" class="align-center">{{head.billing_head.hsn_code}}</td>
+            <td align="center"  class="align-center">{{head.qty_unit|floatformat:3}}</td>
+            <td align="center" class="align-center">{{head.currency}}</td>
+            <td align="center" class="align-center">{{head.ex_rate}}</td>
+            <td  class="align-right">{{head.rate|floatformat:2|intcomma}}</td>
+            <td class="align-right" class="align-center">{{head.amount|floatformat:2|intcomma}}</td>
+            {% if data.gst_applicable == "Yes" %}
+            <td class="align-right">
+                {% if head.gst > 0 and not data.type_of_invoice == "BILL OF SUPPLY" %}
+                {{head.amount|floatformat:2|intcomma}}
+                {% else %}
+                0
+                {% endif %}
+            </td>
+            <td class="align-right">
+                {% if data.company_type.company_gst_code == data.bill_to_address.corp_state.gst_code and not head.billing_head.always_igst  %}
+                {% if head.gst > 0 and not data.type_of_invoice == "BILL OF SUPPLY" %}
+                {{head.gst|div:2|floatformat:1}}%
+                {% else %}
+                0%
+                {% endif %}
+                {% else %}
+                0%
+                {% endif %}
+            </td>
+            <td class="align-right">
+                {% if data.company_type.company_gst_code == data.bill_to_address.corp_state.gst_code and not head.billing_head.always_igst  %}
+                {% if head.gst > 0 and not data.type_of_invoice == "BILL OF SUPPLY" %}
+                {{head.gst_amount|div:2|floatformat:2|intcomma}}
+                {% else %}
+                0
+                {% endif %}
+                {% else %}
+                0
+                {% endif %}
+            </td>
+            <td class="align-right">
+                {% if data.company_type.company_gst_code == data.bill_to_address.corp_state.gst_code and not head.billing_head.always_igst  %}
+                {% if head.gst > 0 and not data.type_of_invoice == "BILL OF SUPPLY" %}
+                {{head.gst|div:2|floatformat:1}}%
+                {% else %}
+                0
+                {% endif %}
+                {% else %}
+                0%
+                {% endif %}
+            </td>
+        
+
+            <td class="align-right">
+                {% if data.company_type.company_gst_code == data.bill_to_address.corp_state.gst_code and not head.billing_head.always_igst  %}
+                {% if head.gst > 0 and not data.type_of_invoice == "BILL OF SUPPLY" %}
+                {{head.gst_amount|div:2|floatformat:2|intcomma}}
+                {% else %}
+                0
+                {% endif %}
+                {% else %}
+                0
+                {% endif %}
+            </td>
+            <td class="align-right">
+                {% if not data.company_type.company_gst_code == data.bill_to_address.corp_state.gst_code or head.billing_head.always_igst  %}
+                {% if head.gst > 0 and not data.type_of_invoice == "BILL OF SUPPLY" %}
+                {{head.gst|floatformat:1}}%
+                {% else %}
+                0
+                {% endif %}
+                {% else %}
+                0%
+                {% endif %}
+            </td>
+            <td class="align-right">
+                {% if not data.company_type.company_gst_code == data.bill_to_address.corp_state.gst_code or head.billing_head.always_igst  %}
+                {% if head.gst > 0 and not data.type_of_invoice == "BILL OF SUPPLY" %}
+                {{head.gst_amount|floatformat:2|intcomma}}
+                {% else %}
+                0
+                {% endif %}
+                {% else %}
+                0
+                {% endif %}
+            </td>
+            {% endif %}
+
+            <td style="text-align:center" >{{head.total|floatformat:2|intcomma}}</td>
+        </tr>
+        {% endfor %}
+
+
+
+        {% for value in blank %}
+
+        <tr style="border: 0.3px solid black; border-bottom:none; border-top:none;">
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            {% if data.gst_applicable == 'Yes' %}
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            {% endif %}
+            <td>&nbsp;</td>
+        </tr>
+
+        {% endfor %}
+        <tr style="border: 0.3px solid black;">
+            {% if data.gst_applicable == 'Yes' %}
+            <td colspan="7"></td>
+            {% else %}
+            <td colspan="7"></td>
+            {% endif %}
+            <td class="align-right">{{data.gross_amount|floatformat:2}}</td>
+            {% if data.gst_applicable == 'Yes' %}
+            <td class="align-right">{{total_taxable_amount|floatformat:2}}</td>
+            <td colspan="2" class="align-right">{{total_cgst|floatformat:2|intcomma}}</td>
+            <td colspan="2" class="align-right">{{total_sgst|floatformat:2|intcomma}}</td>
+            <td colspan="2" class="align-right">{{total_igst|floatformat:2|intcomma}}</td>
+            {% endif %}
+            <td class="align-right">{{data.net_amount|floatformat:2}}</td>
+
+
+
+        </tr>
+        {% if data.gst_applicable == 'Yes' %}
+        <tr style="border: 0.5px solid black; border-top: none;  border-left: none;">
+            <td colspan="11">
+                <table>
+                    <tr style="border:0.5px solid black; border-top: none; border-left: none; border-collapse: collapse;">
+                        <td align="center" style="width: 50px;">Rate</td>
+                        <td align="center" style="width: 60px;">CGST</td>
+                        <td align="center" style="width: 60px;">SGST</td>
+                        <td align="center" style="width: 60px;">IGST</td>
+                        <td align="center" style="width: 90px;">Total</td>
+                        <td align="center" style="width: 90px;">Taxable Amount</td>
+                    </tr>
+                </table>
+            </td>
+            <td colspan="3">Total Taxable Amount</td>
+
+            <td colspan="2">
+                {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                {{total_taxable_amount|floatformat:2|intcomma}}
+                {% else %}
+                0
+                {% endif %}
+            </td>
+            
+        </tr>
+        {% endif %}
+        <tr>
+            {% if data.gst_applicable == 'Yes' %}
+            <td colspan="11">
+                <table>
+                    <tr style="border:0.5px solid black; border-top: none; border-left: none; border-collapse: collapse;">
+                        <td align="center" style="width: 50px;">5%</td>
+                        <td align="right" style="width: 60px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{per_5|div:2|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                            
+                        <td align="right" style="width: 60px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{per_5|div:2|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                            
+                        <td align="right" style="width: 60px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{per_i5|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                            
+                        <td align="right" style="width: 90px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{total_5|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                            
+                        <td align="right" style="width: 90px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{per_5_taxable|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                            
+
+                    </tr>
+                </table>
+            </td>
+            {% else %}
+            <td colspan="4"></td>
+            {% endif %}
+            <td colspan="4" class="align-right border-right-r">Round Off</td>
+
+            <td class="align-right border-right-r">{{ data.net_amount|floatformat:0|sub:data.net_amount|floatformat:2 }}
+            </td>
+
+        </tr>
+        <tr>
+            {% if data.gst_applicable == 'Yes' %}
+            <td colspan="11">
+                <table>
+                    <tr style="border:0.5px solid black; border-top: none; border-left: none; border-collapse: collapse;">
+                        <td align="center" style="width: 50px;">12%</td>
+                        <td align="right"  style="width: 60px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{per_12|div:2|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                        <td align="right" style="width: 60px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{per_12|div:2|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                        <td align="right" style="width: 60px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{per_i12|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                        <td align="right" style="width: 90px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{total_12|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                        <td align="right" style="width: 90px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{per_12_taxable|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                        
+                    </tr>
+                </table>
+            </td>
+            {% else %}
+            <td colspan="4"></td>
+            {% endif %}
+            <td colspan="4" rowspan="2" class="align-right border-right-r" ><strong style="font-size: 12px!important;">INVOICE AMOUNT</strong> </td>
+
+            <td rowspan="2" class="align-right border-right-r" ><strong style="font-size: 12px!important;">{{ data.net_amount|floatformat:0|floatformat:2|intcomma }}</strong> </td>
+
+        </tr>
+
+        <tr>
+            {% if data.gst_applicable == 'Yes' %}
+            <td colspan="11">
+                <table style="border:0.5px solid black; border-top: none; border-left: none; border-collapse: collapse;">
+                    <tr>
+                        <td align="center" style="width: 50px;">18%</td>
+                        <td align="right" style="width: 60px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{per_18|div:2|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                        <td align="right" style="width: 60px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{per_18|div:2|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                        <td align="right" style="width: 60px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{per_i18|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                        <td align="right" style="width: 90px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{total_18|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                        <td align="right" style="width: 90px;">
+                            {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+                            {{per_18_taxable|floatformat:2|intcomma}}
+                            {% endif %}
+                        </td>
+                       
+                    </tr>
+                </table>
+            </td>
+            {% else %}
+            <td colspan="4"></td>
+            {% endif %}
+        </tr>
+
+        <tr style="border: 0.5px solid black; padding-top:5px!important; border-bottom:none; border-left:none;">
+            {% if data.gst_applicable == 'Yes' %}
+            <td colspan="16"><strong> Amount In {{data.invoice_currency}} : {{ data.net_amount|floatformat:0 |num_to_text }} ONLY</strong></td>
+            {% else %}
+            <td colspan="9"><strong> Amount In {{data.invoice_currency}} : {{ data.net_amount|floatformat:0 |num_to_text }} ONLY</strong></td>
+            {% endif %}
+        </tr>
+       
+        <tr style="border: 0.5px solid black; padding-top:5px!important; border-bottom:none; border-left:none;">
+            {% if data.gst_applicable == 'Yes' %}
+            <td colspan="16">
+                <strong> Container No.</strong>
+            {% if data.job_no.container_no %}
+            <span>{{data.job_no.container_no}}</span>
+            {% else %}
+            {% for i in data.job_no.job_container.all %}
+            {% if i == data.job_no.job_container.last %}
+            <span>{{i.job_container_no}}</span>
+            {% else %}
+            <span>{{i.job_container_no}} / </span>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+            </td>
+            {% else %}
+            <td colspan="9">
+                <strong> Container No.</strong>
+            <span>{{data.job_no.container_no}}</span>
+            </td>
+            {% endif %}
+        </tr>
+        
+        {% if data.gst_applicable == 'Yes' %}
+        <tr style="border-top: 1px solid black;">
+           
+            <td colspan="15" >
+                <table>
+                    <tr>
+                        <td>
+                            <div style="margin:3px;"><span style="font-weight: 500;">Beneficiary Name :</span> {{data.account_number.beneficiary_name}}</div>
+                        </td>
+                        <td>
+                            <div style="margin:3px;"><span style="font-weight: 500;">Bank Name and Address</span> {{data.account_number.bank_name}} and {{data.account_number.branch_name}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div  style="margin:3px;"><span style="font-weight: 500;">Bank Acc No :</span>{{data.account_number.account_no}}</div>
+                        </td>
+                        <td>
+                            <div style="margin:3px;"><span style="font-weight: 500;">IFSC Code :</span>{{data.account_number.ifsc_code}}</div>
+
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        {% else %}
+
+        <tr style="border-top: 1px solid black;">
+           
+           <td colspan="9" >
+               <table>
+                   <tr>
+                       <td>
+                           <div style="margin:3px;"><span style="font-weight: 500;">Beneficiary Name :</span> {{data.account_number.beneficiary_name}}</div>
+                       </td>
+                       <td>
+                           <div style="margin:3px;"><span style="font-weight: 500;">Bank Name and Address</span> {{data.account_number.bank_name}} and {{data.account_number.branch_name}}</div>
+                       </td>
+                   </tr>
+                   <tr>
+                       <td>
+                           <div  style="margin:3px;"><span style="font-weight: 500;">Bank Acc No :</span>{{data.account_number.account_no}}</div>
+                       </td>
+                       <td>
+                           <div style="margin:3px;"><span style="font-weight: 500;">IFSC Code :</span>{{data.account_number.ifsc_code}}</div>
+
+                       </td>
+                   </tr>
+               </table>
+           </td>
+       </tr>
+
+        {% endif %}
+
+
+
+    </table>
+
+
+    <div id="footer_content">
+        {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
+        <div style="border:0.5px solid black;margin-bottom:5px; border-top:none; border-left:none; border-right:none;">
+            <strong> IRN : </strong>
+            <span>{{data.irn_no}}</span>
+        </div>
+        {% endif %}
+        
+        <div style="border-bottom:1px solid black; margin-bottom: 10px;">
+            <strong> Remarks : </strong> <span>{{data.remark_on_invoice}}</span>
+            {% for i in data.parent_invoice.all %}
+            <span>{{i.job_no}}</span>
+            {% endfor %}
+        </div>
+        
+
+            <div>
+                <table >
+                    <tr style="padding-top:10px!important;">
+                        <td style="width:70%">{{data.company_type.terms_and_conditions|safe}}</td>
+                        <td align="top"  style="width:30%; text-align: right; ">
+                            <h6 class="" style="font-size: 11px; margin-bottom:30px!important; text-align:right; font-weight:bold;">
+                                {{data.company_type.for_company}}
+                            </h6>
+                            <br />
+                            <img style="margin-left:100px; " width="150px" height="90px" src="{{ data.company_type.stamp.url }}" alt="" />
+                            <br />
+                            <h6 style="font-size: 11px; padding-top: 30px!important; text-align:right; font-weight:bold;">Auth. Sign.</h6>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+       
+        <h6 style="font-size: 8px; text-align:center; font-weight:bold;">  This is computer generated invoice no signature required</h6>
+    </div>
+
+    
+    {% if data.gr_options.all|length > 0  %}
+    <pdf:nextpage name="page2" />
+    <div id="header_content2">
+    
+    </div>
+    <div id="footer_content2"></div>
+
+    <h1 style="text-align: center; margin-bottom: -22px; padding-top: 10px;">Annexure</h1>
+    <table border="0.5px">
+        <tr style="vertical-align: center; padding: 2px;">
+            <th>Container No</th>
+            <th>Container Type</th>
+            <th>Line Seal No</th>
+            {% if data.job_no.module == 'Transport' %}
+            <th>Trailor No</th>
+            {% endif %}
+            <th>Place of Loading</th>
+            <th>Place of Unloading</th>
+        </tr>
+        {% for i in data.gr_options.all %}
+        <tr style="padding:2px" >
+            <td>&nbsp; {{i.container_no}}</td>
+            <td>&nbsp; {{i.job.container_type}}</td>
+            <td>&nbsp; {{i.seal_no}}</td>
+            {% if data.job_no.module == 'Transport' %}
+            <th>&nbsp; {{i.trailor_no}}</th>
+            {% endif %}
+            <td>&nbsp; {{ i.pickup_from.name }}</td>
+            <td>&nbsp; {{ i.drop_location.name }}</td>
+        
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    
+    {% if data.container_options.all|length > 0  %}
+
+    <pdf:nextpage name="page2" />
+    <div id="header_content2">
+    
+    </div>
+    <div id="footer_content2"></div>
+
+    <h1 style="text-align: center; margin-bottom: -22px; padding-top: 10px; ">Annexure1</h1>
+
+    <table border="0.5px">
+        <tr style="vertical-align: center; padding: 2px;">
+            <th>Container No</th>
+            <th>Container Type</th>
+            <th>Line Seal No</th>
+            {% if data.job_no.module == 'Transport' %}
+            <th>Trailor No</th>
+            {% endif %}
+            <th>Place of Loading</th>
+            <th>Place of Unloading</th>
+        </tr>
+        {% for container_data in data.container_options.all %}
+        <tr style="padding:2px" >
+            <td>&nbsp; {{container_data.job_container_no}}</td>
+            <td>&nbsp; {{container_data.container_type}}</td>
+            <td>&nbsp; {{container_data.line_seal}}</td>
+            {% if data.job_no.module == 'Transport' %}
+            <th>&nbsp; {{container_data.trailor_no}}</th>
+            {% endif %}
+            <td>&nbsp; {{ container_data.place_of_loading.name }}</td>
+            <td>&nbsp; {{ container_data.place_of_unloading.name }}</td>
+        
+        </tr>
+        {% endfor %}
+    </table>
+   
+    
+    {% elif data.job_no.job_container.all|length > 0  %}
+    <pdf:nextpage name="page2" />
+    <div id="header_content2">
+    
+    </div>
+    <div id="footer_content2"></div>
+
+    <h1 style="text-align: center; margin-bottom: -22px; padding-top: 10px; ">Annexure1</h1>
+
+    <table border="0.5px">
+        <tr style="vertical-align: center; padding: 2px;">
+            <th>Container No</th>
+            <th>Container Type</th>
+            <th>Line Seal No</th>
+            {% if data.job_no.module == 'Transport' %}
+            <th>Trailor No</th>
+            {% endif %}
+            <th>Place of Loading</th>
+            <th>Place of Unloading</th>
+        </tr>
+        {% for container_data in data.job_no.job_container.all %}
+        <tr style="padding:2px" >
+            <td>&nbsp; {{container_data.job_container_no}}</td>
+            <td>&nbsp; {{container_data.container_type}}</td>
+            <td>&nbsp; {{container_data.line_seal}}</td>
+            {% if data.job_no.module == 'Transport' %}
+            <th>&nbsp; {{container_data.trailor_no}}</th>
+            {% endif %}
+            <td>&nbsp; {{ container_data.place_of_loading.name }}</td>
+            <td>&nbsp; {{ container_data.place_of_unloading.name }}</td>
+        
+        </tr>
+        {% endfor %}
+    </table>
+    
+    {% endif %}
+
+
+</body>
+
+</html>

@@ -1,0 +1,39 @@
+<ENVELOPE>
+    <HEADER>
+        <TALLYREQUEST>Import Data</TALLYREQUEST>
+    </HEADER>
+    <BODY>
+        <IMPORTDATA>
+            <REQUESTDESC>
+                    <REPORTNAME>All Masters</REPORTNAME>
+                <STATICVARIABLES>
+                    <SVCURRENTCOMPANY>{{company.company_name}}</SVCURRENTCOMPANY>
+                </STATICVARIABLES>
+            </REQUESTDESC>
+            <REQUESTDATA>
+                <TALLYMESSAGE xmlns:UDF="TallyUDF">
+                    <LEDGER Action="Create">
+                        <NAME>{{party.party_name}}</NAME>
+                        <PARENT>{{party.tally_under}}</PARENT>
+                        <MAILINGNAME.LIST TYPE="String">
+                        <MAILINGNAME>{{party.party_name}}</MAILINGNAME>
+                        </MAILINGNAME.LIST>
+                        <ADDRESS.LIST TYPE="String">
+                            <ADDRESS>{{party.corp_address_line1}} </ADDRESS>
+                            <ADDRESS>{{party.corp_address_line2}} </ADDRESS>
+                            <ADDRESS>{{party.corp_address_line3}} </ADDRESS>
+                            
+                        </ADDRESS.LIST>
+                        <PINCODE>{{party.corp_zip}}</PINCODE>
+                        <COUNTRYNAME>{{party.corp_country}}</COUNTRYNAME>
+                        <LEDSTATENAME>{{party.corp_state}}</LEDSTATENAME>
+                        <EMAIL>{{party.corp_email}}</EMAIL>
+                        <EMAILCC>{{party.corp_email}}</EMAILCC>
+                        <LEDGERPHONE>{{party.corp_contact}}</LEDGERPHONE>
+                        <LEDGERMOBILE>{{party.corp_contact}}</LEDGERMOBILE>
+                     </LEDGER> 
+                </TALLYMESSAGE> 
+            </REQUESTDATA>
+        </IMPORTDATA>
+    </BODY>
+</ENVELOPE>

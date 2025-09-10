@@ -1,0 +1,196 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load humanize %}
+
+{% block dashoard_title %} 
+Ledger Report - 
+{% endblock %}
+
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Ledger Report
+</h1>
+
+<style>
+    table td, th{
+        padding: 0px!important;
+    }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-6 mb-2">
+                <label for="company">Choose Company</label>
+                <select name="company" class="form-control" id="company">
+                    {% if selected_company == "All"  %}
+                    <option value="All" selected  >All</option>
+                    {% else %}
+                    <option value="All">All</option>
+                    {% endif %}
+                    {% for item in global_companies %}
+                    {% if selected_company == item.id %}
+                    <option value="{{item.id}}" selected>{{item}}</option>
+                    {% else %}
+                    <option value="{{item.id}}" >{{item}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 mb-2">
+                <label for="accounts">Choose Account</label>
+                <select name="accounts" class="form-control" id="accounts">
+                    <option value="" selected disabled hidden>Choose Account</option>
+                    {% for item in accounts %}
+                    {% if journal.first.account.id == item.id %}
+                    <option value="{{item.id}}" selected>{{item.ledger_name}}</option>
+                    {% else %}
+                    <option value="{{item.id}}" >{{item.ledger_name}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            
+        </div>
+        <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+
+    {% if journal %}
+
+    <h6 class="text-center my-3">{{journal.first.account.ledger_name}}</h6>
+
+    <table class="table compact table-hover table-bordered table-md-responsive">
+        <tr>
+            <th colspan="3">Dr.</th>
+            <th colspan="3" class="text-right">Cr.</th>
+        </tr>
+        <tr class="table-dark">
+            
+                <th>Date</th>
+                <th>Particulars</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Particulars</th>
+                <th>Amount</th>
+           
+           
+            
+        </tr>
+
+
+        <tbody>
+            {% if journal.first.account.opening_balance > 0 %}
+                {% if journal.first.account.balance_in == "Debit" %}
+                <tr>
+                    <td>{{journal.first.account.opening_date}}</td>
+                    <td>Opening Balance</td>
+                    <td>{{journal.first.account.opening_balance}}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>{{journal.first.account.opening_date}}</td>
+                    <td>Opening Balance</td>
+                    <td>{{journal.first.account.opening_balance}}</td>
+                </tr>
+                {% endif %}
+            {% endif %}
+            {% for item in journal %}
+            
+            {% if item.dr_cr == "Debit" %}
+            <tr>
+                <td>{{item.journal_entry.date}}</td>
+                <td>{{item.particular}}</td>
+                <td>{{item.amount|floatformat:2|intcomma}}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% endif %}
+
+            {% if item.dr_cr == "Credit" %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>{{item.journal_entry.date}}</td>
+                <td>{{item.particular}}</td>
+                <td>{{item.amount|floatformat:2|intcomma}}</td>
+            </tr>
+            {% endif %}
+
+
+          
+            {% endfor %}
+
+
+            {% if total_dr_amount > total_cr_amount %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>By Balance b/d</td>
+                <td>{{total_dr_amount|sub:total_cr_amount|floatformat:2|intcomma}}</td>
+            </tr>
+            {% endif %}
+
+            {% if total_dr_amount < total_cr_amount %}
+            <tr>
+                <td></td>
+                <td>To Balance b/d</td>
+                <td>{{total_cr_amount|sub:total_dr_amount|floatformat:2|intcomma}}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% endif %}
+
+           
+        </tbody>
+
+        <tr class="table-dark">
+           
+                <td colspan="2">Total</td>
+                
+                
+                
+                {% if total_dr_amount < total_cr_amount %}
+                <td>{{total_cr_amount|floatformat:2|intcomma}}</td>
+                {% elif total_dr_amount == total_cr_amount %}
+                <td>{{total_dr_amount|floatformat:2|intcomma}}</td>
+                {% else %}
+                <td>{{total_dr_amount|floatformat:2|intcomma}}</td>
+                {% endif %}
+
+
+                <td colspan="2">Total</td>
+                {% if total_dr_amount < total_cr_amount %}
+                <td>{{total_cr_amount|floatformat:2|intcomma}}</td>
+                {% elif total_dr_amount == total_cr_amount %}
+                <td>{{total_cr_amount}}</td>
+                {% else %}
+                <td>{{total_dr_amount|floatformat:2|intcomma}}</td>
+                {% endif %}
+            </tr>
+
+
+    </table>
+
+    {% endif %}
+
+
+
+{% endblock %}

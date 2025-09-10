@@ -1,0 +1,226 @@
+{% extends 'dashboard/index.html' %}
+
+
+{% block dashoard_title %} 
+Payment TDS Report - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Payment TDS Report
+</h1>
+
+<style>
+  table td, th{
+    padding: 1px!important;
+  }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<div>
+  <form action="" method="post">
+    {% csrf_token %}
+    <div class="row">
+     <div class="col-2">
+      <label for="tds_section">TDS Section</label>
+       <select name="tds_section" class="form-control form-control-sm" id="tds_section">
+        {% for section in sections %}
+        {% if section == tds_section %}
+        <option value="{{section}}" selected>{{section}}</option>
+        {% else %}
+        <option value="{{section}}">{{section}}</option>
+        {% endif %}
+         {% endfor %}
+        </select>
+        
+      </div>
+     <div class="col-2">
+      <label for="company">Choose Company</label>
+        <select name="company" required class="form-control" id="company">
+            <option value="" selected disabled hidden>Choose Company</option>
+            {% for item in global_companies %}
+            {% if company == item.id %}
+            <option value="{{item.id}}" selected>{{item}}</option>
+            {% else %}
+            <option value="{{item.id}}" >{{item}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+        
+      </div>
+     
+      <div class="col-2">
+        <label for="from_date">From</label>
+        <input type="date" name="from_date" id="from_date" value="{{from_date|date:'Y-m-d'}}"
+          class="form-control form-control-sm" required />
+      </div>
+
+      <div class="col-2">
+        <label for="to_date">To</label>
+        <input type="date" name="to_date" id="to_date" value="{{to_date|date:'Y-m-d'}}"
+          class="form-control form-control-sm" required />
+      </div>
+      <div class="col-2 mt-4">
+        <button class="btn btn-sm btn-primary" type="submit">Get Report</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% if report %}
+<div class="table-responsive">
+<table class="table table-primary table-bordered" id="payment_tds_table">
+    <thead>
+      <tr>
+ 
+        <th scope="col">Branch</th>
+ 
+        <th scope="col">Job No.</th>
+        <th scope="col">Bill No.</th>
+        <th scope="col">Bill Date</th>
+        <th scope="col">Party Name</th>
+        <th scope="col">Party PAN</th>
+        <th scope="col">Section</th>
+        <th scope="col">Gross Amt.</th>
+        <th scope="col">Tax Amt.</th>
+        <th scope="col">Net Amt.</th>
+      
+        <th scope="col">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for data in report %}
+      
+      {% with invoice=data.invoice %}
+      {% if data.type == "Direct" %}
+      <tr>
+        <td>{{ invoice.company_type }}</td>
+        <td>{{ invoice.job_no }}</td>
+        <td>
+          
+          {{ invoice.purchase_invoice_no }}
+        </td>
+        <td>{{invoice.date_of_invoice|date:'Y-m-d'}}</td>
+        <td>{{ invoice.bill_from.party_name }}</td>
+        <td>{{ invoice.bill_from_address.corp_pan }}</td>
+        <td>{{ invoice.tds_section }}</td>
+        <td data-order="{{ invoice.gross_amount|floatformat:2 }}" align="right">{{ invoice.gross_amount|floatformat:2 }}</td>
+        <td data-order="{{ invoice.gst_amount|floatformat:2 }}" align="right">{{ invoice.gst_amount|floatformat:2 }}</td>
+        <td data-order="{{ invoice.net_amount|floatformat:2 }}" align="right">{{ invoice.net_amount|floatformat:2 }}</td>
+
+
+        <td align="right" data-order="{{ data.tds|floatformat:0|floatformat:2 }}">{{ data.tds|floatformat:0|floatformat:2 }}</td>
+      </tr>
+   
+      {% else %}
+      <tr>
+        <td>{{ invoice.company_type }}</td>
+        <td>{{ invoice.job_no }}</td>
+        <td>
+          {{ invoice.bill_no }}
+        </td>
+        <td>{{invoice.bill_date|date:'Y-m-d'}}</td>
+        <td>{{ invoice.vendor.vendor_name }}</td>
+        <td>{{ invoice.vendor.pan }}</td>
+        <td>{{ invoice.tds_section }}</td>
+        <td data-order="{{ invoice.gross_amount|floatformat:2 }}" align="right">{{ invoice.gross_amount|floatformat:2 }}</td>
+        <td data-order="{{ invoice.gst_amount|floatformat:2 }}" align="right">{{ invoice.gst_amount|floatformat:2 }}</td>
+        <td data-order="{{ invoice.net_amount|floatformat:2 }}" align="right">{{ invoice.net_amount|floatformat:2 }}</td>
+
+        <td align="right" data-order="{{ data.tds|floatformat:0|floatformat:2 }}">{{ data.tds|floatformat:0|floatformat:2 }}</td>
+      
+   
+       
+    
+      </tr>
+
+      {% endif %}
+      {% endwith %}
+      {% endfor %}
+
+    
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="6"></td>
+        <td class="text-right text-white">Total</td>
+        <td class="text-right text-white"></td>
+        <td class="text-right text-white"></td>
+        <td class="text-right text-white"></td>
+        <td class="text-right text-white"></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+{% endif %}
+
+
+  
+
+{% endblock %}
+
+{% block js %}
+
+  <script>
+    $(document).ready(function () {
+
+      jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+        return this.flatten().reduce( function ( a, b ) {
+            var x = parseFloat(a) ;
+            var y = parseFloat($(b).attr('data-order')) ;
+    
+            return parseFloat((x+y)).toFixed(2)
+        }, 0 );
+    } );
+  
+    let table = new DataTable('#payment_tds_table', {
+        // options
+        dom: 'BQlfrtip',
+        columnDefs: [
+            { "type": "date", "targets": 3,"displayFormat": 'dddd D MMMM YYYY' },
+         
+            ],
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+            order: [[3, 'asc']],
+        buttons: [
+            {
+                extend: 'collection',
+                text: 'Export',
+                buttons: [
+                    'copy',
+                    'excel',
+                    'csv',
+                    'pdf',
+                    'print'
+                ]
+            }
+            ],
+            drawCallback: function () {
+              var api = this.api();
+              var arr = [7,8,9,10]
+              arr.forEach(num=>{
+
+                $( api.table().column(num).footer() ).html(
+                    api.column( num, {page:'current'} ).nodes().sum()
+                );
+              })
+              
+             
+            
+           
+            
+             
+            }
+    });
+    document.querySelector('.dtsb-title').style.display = 'none'
+  })
+  </script>
+{% endblock %}

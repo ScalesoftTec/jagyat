@@ -1,0 +1,53 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Unit Of Measurement
+    {% else %}
+    Create New Unit Of Measurement
+    {% endif %}
+</h1>
+
+<a href="{% url 'dashboard:uom_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    <div class="row">
+
+        <div class="col-md-4 col-sm-12 mb-3">
+            <label for="id_name">Name</label>
+            {{ form.name }}
+        </div>
+
+        <div class="col-md-4 col-sm-12 mb-3">
+            <label for="id_short_name">Short Name</label>
+            {{ form.short_name }}
+        </div>
+
+        <div class="col-md-4 col-sm-12 mb-3">
+            <label for="id_type">Type</label>
+            {{ form.type }}
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update Unit Of Measurement
+        {% else %}
+        Create New Unit Of Measurement
+        {% endif %}
+
+    </button>
+</form>
+
+
+
+{% endblock %}

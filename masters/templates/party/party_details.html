@@ -1,0 +1,177 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+Party Details |
+{% endblock %}
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Party List
+</h1>
+
+<a href="{% url 'masters:create_party' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Party</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+<div class="table-responsive">
+<table class="table compact table-primary table-bordered" id="party_table">
+    <thead>
+      <tr>
+        <th scope="col">S.&nbsp;No.</th>
+        <th scope="col">Party&nbsp;Name</th>
+        <th scope="col">Address</th>
+        <th scope="col">GST</th>
+
+        <th scope="col">Acc.&nbsp;Manager</th>
+        <th scope="col">Party Type</th>
+        <th scope="col">Credit&nbsp;Days</th>
+        <!-- <th scope="col">Fin/NonFin</th> -->
+        <!-- <th scope="col">Under</th> -->
+        <th scope="col">Active</th>
+        <th scope="col">Acc Group</th>
+        <th scope="col">KYC</th>
+        <th scope="col">Created&nbsp;At</th>
+        <th scope="col">Created&nbsp;By</th>
+       
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for party in parties %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ party.party_name }}</td>
+        <td>
+          {% for detail in party.party_address.all %}
+          {{detail}}
+          {% endfor %}
+        </td>
+        <td style="text-align: center !important;">
+          {% for detail in party.party_address.all %}
+            {% if  detail.corp_gstin %}
+              {{detail.corp_gstin}}
+            {% else %}
+              -
+            {% endif %}
+          {% endfor %}
+        </td>
+        <td style="text-align: center !important;">
+          {% if party.account_manager %}
+            {{ party.account_manager }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td >
+          <ul>
+            {% for party_types in party.party_type.all %}
+            <li style="padding: 1px 20px;">
+              {{party_types.name}}
+            </li>
+            {% endfor %}
+          </ul>
+        </td>
+        <td>{{ party.credit_days }}</td>
+        <!-- <td>{{ party.fin_non_fin }}</td> -->
+        <!-- <td>{{ party.under }}</td> -->
+        <td>
+          {% if party.is_active %}
+          <span class="badge badge-success">Active</span>
+          {% else %}
+          <span class="badge badge-danger">Not Active</span>
+          {% endif %}
+        </td>
+        <td>{{party.tally_group}}</td>
+        <td>
+          {% if party.kyc_form %}
+          <span class="badge badge-success">Done</span>
+          {% else %}
+          <span class="badge badge-danger">Not Done</span>
+          {% endif %}
+        </td>
+        <td>
+        {{party.created_at}}
+        </td>
+        <td>
+        {{party.created_by}}
+        </td>
+     
+        <td>
+            <a href="{% url 'masters:party_update' module=module id=party.id %}" class="btn btn-xs btn-info"><i class="fas fa-edit"></i></a>
+          &nbsp;
+
+            {% if request.user.user_account.can_delete %}
+           <!-- Button trigger modal -->
+            <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+                <i class="fas fa-trash"></i>
+            </button>
+      
+            <!-- Modal -->
+            <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{party.party_name}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                    Are you sure want to delete {{ party.party_name }}?
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <a href="{% url 'masters:party_delete' module=module id=party.id %}" class="btn btn-primary">Confirm Delete</a>
+                    </div>
+                </div>
+                </div>
+            </div>
+            {% endif %}
+          
+     
+
+        </td>
+    
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  let table = new DataTable('#party_table', {
+    dom: 'BQlfrtip',
+    lengthMenu: [
+    [10, 25, 50, -1],
+    [10, 25, 50, 'All'],
+    ],
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+           
+        ]
+    },
+
+    ]
+
+});
+
+document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+
+{% endblock %}

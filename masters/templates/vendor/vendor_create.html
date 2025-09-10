@@ -1,0 +1,152 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Vendor
+    {% else %}
+    Create New Vendor
+    {% endif %}
+</h1>
+
+<a href="{% url 'masters:vendor_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+    <form enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        {% include 'error_component.html' %}
+        <div class="row">
+
+            <div class="col-md-12 col-sm-12 mb-1">
+                <label for="id_vendor_name">Vendor Name</label>
+                {{ form.vendor_name }}
+            </div>
+          
+           
+            <div class="col-12 mb-4">
+                <h5 style="color: black;">Address Details</h5>
+                <hr>
+            </div>
+            
+            <div class="col-md-12 mb-1 col-sm-12">
+                <div class="row">
+                    
+                    <div class="col-12 mb-1">
+                        <label for="id_address_line1">Adress Detail</label>
+                        <div class="mb-1">
+                            {{ form.address_line1}}
+                        </div>
+                        <div class="mb-1">
+                            {{ form.address_line2}}
+                        </div>
+                        <div class="mb-1">
+                            {{ form.address_line3}}
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-12 mb-1">
+                        <label for="id_country"> Country</label>
+                        {{ form.country}}
+                    </div>
+                    
+                    <div class="col-md-3 col-sm-12 mb-1">
+                        <label for="id_state"> State</label>
+                        {{ form.state}}
+                    </div>
+
+                    <div class="col-md-3 col-sm-12 mb-1">
+                        <label for="id_city"> City</label>
+                        {{ form.city}}
+                    </div>
+
+                  
+                    <div class="col-md-3 col-sm-12 mb-1">
+                        <label for="id_email"> Email</label>
+                        {{ form.email}}
+                    </div>
+
+                    
+
+                    <div class="col-md-3 col-sm-12 mb-1">
+                        <label for="id_website"> GSTIN</label>
+                        {{ form.gstin}}
+                    </div>
+
+                    <div class="col-md-3 col-sm-12 mb-1">
+                        <label for="id_zip"> ZIP</label>
+                        {{ form.zip}}
+                    </div>
+
+                    <div class="col-md-3 col-sm-12 mb-1">
+                        <label for="id_fax"> Fax</label>
+                        {{ form.fax}}
+                    </div>
+
+                
+
+                    <div class="col-md-3 col-sm-12 mb-1">
+                        <label for="id_contact"> Contact</label>
+                        {{ form.contact}}
+                    </div>
+
+                    <div class="col-md-3 col-sm-12 mb-1">
+                        <label for="id_pan"> PAN</label>
+                        {{ form.pan}}
+                    </div>
+
+
+                </div>
+            </div>
+
+            <div class="col-12 mb-1">
+                <label for="id_remarks">Remarks</label>
+                {{ form.remarks }}
+            </div>
+
+            <div class="col-md-12 col-sm-12 mb-1">
+                <hr>
+                
+            </div>
+            <div class="col-md-2">
+                <label for="id_company_type">Company</label>
+                {{form.company_type}}
+            </div>
+            <div class="col-md-2">
+                <label for="id_opening_balance">Opening Balance</label>
+                {{form.opening_balance}}
+            </div>
+            <div class="col-md-2">
+                <label for="id_opening_in">Opening In</label>
+                {{form.opening_in}}
+            </div>
+            <div class="col-md-2">
+                <label for="id_opening_date">Opening Date</label>
+                {{form.opening_date}}
+            </div>
+            <div class="col-md-2">
+                <label for="id_opening_date">Acc. Group</label>
+                {{form.tally_group}}
+            </div>
+
+
+
+           
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3 mb-4">
+        {% if update %}
+        Update Vendor
+        {% else %}
+        Submit
+        {% endif %}
+        
+        </button>
+    </form>
+
+
+
+{% endblock %}

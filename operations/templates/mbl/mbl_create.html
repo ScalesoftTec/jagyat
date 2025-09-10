@@ -1,0 +1,646 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %}
+{% if update %}
+Update HBL2 -
+{% else %}
+Create HBL -
+{% endif %}
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update HBL 
+    {% else %}
+    Create New HBL 
+    {% endif %}
+
+</h1>
+
+<a href="{% url 'operations:mbl_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data"  onsubmit="disableSubmit()" method="post" id="mbl_form" data-job_container-url="{% url 'home:ajax_load_job_hbl_container_details' %}" data-job-url="{% url 'home:ajax_load_jobdetails' %}" data-party-url="{% url 'home:ajax_party_details' %}" data-party_address-url="{% url 'home:ajax_party_address_details' %}" >
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+
+        <div class="row col-12 mb-2">
+            <div class="col-auto">
+                <label for="id_mbl_file">MBL FILE</label>
+                {{form.mbl_file}}
+            </div>
+            <div class="col-auto">
+                <label for="id_hbl_file">HBL FILE</label>
+                {{form.hbl_file}}
+            </div>
+        </div>
+
+        {% if request.user.user_account.create_global_data %}
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_company_type">Choose Company</label>
+            {{ form.company_type }}
+        </div>
+        {% else %}
+            <input type="hidden" name="company_type" id="id_company_type" value="{{ request.user.user_account.office.id }}">
+        {% endif %}
+
+       
+
+       
+        {% if update %}
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_mbl_no">MBL No</label>
+            {{ form.mbl_no }}
+        </div>
+        {% endif %}
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_job_no">Job No</label>
+            {{ form.job_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_date">Date</label>
+            {{ form.date }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_mbl_type">HBL Type</label>
+            {{ form.mbl_type }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_mbl_Document_no">Booking No</label>
+            {{ form.mbl_Document_no }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_bl_type">BL Type</label>
+            {{ form.bl_type }}
+        </div>
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_mtd_number">MTD Number</label>
+            {{ form.mtd_number }}
+        </div>
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_shipment_ref_no">Shipment Reference No.</label>
+            {{ form.shipment_ref_no }}
+        </div>
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_type">Type</label>
+            {{ form.type }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_executed_at">Executed At</label>
+            {{ form.executed_at }}
+        </div>
+
+        
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_by">By</label>
+            {{ form.by }}
+        </div>
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_movement_type">Mode / Means of Transport</label>
+            {{ form.movement_type }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_freight_type">Freight Type</label>
+            {{ form.freight_type }}
+        </div>
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_total_weight">Total Weight</label>
+            {{ form.total_weight }}
+        </div>
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_total_packages">Total Packages</label>
+            {{ form.total_packages }}
+        </div>
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_carrier">Carrier</label>
+            {{ form.carrier }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_currency">Currency</label>
+            {{ form.currency }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_shipper_board_date">Shipper Board Date</label>
+            {{ form.shipper_board_date }}
+        </div>
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_freight">Freight</label>
+            {{ form.freight }}
+        </div>
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_no_of_o_mtd">No of Original MTD(s)</label>
+            {{ form.no_of_o_mtd }}
+        </div>
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_freight_charge_amt">Freight & Charges Amount</label>
+            {{ form.freight_charge_amt }}
+        </div>
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_freight_payable_at">Freight Payable At</label>
+            {{ form.freight_payable_at }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_point_and_country_of_origin">Point And Country Of Origin</label>
+            {{ form.point_and_country_of_origin }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_loading_pier">Loading Pier/Terminal</label>
+            {{ form.loading_pier }}
+        </div>
+
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_pre_carriage_by">Pre-carriage By</label>
+            {{ form.pre_carriage_by }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_ocean_vessel">Ocean Vessel</label>
+            {{ form.ocean_vessel }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_port_of_loading_export">Port of Loading Export</label>
+            {{ form.port_of_loading_export }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_place_of_delivery">Place of delivery(On carrier)</label>
+            {{ form.place_of_delivery }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_place_of_receipt">Place Of Receipt(Pre-Carrier)</label>
+            {{ form.place_of_receipt }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_voyage_no">Voyage No</label>
+            {{ form.voyage_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_port_of_discharge">Port of Discharge</label>
+            {{ form.port_of_discharge }}
+        </div>
+
+        <!-- <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_declared_value">Declared Value</label>
+            {{ form.declared_value }}
+        </div> -->
+
+        <div class="col-md-6 col-sm-12 mb-1">
+            <label for="id_export_references">Export References</label>
+            {{ form.export_references }}
+        </div>
+        <!-- <div class="col-md-4 col-sm-12 mb-1">
+            <label for="id_forwarding_agent">Forwarding Agent (Name & Address References)</label>
+            {{ form.forwarding_agent }}
+        </div> -->
+        <div class="col-md-6 col-sm-12 mb-1">
+            <label for="id_domestic_routing">Domestic Routing/Export Instruction</label>
+            {{ form.domestic_routing }}
+        </div>
+
+
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_exporter_name">Exporter</label>
+            {{ form.exporter_name }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_consigned_name">Consigned To</label>
+            {{ form.consigned_name }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_notify_party">Notify Party</label>
+            {{ form.notify_party }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_agent_name">Agent Destination</label>
+            {{ form.agent_name }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_exporter_address">Exporter Address</label>
+            {{ form.exporter_address }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_consigned_address">Consigned Address</label>
+            {{ form.consigned_address }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_notify_party_address">Notify Party Address</label>
+            {{ form.notify_party_address }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_agent_address">Agent Destination Address</label>
+            {{ form.agent_address }}
+        </div>
+        
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_marks_and_number">Marks & Number</label>
+            {{ form.marks_and_number }}
+        </div>
+       
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_description_of_commodities">Description of Commodities</label>
+            {{ form.description_of_commodities }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_gross_weight">Gross Weight</label>
+            {{ form.gross_weight }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_measurement">Measurement</label>
+            {{ form.measurement }}
+        </div>
+        
+        
+        
+    </div>
+    <div class="col-md-3 col-sm-12 mb-1" id="container_option">
+    <label for="id_container_options">Container options</label>
+    
+    <table id="container_heads" class="table table-bordered">
+            
+       
+   
+    </table>
+ 
+
+ 
+    </div>
+
+
+
+    <button type="submit" id="submitBtn" class="btn btn-primary">
+        {% if update %}
+        Update HBL 
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+
+    <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+    {% if update %}
+   
+    <input type="hidden" id="is_update"  value="true">
+    <input type="hidden" value="{{form.instance.container_options.count}}" id="hbl_container_count" >
+    {% for i in form.instance.container_options.all %}
+    <input type="hidden" id="hbl_container_{{forloop.counter}}"  value="{{i.id}}">
+
+  
+
+    {% endfor %}
+
+
+    {% else %}
+    <input type="hidden" id="is_update" value="false">
+    {% endif %}
+
+    
+    
+
+
+
+
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+{% endblock %}
+
+{% block js %}
+
+
+
+
+<script>
+
+   
+
+
+    if(document.getElementById('is_update').value == 'false'){
+        document.getElementById('id_company_type').value = document.getElementById('user_company').value
+    }
+    function handleAdressesDetails(id,address_id,value){
+        var url = $("#mbl_form").attr("data-party_address-url");
+        var party = value == 0 ? document.getElementById(id).value : value;
+
+        if(party){
+            $.ajax({
+                url: url,
+                data: { 'party': party },
+                dataType: 'json',
+                success: function (data) {    
+                    const party = data.party[0]
+                    document.getElementById(address_id).textContent = `${party.corp_address_line1}\n${party.corp_address_line2}\n${party.corp_address_line3}`
+                }
+            });
+        }else{
+            document.getElementById(address_id).textContent = ''
+
+        }
+    }
+    function handleAdresses(id,address_id,value){
+        var url = $("#mbl_form").attr("data-party-url");
+        
+        var party = value == 0 ? document.getElementById(id).value : value;
+        
+        
+      
+        if(party){
+            $.ajax({
+                url: url,
+                data: { 'party': party },
+                dataType: 'json',
+                success: function (data) { 
+                  
+                    const party = data.party[0]
+                    
+                    document.getElementById(address_id).textContent = party.registered_address
+                }
+            });
+        }else{
+            document.getElementById(address_id).textContent = ''
+
+        }
+  }
+
+    $("#id_job_no").change(function () {
+        var url = $("#mbl_form").attr("data-job_container-url");
+        var job_no = $(this).val();
+        
+        
+        
+        $.ajax({
+            url: url,
+            data: { 'job_no': job_no },
+            dataType: 'json',
+            success: function (data) {
+            const job_contaniners = data.job
+         
+            handleHBLContainers(job_contaniners)
+            
+       
+            var marks_and_number = ""
+            var gross_wt = ""
+            for(var i=0; i<job_contaniners.length; i++){
+                marks_and_number += `${job_contaniners[i]['job_container_no']}\n${job_contaniners[i]['line_seal']}\n`;
+                gross_wt += `${job_contaniners[i]['gross_wt']}\n`;
+               
+            }
+
+            document.getElementById('id_marks_and_number').textContent = marks_and_number
+            document.getElementById('id_gross_weight').textContent = gross_wt
+
+           
+
+            
+
+            }
+          });
+
+        url = $("#mbl_form").attr("data-job-url");
+        
+        $.ajax({
+          url: url,
+          data: { 'job_no': job_no },
+          dataType: 'json',
+          success: function (data) {
+          
+          const job = data.job[0]
+
+          $("#id_port_of_loading_export").val(job.port_of_loading_id);
+          $("#id_place_of_receipt").val(job.place_of_reciept_id);
+          $("#id_place_of_receipt").val(job.place_of_reciept_id);
+          $("#id_port_of_discharge").val(job.port_of_discharge_id);
+          $("#id_place_of_delivery").val(job.final_destination_id);
+          $("#id_total_packages").val(job.no_of_packages);
+          $("#id_carrier").val(job.shipping_line_id);
+          $("#id_agent_name").val(job.delivery_id);
+          $("#id_freight_type").val(job.freight_term);
+          $("#id_total_weight").val(job.net_weight);
+          $("#id_notify_party").val(job.notify_party_id);
+          $("#id_exporter_name").val(job.shipper_id);
+          $("#id_consigned_name").val(job.consignee_id);
+
+          $("#id_no_of_packages").val(job.no_of_packages);
+        
+          $("#id_measurement").val(job.cbm);
+         
+        
+          $("#id_description_of_commodities").val(job.commodity);
+          $("#id_ocean_vessel").val(job.vessel_voy_name);
+          $("#id_mbl_Document_no").val(job.booking_no);
+          
+          
+         
+          handleAdresses('id_consigned_name','id_consigned_address',job.consignee_id)
+          handleAdresses('id_notify_party','id_notify_party_address',job.notify_party_id)
+          handleAdresses('id_agent_name','id_agent_address',job.delivery_id)
+          handleAdressesDetails('id_exporter_name','id_exporter_address',job.account_address_id)
+
+        }
+        });
+      });
+     
+      
+
+    const handleHBLContainers = async (job_contaniners) => {
+        
+        document.getElementById('container_heads').innerHTML = ""
+            var newRow = document.getElementById('container_heads').insertRow(-1)
+            var check = newRow.insertCell(0)
+            var container_no = newRow.insertCell(1)
+            var size = newRow.insertCell(2)
+            var cbm = newRow.insertCell(3)
+            var weight = newRow.insertCell(4)
+            check.innerHTML = `
+              
+                `
+                container_no.innerHTML = `
+               Container No
+                `
+                size.innerHTML = `
+                Size
+                `
+                cbm.innerHTML = `
+               CBM
+                `
+                weight.innerHTML = `
+                Weight
+                `
+            
+            for(var i=0; i<job_contaniners.length; i++){
+               
+                var newRow = document.getElementById('container_heads').insertRow(-1)
+                newRow.id = `entry-${i}`
+                newRow.classList.add("entry")
+                var check = newRow.insertCell(0)
+                var container_no = newRow.insertCell(1)
+                var size = newRow.insertCell(2)
+                var cbm = newRow.insertCell(3)
+                var weight = newRow.insertCell(4)
+
+                const mbl_id=job_contaniners[i].id
+                // console.log('---',mbl_id);
+               
+
+
+               
+                check.innerHTML = `
+                    <input type="checkbox" name="container_options" value="${job_contaniners[i].id}" id="id_container_options_${i}">
+                `
+                container_no.innerHTML = `
+                ${job_contaniners[i].job_container_no}
+                `
+                size.innerHTML = `
+                ${job_contaniners[i].container_type}
+                `
+                cbm.innerHTML = `
+                ${job_contaniners[i].gross_wt}
+                `
+                weight.innerHTML = `
+                ${job_contaniners[i].cbm}
+                `
+            }
+            if(document.getElementById('is_update').value == 'true'){
+                setHblContainers(job_contaniners)
+               
+            }
+    }
+    if(document.getElementById('is_update').value == 'true'){
+        var url = $("#mbl_form").attr("data-job_container-url");
+        var job_no = document.getElementById('id_job_no').value;
+        $.ajax({
+            url: url,
+            data: { 'job_no': job_no },
+            dataType: 'json',
+            success: function (data) {
+            const job_contaniners = data.job
+            
+           
+            handleHBLContainers(job_contaniners)
+         
+        }})
+    }
+    document.getElementById('id_consigned_name').addEventListener('change',()=>handleAdresses('id_consigned_name','id_consigned_address',0))
+    document.getElementById('id_notify_party').addEventListener('change',()=>handleAdresses('id_notify_party','id_notify_party_address',0))
+    document.getElementById('id_agent_name').addEventListener('change',()=>handleAdresses('id_agent_name','id_agent_address',0))
+
+    
+
+      function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for(i = L; i >= 0; i--) {
+           selectElement.remove(i);
+        }
+        }
+    
+      document.getElementById('id_company_type').addEventListener('change',getOnlyCompanyJobs)
+      async function getOnlyCompanyJobs(){
+        try{
+    
+            const company = document.getElementById('id_company_type').value
+            var jobs = await axios.get('/api/v1/jobs/details?company_type='+company)
+            jobs = jobs.data
+            const select = document.getElementById('id_job_no'); 
+            const value = select.value
+            removeOptions(select);
+            select.required = true
+            var newOption = new Option("Choose Job","")
+            select.add(newOption);
+            jobs.map(item=>{
+                var newOption = new Option(item.job_no,item.id)
+                if(item.id == value){
+
+                    newOption.selected = true
+                }
+                select.add(newOption);
+            })
+    
+        }catch(err){
+            console.log(err)
+        }
+      }
+      function setHblContainers(job_container){
+        const count =parseInt(document.getElementById('hbl_container_count').value)
+       
+     
+        for(var i=1;i<=count;i++){
+            var container = document.getElementById('hbl_container_'+ i).value
+           
+            for(var j=0;j<job_container.length;j++){
+                var cont_value=document.getElementById('id_container_options_'+j)
+                
+                if(cont_value.value == container){
+                    cont_value.checked=true
+                }
+            }
+        }
+
+        
+      }
+    
+      getOnlyCompanyJobs()
+    
+  
+
+</script>
+
+
+
+<script>
+
+   
+  
+    
+
+
+    var company_id = document.getElementById('id_company_type').value
+
+    document.getElementById('id_company_type').addEventListener('change', (event) => {
+        $('#id_job_no').trigger('change');
+
+    })
+ 
+
+
+</script>
+
+
+
+{% endblock %}

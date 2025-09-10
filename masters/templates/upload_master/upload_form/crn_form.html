@@ -1,0 +1,86 @@
+<div class="tab-pane fade" id="crn" role="tabpanel" aria-labelledby="crn-tab">
+            
+    <h5>Credit Note File <span style="font-size: 14px;">Total Credit Note : {{credit_note_global_length}}</span></h5>
+    <div class="row">
+        <div class="col-12 mb-2">Please enter correct field name as per your excel file <i class="far fa-question-circle text-danger" style="cursor: pointer;"  data-toggle="tooltip" data-placement="right" title="Please enter correct field name as per your excel file"></i></div>
+
+        <div class="col-md-12 col-sm-12 mb-3">
+            <label for="id_crn_company_type">Choose Company</label>
+            <select name="crn_company_type" id="id_crn_company_type" class="form-control">
+                <option value="" selected hidden disabled>--------</option>
+                {% for company in companies %}
+                <option value="{{ company.id }}">{{ company }}</option>
+                {% endfor %}
+            </select>
+            <hr>
+        </div>
+
+        {% for i in crn_data_fields %}
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_crn{{i.name}}">{{i.label_name}}  </label>
+            <input type="text" name="crn_{{i.name}}" id="id_crn{{i.name}}" value="{{i.name}}"  class="form-control">
+        </div>
+        {% endfor %}
+
+        <div class="row col-12 mb-2">
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_crn_invoice">Credit Note</label>
+                <input type="text" name="crn_head_pay_invoice" id="id_crn_invoice" value="invoice"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_billing_head">Billing Head</label>
+                <input type="text" name="crn_head_billing_head" id="id_billing_head" value="billing_head"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_currency">Currency</label>
+                <input type="text" name="crn_head_currency" id="id_currency" value="currency"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_ex_rate">Ex Rate</label>
+                <input type="text" name="crn_head_ex_rate" id="id_ex_rate" value="ex_rate"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_rate">Rate</label>
+                <input type="text" name="crn_head_rate" id="id_rate" value="rate"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_qty_unit">Qty</label>
+                <input type="text" name="crn_head_qty_unit" id="id_qty_unit" value="qty_unit"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_amount">Amount</label>
+                <input type="text" name="crn_head_amount" id="id_amount" value="amount"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_gst">GST%</label>
+                <input type="text" name="crn_head_gst" id="id_gst" value="gst"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_gst_amount">GST Amount</label>
+                <input type="text" name="crn_head_gst_amount" id="id_gst_amount" value="gst_amount"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_total">Total</label>
+                <input type="text" name="crn_head_total" id="id_total" value="total"  class="form-control">
+            </div>
+        </div>
+
+        
+        <div class="col-12 mb-3">
+            <label for="crn_file">Credit Note File</label>
+            <input type="file" class="form-control"  name="crn_file"
+             id="crn_file">
+        </div>
+        <div class="col-12 mb-3">
+            <label for="crn_head_file">Credit Note Head File</label>
+            <input type="file" class="form-control"  name="crn_head_file"
+             id="crn_head_file">
+        </div>
+        
+        <div class="col-12 mb-3">
+            <input type="checkbox" name="crn_upload" id="crn_upload">
+            <label for="crn_upload">I want to upload Credit Note file</label>
+        </div>
+    </div>
+
+</div>

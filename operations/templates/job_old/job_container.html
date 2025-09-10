@@ -1,0 +1,358 @@
+<div  class="tab-pane fade" id="job_container_details" role="tabpanel" aria-labelledby="job_container_details-tab">
+    
+    
+    
+
+    {% if update and job_container|length > 0 %}
+    <input type="hidden" value="{{job_container|length}}" name="total_job_container_details_rows" id="total_job_container_details_rows" />
+    {% else %}
+    <input type="hidden" value="1" name="total_job_container_details_rows" id="total_job_container_details_rows" />
+
+    {% endif %}
+    <div class="table-responsive">
+    <table class="table table-bordered" id="job_container_table">
+        <tr>
+            <th>Container No</th>
+            <th>Container Type</th>
+            <th>Gross Wt.</th>
+            <th>Line Seal</th>
+            <th>Net wt</th>
+            <th>Total Package</th>
+            <th>cbm</th>
+            <th>Trailor No</th>
+            <th>GTA</th>
+            <th>Pickup Date</th>
+            <th>EXCFS Date</th>
+            <th>IN Fac Date</th>
+            <th>Actvity Date</th>
+            <th>Fac Out Date</th>
+            <th>CFS In Date</th>
+            <th>Return Date</th>
+            <th>Railout Date</th>
+            <th>Train No</th>
+            <th>Type</th>
+            <th>Place Of Loading</th>
+            <th>Place of Unloading</th>
+            <th>Shipper Seal No.</th>
+            <th>New Seal No</th>
+            <th>Stuffing Date</th>
+            <th>ICD Handover</th>
+            <th>Port Handover</th>
+            <th>Delivery date</th>
+           
+            <th>Action</th>
+        </tr>
+        {% if update and job_container|length > 0 %}
+        {% for j in job_container %}
+        <tr id="job_container_details-{{forloop.counter}}">
+            <td>
+                <input type="hidden" name="job_container_details_is_active-{{forloop.counter}}" id="job_container_details_is_active-{{forloop.counter}}" value="yes">
+                <input type="text" value="{{j.job_container_no}}" name="container_no-{{forloop.counter}}" id="container_no-{{forloop.counter}}" class="form-control" />
+               
+            </td>
+            
+            <td> <input type="text" value="{{j.container_type}}" name="container_type-{{forloop.counter}}" id="container_type-{{forloop.counter}}" class="form-control" /></td>
+
+
+            <td> <input type="text" value="{{j.gross_wt}}" name="gross_wt-{{forloop.counter}}" id="gross_wt-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="text" value="{{j.line_seal}}" name="line_seal-{{forloop.counter}}" id="line_seal-{{forloop.counter}}" class="form-control" /></td>
+
+            <td> <input type="text" value="{{j.net_wt}}" name="net_wt-{{forloop.counter}}" id="net_wt-{{forloop.counter}}" class="form-control" /></td>
+
+            <td> <input type="text" value="{{j.total_package}}" name="total_package-{{forloop.counter}}" id="total_package-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="text" value="{{j.cbm}}" name="cbm-{{forloop.counter}}" id="cbm-{{forloop.counter}}" class="form-control" /></td>
+
+
+            <td> <input type="text" value="{{j.trailor_no}}" name="trailor_no-{{forloop.counter}}" id="trailor_no-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="text" value="{{j.gta}}" name="gta-{{forloop.counter}}" id="gta-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="date" value="{{j.pickup_date|date:'Y-m-d' }}" name="pickup_date-{{forloop.counter}}" id="pickup_date-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="date" value="{{j.excfs_date|date:'Y-m-d' }}" name="excfs_date-{{forloop.counter}}" id="excfs_date-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="date" value="{{j.in_fac_date|date:'Y-m-d' }}" name="in_fac_date-{{forloop.counter}}" id="in_fac_date-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="date" value="{{j.activity_date|date:'Y-m-d' }}" name="activity_date-{{forloop.counter}}" id="activity_date-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="date" value="{{j.fac_out_date|date:'Y-m-d' }}" name="fac_out_date-{{forloop.counter}}" id="fac_out_date-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="date" value="{{j.cfs_in_date|date:'Y-m-d' }}" name="cfs_in_date-{{forloop.counter}}" id="cfs_in_date-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="date" value="{{j.return_date|date:'Y-m-d' }}" name="return_date-{{forloop.counter}}" id="return_date-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="date" value="{{j.railout_date|date:'Y-m-d' }}" name="railout_date-{{forloop.counter}}" id="railout_date-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="text" value="{{j.train_no}}" name="train_no-{{forloop.counter}}" id="train_no-{{forloop.counter}}" class="form-control" /></td>
+            <td> 
+                <select name="belong_to-{{forloop.counter}}" class="form-control" id="belong_to-{{forloop.counter}}">
+                    {% if j.belong_to == 'Self' %}
+                    <option value="Self" selected>Self</option>
+                    <option value="Other">Other</option>
+                    {% elif j.belong_to == 'Other' %}
+                    <option value="Self">Self</option>
+                    <option value="Other" selected>Other</option>
+                    {% else %}
+                    <option value="Self">Self</option>
+                    <option value="Other">Other</option>
+                    {% endif %}
+                </select>
+            </td>
+            <td> 
+                <select name="place_of_loading-{{forloop.counter}}" class="form-control" id="place_of_loading-{{forloop.counter}}">
+                   {% for i in global_locations %}
+                   {% if i.id == j.place_of_loading.id %}
+                   <option value="{{i.id}}" selected>{{i.name}}</option>
+                   {% else %}
+                   <option value="{{i.id}}">{{i.name}}</option>
+                   {% endif %}
+                   {% endfor %}
+                </select>
+            </td>
+            <td> 
+                <select name="place_of_unloading-{{forloop.counter}}" class="form-control" id="place_of_unloading-{{forloop.counter}}">
+                    {% for i in global_locations %}
+                    {% if i.id == j.place_of_unloading.id %}
+                   <option value="{{i.id}}" selected>{{i.name}}</option>
+                   {% else %}
+                   <option value="{{i.id}}">{{i.name}}</option>
+                   {% endif %}
+                   {% endfor %}
+                </select>
+            </td>
+            <td> <input type="text" value="{{j.shipper_seal_no}}" name="shipper_seal_no-{{forloop.counter}}" id="shipper_seal_no-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="text" value="{{j.new_seal_no}}" name="new_seal_no-{{forloop.counter}}" id="new_seal_no-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="date" value="{{j.stuffing_date|date:'Y-m-d'}}" name="stuffing_date-{{forloop.counter}}" id="stuffing_date-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="date" value="{{j.icd_handover_date|date:'Y-m-d'}}" name="icd_handover_date-{{forloop.counter}}" id="icd_handover_date-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="date" value="{{j.port_handover_date|date:'Y-m-d'}}" name="port_handover_date-{{forloop.counter}}" id="port_handover_date-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="date" value="{{j.delivery_date|date:'Y-m-d'}}" name="delivery_date-{{forloop.counter}}" id="delivery_date-{{forloop.counter}}" class="form-control" /></td>
+        
+            <td><button type="button" class="btn btn-sm btn-danger" onclick="jobContainerDeleteRow('{{forloop.counter}}')">Remove</button></td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr id="job_container_details-1">
+            <td>
+                <input type="hidden" name="job_container_details_is_active-1" id="job_container_details_is_active-1" value="yes">
+                <input type="text" name="container_no-1" id="container_no-1" class="form-control" />
+               
+            </td>
+            
+            <td> <input type="text" name="container_type-1" id="container_type-1" class="form-control" /></td>
+            <td> <input type="text" name="gross_wt-1" id="gross_wt-1" class="form-control" /></td>
+            <td> <input type="text" name="line_seal-1" id="line_seal-1" class="form-control" /></td>
+            <td> <input type="text" name="net_wt-1" id="net_wt-1" class="form-control" /></td>
+            <td> <input type="text" name="total_package-1" id="total_package-1" class="form-control" /></td>
+            <td> <input type="text" name="cbm-1" id="cbm-1" class="form-control" /></td>
+
+            <td> <input type="text" name="trailor_no-1" id="trailor_no-1" class="form-control" /></td>
+            <td> <input type="text" name="gta-1" id="gta-1" class="form-control" /></td>
+            <td> <input type="date" name="pickup_date-1" id="pickup_date-1" class="form-control" /></td>
+            <td> <input type="date" name="excfs_date-1" id="excfs_date-1" class="form-control" /></td>
+            <td> <input type="date" name="in_fac_date-1" id="in_fac_date-1" class="form-control" /></td>
+            <td> <input type="date" name="activity_date-1" id="activity_date-1" class="form-control" /></td>
+            <td> <input type="date" name="fac_out_date-1" id="fac_out_date-1" class="form-control" /></td>
+            <td> <input type="date" name="cfs_in_date-1" id="cfs_in_date-1" class="form-control" /></td>
+            <td> <input type="date" name="return_date-1" id="return_date-1" class="form-control" /></td>
+            <td> <input type="date" name="railout_date-1" id="railout_date-1" class="form-control" /></td>
+            <td> <input type="text" name="train_no-1" id="train_no-1" class="form-control" /></td>
+            <td> 
+                <select name="belong_to-1" class="form-control" id="belong_to-1">
+                 
+                    <option value="Self">Self</option>
+                    <option value="Other">Other</option>
+                   
+                </select>
+            </td>
+            <td> 
+                <select name="place_of_loading-1" class="form-control" id="place_of_loading-1">
+                <option value="" selected hidden>Choose Location</option>
+                   {% for i in global_locations %}
+                   <option value="{{i.id}}">{{i.name}}</option>
+                  
+                   {% endfor %}
+                </select>
+            </td>
+            <td> 
+                <select name="place_of_unloading-1" class="form-control" id="place_of_unloading-1">
+                    <option value="" selected hidden>Choose Location</option>
+                   {% for i in global_locations %}
+                   <option value="{{i.id}}">{{i.name}}</option>
+                   {% endfor %}
+                </select>
+            </td>
+            <td> <input type="text" name="shipper_seal_no-1" id="shipper_seal_no-1" class="form-control" /></td>
+            <td> <input type="text" name="new_seal_no-1" id="new_seal_no-1" class="form-control" /></td>
+            <td> <input type="date" name="stuffing_date-1" id="stuffing_date-1" class="form-control" /></td>
+            <td> <input type="date" name="icd_handover_date-1" id="icd_handover_date-1" class="form-control" /></td>
+            <td> <input type="date" name="port_handover_date-1" id="port_handover_date-1" class="form-control" /></td>
+            <td> <input type="date" name="delivery_date-1" id="delivery_date-1" class="form-control" /></td>
+            <td><button type="button" class="btn btn-sm btn-danger" onclick="jobContainerDeleteRow(1)">Remove</button></td>
+        </tr>
+        {% endif %}
+      
+    </table>
+
+    </div>
+    <div class="text-right">
+        <button class="btn btn-sm btn-primary" type="button" onclick="jobContainerAddRow()">Add More</button>
+    </div>
+</div>
+
+<script>
+    var jobContainerCurrentRow = parseInt(document.getElementById('total_job_container_details_rows').value) 
+    
+    var jobContaineravailableRowNumber = parseInt(document.getElementById('total_job_container_details_rows').value) || 0
+    
+    const jobContainerAddRow = () => {
+        jobContainerCurrentRow += 1
+        jobContaineravailableRowNumber += 1
+        var newRow =  document.getElementById('job_container_table').insertRow(-1)
+        newRow.id = `job_container_details-${jobContainerCurrentRow}`
+        newRow.classList.add("job_container_details-entry")
+        var container_no = newRow.insertCell(0)
+        var container_type = newRow.insertCell(1)
+        var gross_wt = newRow.insertCell(2)
+        var line_seal = newRow.insertCell(3)
+        var net_wt = newRow.insertCell(4)
+        var total_package = newRow.insertCell(5)
+        var cbm = newRow.insertCell(6)
+
+        var trailor_no = newRow.insertCell(7)
+        var gta = newRow.insertCell(8)
+        var pickup_date = newRow.insertCell(9)
+        var excfs_date = newRow.insertCell(10)
+        var in_fac_date = newRow.insertCell(11)
+        var activity_date = newRow.insertCell(12)
+        var fac_out_date = newRow.insertCell(13)
+        var cfs_in_date = newRow.insertCell(14)
+        var return_date = newRow.insertCell(15)
+        var railout_date = newRow.insertCell(16)
+        var train_no = newRow.insertCell(17)
+        var belong_to = newRow.insertCell(18)
+        var loading_place = newRow.insertCell(19)
+        var unloading_place = newRow.insertCell(20)
+        var shipper_seal_no = newRow.insertCell(21)
+        var new_seal_no = newRow.insertCell(22)
+        var stuffing_date = newRow.insertCell(23)
+        var icd_handover_date = newRow.insertCell(24)
+        var port_handover_date = newRow.insertCell(25)
+        var delivery_date = newRow.insertCell(26)
+        
+        var delete_cell = newRow.insertCell(27)
+        
+        container_no.innerHTML = `
+        <input type="hidden" name="job_container_details_is_active-${jobContainerCurrentRow}" id="job_container_details_is_active-${jobContainerCurrentRow}" value="yes">
+            <input type="text" name="container_no-${jobContainerCurrentRow}" id="container_no-${jobContainerCurrentRow}" class="form-control" />
+        `
+        container_type.innerHTML = `
+            <input type="text" name="container_type-${jobContainerCurrentRow}" id="container_type-${jobContainerCurrentRow}" class="form-control" />
+        `
+        gross_wt.innerHTML = `
+            <input type="text" name="gross_wt-${jobContainerCurrentRow}" class="form-control" id="gross_wt-${jobContainerCurrentRow}" />
+        `
+        line_seal.innerHTML = `
+            <input type="text" name="line_seal-${jobContainerCurrentRow}" id="line_seal-${jobContainerCurrentRow}" class="form-control" />
+        `
+
+        net_wt.innerHTML = `
+            <input type="text" name="net_wt-${jobContainerCurrentRow}" id="net_wt-${jobContainerCurrentRow}" class="form-control" />
+        `
+        total_package.innerHTML = `
+            <input type="text" name="total_package-${jobContainerCurrentRow}" id="total_package-${jobContainerCurrentRow}" class="form-control" />
+        `
+        cbm.innerHTML = `
+            <input type="text" name="cbm-${jobContainerCurrentRow}" id="cbm-${jobContainerCurrentRow}" class="form-control" />
+        `
+
+        trailor_no.innerHTML = `
+            <input type="text" name="trailor_no-${jobContainerCurrentRow}" id="trailor_no-${jobContainerCurrentRow}" class="form-control" />
+        `
+        gta.innerHTML = `
+            <input type="text" class="form-control" name="gta-${jobContainerCurrentRow}" id="gta-${jobContainerCurrentRow}" />
+        `
+        pickup_date.innerHTML = `
+            <input type="date" name="pickup_date-${jobContainerCurrentRow}" id="pickup_date-${jobContainerCurrentRow}" class="form-control" />
+        `
+        excfs_date.innerHTML = `
+            <input type="date" class="form-control" name="excfs_date-${jobContainerCurrentRow}" id="excfs_date-${jobContainerCurrentRow}" />
+        `
+        in_fac_date.innerHTML = `
+            <input type="date" name="in_fac_date-${jobContainerCurrentRow}" id="in_fac_date-${jobContainerCurrentRow}" class="form-control" />
+        `
+        activity_date.innerHTML = `
+            <input type="date" class="form-control" name="activity_date-${jobContainerCurrentRow}" id="activity_date-${jobContainerCurrentRow}" />
+        `
+        fac_out_date.innerHTML = `
+            <input type="date" class="form-control" name="fac_out_date-${jobContainerCurrentRow}" id="fac_out_date-${jobContainerCurrentRow}" />
+        `
+        cfs_in_date.innerHTML = `
+            <input type="date" class="form-control" name="cfs_in_date-${jobContainerCurrentRow}" id="cfs_in_date-${jobContainerCurrentRow}" />
+        `
+        return_date.innerHTML = `
+            <input type="date" class="form-control" name="return_date-${jobContainerCurrentRow}" id="return_date-${jobContainerCurrentRow}" />
+        `
+        railout_date.innerHTML = `
+            <input type="date" class="form-control" name="railout_date-${jobContainerCurrentRow}" id="railout_date-${jobContainerCurrentRow}" />
+        `
+        train_no.innerHTML = `
+            <input type="text" class="form-control" name="train_no-${jobContainerCurrentRow}" id="train_no-${jobContainerCurrentRow}" />
+        `
+        shipper_seal_no.innerHTML = `
+            <input type="text" class="form-control" name="shipper_seal_no-${jobContainerCurrentRow}" id="shipper_seal_no-${jobContainerCurrentRow}" />
+        `
+        new_seal_no.innerHTML = `
+            <input type="text" class="form-control" name="new_seal_no-${jobContainerCurrentRow}" id="new_seal_no-${jobContainerCurrentRow}" />
+        `
+        stuffing_date.innerHTML = `
+            <input type="date" class="form-control" name="stuffing_date-${jobContainerCurrentRow}" id="stuffing_date-${jobContainerCurrentRow}" />
+        `
+        icd_handover_date.innerHTML = `
+            <input type="date" class="form-control" name="icd_handover_date-${jobContainerCurrentRow}" id="icd_handover_date-${jobContainerCurrentRow}" />
+        `
+        port_handover_date.innerHTML = `
+            <input type="date" class="form-control" name="port_handover_date-${jobContainerCurrentRow}" id="port_handover_date-${jobContainerCurrentRow}" />
+        `
+        delivery_date.innerHTML = `
+            <input type="date" class="form-control" name="delivery_date-${jobContainerCurrentRow}" id="delivery_date-${jobContainerCurrentRow}" />
+        `
+        belong_to.innerHTML = `
+        <select name="belong_to-${jobContainerCurrentRow}" class="form-control" id="belong_to-${jobContainerCurrentRow}">
+                 
+            <option value="Self">Self</option>
+            <option value="Other">Other</option>
+           
+        </select>
+        `
+       
+        loading_place.innerHTML = `
+        
+                <select name="place_of_loading-${jobContainerCurrentRow}" class="form-control" id="place_of_loading-${jobContainerCurrentRow}">
+                <option value="" selected hidden>Choose Location</option>
+                   {% for i in global_locations %}
+                   <option value="{{i.id}}">{{i.name}}</option>
+                  
+                   {% endfor %}
+                </select>
+            
+            
+        `
+        unloading_place.innerHTML = `
+    
+                <select name="place_of_unloading-${jobContainerCurrentRow}" class="form-control" id="place_of_unloading-${jobContainerCurrentRow}">
+                    <option value="" selected hidden>Choose Location</option>
+                   {% for i in global_locations %}
+                   <option value="{{i.id}}">{{i.name}}</option>
+                   {% endfor %}
+                </select>
+            
+        `
+       
+
+        delete_cell.innerHTML = `
+            <div class="btn btn-sm btn-danger" onclick="jobContainerDeleteRow(${jobContainerCurrentRow})">Remove</div>
+        `
+        
+        document.getElementById('total_job_container_details_rows').value = jobContainerCurrentRow
+    }
+
+    
+
+    const jobContainerDeleteRow = (index) => {
+        document.getElementById(`job_container_details_is_active-${index}`).value = "no"
+        
+        document.getElementById(`job_container_details-${index}`).style.display = 'none'
+        jobContaineravailableRowNumber -= 1
+    }
+</script>
+

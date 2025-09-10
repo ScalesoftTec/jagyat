@@ -1,0 +1,55 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Ledger Sub Category
+    {% else %}
+    Create New Ledger Sub Category
+    {% endif %}
+
+</h1>
+
+<a href="{% url 'masters:ledger_sub_categories_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+
+        <div class="col-md-4 col-sm-12 mb-3">
+            <label for="id_name">Category Name</label>
+            {{ form.name }}
+        </div>
+        <div class="col-md-4 col-sm-12 mb-3">
+            <label for="id_category">Category</label>
+            {{ form.category }}
+        </div>
+        <div class="col-md-4 col-sm-12 mb-3">
+            <label for="id_account_category">Account Type</label>
+            {{ form.account_category }}
+        </div>
+
+       
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update Ledger Sub Category
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+</form>
+
+
+
+{% endblock %}

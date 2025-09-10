@@ -1,0 +1,29 @@
+<div class="tab-pane fade" id="currency" role="tabpanel" aria-labelledby="currency-tab">
+    <h5>Currency File <span style="font-size: 14px;">Total Currencies : {{currencies_global_length}}</span></h5>
+    <div class="row">
+        <div class="col-12 mb-2">Please enter correct field name as per your excel file <i class="far fa-question-circle text-danger" style="cursor: pointer;"  data-toggle="tooltip" data-placement="right" title="All Fields Are Necessary."></i></div>
+
+
+        <div class="col-md-6 col-sm-12 mb-3">
+            <label for="currency_name">For Currency Name</label>
+            <input type="text" class="form-control" name="currency_name" id="currency_name">
+        </div>
+        <div class="col-md-6 col-sm-12 mb-3">
+            <label for="currency_short_name">For Currency Short Name</label>
+            <input type="text" class="form-control" name="currency_short_name" id="currency_short_name">
+        </div>
+
+      
+        
+        <div class="col-12 mb-3">
+            <label for="currency_file">Currency File</label>
+            <input type="file" class="form-control" name="currency_file"
+             id="currency_file">
+        </div>
+        
+        <div class="col-12 mb-3">
+            <input type="checkbox" name="currency_upload" id="currency_upload">
+            <label for="currency_upload">I want to upload Currency file</label>
+        </div>
+    </div>
+</div>

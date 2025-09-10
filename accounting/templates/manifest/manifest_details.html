@@ -1,0 +1,186 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %}
+Manifest Details -
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+   Manifest List
+</h1>
+<div class="">
+
+    <a href="{% url 'dashboard:create_manifest' module=module  %}"
+        class="mr-2 d-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Manifest</a>
+
+</div>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<div class="table-responsive">
+
+
+<table class="table  nowrap compact table-primary table-bordered table-md-responsive" id="invoice_table">
+    <thead>
+        <tr>
+            {% if global_companies.length.all|length > 1 %}
+            
+            <th scope="col">Company</th>
+            {% endif %}
+            <th scope="col">Job No.</th>
+            <th scope="col">Manifest No.</th>
+            <th scope="col">Date</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Customer Branch</th>
+            <th scope="col">Currency</th>
+            <th scope="col">Ex. Rate</th>
+
+            
+        
+            <th scope="col">Created At</th>
+            <th scope="col">Actions</th>
+            <th scope="col">PDF</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in data %}
+
+
+       
+            <tr>
+                {% if global_companies.length.all|length > 1 %}
+                <td>{{ data.company_type }}</td>
+                {% endif %}
+                <td>{{ data.job_no }}</td>
+                <td>{{ data.manifest_no }}</td>
+                <td>{{ data.manifest_date }}</td>
+                <td>{{ data.customer.party_name }}</td>
+                <td>{{ data.customer_address.branch }}</td>
+                <td>{{ data.manifest_currency }}</td>
+                <td>{{ data.manifest_ex_rate }}</td>
+                
+                
+                
+
+              
+                <td>{{ data.created_at }}</td>
+
+                <td>
+                  
+
+                    <a href="{% url 'dashboard:manifest_update' module=module id=data.id  %}"
+                        class="btn btn-xs btn-info mr-3"><i class="fas fa-edit"></i></a>
+
+
+                    {% if request.user.user_account.can_delete %}
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-xs btn-danger" data-toggle="modal"
+                        data-target="#deleteModal{{ forloop.counter }}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog"
+                        aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete
+                                        {{data.manifest_no}}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure want to delete {{ data.manifest_no }}?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <a href="{% url 'dashboard:manifest_delete' module=module id=data.id  %}"
+                                        class="btn btn-primary">Confirm Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </td>
+                <td>
+                    <a class="btn btn-xs btn-primary" href="{% url 'dashboard:manifest_pdf' id=data.id %}"
+                        target="_blank"><i class="fas fa-file-pdf"></i></a>
+                </td>
+
+
+            </tr>
+
+
+            {% endfor %}
+
+    </tbody>
+
+
+
+</table>
+</div>
+
+
+
+
+{% endblock %}
+
+
+{% block js %}
+<script>
+
+    var selected_ids = []
+    $(document).ready(function () {
+
+
+        let table = new DataTable('#invoice_table', {
+            // options
+            dom: 'BQlfrtip',
+            "columnDefs": [
+                { "type": "date", "targets": 2 },
+                { "type": "date", "targets": 3 }
+            ],
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+            buttons: [
+                {
+                    extend: 'pdf',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                    }
+                },
+                {
+                    extend: 'csv',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                    }
+                },
+                {
+                    extend: 'excel',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                    }
+                },
+                
+
+            ]
+
+        });
+        document.querySelector('.dtsb-title').style.display = 'none'
+    })
+
+
+  
+
+</script>
+
+{% endblock %}

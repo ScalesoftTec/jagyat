@@ -1,0 +1,96 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+Party Details |
+{% endblock %}
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Customer Details
+</h1>
+
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+<div class="table-responsive">
+<table class="table compact table-primary table-bordered" id="party_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Company Name</th>
+        <th scope="col">Sales Person</th>
+        <th scope="col">GST No</th>
+        <th scope="col">Contact Person</th>
+        <th scope="col">Under</th>
+        <th scope="col">Contact No</th>
+        <th scope="col">Email </th>
+        <th scope="col">Address</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for party in parties %}
+        {% for detail in party.party_address.all %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ party.party_name }}</td>
+        <td>{{ party.account_manager }}</td>
+        <td> {{detail.corp_gstin}}</td>
+           
+      
+        <td>{{party.contact_person}}</td>
+        <td>{{party.under}}</td>
+       
+        <td> {{detail.corp_contact}}</td>
+        <td> {{detail.corp_email}}</td>
+      
+        <td>
+          
+          {{detail}}
+        
+        </td>
+        
+    
+      </tr>
+      {% endfor %}
+      {% endfor %}
+     
+    </tbody>
+  </table>
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  let table = new DataTable('#party_table', {
+    dom: 'BQlfrtip',
+    lengthMenu: [
+    [10, 25, 50, -1],
+    [10, 25, 50, 'All'],
+    ],
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+           
+        ]
+    },
+
+    ]
+
+});
+
+document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+
+{% endblock %}

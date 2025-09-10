@@ -1,0 +1,120 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+
+{% block dashoard_title %} 
+
+Loan Repayment Journal Book - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Loan Repayment Journal Book
+</h1>
+
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+  
+<div class="">
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-2">
+              <label for="choose_company">Choose Branch</label>
+              <select name="choose_company" class="form-control form-control-sm" id="choose_company" >
+                  {% if choose_company == 'All' %}
+                  <option value="All" selected>All</option>
+                  {% else %}
+                  <option value="All">All</option>
+                  {% endif %}
+                  {% for data in global_companies %}
+                  {% if choose_company == data.id %}
+                  <option value="{{data.id}}" selected>{{data.company_name}}</option>
+                  {% else %}
+                  <option value="{{data.id}}">{{data.company_name}}</option>
+                  {% endif %}
+                  {% endfor %}
+              </select>
+            </div>
+            <div class="col-2">
+                <label for="from_date">From Date</label>
+                <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="start_date">
+            </div>
+            <div class="col-2">
+                <label for="to_date">To Date</label>
+                <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="to_date">
+            </div>
+            
+           
+            <div class="col-2">
+                <button type="submit" class="btn btn-primary btn-sm mt-4">Filter</button>
+            </div>
+        </div>
+    </form>
+  
+  </div>
+
+  <div class="table-responsive">
+    <table class="table mt-2 table-bordered table-primary compact display">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Particulars</th>
+                <th>Dr</th>
+                <th>Cr</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key,value in report.items %}
+                <tr>
+                    <th>{{value.0.loan_record__payment_date|date:'d-m-Y'}}</th>
+                    <td>
+                        {% for data in value %}
+                        {% if data.dr_cr == "Debit" %}
+                        To {{data.category__name}} <br>
+                        {% else %}
+                        &nbsp; &nbsp;By {{data.category__name}} <br>
+                        {% endif %}
+                        {% endfor %}
+                        (Being Loan No. - {{ value.0.loan_record__loan__loan_no }})
+                    </td>
+                    <th>
+
+                        {% for data in value %}
+                        {% if data.dr_cr == "Debit" %}
+                        {{data.total}} <br>
+                        {% else %}
+                        <br>
+                        {% endif %}
+                        {% endfor %}
+
+                    </th>
+                    <th>
+                        {% for data in value %}
+                        {% if data.dr_cr == "Debit" %}
+                        <br>
+                        {% else %}
+                        {{data.total}} <br>
+                        {% endif %}
+                        {% endfor %}
+
+                    </th>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+  </div>
+  
+
+  <script>
+    let table = new DataTable('#party_table', {
+        // options
+    });
+  </script>
+
+{% endblock %}

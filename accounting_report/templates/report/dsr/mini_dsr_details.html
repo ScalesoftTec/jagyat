@@ -1,0 +1,336 @@
+{% extends 'dashboard/index.html' %}
+{% load custom_tags %}
+{% load truncate_filters %}
+
+{% block dashoard_title %} 
+Mini DSR Details - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    DSR List
+
+</h1>
+
+
+<style>
+  .table th, td{
+   
+    /* padding-top: 3px!important;
+    padding-left: 3px!important;
+    padding-bottom: 3px!important;
+    padding-right: 25px !important;
+    text-wrap: nowrap;
+    text-transform:uppercase; */
+  }
+
+ 
+</style>
+
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="">
+  <form  method="post" action="{% url 'operations:dsr_actions' module=module %}" target="_blank">
+    {% csrf_token %}
+    <input type="hidden" id="selected_fields" name="selected_fields" value="">
+    <input type="hidden" id="list_selected" name="list_selected" value="0">
+    <div class="row">
+      <div class="col-md-2 col-sm-12" id="action_form" style="display: none;  flex-direction: row; justify-content: flex-start;" >
+       <input type="submit" name="action_type" value="EXPORT DSR" class="btn btn-sm btn-primary" />
+       <input type="submit" name="action_type" value="SEND DSR" class="ml-2 btn btn-sm btn-primary" />
+      
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="mt-2">
+  <form action="" method="post">
+      {% csrf_token %}
+      <div class="row">
+          <div class="col-2">
+              <label for="from_date">From Date</label>
+              <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="start_date">
+          </div>
+          <div class="col-2">
+              <label for="to_date">To Date</label>
+              <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="to_date">
+          </div>
+
+          
+          <div class="col-2">
+            <label for="module_type">Module Type</label>
+            <select name="module_type" id="module_type" class="form-control">
+                <option value="import" {% if module_type == 'import' %}selected{% endif %}>Import</option>
+                <option value="export" {% if module_type == 'export' %}selected{% endif %}>Export</option>
+            </select>
+          </div>
+          
+          
+          
+          
+          <div class="col-2">
+              <button type="submit" class="btn btn-primary btn-sm mt-4">Filter</button>
+          </div>
+      </div>
+  </form>
+</div>
+
+<div class="large-table-fake-top-scroll-container-3">
+  <div>&nbsp;</div>
+</div>
+
+
+<div class="table-responsive" style="overflow-x: hidden;">
+  <table class="table compact display nowrap  table-bordered "  id="dsr_table">
+      <thead>
+        <tr class="bg-primary">
+          <th>PARTY NAME</th>
+          <th>DESTINATION</th>
+          <th>COUNTRY</th>
+          <th>INV. NO.</th>
+          <th>INV. DATE</th>
+          <th>CONTAINER NO./ <span style="color:darkorange">AWB&nbsp;NO.</span></th>
+          <th>LINE</th>
+          <th>RAIL OUT DATE</th>
+          <th>CURRENT SAILING DATE</th>
+          <th>ACTUAL SAILING DATE</th>
+          <th>ETA</th>
+          <th>ATA</th>
+          <th>GATE OUT</th>
+          <th>VESSEL & VOYAGE</th>
+          <th>PI NO.</th>
+          <th>PURCHASE ORDER</th>
+          <th>INVOICE VALUE</th>
+         
+      
+        </tr>
+      </thead>
+      <tbody class="text-center">
+      {% for data in report %}
+
+        <tr class="text-uppercase" >
+  
+          <td>
+            <span  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Last tracked on {{ data.job.job_container.first.last_tracked}}">
+  
+              {% if data.job.consignee.party_name %}
+              {{data.job.consignee.party_name}}
+              {% else %}
+              --
+              {% endif %}
+            </span>
+          </td>
+  
+          <td>
+            {% if data.job.final_destination %}
+              {{data.job.final_destination}}
+            {% else %}
+            --
+            {% endif %}
+          </td>
+  
+          <td>
+            {% if data.job.country %}
+              {{data.job.country }}
+            {% else %}
+            --
+            {% endif %}
+          </td>
+  
+          <td>{% for invoice in data.job.job_invoice.all %}{{invoice.invoice_no}} <br>{% endfor %}</td>
+  
+          <td>{% for i in data.job.job_invoice.all  %}{{i.invoice_date|date:"d-m-Y"}} <br>{% endfor %}</td>
+          
+          
+            <td>
+              {% if data.job.module == "Sea Export" or data.job.module == "Sea Import" %} 
+                {% for container in data.job.job_container.all %}
+                  {% if container.is_tracked %}
+                    {{container.job_container_no}}/{{container.container_type}}
+                  {% else %}
+                    <span class="text-danger">{{container.job_container_no}}/{{container.container_type}}</span> 
+                  {% endif %}
+                {% endfor %}
+                
+              {% elif data.job.module == "Air Export" or data.job.module == "Air Import" %}
+                <strong style="color: darkorange;">{{ data.job.booking_no }}</strong><br>
+              {% endif %}
+            </td>
+  
+            <td>
+              {% if data.job.shipping_line.short_name %}
+                {{data.job.shipping_line.short_name|upper}}
+              {% else %}
+              --
+              {% endif %}
+            </td>
+  
+          
+          <td>
+            {% for container in data.track %}
+            {% if container.details.r_date %}
+            {{container.details.r_date|date:'d-m-Y'}}
+            {% else %}
+            --
+            {% endif %}
+            {% endfor %}
+          </td>
+  
+          <!-- Sailing Date Start -->
+          <td> 
+            {% for container in data.track %}
+            {% if container.details.sailing_date_current %}
+            {{container.details.sailing_date_current|date:'d-m-Y'}}
+  
+            {% else %}
+            --
+            {% endif %}
+            {% endfor %}
+          </td>
+          <td> 
+            {% for container in data.track %}
+            {% if container.details.sailing_date_actual %}
+            {{container.details.sailing_date_actual|date:'d-m-Y'}}
+  
+            {% else %}
+            --
+            {% endif %}
+            {% endfor %}
+          </td>
+          <!-- Sailing Date End -->
+        
+          <!-- ETA DATE START -->
+          <td>
+            {% for container in data.track %}
+            {% if container.details.arrival_current %}
+            {{container.details.arrival_current|date:'d-m-Y'}}
+            {% else %}
+            --
+            {% endif %}
+            {% endfor %}
+          </td>
+          
+          <td>
+            {% for container in data.track %}
+            {% if container.details.arrival_actual %}
+            {{container.details.arrival_actual|date:'d-m-Y'}}
+            {% else %}
+            --
+            {% endif %}
+            {% endfor %}
+          </td>
+  
+          <!-- ETA DATE END -->
+  
+          <td>
+            {% for container in data.track %}
+            {% if container.details.gate_out %}
+            {{container.details.gate_out|date:'d-m-Y'}}
+            {% else %}
+            --
+            {% endif %}
+            {% endfor %}
+          </td>
+  
+          
+          
+          
+          <td> 
+            
+            {% for container in data.track %}
+            {% if container.details.vessel %}
+            {{container.details.vessel}}
+            {% else %}
+            --
+            {% endif %}
+          {% endfor %}
+        </td>
+        <td>{% for i in data.job.job_invoice.all  %}{{i.pi_no}} <br>{% endfor %}</td>
+        <td>{% for i in data.job.job_invoice.all  %}{{i.po_no}} <br>{% endfor %}</td>
+        <td>{% for i in data.job.job_invoice.all  %}{{i.invoice_value}} <br>{% endfor %}</td>
+        </tr>
+
+        {% endfor %}
+        
+      </tbody>
+    </table>
+    
+  </div>
+  
+    
+  
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  $(document).ready(function () {
+    var selected_ids = []
+
+
+  let table = new DataTable('#dsr_table', {
+      // options
+      dom: "<'row'<'col-sm-12'Q>>" + 
+      "<'row'<'col-sm-12'B>>" + 
+      "<'row'<'col-sm-3'l><'col-sm-3'f><'col-sm-6'p>>" +
+         "<'row'<'col-sm-12'Q>>" +
+         "<'row'<'col-sm-12'tr>>" +
+         "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+      "pageLength": 25,
+      scrollY: '60vh',
+      scrollX: true,
+      scrollCollapse: true,
+      lengthMenu: [
+      [10, 25, 50, -1],
+      [10, 25, 50, 'All'],
+      ],
+      select: {
+        style: 'multi',
+  
+      },
+
+      buttons: [
+        {
+            text: 'Select all',
+            action: function () {
+                table.rows({ page: 'current' }).select();
+                selected_ids = []
+
+            }
+        },
+        {
+            text: 'Deselect all',
+            action: function () {
+              table.rows({ page: 'current' }).deselect();
+                selected_ids = []
+            }
+        },
+
+    ],
+
+     });
+
+
+  document.querySelector('.dtsb-title').style.display = 'none'
+})
+
+
+
+$(function() {
+  var tableContainer = $(".table-responsive");
+  var table = $(".table-responsive table");
+  var fakeContainer = $(".large-table-fake-top-scroll-container-3");
+  var fakeDiv = $(".large-table-fake-top-scroll-container-3 div");
+
+  var tableWidth = table.width();
+  fakeDiv.width(tableWidth);
+
+  fakeContainer.scroll(function() {
+tableContainer.scrollLeft(fakeContainer.scrollLeft());
+  });
+})
+</script>
+{% endblock %}

@@ -1,0 +1,249 @@
+<h6>Today Updates For {{ company.company_name }} in {{ company.branch_name }} on {{ today_date }}</h6>
+<br />
+{% if jobs %}
+<h6>Today Jobs</h6>
+<table>
+    <thead>
+        
+        <tr>
+            <th>#</th>
+            <th>Job No.</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in jobs %}
+        <td>{{ forloop.counter }}</td>
+        <td>{{ i.job_no }}</td>
+        <td>{{ i.created_by }}</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+
+{% if mbls %}
+<h6>Today MBL</h6>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>MBL No.</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in mbls %}
+        <td>{{ forloop.counter }}</td>
+        <td>{{ i.mbl_no }}</td>
+        <td>{{ i.created_by }}</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if vgms %}
+<h6>Today VGM</h6>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>VGM For Job</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in jobs %}
+        <td>{{ forloop.counter }}</td>
+        <td>{{ i.job.job_no }}</td>
+        <td>{{ i.created_by }}</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if cans %}
+<h6>Today Cargo Arrival Notice</h6>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>CAN For Job</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in cans %}
+        <td>{{ forloop.counter }}</td>
+        <td>{{ i.job.job_no }}</td>
+        <td>{{ i.created_by }}</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if dos %}
+<h6>Today Delivery Order</h6>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>DO For Job</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in dos %}
+        <td>{{ forloop.counter }}</td>
+        <td>{{ i.job.job_no }}</td>
+        <td>{{ i.created_by }}</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if dsrs %}
+<h6>Today DSRs</h6>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>DSR For Job</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in dos %}
+        <td>{{ forloop.counter }}</td>
+        <td>{{ i.job.job_no }}</td>
+        <td>{{ i.created_by }}</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if dsrs %}
+<h6>Today DSRs</h6>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>DSR For Job</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in dos %}
+        <td>{{ forloop.counter }}</td>
+        <td>{{ i.job.job_no }}</td>
+        <td>{{ i.created_by }}</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if fcs %}
+<h6>Today Freight Certificate</h6>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>FC For Job</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in fcs %}
+        <td>{{ forloop.counter }}</td>
+        <td>{{ i.job.job_no }}</td>
+        <td>{{ i.created_by }}</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if inv_rec %}
+<h6>Today Invoice Recievables</h6>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Inv No</th>
+            <th>Inv Job</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in inv_rec %}
+        <td>{{ forloop.counter }}</td>
+        <td>{{ i.invoice_no }}</td>
+        <td>{{ i.job.job_no }}</td>
+        <td>{{ i.created_by }}</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if inv_pay %}
+<h6>Today Invoice Payable</h6>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Inv No</th>
+            <th>Inv Job</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in inv_pay %}
+        <td>{{ forloop.counter }}</td>
+        <td>{{ i.invoice_no }}</td>
+        <td>{{ i.job.job_no }}</td>
+        <td>{{ i.created_by }}</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if rec_vou %}
+<h6>Today Reciept Voucher</h6>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Voucher No</th>
+           
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in rec_vou %}
+        <td>{{ forloop.counter }}</td>
+        <td>{{ i.voucher_no }}</td>
+        
+        <td>{{ i.created_by }}</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if pay_vou %}
+<h6>Today Payment Voucher</h6>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Voucher No</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in pay_vou %}
+        <td>{{ forloop.counter }}</td>
+        <td>{{ i.voucher_no }}</td>
+        <td>{{ i.created_by }}</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}

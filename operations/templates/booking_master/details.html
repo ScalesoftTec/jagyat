@@ -1,0 +1,203 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Booking List
+</h1>
+
+<a href="{% url 'operations:create_booking_master' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Booking</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<div class="row ">
+ 
+  <div class="col-12">
+  
+
+      <form method="post">
+          {% csrf_token %}
+          <div class="row">
+
+              <div class="col-md-4 col-sm-12 mb-3"  id="choose_by_date">
+                  <div class="row">
+                      <div class="col-md-6 col-sm-12">
+                          <label for="from_date">From</label>
+                          <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control" id="from_date" >
+                      </div>
+                      <div class="col-md-6 col-sm-12">
+                          <label for="to_date">To</label>
+                          <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control" id="to_date" >
+                      </div>
+                  </div>
+              </div>
+
+           
+
+              <div class="col-md-3 col-sm-12 mb-3">
+                  <button type="submit" style="margin-top: 33px;" class=" btn btn-primary">Submit</button>
+              </div>
+          </div>
+      </form>
+  </div>
+
+</div>
+
+<div class="table-responsive">
+<table class="table compact table-primary table-bordered table-md-responsive" id="party_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th>Booking&nbsp;No.</th>
+        <th>Module</th>
+        <th>Job&nbsp;No.</th>
+        <th>Booking&nbsp;Date</th>
+        <th>Create&nbsp;Date</th>
+        <th>Ref&nbsp;No.</th>
+        <th>Shipper</th>
+        <th>Consginee</th>
+        <th>Agent</th>
+        <th>POL</th>
+        <th>POD</th>
+        <th>FPOD</th>
+        <th>Shipping&nbsp;Line</th>
+        <th>Container&nbsp;Size</th>
+        <th>CBM/Weight</th>
+        <th>No&nbsp;of&nbsp;Container</th>
+        <th>MBL&nbsp;No.</th>
+        <th>HBL&nbsp;No.</th>
+        <th>Buying&nbsp;Rate</th>
+        <th>Selling&nbsp;Rate</th>
+        <th>ETD</th>
+        <th>Sales&nbsp;Person</th>
+     
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in booking_master %}
+        {% if data.job_booking.count > 0 %}
+      <tr class="bg-primary">
+        {% else %}
+        <tr>
+        {% endif %}
+        <th scope="row">{{ forloop.counter }}</th>
+        
+        <td>{{data.booking_no}}</td>
+        <td>
+          {{data.module}}
+        </td>
+        <td>
+          {% if data.job_booking.count > 0 %}
+          {{data.job_booking.first.job_no}}
+          {% else %}
+          <span class="badge badge-danger">Pending</span>
+          {% endif %}
+        </td>
+       
+        <td>{{data.booking_date|date:"d-M-Y"}}</td>
+        <td>{{data.created_at|date:"d-M-Y"}}</td>
+        <td>{{data.ref_no}}</td>
+        <td>{{data.shipper}}</td>
+        <td>{{data.consignee}}</td>
+        <td>{{data.agent}}</td>
+        <td>{{data.pol}}</td>
+        <td>{{data.pod}}</td>
+        <td>{{data.fpod}}</td>
+        <td>{{data.shipping_line}}</td>
+        <td>{{data.container_size}}</td>
+        <td>
+          {% if data.container_size == "LCL" %}
+          {{data.cbm}}
+          {% elif data.container_size == "Air" %}
+          {{data.weight}}
+          {% else %}
+          <span class="badge badge-danger">N/A</span>
+          {% endif %}
+        </td>
+        <td>{{data.no_of_container}}</td>
+        <td>{{data.mbl_no}}</td>
+        <td>{{data.hbl_no}}</td>
+        <td>{{data.buying_rate}}</td>
+        <td>{{data.selling_rate}}</td>
+        <td>{{data.etd}}</td>
+        <td>{{data.sales_person}}</td>
+        
+        <td>
+            <a href="{% url 'operations:booking_master_update' module=module id=data.id %}" class="btn btn-xs btn-info mr-1"><i class="fas fa-edit"></i></a>
+            {% if request.user.user_account.can_delete %}
+
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.name}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ data.name }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'operations:booking_master_delete' module=module id=data.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+        {% endif %}
+        </td>
+    
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+</div>
+  
+  {% endblock %}
+  
+  
+  {% block js %}
+  
+  
+    <script>
+      let table = new DataTable('#party_table', {
+   
+        dom: 'BQlfrtip',
+        // scrollX: true,
+        // scrollY: 200,
+        // scrollY: '100vh',
+        "pageLength": 50,
+        buttons: [
+        {
+            extend: 'collection',
+            text: 'Export',
+            buttons: [
+                'copy',
+                'excel',
+                'csv',
+                'pdf',
+               
+            ]
+            
+        },
+    
+        ]
+    
+    });
+    </script>
+{% endblock %}

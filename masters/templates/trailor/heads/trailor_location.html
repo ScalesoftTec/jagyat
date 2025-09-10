@@ -1,0 +1,165 @@
+<div class="row" id="location-row">
+    {% if update and obj.trailor_location_ref.all|length > 0 %}
+    {% for i in obj.trailor_location_ref.all %}
+    <div class="col-12 mb-2" id="location-row-{{forloop.counter}}">
+        <div class="row" >
+            <div class="col-md-3">
+                <input type="hidden" name="is_location_active_{{forloop.counter}}" id="is_location_active_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_location_update_{{forloop.counter}}" id="is_location_update_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_location_id_{{forloop.counter}}" id="is_location_id_{{forloop.counter}}" value="{{i.id}}" />
+                <label for="location_{{forloop.counter}}">Location</label>
+                <select name="location_1" id="location_1" class="form-control">
+                    <option value="" > Choose Location </option>
+                    {% for data in global_locations %}
+                    {% if data.id == i.location.id %}
+                        <option value="{{data.id}}" selected>{{data.name}}</option>
+                    {% else %}
+                        <option value="{{data.id}}">{{data.name}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="employee_1">Employee</label>
+                <select name="employee_1" id="employee_1" class="form-control">
+                    <option value="" > Choose Employee </option>
+                    {% for data in global_employees %}
+                    {% if data.id == i.employee.id %}
+                        <option value="{{data.id}}" selected>{{data.name}}</option>
+                    {% else %}
+                        <option value="{{data.id}}">{{data.name}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+          
+            <div class="col-md-3">
+                <label for="location_date_{{forloop.counter}}"> Date</label>
+                <input type="date" value="{{ i.from_date|date:'Y-m-d' }}" name="location_date_{{forloop.counter}}" id="location_date_{{forloop.counter}}" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <label for="location_remarks_1">Remarks</label>
+                <input type="text" value="{{i.remarks}}"  name="location_remarks_1" id="location_remarks_1" class="form-control">
+            </div>
+           
+            <div class="col-md-1">
+                <button type="button" onclick="deletelocationRow({{forloop.counter}})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+
+        </div>
+    
+        </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12 mb-2" id="location-row-1">
+
+        <div class="row" >
+            <div class="col-md-3">
+                <input type="hidden" name="is_location_active_1" id="is_location_active_1" value="yes" />
+                <input type="hidden" name="is_location_update_1" id="is_location_update_1" value="no" />
+                <label for="location_1">Location</label>
+                
+                <select name="location_1" id="location_1" class="form-control">
+                    <option value="" > Choose Location </option>
+                    {% for data in global_locations %}
+                        <option value="{{data.id}}">{{data.name}}</option>
+                    {% endfor %}
+                </select>
+
+            </div>
+
+            <div class="col-md-3">
+                <label for="employee_1">Employee</label>
+                <select name="employee_1" id="employee_1" class="form-control">
+                    <option value="" > Choose Employee </option>
+                    {% for data in global_employees %}
+                        <option value="{{data.id}}">{{data.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+           
+            <div class="col-md-3">
+                <label for="location_date_1"> Date</label>
+                <input type="date"  name="location_date_1" id="location_date_1" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="location_remarks_1">Remarks</label>
+                <input type="text"  name="location_remarks_1" id="location_remarks_1" class="form-control">
+            </div>
+           
+            
+            <div class="col-md-1">
+                
+                <button type="button" onclick="deletelocationRow(1)" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+    
+        </div>
+    {% endif %}
+    
+</div>
+
+<button class="btn btn-primary mb-3" type="button" onclick="addlocationRow()">Add More</button>
+
+<script>
+    var locationCurrentRow = parseInt(document.getElementById('trailor_location_total_rows').value) || 1
+    const addlocationRow = () => {
+        var newElement = document.createElement('div')
+        locationCurrentRow += 1
+        newElement.classList.add('col-12')
+        newElement.setAttribute('id', `location-row-${locationCurrentRow}`)
+        newElement.classList.add('mb-2')
+        newElement.innerHTML = `
+        <div class="row">
+            <div class="col-md-3">
+                <input type="hidden" name="is_location_active_${locationCurrentRow}" id="is_location_active_${locationCurrentRow}" value="yes" />
+                <input type="hidden" name="is_location_update_${locationCurrentRow}" id="is_location_update_${locationCurrentRow}" value="no" />
+                <label for="location_${locationCurrentRow}">Location</label>
+                
+                <select name="location_${locationCurrentRow}" class="form-control" id="location_${locationCurrentRow}">
+                    <option value="" > Choose Location </option>
+                    {% for data in global_locations %}
+                        <option value="{{data.id}}">{{data.name}}</option>
+                    {% endfor %}
+                </select>
+
+            </div>
+
+            <div class="col-md-3">
+                <label for="employee_${locationCurrentRow}">Employee</label>
+                <select name="employee_${locationCurrentRow}" class="form-control" id="employee_${locationCurrentRow}">
+                    <option value="" > Choose Employee </option>
+                    {% for data in global_employees %}
+                        <option value="{{data.id}}">{{data.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+           
+            <div class="col-md-3">
+                <label for="location_date_${locationCurrentRow}"> Date</label>
+                <input type="date"  name="location_date_${locationCurrentRow}" id="location_date_${locationCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="location_remarks_${locationCurrentRow}">Remarks</label>
+                <input type="text"  name="location_remarks_${locationCurrentRow}" id="location_remarks_${locationCurrentRow}" class="form-control">
+            </div>
+           
+            
+            <div class="col-md-1">
+                
+                <button type="button" onclick="deletelocationRow(${locationCurrentRow})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+        `
+        document.getElementById('location-row').append(newElement)
+        document.getElementById('trailor_location_total_rows').value = locationCurrentRow
+    }
+
+    const deletelocationRow = (index) => {
+        console.log(index)
+        document.getElementById(`location-row-${index}`).style.display = "none";
+        document.getElementById(`is_location_active_${index}`).value = "no";
+    }
+</script>

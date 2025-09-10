@@ -1,0 +1,37 @@
+<div class="tab-pane fade" id="billing_head" role="tabpanel" aria-labelledby="billing_head-tab">
+    <h5>Billing Head File <span style="font-size: 14px;">Total Billing Heads : {{billing_heads_global_length}}</span></h5>
+    <div class="row">
+        <div class="col-12 mb-2">Please enter correct field name as per your excel file <i class="far fa-question-circle text-danger" style="cursor: pointer;"  data-toggle="tooltip" data-placement="right" title="All Fields Are Necessary."></i></div>
+
+
+        <div class="col-md-4 col-sm-12 mb-3">
+            <label for="billing_head_name">For Billing Head Name</label>
+            <input type="text" class="form-control" name="billing_head_name" id="billing_head_name">
+        </div>
+        
+      
+
+        <div class="col-md-4 col-sm-12 mb-3">
+            <label for="billing_head_hsn_code">For Billing Head HSN Code</label>
+            <input type="text" class="form-control" name="billing_head_hsn_code" id="billing_head_hsn_code">
+        </div>
+        
+        <div class="col-md-4 col-sm-12 mb-3">
+            <label for="billing_head_gst_code">GST %</label>
+            <input type="text" class="form-control" name="billing_head_gst_code" id="billing_head_gst_code">
+        </div>
+        
+      
+        
+        <div class="col-12 mb-3">
+            <label for="air_line_file">Billing Head File</label>
+            <input type="file" class="form-control" name="billing_head_file"
+             id="billing_head_file">
+        </div>
+        
+        <div class="col-12 mb-3">
+            <input type="checkbox" name="billing_head_upload" id="billing_head_upload">
+            <label for="billing_head_upload">I want to upload Billing Head file</label>
+        </div>
+    </div>
+</div>

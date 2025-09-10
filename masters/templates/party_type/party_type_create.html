@@ -1,0 +1,50 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} Party Category {% endblock %} 
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Party Category
+    {% else %}
+    Create New Party Category
+    {% endif %}
+
+</h1>
+
+<a href="{% url 'masters:party_type_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+
+        <div class="col-md-6 col-sm-12 mb-3">
+            <label for="id_name">Category Name</label>
+            {{ form.name }}
+        </div>
+
+        <div class="col-md-6 col-sm-12 mb-3">
+            <label for="id_type">Under</label>
+            {{ form.parent }}
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update Party Category
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+</form>
+
+
+
+{% endblock %}

@@ -1,0 +1,103 @@
+{% load custom_tags %}
+<tr>
+    <td> {{forloop.counter}} </td>
+    <td>
+        {% if data.module == "Sea Export" %}
+        <a href="{% url 'operations:job_update' module='sea_export' id=data.id %}" target="_blank"> {{data.job_no}} </a>
+        {% elif data.module == "Sea Import" %}
+        <a href="{% url 'operations:job_update' module='sea_import' id=data.id %}" target="_blank"> {{data.job_no}} </a>
+        {% elif data.module == "Air Export" %}
+        <a href="{% url 'operations:job_update' module='air_export' id=data.id %}" target="_blank"> {{data.job_no}} </a>
+        {% elif data.module == "Air Import" %}
+        <a href="{% url 'operations:job_update' module='air_import' id=data.id %}" target="_blank"> {{data.job_no}} </a>
+        {% else %}
+        <a href="{% url 'operations:job_update' module='transportation' id=data.id %}" target="_blank"> {{data.job_no}} </a>
+        {% endif %}
+    </td>
+    
+    <td style="min-width: 130px!important;">
+        {% for i in data.get_job_container %}
+        {{i.job_container_no}}/{{i.container_type}},
+        {% endfor %}
+    </td>
+    
+    <td style="min-width: 120px!important;">{{data.vessel_voy_name|slice:":15" }}</td>
+    <td>{{data.etd_date}}</td>
+    <td>{{data.fpod_date}}</td>
+    <td>{{data.mbl_no}}</td>
+    
+        <td style="min-width: 165px!important;">
+            {% for i in data.mbl_job.all  %}
+            {% if i.hbl_file %}
+            <a href="{{ i.hbl_file.url }}" target="_blank">{{i.mbl_no}}/</a>
+            {% else %}
+            {{i.mbl_no}}/
+            {% endif %}
+
+        
+            {% if i.mbl_type == "Final" %}
+            {{i.bl_type}},
+            {% else %}
+            {{i.mbl_type}},
+            {% endif %}
+
+            {% if i.mbl_file %}
+            <a href="{{ i.mbl_file.url }}" target="_blank">MBL File</a>
+            {% endif %}         
+           
+
+            {% endfor %}
+        </td>
+        <td style="min-width: 160px!important;">
+            
+            {{ data.account.party_name|slice:":20" }}
+            
+        </td>
+        <td style="min-width: 160px!important;">
+            {% for i in data.mbl_job.all  %}
+            {{ i.exporter_name.party_name|slice:":20" }},
+            {% endfor %}
+        </td>
+        <td style="min-width: 160px!important;">
+            {% for i in data.mbl_job.all  %}
+            {{i.consigned_name.party_name|slice:":20" }},
+            {% endfor %}
+        </td>
+       
+    <td style="min-width: 160px!important;">{{data.port_of_loading.name}}</td>
+    <td style="min-width: 160px!important;">{{data.port_of_discharge.name}}</td>
+    <td style="min-width: 180px!important;">{{data.final_destination.name}}</td>
+  
+    <td>{{data.ams_no}}</td>
+    <td>{{data.ams_date}}</td>
+    <td>{{ data.isf_filed_by }}</td>
+    <td>{{data.isf_no}}</td>
+    <td>{{data.isf_date}}</td>
+    <td>{{data.mbl_job.first.freight_type}}</td>
+    <td>{{data.shipment_type}}</td>
+    <td>{{ data.id |manifest_payable }}</td>
+    <td>{{ data.id |manifest_collect }}</td>
+    <td>{{ data.created_by.first_name }}</td>
+    {% with manifest_job_count=data.manifest_job.count %}
+    {% with mbl_job_count=data.mbl_job.count %}
+    {% if manifest_job_count == 0 and not data.job_status == "Close"  %}
+    <td><span class="badge badge-primary">Manifest Pending</span></td>
+    {% elif manifest_job_count > 0 and mbl_job_count == 0 and not data.job_status == "Close" %}
+    <td><span class="badge badge-primary">Document Pending</span></td>
+    {% elif manifest_job_count > 0 and mbl_job_count > 0 and not data.manifest_job.first.payment == "COMPLETED" and not data.job_status == "Close" %}
+    <td><span class="badge badge-primary">Upcoming Shipments </span></td>
+    {% elif manifest_job_count > 0 and mbl_job_count > 0 and data.manifest_job.first.payment == "COMPLETED" and data.manifest_job.first.payment_date and not data.job_status == "Close" and  data.id|check_container_return %}
+    <td><span class="badge badge-primary">Delivery Pending</span></td>
+    {% elif manifest_job_count > 0 and mbl_job_count > 0 and data.manifest_job.first.payment == "COMPLETED" and not data.job_status == "Close" and not data.id|check_container_return %}
+    <td><span class="badge badge-primary">Container Not Returned</span></td>
+    {% else %}
+    <td><span class="badge badge-danger">Closed</span></td>
+    {% endif %}
+    {% endwith %}
+    {% endwith %}
+    
+    <td>{{data.remarks}}</td>
+
+   
+
+</tr>

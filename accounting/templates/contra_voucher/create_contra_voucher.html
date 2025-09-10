@@ -1,0 +1,169 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+{% if update %}
+Update Contra Vopucher - 
+
+{% else %}
+Create Contra Voucher - 
+{% endif %}
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    {% if update %}
+    Update Contra Voucher
+    {% else %}
+    Create New Contra Voucher
+    {% endif %}
+</h1>
+
+<a href="{% url 'accounting:contra_voucher_details' module=module %}"
+    class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+
+
+
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+        {% if request.user.user_account.create_global_data and global_companies|length > 1 %}
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label class="required" for="id_company_type">Choose Company</label>
+            {{ form.company_type }}
+        </div>
+        {% else %}
+            <input type="hidden" name="company_type" id="id_company_type" value="{{ request.user.user_account.office.id }}">
+        {% endif %}
+
+       
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label class="required" for="id_voucher_date">Voucher Date</label>
+            {{ form.voucher_date }}
+        </div>
+       
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label class="required" for="id_contra_choice">Contra Choice</label>
+            {{ form.contra_choice }}
+        </div>
+       
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label class="required" for="id_instrument_no">Instrument No.</label>
+            {{ form.instrument_no }}
+        </div>
+       
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label class="required" for="id_amount">Amount</label>
+            {{ form.amount }}
+        </div>
+
+        <div class="col-12 row" id="accounts_div">
+
+        </div>
+
+
+
+
+    </div>
+
+    <button type="submit" class="btn btn-primary" id="submit-btn">
+        {% if update %}
+        Update Contra Voucher
+        {% else %}
+        Submit
+        {% endif %}
+        {% if update %}
+        <input type="hidden"  id="is_update" value="true">
+        {% else %}
+        <input type="hidden" id="is_update" value="false">
+        {% endif %}
+
+    </button>
+
+    <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+</form>
+
+
+<script>
+
+    if(document.getElementById('is_update').value == 'false'){
+        document.getElementById('id_company_type').value = document.getElementById('user_company').value
+    }
+
+
+    var b2b = `
+    <div class="col-6 mb-3" id="from_bank_div">
+        <label class="required" for="id_account_from" id="from_bank">From Bank</label>
+        {{form.account_from}}
+    </div>
+
+    <div class="col-6 mb-3" id="to_bank_div">
+        <label class="required" for="id_account_to" id="to_bank">To Bank</label>
+        {{form.account_to}}
+    </div>
+
+    `
+
+    var b2c = `
+    <div class="col-6 mb-3" id="from_bank_div">
+        <label class="required" for="id_account_from" id="from_bank">From Bank</label>
+        {{form.account_from}}
+    </div>
+    <div class="col-6 mb-3" id="cash_div">
+        <label class="required" for="id_cash" id="from_to_cash">Cash</label>
+        {{form.cash}}
+    </div>
+
+    `
+
+    var c2b = `
+    <div class="col-6 mb-3" id="cash_div">
+        <label class="required" for="id_cash" >Cash</label>
+        {{form.cash}}
+    </div>
+    <div class="col-6 mb-3" id="to_bank_div">
+        <label class="required" for="id_account_to" id="to_bank">To Bank</label>
+        {{form.account_to}}
+    </div>
+    `
+
+
+    const handleAccounts = () => {
+        var from_to = document.getElementById('id_contra_choice').value
+        var account = document.getElementById('accounts_div')
+        var from_bank = document.getElementById('id_account_from')
+        var to_bank = document.getElementById('id_account_to')
+        var id_cash = document.getElementById('id_cash')
+        
+        if(from_to == "B2B"){
+            account.innerHTML = b2b;
+            
+            from_bank.required = true
+            to_bank.required = true
+        }
+        if(from_to == "B2C"){
+            account.innerHTML = b2c;
+            from_bank.required = true
+            id_cash.required = true
+        }
+        if(from_to == "C2B"){
+            account.innerHTML = c2b;
+            to_bank.required = true
+            id_cash.required = true
+        }
+    }
+
+  
+
+    document.getElementById('id_contra_choice').addEventListener('change',handleAccounts)
+    handleAccounts()
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,469 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load humanize %}
+
+{% block dashoard_title %}
+Party Ledger
+{% if choose_from == "P" %}
+({{selected_party.party_name}}) -
+{% else %}
+({{choose_vendor.vendor_name}}) -
+{% endif %}
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Party Ledger
+</h1>
+
+<style>
+    table td, th{
+        padding: 0px!important;
+    }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<form action="" method="post">
+{% csrf_token %}
+    <div class="row">
+
+        <div class="col-2">
+            <label for="region">Choose Country</label>
+            <select name="region" id="region" required class="form-control">
+              {% if not selected_region %}
+              <option value="" selected hidden disabled>Choose Country</option>
+              {% endif %}
+    
+              {% for i in company_regions %}
+              {% if i.region == selected_region %}
+              <option value="{{i.region}}" selected >{{i.region}}</option>
+              {% else %}
+              <option value="{{i.region}}">{{i.region}}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+    
+    <div class="col-md-2 col-sm-12 mb-3">
+        
+        <label for="choose_company">Choose Company</label>
+        <select name="choose_company" class="form-control form-control-sm" id="choose_company" >
+            {% if choose_company == 'All' %}
+            <option value="All" selected>All</option>
+            {% else %}
+            <option value="All">All</option>
+            {% endif %}
+            {% for data in global_companies %}
+            {% if choose_company == data.id %}
+            <option value="{{data.id}}" selected>{{data.company_name}}</option>
+            {% else %}
+            <option value="{{data.id}}">{{data.company_name}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+
+    
+    <div class="col-md-2 col-sm-12 mb-3">
+        <label for="choose_party">Choose From</label>
+        <select name="choose_from" required class="form-control form-control-sm" id="choose_from" >
+            {% if choose_from == 'P' %}
+            <option value="P" selected>Party</option>
+            {% else %}
+            <option value="P">Party</option>
+            {% endif %}
+            {% if choose_from == 'V' %}
+            <option value="V" selected>Vendor</option>
+            {% else %}
+            <option value="V">Vendor</option>
+            {% endif %}
+        </select>
+    </div>
+    <div class="col-md-2 col-sm-12 mb-3">
+        <label for="report_type">Choose Type</label>
+        <select name="report_type" required class="form-control form-control-sm" id="report_type" >
+            {% if report_type == "B" %}
+            <option value="B" selected>Both</option>
+            {% else %}
+            <option value="B">Both</option>
+            {% endif %}
+            {% if report_type == "D" %}
+            <option value="D" selected>Debtors</option>
+            {% else %}
+            <option value="D">Debtors</option>
+            {% endif %}
+            {% if report_type == "C" %}
+            <option value="C" selected>Creditors</option>
+            {% else %}
+            <option value="C">Creditors</option>
+            {% endif %}
+        
+        </select>
+    </div>
+    {% if choose_from == "P" %}
+    <div class="col-md-2 col-sm-12 mb-3" id="vendor_div" style="display:none;">
+        {% else %}
+        <div class="col-md-2 col-sm-12 mb-3" id="vendor_div">
+        {% endif %}
+        <label for="choose_vendor">Choose Vendor</label>
+        {% if choose_from == "V" %}
+        <select name="choose_vendor" required class="form-control form-control-sm" id="choose_vendor" >
+            {% else %}
+            <select name="choose_vendor" class="form-control form-control-sm" id="choose_vendor" >
+        {% endif %}
+            {% if not choose_vendor %}
+            <option value="" disabled selected>Choose Vendor</option>
+            {% endif %}
+            {% for party in vendors %}
+            {% if choose_vendor == party %}
+            <option value="{{party.id}}" selected>{{party}}</option>
+            {% else %}
+            <option value="{{party.id}}">{{party}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    {% if choose_from == "V" %}
+    <div class="col-md-2 col-sm-12 mb-3" id="party_div" style="display:none;">
+        {% else %}
+        <div class="col-md-2 col-sm-12 mb-3" id="party_div">
+        {% endif %}
+        <label for="choose_party">Choose Party</label>
+        {% if choose_from == "P" %}
+        <select name="choose_party" required class="form-control form-control-sm" id="choose_party" >
+            {% else %}
+            <select name="choose_party" class="form-control form-control-sm" id="choose_party" >
+        {% endif %}
+            {% if not choose_party %}
+            <option value="" disabled selected>Choose Party</option>
+            {% endif %}
+            {% for party in parties %}
+            {% if choose_party == party.id %}
+            <option value="{{party.id}}" selected>{{party}}</option>
+            {% else %}
+            <option value="{{party.id}}">{{party}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-2">
+        <label for="round_off">Round Off</label>
+        <select name="round_off" id="round_off" required class="form-control">
+          {% if round_off == 0 %}
+          <option value="0" selected >0</option>
+          {% else %}
+          <option value="0" >0</option>
+          {% endif %}
+          {% if round_off == 1 %}
+          <option value="1" selected >1</option>
+          {% else %}
+          <option value="1" >1</option>
+          {% endif %}
+
+
+        </select>
+      </div>
+
+
+    <div class="col-md-2 col-sm-12 mb-3">
+        <button type="submit" class="btn btn-sm btn-primary mt-4">Filter</button>
+    </div>
+
+
+
+</div>
+</form>
+
+{% if report or opening_balance > 0 or opening_balance < 0 %}
+
+<form action="{% url 'acr:generate_party_ledger_pdf' %}" method="post" target="_blank">
+{% csrf_token %}
+<input type="hidden" name="selected_region_pdf" value="{{selected_region}}" >
+<input type="hidden" name="choose_company_pdf" value="{{choose_company}}" >
+<input type="hidden" name="choose_from_pdf" value="{{choose_from}}" >
+<input type="hidden" name="report_type_pdf" value="{{report_type}}" >
+<input type="hidden" name="choose_vendor_pdf" value="{{choose_vendor}}" >
+<input type="hidden" name="choose_party_pdf" value="{{choose_party}}" >
+    
+    
+<div class="my-2">
+    <button type="submit" class="btn btn-sm btn-primary">Generate PDF Report</button>
+</div>
+</form>
+
+{% endif %}
+
+<div class="table-responsive">
+
+
+
+    <table class="display table table-primary table-bordered table-hover" id="party_ledger_table">
+        <thead>
+            <tr>
+                <td colspan="9" class="text-center" style="color:white!important;">{{company.legal_name}}</td>
+            </tr>
+            <tr>
+                <td colspan="9" class="text-center" style="color:white!important;">
+                    {% if choose_from == "P" %}
+                    ({{selected_party.party_name}})
+                    {% else %}
+                    ({{choose_vendor.vendor_name}})
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <th></th>
+                <th>Particulars</th>
+                <th>Bill Wise Adjusted Ref.</th>
+                <th>Remarks</th>
+                <th>Invoice No.</th>
+                <th>Debit</th>
+                <th>Credit</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        
+        <tbody>
+            <tr>
+            <td></td>
+            <td>
+                {% if opening_balance > 0 %}
+                TO
+                {% else %}
+                BY
+                {% endif %}
+            </td>
+           
+            <td>OPENING BALANCE</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            {% if opening_balance > 0 %}
+            <td data-order="{{opening_balance|floatformat:0|floatformat:2}}" align="right">{{opening_balance|floatformat:0|floatformat:2}}</td>
+            {% else %}
+            <td data-order="0" align="right">0</td>
+            {% endif %}
+
+            {% if opening_balance < 0 %}
+            <td data-order="{{opening_balance|mul:-1|floatformat:0|floatformat:2}}" align="right">{{opening_balance|mul:-1|floatformat:0|floatformat:2}}</td>
+            {% else %}
+            <td data-order="0" align="right">0</td>
+            {% endif %}
+
+                {% if opening_balance < 0 %}
+                <td data-order="{{opening_balance|mul:-1|floatformat:0|floatformat:2}}" align="right">{{opening_balance|mul:-1|floatformat:0|floatformat:2}} Cr.</td>
+                {% else %}
+                <td data-order="{{opening_balance|floatformat:0|floatformat:2}}" align="right">{{opening_balance|floatformat:0|floatformat:2}} Dr.</td>
+                
+                {% endif %}
+          
+            </tr>
+            {% if report %}
+            {% for data in report %}
+            {% if data.color %}
+            <tr style="background-color:{{data.color}};">
+                {% else %}
+                <tr>
+                {% endif %}
+                <td align="center">{{data.date|date:"Y-m-d"}}</td>
+                <td>{{data.by_to}}</td>
+                <td>{{data.particulars}}</td>
+                <td>&nbsp;</td>
+                <td>{{data.remarks}}</td>
+                <td>{{data.invoice_no}}</td>
+                <td align="right" data-order="{{data.dr_amount|floatformat:0|floatformat:2}}">{{data.dr_amount|floatformat:0|floatformat:2}}</td>
+                <td align="right" data-order="{{data.cr_amount|floatformat:0|floatformat:2}}">{{data.cr_amount|floatformat:0|floatformat:2}}</td>
+                {% if data.current_balance < 0 %}
+                <td align="right" data-order="{{data.current_balance|floatformat:0|floatformat:2}}">{{data.current_balance|mul:-1|floatformat:0|floatformat:2}} {{data.balance_in}}</td>
+                {% else %}
+                <td align="right" data-order="{{data.current_balance|floatformat:0|floatformat:2}}">{{data.current_balance|floatformat:0|floatformat:2}} {{data.balance_in}}</td>
+                {% endif %}
+            </tr>
+
+            {% if data.adjustments %}
+            {% for adjustment in data.adjustments %}
+            {% if adjustment.invoice_no == "Advance" %}
+            <tr style="background-color: #b4c6e7;">
+                {% else %}
+                <tr style="background-color: #ffe699;">
+                {% endif %}
+                <td align="center" style="background-color: white!important; color:rgba(250, 240, 230, 0)!important;" >{{data.date|date:"Y-m-d"}}</td>
+                <td></td>
+                <td>{{adjustment.particulars}}</td>
+                <td>{{adjustment.invoice_no}}</td>
+                <td></td>
+                <td align="right">
+                    {% if adjustment.dr_amount > 0 %}
+                   <span>{{adjustment.dr_amount|floatformat:0|floatformat:2}} Dr.</span>
+                    {% endif %}
+                    {% if adjustment.cr_amount > 0 %}
+                    <span>{{adjustment.cr_amount|floatformat:0|floatformat:2}} Cr.</span>
+                    {% endif %}
+                </td>
+                <td data-order="0"></td>
+                <td data-order="0"></td>
+                <td data-order="0"></td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5"></td>
+                <td style="color:white!important;">Total</td>
+                
+                <td style="color: white !important;" class="text-right">0</td>
+                <td style="color: white !important;" class="text-right">0</td>
+                <td style="color: white !important;" class="text-right"></td>
+            </tr>
+        </tfoot>
+    </table>
+
+
+    {% if debit_balance > 0 or credit_balance > 0 %}
+    <table class="table compact table-bordered">
+      
+        <tr>
+            <th> Total Debit</th>
+            <td class="text-right" align="right">{{debit_balance|floatformat:0|floatformat:2|intcomma}}</td>
+        </tr>
+      
+        <tr>
+            <th> Total Credit</th>
+            <td class="text-right" align="right">{{credit_balance|floatformat:0|floatformat:2|intcomma}}</td>
+        </tr>
+      
+
+        <tr>
+            <th>Net Balance</th>
+            <td class="text-right" align="right"><strong>{{debit_balance|sub:credit_balance|floatformat:0|floatformat:2|intcomma}}</strong> </td>
+        </tr>
+  
+    </table>
+{% endif %}
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    $(document).ready(function () {
+
+        jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+          return this.flatten().reduce( function ( a, b ) {
+              var x = parseFloat(a) ;
+              var y = parseFloat($(b).attr('data-order')) ;
+      
+              return parseFloat((x+y)).toFixed(2)
+          }, 0 );
+      } );
+
+
+      
+      let table = new DataTable('#party_ledger_table', {
+            // options
+            dom: 'BQlfrtip',
+            "ordering": false,
+            columnDefs: [
+            { "type": "date", "targets": 0,"displayFormat": 'dddd D MMMM YYYY' },
+         
+            ],
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+            order: [[0, 'asc']],
+            buttons: [
+            {
+                extend: 'collection',
+                text: 'Export',
+                
+                buttons: [
+                { extend: 'copy', footer: true, header:true, },
+                { extend: 'excel', footer: true, header:true,
+                exportOptions: {
+                format: {
+                    header: function (data) {
+                    return $('<div></div>')
+                        .append(data)
+                        .find('.tooltip')
+                        .remove()
+                        .end()
+                        .text()
+                    }
+                    }   
+                }  
+             },
+             
+                { extend: 'csv', footer: true, header:true, },
+                { extend: 'pdf', footer: true, header:true,orientation: 'landscape',},
+             
+                ]
+            }
+            ],
+
+            select: {
+                style:'multiple'
+            },
+        
+            drawCallback: function () {
+                var api = this.api();
+                $( api.table().column(6).footer() ).html(
+                    api.column( 6, {page:'current'} ).nodes().sum()
+                );
+               
+                $( api.table().column(7).footer() ).html(
+                    api.column( 7, {page:'current'} ).nodes().sum()
+                );
+             
+              
+               
+              }
+                  
+        });
+       
+      
+        document.querySelector('.dtsb-title').style.display = 'none'
+        
+    })
+
+
+    const handlePartyOrVendor = () => {
+        var choose_from = document.getElementById('choose_from').value
+        var vendor_div = document.getElementById('vendor_div')
+        var party_div = document.getElementById('party_div')
+        var party_select = document.getElementById('choose_party')
+        var vendor_select = document.getElementById('choose_vendor')
+    
+        if(choose_from == "P"){
+            party_div.required=true
+            party_div.style.display='block'
+            vendor_select.required=false
+            vendor_div.style.display='none'
+            party_select.required=true
+        }
+        if(choose_from == "V"){
+            vendor_select.required=true
+            vendor_div.style.display='block'
+
+            party_select.required=false
+            party_div.style.display='none'
+
+        }
+    }
+    document.getElementById('choose_from').addEventListener('change',handlePartyOrVendor)
+    document.getElementById('choose_from').addEventListener('keyup',handlePartyOrVendor)
+  
+
+</script>
+{% endblock %}

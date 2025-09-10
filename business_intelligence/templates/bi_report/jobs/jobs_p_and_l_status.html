@@ -1,0 +1,196 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% block dashoard_title %} 
+Jobs Profit/Loss Status 
+{% endblock %}
+{% block css %}
+
+<style>
+    .table tr th,td{
+        font-size: 12px!important;
+        padding: 0px!important;
+    }
+</style>
+
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Jobs Profit/Loss Status 
+</h1>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form action="" class="my-2" method="post">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-2">
+        <label for="region">Country</label>
+        <select name="region" id="region" required class="form-control form-control-sm">
+          {% if not selected_region %}
+          <option value="" selected hidden disabled>Choose Country</option>
+          {% endif %}
+
+          {% if selected_region == "A" or not selected_region %}
+            <option value="A" selected>All</option>
+            {% else %}
+            <option value="A">All</option>
+            {% endif %}
+          {% for i in company_regions %}
+
+          {% if i.region == selected_region %}
+          <option value="{{i.region}}" selected >{{i.region}}</option>
+          {% else %}
+          <option value="{{i.region}}">{{i.region}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-2">
+        <label for="company">Company</label>
+        <select name="company" id="company" class="form-control form-control-sm">
+          {% if selected_company == "A" %}
+          <option value="A" selected>All</option>
+          {% else %}
+          <option value="A">All</option>
+          {% endif %}
+
+          {% for i in global_companies %}
+          {% if i.id == selected_company %}
+          <option value="{{i.id}}" selected >{{i}}</option>
+          {% else %}
+          <option value="{{i.id}}">{{i}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-2 col-sm-12">
+        <label for="from_date">From</label>
+        <input type="date" value="{{ from_date|date:'Y-m-d' }}" name="from_date"
+            class="form-control form-control-sm" id="from_date">
+    </div>
+    <div class="col-md-2 col-sm-12">
+        <label for="to_date">To</label>
+        <input type="date" value="{{ to_date|date:'Y-m-d' }}" name="to_date" class="form-control form-control-sm"
+            id="to_date">
+    </div>
+    
+      <div class="col-2">
+        <label for="party">Customer</label>
+        <select name="party" id="party" class="form-control form-control-sm">
+            {% if selected_party == "A" %}
+            <option value="A" selected>All</option>
+            {% else %}
+            <option value="A">All</option>
+            {% endif %}
+
+          {% for i in global_parties %}
+          {% if i.id == selected_party %}
+          <option value="{{i.id}}" selected >{{i}}</option>
+          {% else %}
+          <option value="{{i.id}}">{{i}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-2">
+        <button type="submit" class="btn btn-primary btn-sm mt-4">Search</button>
+      </div>
+    </div>
+  </form>
+
+
+<div class="table-responsive">
+
+
+<table class="table table-primary table-bordered compact display" id="job_status_table">
+    <thead>
+      <tr>
+     
+        <th scope="col">#</th>
+        <th scope="col">Job No.</th>
+        <th scope="col">Date</th>
+        <th scope="col">Branch</th>
+        <th scope="col">Module</th>
+        <th scope="col">Party</th>
+        <th scope="col">Created By</th>
+        <th scope="col">Created On</th>
+        <th scope="col">Rec. Invoice Count</th>
+        <th scope="col">Pay. Invoice Count</th>
+        <th scope="col">Rec. Invoice Amount</th>
+        <th scope="col">Pay. Invoice Amount</th>
+        <th scope="col">Difference Amount</th>
+       
+       
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in jobs %}
+
+        {% if  data.recievable_invoice_job.all|length > 0 or data.payable_invoice_job.all|length > 0 %}
+        <tr>
+        <td> {{forloop.counter}} </td>
+        <td>{{ data.job_no }}</td>
+        <td>{{ data.job_date }}</td>
+        <td>{{ data.company_type.branch_name }}</td>
+        <td>{{ data.module }}</td>
+        <td>{{ data.account }}</td>
+        <td>{{ data.created_by }}</td>
+        <td>{{ data.created_at }}</td>
+
+        <td>{{ data.recievable_invoice_job.all|length }}</td>
+        <td>{{ data.payable_invoice_job.all|length }}</td>
+        
+
+        
+        <td>{{ data.receivable_sum|floatformat:2 }}</td>
+        <td>{{ data.payable_sum|floatformat:2 }}</td>
+        <td>{{ data.receivable_sum|sub:data.payable_sum|floatformat:2 }}</td>
+        
+    
+      </tr>
+      
+      {% endif %}
+
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    let table = new DataTable('#job_status_table', {
+        // options
+        dom: 'BQlfrtip',
+        "pageLength": 50,
+        buttons: [
+            {
+                extend: 'collection',
+                text: 'Export',
+                buttons: [
+                    'copy',
+                    'excel',
+                    'csv',
+                    'pdf',
+
+                ]
+            },
+
+        ]
+    });
+    document.querySelector('.dtsb-title').style.display = 'none'
+
+
+</script>
+{% endblock %}

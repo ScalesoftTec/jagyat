@@ -1,0 +1,505 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load humanize %}
+
+{% block dashoard_title %}
+Party Ledger
+({{ledger_name}})
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Party Ledger
+</h1>
+
+<style>
+    table td, th{
+        padding: 0px!important;
+    }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<form action="" method="post" id="party_ledger_form" data-vendor-url="{% url 'home:get_vendor_emails' %}" data-party-url="{% url 'home:get_party_emails' %}">
+{% csrf_token %}
+    <div class="row">
+        <div class="col-1">
+            <label for="region">Country</label>
+            <select name="region" id="region" required class="form-control form-control-sm">
+              {% if not selected_region %}
+              <option value="" selected hidden disabled>Choose Country</option>
+              {% endif %}
+    
+              {% for i in company_regions %}
+              {% if i.region == selected_region %}
+              <option value="{{i.region}}" selected>{{i.region}}</option>
+              {% else %}
+              <option value="{{i.region}}">{{i.region}}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+        
+          <div class="col-1">
+            <label for="selected_module">Module</label>
+            <select name="selected_module" id="selected_module" required class="form-control form-control-sm">
+              {% for i in MODULES %}
+              {% if i == selected_module %}
+              <option value="{{i}}" selected>{{i}}</option>
+              {% else %}
+              <option value="{{i}}">{{i}}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-auto">
+            <label for="from_date">From</label>
+            <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" required id="from_date"
+              class="form-control form-control-sm form-control form-control-sm-sm" />
+          </div>
+
+          <div class="col-auto">
+            <label for="to_date">To</label>
+            <input type="date" name="to_date" required id="to_date" value="{{to_date|date:'Y-m-d'}}"
+              class="form-control form-control-sm form-control form-control-sm-sm" />
+          </div>
+    
+    <div class="col-md-1 col-sm-12 mb-3">
+        <label for="choose_company">Company</label>
+        <select name="choose_company" class="form-control form-control-sm form-control form-control-sm-sm" id="choose_company" >
+            {% if choose_company == 'All' %}
+            <option value="All" selected>All</option>
+            {% else %}
+            <option value="All">All</option>
+            {% endif %}
+            {% for data in global_companies %}
+            {% if choose_company == data.id %}
+            <option value="{{data.id}}" selected>{{data.branch_name}}</option>
+            {% else %}
+            <option value="{{data.id}}">{{data.branch_name}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+
+    
+   
+    <div class="col-md-2 col-sm-12" >
+        <label for="ledger">Ledger</label>
+        <select name="ledger" id="ledger" required class="form-control form-control-sm form-control form-control-sm-sm">
+            {% for option in global_ledgers %}
+            {% if ledger == option %}
+            <option value="L_{{option.id}}" selected>{{option}}</option>
+            {% else %}
+            <option value="L_{{option.id}}">{{option}}</option>
+            {% endif %}
+            {% endfor %}
+           
+            {% for option in global_parties %}
+            {% if party == option %}
+            <option value="P_{{option.id}}" selected>{{option}}</option>
+            {% else %}
+            <option value="P_{{option.id}}">{{option}}</option>
+            {% endif %}
+            {% endfor %}
+            
+            {% for option in global_vendors %}
+            {% if vendor == option %}
+            <option value="V_{{option.id}}" selected>{{option}}</option>
+            {% else %}
+            <option value="V_{{option.id}}">{{option}}</option>
+            {% endif %}
+            {% endfor %}
+
+        </select>
+    </div>
+   
+    
+   
+    
+    
+    <div class="col-md-1 col-sm-12 mb-3">
+        <label for="round_off"> Round Off</label>
+        <select name="round_off" required class="form-control form-control-sm form-control form-control-sm-sm" id="round_off" >
+            {% if round_off == "Y" or not round_off %}
+            <option value="Y" selected>Yes</option>
+            {% else %}
+            <option value="Y">Yes</option>
+            {% endif %}
+            {% if round_off == "N"  %}
+            <option value="N" selected>No</option>
+            {% else %}
+            <option value="N">No</option>
+            {% endif %}
+            
+        </select>
+    </div>
+
+    <div class="col-md-1 col-sm-12 mb-3">
+        <label for="show_details">Details</label>
+        <select name="show_details" required class="form-control form-control-sm" id="show_details" >
+            {% if show_details == "Y"  %}
+            <option value="Y" selected>Yes</option>
+            {% else %}
+            <option value="Y">Yes</option>
+            {% endif %}
+            {% if show_details == "N" or not show_details  %}
+            <option value="N" selected>No</option>
+            {% else %}
+            <option value="N">No</option>
+            {% endif %}
+            
+        </select>
+    </div>
+
+    <div class="col-md-12 col-sm-12" >
+        <label for="include">Includes</label>
+        <select multiple name="include" id="include" required class="form-control form-control-sm form-control form-control-sm-sm">
+            {% for option in include_options %}
+                {% if option in include %}
+                <option selected value="{{option}}">{{option}}</option>
+                {% else %}
+                <option value="{{option}}">{{option}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+
+
+    <div class="col-md-12 col-sm-12 mb-3">
+        <button type="submit" class="btn btn-sm btn-primary mt-4">Filter</button>
+    </div>
+</div>
+</form>
+
+{% if report or not opening_balance == 0 %}
+
+<form action="{% url 'acr:PartyLedger' module=module generate_report_pdf=1 %}" method="post" target="_blank">
+{% csrf_token %}
+
+<input type="hidden" value="{{selected_region}}" name="region_pdf" />
+<input type="hidden" value="{{from_date|date:'Y-m-d'}}" name="from_date_pdf" />
+<input type="hidden" value="{{to_date|date:'Y-m-d'}}" name="to_date_pdf" />
+<input type="hidden" value="{{choose_company}}" name="choose_company_pdf" />
+<input type="hidden" value="{{selected_ledger}}" name="ledger_pdf" />
+<input type="hidden" value="{{round_off}}" name="round_off_pdf" />
+<input type="hidden" value="{{show_details}}" name="show_details_pdf" />
+
+<div class="my-2">
+    <button type="submit" class="btn btn-sm btn-primary">Generate PDF Report</button>
+</div>
+</form>
+
+{% endif %}
+
+<div class="table-responsive">
+
+
+
+    <table class="display table table-primary table-bordered table-hover" id="party_ledger_table">
+        <thead>
+            <tr>
+                <td colspan="10" class="text-center" style="color:white!important;">{{company.legal_name}}</td>
+            </tr>
+            <tr>
+                <td colspan="10" class="text-center" style="color:white!important;">
+                    {% if choose_from == "P" %}
+                    ({{selected_party.party_name}})
+                    {% else %}
+                    ({{choose_vendor.vendor_name}})
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <th></th>
+                <th>Particulars</th>
+                <th>Bill Wise Adjusted Ref.</th>
+                <th>Remarks</th>
+                <th>Invoice No.</th>
+                <th>BL No.</th>
+                <th>Debit</th>
+                <th>Credit</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        
+        <tbody>
+            <tr>
+            <td></td>
+            <td>
+                {% if opening_balance > 0 %}
+                TO
+                {% else %}
+                BY
+                {% endif %}
+            </td>
+           
+            <td>OPENING BALANCE</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            {% if opening_balance > 0 %}
+            <td data-order="{{opening_balance|floatformat:round_off_value|floatformat:2}}" align="right">{{opening_balance|floatformat:round_off_value|floatformat:2}}</td>
+            {% else %}
+            <td data-order="0" align="right">0</td>
+            {% endif %}
+
+            {% if opening_balance < 0 %}
+            <td data-order="{{opening_balance|mul:-1|floatformat:round_off_value|floatformat:2}}" align="right">{{opening_balance|mul:-1|floatformat:round_off_value|floatformat:2}}</td>
+            {% else %}
+            <td data-order="0" align="right">0</td>
+            {% endif %}
+
+                {% if opening_balance < 0 %}
+                <td data-order="{{opening_balance|mul:-1|floatformat:round_off_value|floatformat:2}}" align="right">{{opening_balance|mul:-1|floatformat:round_off_value|floatformat:2}} Cr.</td>
+                {% else %}
+                <td data-order="{{opening_balance|floatformat:round_off_value|floatformat:2}}" align="right">{{opening_balance|floatformat:round_off_value|floatformat:2}} Dr.</td>
+                
+                {% endif %}
+          
+            </tr>
+            {% if report %}
+            {% for data in report %}
+            {% if data.by_to %}
+            {% if data.color %}
+            <tr style="background-color:{{data.color}};">
+                {% else %}
+                <tr>
+                {% endif %}
+                <td align="center">{{data.date|date:"Y-m-d"}}</td>
+                <td>{{data.by_to}}</td>
+                <td>
+                {% if data.url %}
+                    <a href="{{data.url}}" target="_blank">{{data.particulars}}</a>
+                {% else %}
+                    {{data.particulars}}
+                {% endif %}
+                </td>
+                <td>&nbsp;</td>
+                <td>{{data.remarks}}</td>
+                <td>{{data.invoice_no}}</td>
+                <td>{{data.bl_no}}</td>
+                <td align="right" data-order="{{data.dr_amount|floatformat:round_off_value|floatformat:2}}">{{data.dr_amount|floatformat:round_off_value|floatformat:2}}</td>
+                <td align="right" data-order="{{data.cr_amount|floatformat:round_off_value|floatformat:2}}">{{data.cr_amount|floatformat:round_off_value|floatformat:2}}</td>
+                {% if data.current_balance < 0 %}
+                <td align="right" data-order="{{data.current_balance|floatformat:round_off_value|floatformat:2}}">{{data.current_balance|mul:-1|floatformat:round_off_value|floatformat:2}} {{data.balance_in}}</td>
+                {% else %}
+                <td align="right" data-order="{{data.current_balance|floatformat:round_off_value|floatformat:2}}">{{data.current_balance|floatformat:round_off_value|floatformat:2}} {{data.balance_in}}</td>
+                {% endif %}
+            </tr>
+            {% elif not data.by_to and show_details == "Y" %}   
+            {% if data.color %}
+            <tr style="background-color:{{data.color}};">
+                {% else %}
+                <tr>
+                {% endif %}
+                <td align="center">&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>{{data.particulars}}</td>
+                <td>&nbsp;</td>
+                <td>{{data.remarks}}</td>
+                <td>{{data.invoice_no}}</td>
+                <td>{{data.bl_no}}</td>
+                <td align="right" data-order="0"></td>
+                <td align="right" data-order="0"></td>
+             
+                <td align="right" data-order="0"></td>
+                
+            </tr>
+            {% endif %}
+
+            {% if data.adjustments %}
+            {% for adjustment in data.adjustments %}
+            {% if adjustment.invoice_no == "Advance" %}
+            <tr style="background-color: #b4c6e7;">
+                {% else %}
+                <tr style="background-color: #ffe699;">
+                {% endif %}
+                <td align="center" style="background-color: white!important; color:rgba(250, 240, 230, 0)!important;" >{{data.date|date:"Y-m-d"}}</td>
+                <td></td>
+                <td>{{adjustment.particulars}}</td>
+                <td>{{adjustment.invoice_no}}</td>
+                <td>{{adjustment.bl_no}}</td>
+                <td></td>
+                <td align="right">
+                    {% if adjustment.dr_amount > 0 %}
+                   <span>{{adjustment.dr_amount|floatformat:round_off_value|floatformat:2}} Dr.</span>
+                    {% endif %}
+                    {% if adjustment.cr_amount > 0 %}
+                    <span>{{adjustment.cr_amount|floatformat:round_off_value|floatformat:2}} Cr.</span>
+                    {% endif %}
+                </td>
+                <td data-order="0"></td>
+                <td data-order="0"></td>
+                <td data-order="0"></td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="6"></td>
+                <td style="color:white!important;">Total</td>
+                
+                <td style="color: white !important;" class="text-right">0</td>
+                <td style="color: white !important;" class="text-right">0</td>
+                <td style="color: white !important;" class="text-right"></td>
+            </tr>
+        </tfoot>
+    </table>
+
+
+    {% if debit_balance > 0 or credit_balance > 0 %}
+    <table class="table compact table-bordered">
+      
+        <tr>
+            <th> Total Debit</th>
+            <td class="text-right" align="right">{{debit_balance|floatformat:round_off_value|floatformat:2|intcomma}}</td>
+        </tr>
+      
+        <tr>
+            <th> Total Credit</th>
+            <td class="text-right" align="right">{{credit_balance|floatformat:round_off_value|floatformat:2|intcomma}}</td>
+        </tr>
+      
+
+        <tr>
+            <th>Net Balance</th>
+            <td class="text-right" align="right"><strong>{{debit_balance|sub:credit_balance|floatformat:round_off_value|floatformat:2|intcomma}}</strong> </td>
+        </tr>
+  
+    </table>
+{% endif %}
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    $(document).ready(function () {
+
+        jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+          return this.flatten().reduce( function ( a, b ) {
+              var x = parseFloat(a) ;
+              var y = parseFloat($(b).attr('data-order')) ;
+      
+              return parseFloat((x+y)).toFixed(2)
+          }, 0 );
+      } );
+
+
+      
+      let table = new DataTable('#party_ledger_table', {
+            // options
+            dom: 'BQlfrtip',
+            "ordering": false,
+            columnDefs: [
+            { "type": "date", "targets": 0,"displayFormat": 'dddd D MMMM YYYY' },
+         
+            ],
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+            order: [[0, 'asc']],
+            buttons: [
+            {
+                extend: 'collection',
+                text: 'Export',
+                
+                buttons: [
+                { extend: 'copy', footer: true, header:true, },
+                { extend: 'excel', footer: true, header:true,
+                exportOptions: {
+                format: {
+                    header: function (data) {
+                    return $('<div></div>')
+                        .append(data)
+                        .find('.tooltip')
+                        .remove()
+                        .end()
+                        .text()
+                    }
+                    }   
+                }  
+             },
+             
+                { extend: 'csv', footer: true, header:true, },
+                { extend: 'pdf', footer: true, header:true,orientation: 'landscape',},
+             
+                ]
+            }
+            ],
+
+            select: {
+                style:'multiple'
+            },
+        
+            drawCallback: function () {
+                var api = this.api();
+              
+               
+                $( api.table().column(7).footer() ).html(
+                    api.column( 7, {page:'current'} ).nodes().sum()
+                );
+                $( api.table().column(8).footer() ).html(
+                    api.column( 8, {page:'current'} ).nodes().sum()
+                );
+             
+              
+               
+              }
+                  
+        });
+       
+      
+        document.querySelector('.dtsb-title').style.display = 'none'
+        
+    })
+
+
+</script>
+
+
+
+<script>
+
+   
+    
+    $('#ledger').select2({
+    placeholder: 'Choose Ledger',
+    templateSelection: function (data, container) {
+        // Add custom attributes to the <option> tag for the selected option
+            $(data.element).attr('data-custom-attribute', data.customValue);
+            return data.text;
+        } 
+    })
+    
+    $('#include').select2({
+    placeholder: 'Include',
+    templateSelection: function (data, container) {
+        // Add custom attributes to the <option> tag for the selected option
+            $(data.element).attr('data-custom-attribute', data.customValue);
+            return data.text;
+        } 
+    })
+ 
+     
+    
+     
+</script>
+
+
+
+
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+
+{% block dashoard_title %} 
+
+Cash Statement - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Cash Statement
+</h1>
+
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<h5 class="my-3 text-danger">Cash Balance Amount : ₹ {{latest_cash_balance}} </h5>
+
+<table class="table table-primary table-bordered table-md-responsive" id="party_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Date</th>
+        <th scope="col">Recieved Amount</th>
+        <th scope="col">Paid Amount</th>
+        <th scope="col">Balance</th>
+      
+        
+        
+     
+      
+      </tr>
+    </thead>
+    <tbody>
+      {% for data in cash_entries %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ data.voucher_date }}</td>
+        {% if data.recieved_amount %}
+        <td>{{ data.recieved_amount }}</td>
+        {% else %}
+        <td>0</td>
+        {% endif %}
+        
+        {% if data.paid_amount %}
+        <td>{{ data.paid_amount }}</td>
+        {% else %}
+        <td>0</td>
+        {% endif %}
+        <td>{{ data.recieved_amount|sub:data.paid_amount }}</td>
+
+      
+   
+      </tr>
+   
+      {% endfor %}
+     
+    </tbody>
+
+    <tfoot>
+        <tr>
+            <td></td>
+            <td></td>
+            <td class="text-white">Total : {{recieved_cash_balances}}</td>
+            <td class="text-white">Total : {{paid_cash_balances}}</td>
+            <td class="text-white">Total : {{ recieved_cash_balances|sub:paid_cash_balances }}</td>
+
+        </tr>
+     
+    </tfoot>
+  </table>
+
+
+  <script>
+    let table = new DataTable('#party_table', {
+        // options
+    });
+  </script>
+
+{% endblock %}

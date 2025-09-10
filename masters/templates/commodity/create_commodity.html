@@ -1,0 +1,48 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Commodity
+    {% else %}
+    Create New Commodity
+    {% endif %}
+</h1>
+
+<a href="{% url 'masters:commodity_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+    <form enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        {% include 'error_component.html' %}
+        <div class="row">
+
+            <div class="col-md-6 col-sm-12 mb-3">
+                <label for="id_type">Type</label>
+                {{ form.type }}
+            </div>
+
+            <div class="col-md-6 col-sm-12 mb-3">
+                <label for="id_name">Name</label>
+                {{ form.name }}
+            </div>
+
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update Commodity
+        {% else %}
+        Submit
+        {% endif %}
+        
+        </button>
+    </form>
+
+
+
+{% endblock %}

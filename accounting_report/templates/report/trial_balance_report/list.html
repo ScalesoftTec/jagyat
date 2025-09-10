@@ -1,0 +1,78 @@
+{% load mathfilters %}
+<tr>
+    <td><span style="margin-left: {{sub_item.depth|add:15}}px;"></span>
+    {% if sub_item.depth %}
+
+    {% if sub_item.category.voucher_category.count > 0 %}
+    <a target="_blank" href="{% url 'acr:ledger_category_transactions' module=module company=company from_date=from_date to_date=to_date id=sub_item.category.id %}">  <i> <span style="font-size: 13px; font-weight: 600;;"> {{sub_item.category.name}}</span></i></a> 
+    {% else %}
+    <i> <span style="font-size: 13px; font-weight: 600;;"> {{sub_item.category.name}}</span></i>
+    {% endif %}
+
+    
+    {% else %}
+    {% if sub_item.category.voucher_category.count > 0 %}
+    <a target="_blank" href="{% url 'acr:ledger_category_transactions' module=module company=company from_date=from_date to_date=to_date id=sub_item.category.id %}"> {{sub_item.category.name}}</a>
+    {% else %}
+        {{sub_item.category.name}}
+    {% endif %}
+    {% endif %}
+    </td>
+
+    {% if sub_item.opening_in == "Debit" %}
+    <td style="font-size: 12px; font-weight: 400; text-align: right;" data-order="0">{{sub_item.opening}}  Dr.</td>
+    {% else %}
+    <td style="font-size: 12px; font-weight: 400; text-align: right;" data-order="0">{{sub_item.opening}}  Cr.</td>
+    {% endif %}
+
+   
+    
+   
+    <td style="font-size: 12px; font-weight: 400; text-align: right;" data-order="0">
+        {{sub_item.dr_total}}
+    </td>
+    <td style="font-size: 12px; font-weight: 400; text-align: right;" data-order="0">
+        {{sub_item.cr_total}}
+    </td>
+   
+
+    {% if sub_item.closing_in == "Debit" %}
+    <td style="font-size: 12px; font-weight: 400; text-align: right;" data-order="0">{{sub_item.closing}}  Dr.</td>
+    {% else %}
+    <td style="font-size: 12px; font-weight: 400; text-align: right;" data-order="0">{{sub_item.closing}}  Cr.</td>
+    {% endif %}
+
+   
+</tr>
+
+{% for ledger in sub_item.ledger_report %}
+<tr >
+
+    <td style="font-size: 11px; font-weight: 400;">
+        <span style="margin-left: {{sub_item.depth|add:23}}px;"></span>
+        {% if ledger.id and ledger.type %}
+        <a target="_blank" href="{% url 'acr:ledger_category_transactions' module=module company=company from_date=from_date to_date=to_date id=sub_item.category.id detail_id=ledger.id detail=1 type=ledger.type %}">  
+              <i> {{ledger.particulars}} </i>
+            </a>
+            {% else %}
+             <i> {{ledger.particulars}} </i>
+            {% endif %}
+        
+    </td>
+    <td data-order="0" style="font-size: 11px; font-weight: 400; text-align: right;">&nbsp;</td>
+    <td data-order="0" style="font-size: 11px; font-weight: 400; text-align: right;">{{ledger.debit|floatformat:2}}</td>
+    <td data-order="0" style="font-size: 11px; font-weight: 400; text-align: right;">{{ledger.credit|floatformat:2}}</td>
+    <td data-order="0" style="font-size: 11px; font-weight: 400; text-align: right;">
+        {% if ledger.debit|sub:ledger.credit >= 0 %} 
+        {{ledger.debit|sub:ledger.credit|floatformat:2}} Dr.   
+        {% else %}
+        {{ledger.debit|sub:ledger.credit|mul:-1|floatformat:2}} Cr.   
+        {% endif %}
+    </td>
+
+</tr>
+{% endfor %}
+
+{% for sub_item in sub_item.report %}
+    {% include 'report/trial_balance_report/list.html' %}
+{% endfor %}

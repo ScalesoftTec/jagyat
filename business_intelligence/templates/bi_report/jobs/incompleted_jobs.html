@@ -1,0 +1,320 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% block dashoard_title %}
+Jobs Status
+{% endblock %}
+
+{% block css %}
+
+<style>
+    .table tr th,td{
+        font-size: 12px!important;
+        padding: 0px!important;
+    }
+</style>
+
+{% endblock %}
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Jobs Status
+</h1>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+
+
+
+        <form action="" class="my-2" method="post">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-2">
+                <label for="region">Country</label>
+                <select name="region" id="region" required class="form-control form-control-sm">
+                  {% if not selected_region %}
+                  <option value="" selected hidden disabled>Choose Country</option>
+                  {% endif %}
+        
+                  {% if selected_region == "A" or not selected_region %}
+                    <option value="A" selected>All</option>
+                    {% else %}
+                    <option value="A">All</option>
+                    {% endif %}
+                  {% for i in company_regions %}
+
+                  {% if i.region == selected_region %}
+                  <option value="{{i.region}}" selected >{{i.region}}</option>
+                  {% else %}
+                  <option value="{{i.region}}">{{i.region}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-2">
+                <label for="company">Company</label>
+                <select name="company" id="company" class="form-control form-control-sm">
+                  {% if selected_company == "A" %}
+                  <option value="A" selected>All</option>
+                  {% else %}
+                  <option value="A">All</option>
+                  {% endif %}
+        
+                  {% for i in global_companies %}
+                  {% if i.id == selected_company %}
+                  <option value="{{i.id}}" selected >{{i}}</option>
+                  {% else %}
+                  <option value="{{i.id}}">{{i}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-md-2 col-sm-12">
+                <label for="from_date">From</label>
+                <input type="date" value="{{ from_date|date:'Y-m-d' }}" name="from_date"
+                    class="form-control form-control-sm" id="from_date">
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <label for="to_date">To</label>
+                <input type="date" value="{{ to_date|date:'Y-m-d' }}" name="to_date" class="form-control form-control-sm"
+                    id="to_date">
+            </div>
+            
+              <div class="col-2">
+                <label for="party">Customer</label>
+                <select name="party" id="party" class="form-control form-control-sm">
+                    {% if selected_party == "A" %}
+                    <option value="A" selected>All</option>
+                    {% else %}
+                    <option value="A">All</option>
+                    {% endif %}
+        
+                  {% for i in global_parties %}
+                  {% if i.id == selected_party %}
+                  <option value="{{i.id}}" selected >{{i}}</option>
+                  {% else %}
+                  <option value="{{i.id}}">{{i}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-2">
+                <button type="submit" class="btn btn-primary btn-sm mt-4">Search</button>
+              </div>
+            </div>
+          </form>
+        
+
+  
+<div class="table-responsive">
+
+
+
+<table class="table table-primary table-bordered display compact" id="incomplete_table">
+    <thead>
+        <tr>
+            <th scope="col">Job No.</th>
+            <th scope="col">Date</th>
+            <th scope="col">Branch</th>
+            <th scope="col">Module</th>
+            <th scope="col">Party</th>
+            <th scope="col">CreatedBy</th>
+            <th scope="col">CreatedOn</th>
+            <th scope="col">Sale.Invoice</th>
+            <th scope="col">Purch.&Exp.Invoice</th>
+            <th scope="col" >GR.NO. </th>
+            <th scope="col">B/L.No.</th>
+            <th scope="col">Manifest</th>
+            <th scope="col">CAN</th>          
+            <th scope="col">Difference</th>
+            <th scope="col">Status</th>
+
+
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in jobs %}
+
+
+        <tr>
+
+          
+            <td>{{ data.job_no }}</td>
+            <td>{{ data.job_date }}</td>
+            <td>{{ data.company_type.branch_name }}</td>
+            <td>{{ data.module }}</td>
+            <td>{{ data.account }}</td>
+            <td>{{ data.created_by }}</td>
+            <td>{{ data.created_at }}</td>
+            <td>
+                {% if data.recievable_invoice_job.count <= 0 %} <span class="badge badge-danger">Pending</span>
+                    {% else %}
+                    {% for i in data.recievable_invoice_job.all %}
+                    {% if selected_region == "A" %}
+                    <a href="{% url 'accounting:recievable_invoice_pdf' id=i.id %}" target="_blank"><span
+                            class="badge badge-primary">{{i.final_invoice_no}}</span></a>
+                    {% else %}
+                    
+                    {% if selected_region == i.company_type.region %}
+                    <a href="{% url 'accounting:recievable_invoice_pdf' id=i.id %}" target="_blank"><span
+                        class="badge badge-primary">{{i.final_invoice_no}}</span></a>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+
+                {% if data.credit_note_job.count <= 0 %} <span class="badge badge-danger">CRN N/A</span>
+                    {% else %}
+                    {% for i in data.credit_note_job.all %}
+                    {% if selected_region == "A" %}
+                    <a href="{% url 'accounting:crn_print_pdf' id=i.id %}" target="_blank"><span
+                            class="badge badge-primary">{{i.final_invoice_no}}</span></a>
+                    {% else %}
+                    
+                    {% if selected_region == i.company_type.region %}
+                    <a href="{% url 'accounting:crn_print_pdf' id=i.id %}" target="_blank"><span
+                        class="badge badge-primary">{{i.final_invoice_no}}</span></a>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+            </td>
+
+            <td>
+                {% if data.payable_invoice_job.count <= 0 %} <span class="badge badge-danger">Pending</span>
+                    {% else %}
+                    {% for i in data.payable_invoice_job.all %}
+                    {% if selected_region == "A" %}
+                    <a href="{% url 'accounting:invoice_payable_pdf' id=i.id %}" target="_blank"><span
+                            class="badge badge-primary">{{i.purchase_invoice_no}}</span></a>
+                    {% else %}
+            
+                    {% if selected_region == i.company_type.region %}
+                    <a href="{% url 'accounting:invoice_payable_pdf' id=i.id %}" target="_blank"><span
+                        class="badge badge-primary">{{i.purchase_invoice_no}}</span></a>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+
+                {% if data.indirect_exp_job.count <= 0 %} <span class="badge badge-danger">Exp.</span>
+                    {% else %}
+                    {% for i in data.indirect_exp_job.all %}
+                    {% if selected_region == "A" %}
+                    <span class="badge badge-primary">{{i.bill_no}}</span>
+                    {% else %}
+            
+                    {% if selected_region == i.company_type.region %}
+                   <span class="badge badge-primary">{{i.bill_no}}</span>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+
+                {% if data.trailor_exp_job.count <= 0 %} <span class="badge badge-danger">T/E</span>
+                    {% else %}
+                    {% for i in data.trailor_exp_job.all %}
+                    {% if selected_region == "A" %}
+                    <span class="badge badge-primary">{{i.trailor_no}}</span>
+                    {% else %}
+            
+                    {% if selected_region == i.company_type.region %}
+                   <span class="badge badge-primary">{{i.trailor_no}}</span>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+            </td>
+            <td>
+                {% if data.gr_job.count <= 0 %} <span class="badge badge-danger">Pending</span>
+                    {% else %}
+                    {% for i in data.gr_job.all %}
+                    <a href="{% url 'operations:gr_pdf' id=i.id %}" target="_blank"><span
+                            class="badge badge-primary">{{i.gr_no}}</span></a>
+                    {% endfor %}
+                    {% endif %}
+            </td>
+            <td>
+                {% if data.mbl_job.count <= 0 %} <span class="badge badge-danger">Pending</span>
+                    {% else %}
+                    {% for i in data.mbl_job.all %}
+                    <span class="badge badge-primary">{{i.mbl_no}}</span>
+                    {% endfor %}
+                    {% endif %}
+            </td>
+            <td>
+                {% if data.manifest_job.count <= 0 %} <span class="badge badge-danger">Pending</span>
+                    {% else %}
+                    {% for i in data.manifest_job.all %}
+                    <span class="badge badge-primary">{{i.manifest_no}}</span>
+                    {% endfor %}
+                    {% endif %}
+            </td>
+
+           
+            <td>
+                {% if data.can_job.all|length <= 0 %} <span class="badge badge-danger">Pending</span>
+                    {% else %}
+                    {% for i in data.can_job.all %}
+                    <span class="badge badge-primary">{{i.id}}</span>
+                    {% endfor %}
+                    {% endif %}
+            </td>
+
+            
+            <td align="center">
+                {% if data.receivable_sum|sub:data.payable_sum > 0 %}
+                <span class="badge badge-primary">Profit</span>
+                {% elif data.receivable_sum|sub:data.payable_sum < 0 %}
+                <span class="badge badge-danger">Loss</span>
+                {% else %}
+                <span class="badge badge-danger">N/A</span>
+                {% endif %}
+            </td>
+
+            <td><span class="badge badge-primary">{{ data.job_status }}</span></td>
+          
+        </tr>
+
+
+
+        {% endfor %}
+
+    </tbody>
+</table>
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    let table = new DataTable('#incomplete_table', {
+        // options
+        dom: 'BQlfrtip',
+        "pageLength": 50,
+        buttons: [
+            {
+                extend: 'collection',
+                text: 'Export',
+                buttons: [
+                    'copy',
+                    'excel',
+                    'csv',
+                    'pdf',
+
+                ]
+            },
+
+        ]
+    });
+    document.querySelector('.dtsb-title').style.display = 'none'
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,438 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+{% block dashoard_title %}
+Profit Loss Register -
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Profit Loss Register
+</h1>
+
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<div class="">
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-2 col-sm-12 mb-3">
+        
+                <label for="location" class="required">Branch</label>
+                <select name="location" required class="form-control form-control-sm" id="location" >
+                    {% if location == 'A' %}
+                    <option value="A" selected>All</option>
+                    {% else %}
+                    <option value="A">All</option>
+                    {% endif %}
+                    {% for data in global_companies %}
+                    {% if location == data.id %}
+                    <option value="{{data.id}}" selected>{{data.branch_name}}</option>
+                    {% else %}
+                    <option value="{{data.id}}">{{data.branch_name}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            
+            <div class="col-2">
+                <label for="from_date" class="required">From</label>
+                <input type="date" required name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="start_date">
+            </div>
+            <div class="col-2">
+                <label for="to_date" class="required">To</label>
+                <input type="date" required name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="to_date">
+            </div>
+
+          
+
+            <div class="col-md-2 col-sm-12 mb-3">
+        
+                <label for="job_type" class="required">Job Type</label>
+                <select name="job_type" required class="form-control form-control-sm" id="job_type" >
+                    {% if job_type == 'A' %}
+                    <option value="A" selected>All</option>
+                    {% else %}
+                    <option value="A">All</option>
+                    {% endif %}
+
+                    {% if job_type == 'Sea Export' %}
+                    <option value="Sea Export" selected>Sea Export</option>
+                    {% else %}
+                    <option value="Sea Export">Sea Export</option>
+                    {% endif %}
+
+                    {% if job_type == 'Sea Import' %}
+                    <option value="Sea Import" selected>Sea Import</option>
+                    {% else %}
+                    <option value="Sea Import">Sea Import</option>
+                    {% endif %}
+
+                    {% if job_type == 'Air Export' %}
+                    <option value="Air Export" selected>Air Export</option>
+                    {% else %}
+                    <option value="Air Export">Air Export</option>
+                    {% endif %}
+
+                    {% if job_type == 'Air Import' %}
+                    <option value="Air Import" selected>Air Import</option>
+                    {% else %}
+                    <option value="Air Import">Air Import</option>
+                    {% endif %}
+
+                    {% if job_type == 'Transport' %}
+                    <option value="Transport" selected>Transport</option>
+                    {% else %}
+                    <option value="Transport">Transport</option>
+                    {% endif %}
+                   
+                </select>
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+        
+                <label for="finalize_bill" class="required">Sales Bill Type</label>
+                <select name="finalize_bill" required class="form-control form-control-sm" id="finalize_bill" >
+                    {% if finalize_bill == 'A' %}
+                    <option value="A" selected>All</option>
+                    {% else %}
+                    <option value="A">All</option>
+                    {% endif %}
+
+                    {% if finalize_bill == 'F' %}
+                    <option value="F" selected>Finalize</option>
+                    {% else %}
+                    <option value="F">Finalize</option>
+                    {% endif %}
+
+                    {% if finalize_bill == 'U' %}
+                    <option value="U" selected>Unfinalize</option>
+                    {% else %}
+                    <option value="U">Unfinalize</option>
+                    {% endif %} 
+                </select>
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+        
+                <label for="purch_finalize_bill" class="required">Purch.&nbsp;Bill&nbsp;Type</label>
+                <select name="purch_finalize_bill" required class="form-control form-control-sm" id="purch_finalize_bill" >
+
+                    {% if purch_finalize_bill == 'A' %}
+                    <option value="A" selected>All</option>
+                    {% else %}
+                    <option value="A">All</option>
+                    {% endif %}
+
+                    {% if purch_finalize_bill == 'F' %}
+                    <option value="F" selected>Finalize</option>
+                    {% else %}
+                    <option value="F">Finalize</option>
+                    {% endif %}
+
+                    {% if purch_finalize_bill == 'U' %}
+                    <option value="U" selected>Unfinalize</option>
+                    {% else %}
+                    <option value="U">Unfinalize</option>
+                    {% endif %} 
+                </select>
+            </div>
+            <div class="col-1">
+                <button type="submit" class="btn btn-primary btn-sm mt-2">Filter</button>
+            </div>
+        </div>
+    </form>
+
+</div>
+{% if invoices %}
+
+
+<div class="large-table-fake-top-scroll-container-3">
+  <div>&nbsp;</div>
+</div>
+
+
+<h6 id="show_net_profit_loss"></h6>
+
+<div class="table-responsive">
+
+
+<table class="table  nowrap compact table-primary table-bordered table-md-responsive invoice_table" id="invoice_table">
+    <thead>
+        <tr>
+            <th scope="col">Branch</th>
+            <th scope="col">Date</th>
+            <th scope="col">Bill No.</th>
+            <th scope="col">Bill Type</th>
+            <th scope="col">Party Name</th>
+            <th scope="col">Job No.</th>
+            <th scope="col">Invoice Amt.</th>
+            <th scope="col">Total Tax Amt</th>
+            <th scope="col">Without Tax Amt.</th>
+            <!-- <th scope="col">Taxable Amt.</th> -->
+            <th scope="col">Currency</th>
+            <th scope="col">Ex. Rate</th>
+            <th scope="col">Inv. Amount</th>
+
+          
+           
+        </tr>
+    </thead>
+    <tbody>
+    
+        {% for data in invoices %}               
+                <tr class="table-primary">
+                 
+               
+                <td>{{ data.company_type.branch_name }}</td>
+                {% if data.einvoice_date %}
+                <td>{{ data.einvoice_date|date:"Y-m-d" }}</td>
+                {% else %}
+                <td>{{ data.date_of_invoice|date:"Y-m-d" }}</td>
+                {% endif %}
+
+                {% if data.final_invoice_no %}
+                <td>{{ data.final_invoice_no }}</td>
+                {% else %}
+                <td>{{ data.invoice_no }}</td>
+                {% endif %}
+
+                {% if data.type_of_invoice == "TAX INVOICE" %}
+                <td>REG</td>
+                {% elif data.type_of_invoice == "BILL OF SUPPLY" %}
+                <td>BOS</td>
+                {% elif data.type_of_invoice == "RCM" %}
+                <td>RCM</td>
+                {% else %}
+                <td>REG</td>
+                {% endif %}
+
+                <td>{{ data.bill_to }}</td>
+                <td>{{ data.job_no }}</td>
+                {% if not data.invoice_currency.short_name == "INR" %}
+                <td align="right" data-order="{{data.net_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2}}">{{ data.net_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.gst_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2}}">{{ data.gst_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.gross_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2}}">{{ data.gross_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="center">{{ data.invoice_currency }}</td>
+                <td align="right">{{ data.currency_ex_rate }}</td>
+                <td align="right" data-order="{{data.net_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2}}">{{ data.net_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2|intcomma }}</td>
+                {% else %}
+                <td align="right" data-order="{{data.net_amount|floatformat:0|floatformat:2}}">{{ data.net_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.gst_amount|floatformat:0|floatformat:2}}">{{ data.gst_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.gross_amount|floatformat:0|floatformat:2}}">{{ data.gross_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="center">{{ data.invoice_currency }}</td>
+                <td align="right">{{ data.currency_ex_rate }}</td>
+                <td align="right" data-order="{{data.net_amount|floatformat:0|floatformat:2}}">{{ data.net_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                {% endif %}
+               
+            </tr>
+
+
+            {% endfor %}
+            
+        {% for data in purchase_invoices %}               
+            <tr class="table-danger">
+                 
+               
+                <td>{{ data.company_type.branch_name }}</td>
+               
+                <td>{{ data.date_of_invoice|date:"Y-m-d" }}</td>
+               
+
+               
+                <td>{{ data.purchase_invoice_no }}</td>
+             
+
+                {% if data.is_rcm %}
+                <td>RCM</td>
+                {% else %}
+                <td>REG</td>
+                {% endif %}
+
+                <td>{{ data.bill_from }}</td>
+                <td>{{ data.job_no }}</td>
+                {% if not data.invoice_currency.short_name == "INR" %}
+                <td align="right" data-order="{{data.net_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2}}">{{ data.net_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.gst_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2}}">{{ data.gst_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.gross_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2}}">{{ data.gross_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="center">{{ data.invoice_currency }}</td>
+                <td align="right">{{ data.currency_ex_rate }}</td>
+                <td align="right" data-order="{{data.net_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2}}">{{ data.net_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2|intcomma }}</td>
+                {% else %}
+                <td align="right" data-order="{{data.net_amount|floatformat:0|floatformat:2}}">{{ data.net_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.gst_amount|floatformat:0|floatformat:2}}">{{ data.gst_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.gross_amount|floatformat:0|floatformat:2}}">{{ data.gross_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="center">{{ data.invoice_currency }}</td>
+                <td align="right">{{ data.currency_ex_rate }}</td>
+                <td align="right" data-order="{{data.net_amount|floatformat:0|floatformat:2}}">{{ data.net_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                {% endif %}
+               
+            </tr>
+
+            {% endfor %}
+
+        {% for data in indirect_expense %}               
+            <tr class="table-danger">
+                 
+               
+                <td>{{ data.company_type.branch_name }}</td>
+               
+                <td>{{ data.bill_date|date:"Y-m-d" }}</td>
+               
+
+               
+                <td>{{ data.bill_no }}</td>
+             
+
+               
+                <td>EXP</td>
+                
+
+                <td>{{ data.vendor }}</td>
+                <td>{{ data.job_no }}</td>
+
+                {% if not data.invoice_currency.short_name == "INR" %}
+                <td align="right" data-order="{{data.net_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2}}">{{ data.net_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.gst_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2}}">{{ data.gst_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.gross_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2}}">{{ data.gross_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="center">{{ data.invoice_currency }}</td>
+                <td align="right">{{ data.currency_ex_rate }}</td>
+                <td align="right" data-order="{{data.net_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2}}">{{ data.net_amount|mul:data.currency_ex_rate|floatformat:0|floatformat:2|intcomma }}</td>
+                {% else %}
+                <td align="right" data-order="{{data.net_amount|floatformat:0|floatformat:2}}">{{ data.net_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.gst_amount|floatformat:0|floatformat:2}}">{{ data.gst_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.gross_amount|floatformat:0|floatformat:2}}">{{ data.gross_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="center">{{ data.invoice_currency }}</td>
+                <td align="right">{{ data.currency_ex_rate }}</td>
+                <td align="right" data-order="{{data.net_amount|floatformat:0|floatformat:2}}">{{ data.net_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                {% endif %}
+               
+            </tr>
+
+
+            {% endfor %}
+      
+
+    </tbody>
+
+    <tfoot>
+        <tr>
+            <td colspan="5"></td>
+            <td class="text-white">Total</td>
+            <td class="text-white text-right"></td>
+            <td class="text-white text-right"></td>
+            <td class="text-white text-right"></td>
+            <!-- <th scope="col">Taxable Amt.</th> -->
+            <td class="text-white text-right"></td>
+            <td class="text-white text-right"></td>
+            <td class="text-white text-right" id="net_profit_loss"></td>
+             
+        </tr>
+    </tfoot>
+
+
+
+</table>
+</div>
+
+
+
+{% endif %}
+
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+
+    var selected_ids = []
+    $(document).ready(function () {
+        jQuery.fn.dataTable.Api.register('sum()', function () {
+            return this.flatten().reduce(function (a, b) {
+              var x = parseFloat(a);
+              var y = parseFloat($(b).attr('data-order'));
+      
+              return parseFloat(x + y).toFixed(2)
+            }, 0);
+          });
+     
+        
+        var table = new DataTable('.invoice_table', {
+            // options
+            dom: 'BQlfrtip',
+            "columnDefs": [
+          
+            
+            ],
+         
+           
+            oLanguage: {sProcessing: "<div id='table_content_loader'></div>"},
+            
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+            buttons: [
+            {
+                extend: 'collection',
+                text: 'Export',
+                buttons: [
+                    'copy',
+                    'excel',
+                    'csv',
+                    'pdf',
+
+                ]
+            },
+
+        ],
+            drawCallback: function () {
+                var api = this.api();
+        
+                var from_row =6
+                var to_row = 8
+        
+                for (var i = from_row; i <= to_row; i++) {
+                  $(api.table().column(i).footer()).html(
+                    api.column(i, { page: 'current' }).nodes().sum()
+                  );
+                }
+                
+                $(api.table().column(11).footer()).html(
+                  api.column(11, { page: 'current' }).nodes().sum()
+                );
+        
+              }
+
+        });
+
+        document.querySelector('.dtsb-title').style.display = 'none'
+       
+
+    })
+        $(function() {
+    var tableContainer = $(".table-responsive");
+    var table = $(".table-responsive table");
+    var fakeContainer = $(".large-table-fake-top-scroll-container-3");
+    var fakeDiv = $(".large-table-fake-top-scroll-container-3 div");
+
+    var tableWidth = table.width();
+    fakeDiv.width(tableWidth);
+
+    fakeContainer.scroll(function() {
+    tableContainer.scrollLeft(fakeContainer.scrollLeft());
+    });
+    })
+
+
+</script>
+
+{% endblock %}

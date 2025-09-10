@@ -1,0 +1,330 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+{% if update %}
+Journal Entry - 
+
+{% else %}
+Journal Entry - 
+{% endif %}
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    {% if update %}
+    Journal Entry
+    {% else %}
+    Journal Entry
+    {% endif %}
+</h1>
+
+
+<a href="{% url 'accounting:journal_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye text-white-50"></i> View List</a>
+
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+    <style>
+        .entry td{
+            padding: 0!important;
+        }
+        .select2.select2-container.select2-container--default{
+            width: 100%!important;
+        }
+    </style>
+
+    <div class="mt-5">
+        <form method="POST">
+            {% csrf_token %}
+            {% include 'error_component.html' %}
+
+            {{form.total_dr_amount}}
+            {{form.total_cr_amount}}
+            
+            <input type="hidden" name="update" id="update" value="{{update}}">
+            {% if update %}
+            <input type="hidden" name="total_rows" id="total_rows" value="{{form.instance.journal_entry.count}}">
+            {% else %}
+            <input type="hidden" name="total_rows" id="total_rows" value="0">
+            {% endif %}
+
+            <div class="row">
+                {% if request.user.user_account.create_global_data %}
+                <div class="col-md-6 col-sm-12 mb-3">
+                    <label for="company" class="required">Company</label>
+                    {{form.company_type}}
+                </div>
+                {% else %}
+                    <input type="hidden" name="company_type" id="id_company_type" value="{{ request.user.user_account.office.id }}">
+                {% endif %}
+
+                <div class="col-md-6 col-sm-12 mb-3">
+                    <label for="date" class="required">Date</label>
+                    {{form.date}}
+                </div>
+
+                <table class="table table-bordered" id="journal_entry" >
+                   
+                        <tr>
+                            <th>Account</th>
+                            <th>Description</th>
+                            <th>Dr/Cr</th>
+                            <th>Amount</th>
+                            <th></th>
+                        </tr>
+
+
+                        {% if update %}
+                        {% for data in form.instance.journal_entry.all %}
+                        <tr id="entry-{{forloop.counter}}" class="entry">
+                            <td>
+                                <input type="hidden" name="is_active-{{forloop.counter}}" value="yes" id="is_active-{{forloop.counter}}">
+                                <input type="hidden" name="is_update-{{forloop.counter}}" value="yes" id="is_update-{{forloop.counter}}">
+                                <input type="hidden" name="voucher_id-{{forloop.counter}}" value="{{data.id}}" id="voucher_id-{{forloop.counter}}">
+                                <select class="form-control" id="account-{{forloop.counter}}" name="account-{{forloop.counter}}" required>
+                                <option value="" selected>Select</option>
+
+                                   {% for account in global_ledgers %}
+                                   {% if data.ledger == account %}
+                                   <option value="L_{{account.id}}" selected>{{account}}</option>
+                                   {% else  %}
+                                   <option value="L_{{account.id}}">{{account}}</option>
+                                   {% endif %}
+                                   {% endfor %}
+
+                                   {% for account in global_voucher_parties %}
+                                   {% if data.party == account %}
+                                   <option value="P_{{account.id}}" selected>{{account}}</option>
+                                   {% else %}
+                                   <option value="P_{{account.id}}">{{account}}</option>
+                                   {% endif %}
+                                   {% endfor %}
+
+                                   {% for account in global_vendors %}
+                                   {% if data.vendor == account %}
+                                   <option value="V_{{account.id}}" selected>{{account}}</option>
+                                   {% else %}
+                                   <option value="V_{{account.id}}">{{account}}</option>
+                                   {% endif %}
+                                   {% endfor %}
+
+                                </select> 
+                            </td>
+
+                            <td>
+                                <input type="text" class="form-control h-100" value="{{data.particular}}" required id="desc-{{forloop.counter}}" name="desc-{{forloop.counter}}" >
+                            </td>
+                            <td>
+                                <select class="form-control" id="action-{{forloop.counter}}" name="action-{{forloop.counter}}" required onchange="calculateUnbalancedAmount()" onkeyup="calculateUnbalancedAmount()">
+                                    {% if data.dr_cr == "Debit" %}
+                                    <option value="Debit" selected>Dr.</option>
+                                    <option value="Credit">Cr.</option>
+                                    {% else %}
+                                    <option value="Debit">Dr.</option>
+                                    <option value="Credit" selected>Cr.</option>
+                                    {% endif %}
+                                </select>
+                            </td>
+                            <td>
+                                <input type="number" value="{{data.amount}}" step="0.01" onkeyup="calculateUnbalancedAmount()" class="form-control" name="amount-{{forloop.counter}}" id="amount-{{forloop.counter}}" required />
+                            </td>
+                            <td>
+                                <span class="text-danger " onclick="deleteRow('{{forloop.counter}}')"><strong><i class="bi bi-x-lg" style="font-size:20px; cursor:pointer;"></i></strong></span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% endif %}
+                       
+                       
+                    
+                </table>
+
+                <button type="button" onclick="addRow()" class="btn btn-primary mb-4"><i class="bi bi-plus-circle-dotted"></i></button>
+
+                <div class="col-12 my-3">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12">
+                            <label for="description">Narration</label>
+
+                           {{form.description}}
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <table class="table compact display table-bordered">
+                                
+                                    <tr>
+                                        <th>Debit Amount</th>
+                                        {% if update %}
+                                        <td id="dr_amount">{{form.instance.total_dr_amount}}</td>
+                                        {% else %}
+                                        <td id="dr_amount">0</td>
+                                        {% endif %}
+                                    </tr>
+                                
+                                    <tr>
+                                        <th>Credit Amount</th>
+                                        {% if update %}
+                                        <td id="cr_amount">{{form.instance.total_cr_amount}}</td>
+                                        {% else %}
+                                        <td id="cr_amount">0</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <th>Unbalanced Amount</th>
+                                        <td id="unbalanced_amount">0</td>
+                                    </tr>
+                                
+                            </table>
+                            <div class="text-right">
+                                <button class="btn btn-primary " id="submit_data" disabled  type="submit">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+
+     
+        </form>
+    </div>
+
+    
+    
+    {% endblock %}
+{% block js %}
+    
+    <script>
+    
+       
+        var currentRowNumber = parseInt(document.getElementById('total_rows').value)
+        var availableRowNumber = parseInt(document.getElementById('total_rows').value)
+        var ledgers = []
+    
+        
+    
+        const addRow = () => {
+            currentRowNumber += 1
+            availableRowNumber += 1
+            var newRow =  document.getElementById('journal_entry').insertRow(-1)
+            newRow.id = `entry-${currentRowNumber}`
+            newRow.classList.add("entry")
+            var account_cell = newRow.insertCell(0)
+            var description_cell = newRow.insertCell(1)
+            var dr_cr_cell = newRow.insertCell(2)
+            var amount_cell = newRow.insertCell(3)
+            var delete_cell = newRow.insertCell(4)
+            
+            account_cell.innerHTML = `
+                <input type="hidden" name="is_active-${currentRowNumber}" value="yes" id="is_active-${currentRowNumber}">
+                <input type="hidden" name="is_update-${currentRowNumber}" value="no" id="is_update-${currentRowNumber}">
+                <input type="hidden" name="voucher_id-${currentRowNumber}" value="0" id="voucher_id-${currentRowNumber}">
+                <select class="form-control" id="account-${currentRowNumber}" name="account-${currentRowNumber}" required>
+                <option value="" selected>Select</option>
+                   {% for data in global_ledgers %}
+                   <option value="L_{{data.id}}">{{data}}</option>
+                   {% endfor %}
+                   {% for data in global_voucher_parties %}
+                   <option value="P_{{data.id}}">{{data}}</option>
+                   {% endfor %}
+                   {% for data in global_vendors %}
+                   <option value="V_{{data.id}}">{{data}}</option>
+                   {% endfor %}
+                </select>
+            `
+            description_cell.innerHTML = `
+                <input type="text" class="form-control h-100" required id="desc-${currentRowNumber}" name="desc-${currentRowNumber}" >
+            `
+            
+            dr_cr_cell.innerHTML = `
+                <select class="form-control" id="action-${currentRowNumber}" name="action-${currentRowNumber}" required onchange="calculateUnbalancedAmount()" onkeyup="calculateUnbalancedAmount()">
+                  
+                    <option value="Debit">Dr.</option>
+                    <option value="Credit">Cr.</option>
+                    
+                </select>
+            `
+            
+            amount_cell.innerHTML = `
+                <input type="number" value="0" step="0.01" onkeyup="calculateUnbalancedAmount()" class="form-control" name="amount-${currentRowNumber}" id="amount-${currentRowNumber}" required />
+            `
+            delete_cell.style.display = "flex"
+            delete_cell.style.justifyContent = "center"
+            delete_cell.style.alignItems = "center"
+            delete_cell.innerHTML = `
+                <span class="text-danger " onclick="deleteRow(${currentRowNumber})"><strong><i class="bi bi-x-lg" style="font-size:20px; cursor:pointer;"></i></strong></span>
+            `
+            document.getElementById('total_rows').value = currentRowNumber
+
+            $('#account-'+currentRowNumber).select2({
+            placeholder: 'Choose Ledger',
+            templateSelection: function (data, container) {
+                // Add custom attributes to the <option> tag for the selected option
+                    $(data.element).attr('data-custom-attribute', data.customValue);
+                    return data.text;
+                } 
+            })
+        }
+    
+        const calculateUnbalancedAmount = () => {
+            var dr_amount = 0
+            var cr_amount = 0
+            var total_dr_amount = document.getElementById('id_total_dr_amount')
+            var total_cr_amount = document.getElementById('id_total_cr_amount')
+            for(var i=1; i<=currentRowNumber; i++){
+                if(document.getElementById(`is_active-${i}`).value == "yes"){
+                    var amount = parseInt(document.getElementById(`amount-${i}`).value)
+                    var action = document.getElementById(`action-${i}`).value
+                    if(action == 'Debit'){
+                        dr_amount += amount
+                    }
+                    if(action == 'Credit'){
+                        cr_amount += amount
+                    }
+                }
+            }
+            total_dr_amount.value = dr_amount
+            total_cr_amount.value = cr_amount
+            document.getElementById('dr_amount').innerHTML = dr_amount
+            document.getElementById('cr_amount').innerHTML = cr_amount
+            document.getElementById('unbalanced_amount').innerHTML = dr_amount - cr_amount
+            if(dr_amount - cr_amount == 0){
+                document.getElementById('submit_data').disabled = false
+            }
+            else{
+                document.getElementById('submit_data').disabled = true
+
+            }
+        }
+    
+        const deleteRow = (index) => {
+            document.getElementById(`is_active-${index}`).value = "no"
+            document.getElementById(`account-${index}`).required = false
+            document.getElementById(`desc-${index}`).required = false
+            document.getElementById(`action-${index}`).required = false
+            document.getElementById(`amount-${index}`).required = false
+            document.getElementById(`entry-${index}`).style.display = 'none'
+            availableRowNumber -= 1
+            calculateUnbalancedAmount()
+        }
+    
+        
+        if(document.getElementById('update').value === 'True'){
+            for(var i=1; i<=currentRowNumber; i++){
+                $('#account-'+i).select2({
+                placeholder: 'Choose Ledger',
+                templateSelection: function (data, container) {
+                    // Add custom attributes to the <option> tag for the selected option
+                        $(data.element).attr('data-custom-attribute', data.customValue);
+                        return data.text;
+                    } 
+                })
+            }
+        }
+        
+    
+       
+    </script>
+
+    
+    
+{% endblock %}

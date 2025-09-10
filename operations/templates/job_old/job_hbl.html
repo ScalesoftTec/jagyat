@@ -1,0 +1,669 @@
+<div  class="tab-pane fade" id="job_hbl_details" role="tabpanel" aria-labelledby="job_hbl_details-tab">
+    
+    
+    
+
+    {% if update and data.job_hbl.count > 0 %}
+    <input type="hidden" value="{{data.job_hbl.count}}" name="total_job_hbl_details_rows" id="total_job_hbl_details_rows" />
+    {% else %}
+    <input type="hidden" value="1" name="total_job_hbl_details_rows" id="total_job_hbl_details_rows" />
+
+    {% endif %}
+    <div class="table-responsive">
+    <table class="table table-bordered" id="job_hbl_table">
+        <tr>
+            {% if module == 'air_export' or module ==  'air_import' %}
+            <th>HAWB No</th>
+            <th>HAWB Date</th>
+            {% elif module == 'sea_export' or module == 'sea_import' %}
+            <th>HBL No</th>
+            <th>HBL Date</th>
+            {% endif %}
+            <th>Account</th>
+            <th>Shipper</th>
+            <th>Importer</th>
+            {% if module == 'air_export' or module == 'air_import' %}
+            <th>MAWB No.</th>
+            {% elif module == 'sea_export' or module == 'sea_import' %}
+            <th>MBL No.</th>
+            {% endif %}
+            <th>Vessel</th>
+            <th>Commodity</th>
+            <th>Commodity Type</th>
+            
+            {% if module == 'air_export' or module == 'air_import' %}
+            <th>Total No. of Packages</th>
+            {% elif module == 'sea_export' or module == 'sea_import' %}
+            <th>No of Package</th>
+            {% endif %}
+            
+            
+            <th>Package Type</th>
+            <th>Volume</th>
+            <th>Net Weight</th>
+            <th>Gross Weight</th>
+
+            {% if module == 'air_export' or module == 'air_import' %}
+            <th>Chargeable Weight </th>
+            {% endif %}
+
+            
+            <th>Action</th>
+        </tr>
+        {% if update and data.job_hbl.count > 0 %}
+        {% for j in data.job_hbl.all %}
+        {% with hbl_count=forloop.counter %}
+        <tr id="job_hbl_details-{{forloop.counter}}">
+            <td>
+                <input type="hidden" name="job_hbl_details_id-{{forloop.counter}}" id="job_hbl_details_id-{{forloop.counter}}" value="{{j.id}}">
+                <input type="hidden" name="job_hbl_details_is_deleted-{{forloop.counter}}" id="job_hbl_details_is_deleted-{{forloop.counter}}" value="no">
+                <input type="hidden" name="job_hbl_details_is_update-{{forloop.counter}}" id="job_hbl_details_is_update-{{forloop.counter}}" value="yes">
+                <input type="hidden" name="job_hbl_details_is_active-{{forloop.counter}}" id="job_hbl_details_is_active-{{forloop.counter}}" value="yes">
+                <input type="text" value="{{j.job_hbl_no}}" name="job_hbl_no-{{forloop.counter}}" id="job_hbl_no-{{forloop.counter}}" class="form-control" />
+               
+            </td>
+            
+            <td> <input type="date" value="{{j.job_hbl_date|date:'Y-m-d'}}" name="job_hbl_date-{{forloop.counter}}" id="job_hbl_date-{{forloop.counter}}" class="form-control" /></td>
+
+
+            <td>
+                <select class="form-control" name="hbl_account-{{forloop.counter}}" id="hbl_account-{{forloop.counter}}">
+                    {% if not j.hbl_account %}
+                    <option value="" selected>Choose Account</option>
+                    {% else %}
+                    <option value="">Choose Account</option>
+                    {% endif %}
+                    
+                    {% for party in global_parties %}
+                    {% if party == j.hbl_account %}
+                    <option value="{{party.id}}" selected>{{party}}</option>
+                    {% else %}
+                    <option value="{{party.id}}">{{party}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <select class="form-control" name="hbl_shipper-{{forloop.counter}}" id="hbl_shipper-{{forloop.counter}}">
+                    {% if not j.hbl_shipper %}
+                    <option value="" selected>Choose Shipper</option>
+                    {% else %}
+                    <option value="">Choose Shipper</option>
+                    {% endif %}
+
+                    {% for party in global_parties %}
+                    {% if party == j.hbl_shipper %}
+                    <option value="{{party.id}}" selected>{{party}}</option>
+                    {% else %}
+                    <option value="{{party.id}}">{{party}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <select class="form-control" name="hbl_consignee-{{forloop.counter}}" id="hbl_consignee-{{forloop.counter}}">
+                    {% if not j.hbl_consignee %}
+                    <option value="" selected>Choose Importer</option>
+                    {% else %}
+                    <option value="">Choose Importer</option>
+                    {% endif %}
+
+                    {% for party in global_parties %}
+                    {% if party == j.hbl_consignee %}
+                    <option value="{{party.id}}" selected>{{party}}</option>
+                    {% else %}
+                    <option value="{{party.id}}">{{party}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </td>
+            <td> <input type="text" value="{{j.mbl_no}}" name="hbl_mbl_no-{{forloop.counter}}" id="hbl_mbl_no-{{forloop.counter}}" class="form-control" /></td>
+
+            <td> <input type="text" value="{{j.vessel_name}}" name="hbl_vessel_name-{{forloop.counter}}" id="hbl_vessel_name-{{forloop.counter}}" class="form-control" /></td>
+
+            <td> <input type="text" value="{{j.commodity}}" name="hbl_commodity-{{forloop.counter}}" id="hbl_commodity-{{forloop.counter}}" class="form-control" /></td>
+
+            <td> <input type="text" value="{{j.commodity_type}}" name="hbl_commodity_type-{{forloop.counter}}" id="hbl_commodity_type-{{forloop.counter}}" class="form-control" /></td>
+
+            <td> <input type="text" value="{{j.no_of_packages}}" name="hbl_no_of_packages-{{forloop.counter}}" id="hbl_no_of_packages-{{forloop.counter}}" class="form-control" /></td>
+
+
+            <td> <input type="text" value="{{j.packages_type}}" name="hbl_packages_type-{{forloop.counter}}" id="hbl_packages_type-{{forloop.counter}}" class="form-control" /></td>
+
+
+            <td> <input type="number" step="0.000001" value="{{j.volume}}" name="hbl_volume-{{forloop.counter}}" id="hbl_volume-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="number" step="0.000001"  value="{{j.net_weight}}" name="hbl_net_weight-{{forloop.counter}}" id="hbl_net_weight-{{forloop.counter}}" class="form-control" /></td>
+            <td> <input type="number" step="0.000001"  value="{{j.gross_weight}}" name="hbl_gross_weight-{{forloop.counter}}" id="hbl_gross_weight-{{forloop.counter}}" class="form-control" /></td>
+
+            {% if module == 'air_import' or module == 'air_export' %}
+            <td> <input type="text" value="{{j.chargeable_weight}}" name="hbl_chargeable_weight-{{forloop.counter}}" id="hbl_chargeable_weight-{{forloop.counter}}" class="form-control" /></td>
+            {% endif %}
+
+
+       
+            <td><button type="button" class="btn btn-sm btn-danger" onclick="jobHBLDeleteRow('{{forloop.counter}}')">Remove</button></td>
+        </tr>
+
+        <tr>
+            <td colspan="13">
+             
+             <table class="table table-bordered" id="job_hbl_container_table-{{forloop.counter}}">
+                 <tr>
+                     <th>
+                         <input type="hidden" name="total_job_hbl_container_details_rows-{{forloop.counter}}" id="total_job_hbl_container_details_rows-{{forloop.counter}}" value="{{j.job_container_hbl.count}}" />
+                         <i class="bi bi-arrow-return-right" style="font-size: 20px;"></i> 
+                         <button type="button" onclick="jobHBLContainerAddRow('{{forloop.counter}}')" class="btn btn-sm btn-primary"><i class="bi bi-file-earmark-plus"></i>
+                         </button>
+                     </th>
+                     <th>Container No</th>
+                     <th>Container Type</th>
+                     <th>Line Seal</th>
+                     <th>Pickup Date</th>
+                     
+                     <th>IN Fac Date</th>
+                    
+                     <th>Fac Out Date</th>
+                     <th>CFS In Date</th>
+                     <th>Return Date</th>
+                    
+                     {% if module == 'sea_export' or module == 'sea_import' %}
+                     <th>Railout Date</th>
+                     {% endif %}
+                     
+                     <th>Stuffing Date</th>
+                     <th>ICD Handover</th>
+                     <th>Port Handover</th>
+                     <th>Delivery date</th>
+                     <th>Gross weight</th>
+                 </tr>
+
+                 {% for k in j.job_container_hbl.all %}
+                 <tr id="job_hbl_container_details-{{hbl_count}}{{forloop.counter}}">
+                    
+
+                     <td>
+                       
+                         <div class="btn btn-sm btn-danger" onclick="jobHBLContainerDeleteRow('{{hbl_count}}','{{forloop.counter}}')">Remove</div>
+                        </td>
+                        <td>
+                            <input type="hidden" name="job_hbl_ref_container_details_is_active-{{forloop.counter}}" id="job_hbl_ref_container_details_is_active-{{forloop.counter}}" value="yes">
+                            <input type="hidden" name="job_hbl_container_details_id-{{hbl_count}}{{forloop.counter}}" id="job_hbl_container_details_id-{{hbl_count}}{{forloop.counter}}" value="{{k.id}}">
+                            <input type="hidden" name="job_hbl_container_details_is_deleted-{{hbl_count}}{{forloop.counter}}" id="job_hbl_container_details_is_deleted-{{hbl_count}}{{forloop.counter}}" value="no">
+                    <input type="hidden" name="job_hbl_container_details_is_update-{{hbl_count}}{{forloop.counter}}" id="job_hbl_container_details_is_update-{{hbl_count}}{{forloop.counter}}" value="yes">
+                    <input type="hidden" name="job_hbl_container_details_is_active-{{hbl_count}}{{forloop.counter}}" id="job_hbl_container_details_is_active-{{hbl_count}}{{forloop.counter}}" value="yes">
+                    <input type="text" value="{{k.job_container_no}}" name="job_hbl_container_no-{{hbl_count}}{{forloop.counter}}" id="job_hbl_container_no-{{hbl_count}}{{forloop.counter}}" class="form-control" />
+                </td>
+                <td><input type="text" value="{{k.container_type}}" name="job_hbl_container_type-{{hbl_count}}{{forloop.counter}}" id="job_hbl_container_type-{{hbl_count}}{{forloop.counter}}" class="form-control" /></td>
+                <td> <input type="text" value="{{k.line_seal}}" name="job_hbl_line_seal-{{hbl_count}}{{forloop.counter}}" id="job_hbl_line_seal-{{hbl_count}}{{forloop.counter}}" class="form-control" /></td>
+                <td><input type="date" value="{{k.pickup_date|date:'Y-m-d'}}" name="job_hbl_pickup_date-{{hbl_count}}{{forloop.counter}}" id="job_hbl_pickup_date-{{hbl_count}}{{forloop.counter}}" class="form-control" /></td>
+                <td><input type="date" value="{{k.in_fac_date|date:'Y-m-d'}}" name="job_hbl_in_fac_date-{{hbl_count}}{{forloop.counter}}" id="job_hbl_in_fac_date-{{hbl_count}}{{forloop.counter}}" class="form-control" /></td>
+                <td><input type="date" value="{{k.fac_out_date|date:'Y-m-d'}}" class="form-control" name="job_hbl_fac_out_date-{{hbl_count}}{{forloop.counter}}" id="job_hbl_fac_out_date-{{hbl_count}}{{forloop.counter}}" /></td>
+                <td> <input type="date" value="{{k.cfs_in_date|date:'Y-m-d'}}" class="form-control" name="job_hbl_cfs_in_date-{{hbl_count}}{{forloop.counter}}" id="job_hbl_cfs_in_date-{{hbl_count}}{{forloop.counter}}" /></td>
+                <td><input type="date" value="{{k.return_date|date:'Y-m-d'}}" class="form-control" name="job_hbl_return_date-{{hbl_count}}{{forloop.counter}}" id="job_hbl_return_date-{{hbl_count}}{{forloop.counter}}" /></td>
+                <td><input type="date" value="{{k.railout_date|date:'Y-m-d'}}" class="form-control" name="job_hbl_railout_date-{{hbl_count}}{{forloop.counter}}" id="job_hbl_railout_date-{{hbl_count}}{{forloop.counter}}" /></td>
+                <td><input type="date" value="{{k.stuffing_date|date:'Y-m-d'}}" class="form-control" name="job_hbl_stuffing_date-{{hbl_count}}{{forloop.counter}}" id="job_hbl_stuffing_date-{{hbl_count}}{{forloop.counter}}" /></td>
+                <td><input type="date" value="{{k.icd_handover_date|date:'Y-m-d'}}" class="form-control" name="job_hbl_icd_handover_date-{{hbl_count}}{{forloop.counter}}" id="job_hbl_icd_handover_date-{{hbl_count}}{{forloop.counter}}" /></td>
+                <td><input type="date" value="{{k.port_handover_date|date:'Y-m-d'}}" class="form-control" name="job_hbl_port_handover_date-{{hbl_count}}{{forloop.counter}}" id="job_hbl_port_handover_date-{{hbl_count}}{{forloop.counter}}" /></td>
+                <td><input type="date" value="{{k.delivery_date|date:'Y-m-d'}}" class="form-control" name="job_hbl_delivery_date-{{hbl_count}}{{forloop.counter}}" id="job_hbl_delivery_date-{{hbl_count}}{{forloop.counter}}" /></td>
+                <td><input type="text" value="{{k.gross_wt}}" class="form-control" name="job_hbl_gross_wt-{{hbl_count}}{{forloop.counter}}" id="job_hbl_gross_wt-{{hbl_count}}{{forloop.counter}}" /></td>
+                
+                </tr>
+
+                 {% endfor %}
+                 </table>
+                </td>
+        </tr>
+
+        {% endwith %}
+        {% endfor %}
+        {% else %}
+
+        <tr id="job_hbl_details-1">
+            <td>
+                <input type="hidden" name="job_hbl_details_is_deleted-1" id="job_hbl_details_is_deleted-1" value="n/a">
+                <input type="hidden" name="job_hbl_details_is_update-1" id="job_hbl_details_is_update-1" value="no">
+                <input type="hidden" name="job_hbl_details_is_active-1" id="job_hbl_details_is_active-1" value="yes">
+                <input type="text"  name="job_hbl_no-1" id="job_hbl_no-1" class="form-control" onkeyup="checkHbl('1')"/>
+               
+            </td>
+            
+            <td> <input type="date"  name="job_hbl_date-1" id="job_hbl_date-1" class="form-control" /></td>
+
+
+            <td>
+                <select class="form-control" name="hbl_account-1" id="hbl_account-1">
+                  
+                    <option value="" selected>Choose Account</option>
+                    
+                    
+                    {% for party in global_parties %}
+                   
+                    <option value="{{party.id}}" >{{party}}</option>
+              
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <select class="form-control" name="hbl_shipper-1" id="hbl_shipper-1">
+                   
+                    <option value="" selected>Choose Shipper</option>
+                  
+
+                    {% for party in global_parties %}
+                    
+                    <option value="{{party.id}}" >{{party}}</option>
+                   
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <select class="form-control" name="hbl_consignee-1" id="hbl_consignee-1">
+                   
+                    <option value="" selected>Choose Importer</option>
+                    
+                    {% for party in global_parties %}
+                  
+                    <option value="{{party.id}}" >{{party}}</option>
+                    
+                    {% endfor %}
+                </select>
+            </td>
+
+            <td> <input type="text"  name="hbl_mbl_no-1" id="hbl_mbl_no-1" class="form-control" /></td>
+            <td> <input type="text"  name="hbl_vessel_name-1" id="hbl_vessel_name-1" class="form-control" /></td>
+            
+            <td> <input type="text"  name="hbl_commodity-1" id="hbl_commodity-1" class="form-control" /></td>
+            <td> <input type="text"  name="hbl_commodity_type-1" id="hbl_commodity_type-1" class="form-control" /></td>
+            <td> <input type="text"  name="hbl_no_of_packages-1" id="hbl_no_of_packages-1" class="form-control" /></td>
+            
+            <td> <input type="text"  name="hbl_packages_type-1" id="hbl_packages_type-1" class="form-control" /></td>
+            <td> <input type="number" step="0.000001"  value="0"  name="hbl_volume-1" id="hbl_volume-1" class="form-control" /></td>
+            <td> <input type="number" step="0.000001"  value="0"  name="hbl_net_weight-1" id="hbl_net_weight-1" class="form-control" /></td>
+            <td> <input type="number" step="0.000001"  value="0"  name="hbl_gross_weight-1" id="hbl_gross_weight-1" class="form-control" /></td>
+            {% if module == 'air_export' or module == 'air_import' %}
+            <td> <input type="number" step="0.000001"  value="0"  name="hbl_chargeable_weight-1" id="hbl_chargeable_weight-1" class="form-control" /></td>
+            {% endif %}
+       
+            <td><button type="button" class="btn btn-sm btn-danger" onclick="jobHBLDeleteRow('1')">Remove</button></td>
+        </tr>
+
+        <tr>
+           <td colspan="13">
+            
+            <table class="table table-bordered" id="job_hbl_container_table-1">
+                <tr>
+                    <th>
+                        <input type="hidden" name="total_job_hbl_container_details_rows-1" id="total_job_hbl_container_details_rows-1" value="0" />
+                        <i class="bi bi-arrow-return-right" style="font-size: 20px;"></i> 
+                        <button type="button" onclick="jobHBLContainerAddRow(1)" class="btn btn-sm btn-primary"><i class="bi bi-file-earmark-plus"></i>
+                        </button>
+                    </th>
+                    <th>Container No</th>
+                    <th>Container Type</th>
+                    <th>Line Seal</th>
+                    <th>Pickup Date</th>
+                    
+                    <th>IN Fac Date</th>
+                   
+                    <th>Fac Out Date</th>
+                    <th>CFS In Date</th>
+                    <th>Return Date</th>
+
+                    {% if module == 'sea_export' or module == 'sea_import' %}
+                    <th>Railout Date</th>
+                    {% endif %}
+
+                    <th>Stuffing Date</th>
+                    <th>ICD Handover</th>
+                    <th>Port Handover</th>
+                    <th>Delivery date</th>
+                    <th>Gross Weight</th>
+
+                    
+
+                  
+                </tr>
+             </table>
+
+           </td> 
+        </tr>
+
+    
+        {% endif %}
+      
+    </table>
+
+    </div>
+    <div class="text-right">
+        <button class="btn btn-sm btn-primary" type="button" onclick="jobHBLAddRow()"><i class="bi bi-file-earmark-plus"></i> HBL</button>
+    </div>
+</div>
+
+<script>
+    
+    var jobHBLCurrentRow = parseInt(document.getElementById('total_job_hbl_details_rows').value) 
+    
+    var jobHBLavailableRowNumber = parseInt(document.getElementById('total_job_hbl_details_rows').value) || 0
+    
+    const jobHBLAddRow = () => {
+        jobHBLCurrentRow += 1
+        jobHBLavailableRowNumber += 1
+        var newRow =  document.getElementById('job_hbl_table').insertRow(-1)
+        var newContainerRow =  document.getElementById('job_hbl_table').insertRow(-1)
+        
+        newRow.id = `job_hbl_details-${jobHBLCurrentRow}`
+        newRow.classList.add("job_hbl_details-entry")
+        var job_hbl_no = newRow.insertCell(0)
+        var job_hbl_date = newRow.insertCell(1)
+        var hbl_account = newRow.insertCell(2)
+        var hbl_shiper = newRow.insertCell(3)
+        var hbl_consignee = newRow.insertCell(4)
+        var hbl_mbl_no = newRow.insertCell(5)
+        var hbl_vessel_name = newRow.insertCell(6)
+        var hbl_commodity = newRow.insertCell(7)
+        var hbl_commodity_type = newRow.insertCell(8)
+        var hbl_no_of_packages = newRow.insertCell(9)
+        var hbl_packages_type = newRow.insertCell(10)
+        var hbl_volume = newRow.insertCell(11)
+        var hbl_net_weight = newRow.insertCell(12)
+        var hbl_gross_weight = newRow.insertCell(13)
+        
+        {% if module == 'air_import' or module == 'air_export' %}
+        var hbl_chargeable_weight = newRow.insertCell(14)
+        var delete_cell = newRow.insertCell(15)
+        {% else %}
+        var delete_cell = newRow.insertCell(14)
+        {% endif %}
+        
+       
+
+        var container_row = newContainerRow.insertCell(0)
+        container_row.colSpan = 13
+        job_hbl_no.innerHTML = `
+        <input type="hidden" name="job_hbl_details_is_active-${jobHBLCurrentRow}" id="job_hbl_details_is_active-${jobHBLCurrentRow}" value="yes" >
+        <input type="hidden" name="job_hbl_details_is_deleted-${jobHBLCurrentRow}" id="job_hbl_details_is_deleted-${jobHBLCurrentRow}" value="n/a">
+        <input type="hidden" name="job_hbl_details_is_update-${jobHBLCurrentRow}" id="job_hbl_details_is_update-${jobHBLCurrentRow}" value="no">
+        <input type="text"  name="job_hbl_no-${jobHBLCurrentRow}" id="job_hbl_no-${jobHBLCurrentRow}" class="form-control" onkeyup="checkHbl(${jobHBLCurrentRow})" />
+        `
+
+        job_hbl_date.innerHTML = `
+        <input type="date"  name="job_hbl_date-${jobHBLCurrentRow}" id="job_hbl_date-${jobHBLCurrentRow}" class="form-control" />
+        `
+
+        hbl_account.innerHTML = `
+        <select class="form-control" name="hbl_account-${jobHBLCurrentRow}" id="hbl_account-${jobHBLCurrentRow}">
+            <option value="" selected>Choose Account</option>
+            {% for party in global_parties %}
+            <option value="{{party.id}}" >{{party}}</option>
+            {% endfor %}
+        </select>
+        `
+
+        hbl_shiper.innerHTML = `
+        <select class="form-control" name="hbl_shipper-${jobHBLCurrentRow}" id="hbl_shipper-${jobHBLCurrentRow}">
+            <option value="" selected>Choose Account</option>
+            {% for party in global_parties %}
+            <option value="{{party.id}}" >{{party}}</option>
+            {% endfor %}
+        </select>
+        `
+
+        hbl_consignee.innerHTML = `
+        <select class="form-control" name="hbl_consignee-${jobHBLCurrentRow}" id="hbl_consignee-${jobHBLCurrentRow}">
+            <option value="" selected>Choose Account</option>
+            {% for party in global_parties %}
+            <option value="{{party.id}}" >{{party}}</option>
+            {% endfor %}
+        </select>
+        `
+
+        hbl_mbl_no.innerHTML = `
+        <input type="text"  name="hbl_mbl_no-${jobHBLCurrentRow}" id="hbl_mbl_no-${jobHBLCurrentRow}" class="form-control" />
+        `
+        hbl_vessel_name.innerHTML = `
+        <input type="text"  name="hbl_vessel_name-${jobHBLCurrentRow}" id="hbl_vessel_name-${jobHBLCurrentRow}" class="form-control" />
+        `
+
+        hbl_commodity.innerHTML = `
+        <input type="text"  name="hbl_commodity-${jobHBLCurrentRow}" id="hbl_commodity-${jobHBLCurrentRow}" class="form-control" />
+        `
+
+        hbl_commodity_type.innerHTML = `
+        <input type="text"  name="hbl_commodity_type-${jobHBLCurrentRow}" id="hbl_commodity_type-${jobHBLCurrentRow}" class="form-control" />
+        `
+
+        hbl_no_of_packages.innerHTML = `
+        <input type="text"  name="hbl_no_of_packages-${jobHBLCurrentRow}" id="hbl_no_of_packages-${jobHBLCurrentRow}" class="form-control" />
+        `
+
+        hbl_packages_type.innerHTML = `
+        <input type="text"  name="hbl_packages_type-${jobHBLCurrentRow}" id="hbl_packages_type-${jobHBLCurrentRow}" class="form-control" />
+        `
+
+        hbl_volume.innerHTML = `
+        <input type="number" step="0.000001"  name="hbl_volume-${jobHBLCurrentRow}" id="hbl_volume-${jobHBLCurrentRow}" value="0" class="form-control" />
+        `
+
+        hbl_net_weight.innerHTML = `
+        <input type="number" step="0.000001"   name="hbl_net_weight-${jobHBLCurrentRow}" id="hbl_net_weight-${jobHBLCurrentRow}" value="0" class="form-control" />
+        `
+
+        hbl_gross_weight.innerHTML = `
+        <input type="number" step="0.000001"   name="hbl_gross_weight-${jobHBLCurrentRow}" id="hbl_gross_weight-${jobHBLCurrentRow}" value="0" class="form-control" />
+        `
+
+        {% if module == 'air_export' or module == 'air_import ' %}
+        hbl_chargeable_weight.innerHTML = `
+        <input type="number" step="0.000001"   name="hbl_chargeable_weight-${jobHBLCurrentRow}" id="hbl_chargeable_weight-${jobHBLCurrentRow}" value="0" class="form-control"  />
+        `
+        {% endif %}
+        
+        delete_cell.innerHTML = `
+        <div class="btn btn-sm btn-danger" onclick="jobHBLDeleteRow(${jobHBLCurrentRow})">Remove</div>
+        `
+
+
+        container_row.innerHTML = `
+        <table class="table table-bordered" id="job_hbl_container_table-${jobHBLCurrentRow}">
+            <tr>
+                <th>
+                    <input type="hidden" name="total_job_hbl_container_details_rows-${jobHBLCurrentRow}" id="total_job_hbl_container_details_rows-${jobHBLCurrentRow}" value="0" />
+                    <i class="bi bi-arrow-return-right" style="font-size: 20px;"></i> <button onclick="jobHBLContainerAddRow(${jobHBLCurrentRow})" type="button" class="btn btn-sm btn-primary"><i class="bi bi-file-earmark-plus"></i></button> </th>
+      
+                <th>Container No</th>
+                <th>Container Type</th>
+                <th>Line Seal</th>
+                <th>Pickup Date</th>
+                <th>IN Fac Date</th>
+                <th>Fac Out Date</th>
+                <th>CFS In Date</th>
+                <th>Return Date</th>
+                {% if module == 'sea_export' or module == 'sea_import' %}
+                    <th>Railout Date</th>
+                {% endif %}
+                
+                <th>Stuffing Date</th>
+                <th>ICD Handover</th>
+                <th>Port Handover</th>
+                <th>Delivery date</th>
+                <th>Gross Weight</th>
+                
+                
+            </tr>
+        </table>
+        `
+        
+        document.getElementById('total_job_hbl_details_rows').value = jobHBLCurrentRow
+    }
+
+    
+
+    const jobHBLDeleteRow = (index) => {
+        console.log(index)
+        if( document.getElementById(`job_hbl_details_is_deleted-${index}`).value == "no"){
+            document.getElementById(`job_hbl_details_is_deleted-${index}`).value = "yes"
+        }
+        document.getElementById(`job_hbl_details_is_deleted-${index}`).value = "yes"
+        document.getElementById(`job_hbl_details_is_active-${index}`).value = "no"
+        
+        document.getElementById(`job_hbl_details-${index}`).style.display = 'none'
+        document.getElementById(`job_hbl_container_table-${index}`).style.display = 'none'
+        jobHBLavailableRowNumber -= 1
+    }
+
+
+    const jobHBLContainerAddRow = (index) => {
+        var jobHBLContainerCurrentRow = parseInt(document.getElementById('total_job_hbl_container_details_rows-'+index).value) 
+        var jobHBLContainerAvailableRow = parseInt(document.getElementById('total_job_hbl_container_details_rows-'+index).value) || 0
+        
+        jobHBLContainerCurrentRow += 1
+        jobHBLContainerAvailableRow += 1
+        var newRow =  document.getElementById('job_hbl_container_table-'+index).insertRow(-1)
+        newRow.id = `job_hbl_container_details-${index}${jobHBLContainerCurrentRow}`
+        newRow.classList.add("job_container_details-entry")
+        var blank = newRow.insertCell(0)
+        var job_hbl_container_no = newRow.insertCell(1)
+        var job_hbl_container_type = newRow.insertCell(2)
+        var job_hbl_line_seal = newRow.insertCell(3)
+        var job_hbl_pickup_date = newRow.insertCell(4)
+        var job_hbl_in_fac_date = newRow.insertCell(5)
+        var job_hbl_fac_out_date = newRow.insertCell(6)
+        var job_hbl_cfs_in_date = newRow.insertCell(7)
+        var job_hbl_return_date = newRow.insertCell(8)
+        
+        {% if module == 'sea_export' or module == 'sea_import' %}
+        var job_hbl_railout_date = newRow.insertCell(9)
+
+        var job_hbl_stuffing_date = newRow.insertCell(10)
+        var job_hbl_icd_handover_date = newRow.insertCell(11)
+        var job_hbl_port_handover_date = newRow.insertCell(12)
+        var job_hbl_delivery_date = newRow.insertCell(13) 
+        var job_hbl_gross_weight = newRow.insertCell(14) 
+        {% endif %}
+
+
+        {% if module == 'air_export' or module == 'air_import' %}
+        var job_hbl_stuffing_date = newRow.insertCell(9)
+        var job_hbl_icd_handover_date = newRow.insertCell(10)
+        var job_hbl_port_handover_date = newRow.insertCell(11)
+        var job_hbl_delivery_date = newRow.insertCell(12) 
+        var job_hbl_gross_weight = newRow.insertCell(13) 
+        {% endif %}
+
+        
+        
+       
+        job_hbl_container_no.innerHTML = `
+        <input type="hidden" name="job_hbl_ref_container_details_is_active-${index}" id="job_hbl_ref_container_details_is_active-${index}" value="yes">
+        <input type="hidden" name="job_hbl_container_details_is_deleted-${index}${jobHBLContainerCurrentRow}" id="job_hbl_container_details_is_deleted-${index}${jobHBLContainerCurrentRow}" value="n/a">
+
+        <input type="hidden" name="job_hbl_container_details_is_update-${index}${jobHBLContainerCurrentRow}" id="job_hbl_container_details_is_update-${index}${jobHBLContainerCurrentRow}" value="no">
+        <input type="hidden" name="job_hbl_container_details_is_active-${index}${jobHBLContainerCurrentRow}" id="job_hbl_container_details_is_active-${index}${jobHBLContainerCurrentRow}" value="yes">
+
+            <input type="text" name="job_hbl_container_no-${index}${jobHBLContainerCurrentRow}" id="job_hbl_container_no-${index}${jobHBLContainerCurrentRow}" class="form-control"  />
+        `
+        job_hbl_container_type.innerHTML = `
+            <input type="text" name="job_hbl_container_type-${index}${jobHBLContainerCurrentRow}" id="job_hbl_container_type-${index}${jobHBLContainerCurrentRow}" class="form-control" />
+        `
+        
+        job_hbl_line_seal.innerHTML = `
+            <input type="text" name="job_hbl_line_seal-${index}${jobHBLContainerCurrentRow}" id="job_hbl_line_seal-${index}${jobHBLContainerCurrentRow}" class="form-control" />
+        `
+
+       
+       
+        job_hbl_pickup_date.innerHTML = `
+            <input type="date" name="job_hbl_pickup_date-${index}${jobHBLContainerCurrentRow}" id="job_hbl_pickup_date-${index}${jobHBLContainerCurrentRow}" class="form-control" />
+        `
+       
+        job_hbl_in_fac_date.innerHTML = `
+            <input type="date" name="job_hbl_in_fac_date-${index}${jobHBLContainerCurrentRow}" id="job_hbl_in_fac_date-${index}${jobHBLContainerCurrentRow}" class="form-control" />
+        `
+       
+        job_hbl_fac_out_date.innerHTML = `
+            <input type="date" class="form-control" name="job_hbl_fac_out_date-${index}${jobHBLContainerCurrentRow}" id="job_hbl_fac_out_date-${index}${jobHBLContainerCurrentRow}" />
+        `
+        job_hbl_cfs_in_date.innerHTML = `
+            <input type="date" class="form-control" name="job_hbl_cfs_in_date-${index}${jobHBLContainerCurrentRow}" id="job_hbl_cfs_in_date-${index}${jobHBLContainerCurrentRow}" />
+        `
+        job_hbl_return_date.innerHTML = `
+            <input type="date" class="form-control" name="job_hbl_return_date-${index}${jobHBLContainerCurrentRow}" id="job_hbl_return_date-${index}${jobHBLContainerCurrentRow}" />
+        `
+        {% if module == 'sea_export' or module == 'sea_import' %}
+        job_hbl_railout_date.innerHTML = `
+            <input type="date" class="form-control" name="job_hbl_railout_date-${index}${jobHBLContainerCurrentRow}" id="job_hbl_railout_date-${index}${jobHBLContainerCurrentRow}" />
+            ` 
+        {% endif %}
+        job_hbl_stuffing_date.innerHTML = `
+            <input type="date" class="form-control" name="job_hbl_stuffing_date-${index}${jobHBLContainerCurrentRow}" id="job_hbl_stuffing_date-${index}${jobHBLContainerCurrentRow}" />
+        `
+        job_hbl_icd_handover_date.innerHTML = `
+            <input type="date" class="form-control" name="job_hbl_icd_handover_date-${index}${jobHBLContainerCurrentRow}" id="job_hbl_icd_handover_date-${index}${jobHBLContainerCurrentRow}" />
+        `
+        job_hbl_port_handover_date.innerHTML = `
+            <input type="date" class="form-control" name="job_hbl_port_handover_date-${index}${jobHBLContainerCurrentRow}" id="job_hbl_port_handover_date-${index}${jobHBLContainerCurrentRow}" />
+        `
+        job_hbl_delivery_date.innerHTML = `
+            <input type="date" class="form-control" name="job_hbl_delivery_date-${index}${jobHBLContainerCurrentRow}" id="job_hbl_delivery_date-${index}${jobHBLContainerCurrentRow}" />
+        `
+
+        job_hbl_gross_weight.innerHTML = `
+            <input type="text" class="form-control" name="job_hbl_gross_wt-${index}${jobHBLContainerCurrentRow}" id="job_hbl_gross_wt-${index}${jobHBLContainerCurrentRow}" />
+        `
+       
+
+        
+       
+       
+
+        blank.innerHTML = `
+            <div class="btn btn-sm btn-danger" onclick="jobHBLContainerDeleteRow(${index},${jobHBLContainerCurrentRow})">Removes</div>
+        `
+        
+        document.getElementById('total_job_hbl_container_details_rows-'+index).value = jobHBLContainerCurrentRow
+    }
+
+    
+
+    const jobHBLContainerDeleteRow = (index,subIndex) => {
+        console.log(index,subIndex);
+        document.getElementById(`job_hbl_container_details_is_active-${index}${subIndex}`).value = "no"
+        document.getElementById(`job_hbl_container_details_is_deleted-${index}${subIndex}`).value = "yes" 
+        document.getElementById(`job_hbl_container_details-${index}${subIndex}`).style.display = 'none'
+        jobHBLContainerAvailableRow -= 1
+    }
+</script>
+
+<script>
+
+    
+    const checkHbl = async (no)=>{
+        var hbl_id=document.getElementById(`job_hbl_no-${no}`)
+        console.log(hbl_id);
+        try{
+            hbl=[]
+            var res1 = await axios.get('/api/v1/jobs/hbl/details')
+            console.log(res1);
+            res1.data.map((data)=>{
+                hbl.push(data.job_hbl_no)
+                console.log(data.job_hbl_no);
+                $(hbl_id).autocomplete({
+                minLength: 2,
+                delay: 100,
+                source: hbl,
+
+            });
+            })
+            
+
+        }
+        catch(err){
+            console.log(err);
+
+        }
+
+    
+   
+}
+</script> 
+

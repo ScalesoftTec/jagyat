@@ -1,0 +1,121 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} Event Details | {% endblock %} 
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Sales Party details
+</h1>
+
+<a href="{% url 'crm:create_sales_party' module=module %}" class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Creates Party</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+<div class="table-responsive">
+
+
+<table class="table compact table-primary table-bordered" id="event_table">
+    <thead>
+      <tr>
+        {% if request.user.is_staff %}
+        <th scope="col">Sales Person</th>
+        {% endif %}
+        <th scope="col">Customer</th>
+        <th scope="col">Customer Short name</th>
+        <th scope="col">Contact Person</th>
+        <th scope="col">Contact number</th>
+        <th scope="col">Contact email</th>
+        <th scope="col">State</th>
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in events %}
+      <tr>
+        {% if request.user.is_staff %}
+        <td>{{data.sales_person}}</td>
+        {% endif %}
+
+        <td>{{data.party_name}}</td>
+        <td>{{data.party_short}} </td>
+        <td>{{data.contact_person}}</td>
+        <td>{{data.contact_number}}</td>
+        
+        <td>{{data.contact_email}}</td>
+
+        <td>{{data.states}}</td>
+     
+
+       
+        
+        <td>
+            <a href="{% url 'crm:sales_party_update' module=module id=data.id %}" class="btn btn-xs btn-info"><i class="fas fa-edit"></i></a>
+            {% if request.user.user_account.can_delete %}
+
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.name}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ data.name }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'crm:sales_party_delete' module=module id=data.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+        {% endif %}
+        </td>
+    
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  let table = new DataTable('#event_table', {
+    dom: 'BQlfrtip',
+    "pageLength": 50,
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+           
+        ]
+    },
+
+    ]
+
+});
+
+document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+
+{% endblock %}

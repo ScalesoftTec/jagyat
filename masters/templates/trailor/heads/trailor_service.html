@@ -1,0 +1,138 @@
+<div class="row" id="service-row">
+    {% if update and obj.trailor_service_ref.all|length > 0 %}
+    {% for i in obj.trailor_service_ref.all %}
+    <div class="col-12 mb-2" id="service-row-{{forloop.counter}}">
+        <div class="row" >
+           
+           
+            <div class="col-md-2">
+                <label for="service_date_{{forloop.counter}}">Service Date</label>
+                <input type="date" value="{{ i.service_date|date:'Y-m-d' }}" name="service_date_{{forloop.counter}}" id="service_date_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="next_due_date_{{forloop.counter}}">Next Due Date</label>
+                <input type="date" value="{{ i.next_due_date|date:'Y-m-d' }}" name="next_due_date_{{forloop.counter}}" id="next_due_date_{{forloop.counter}}" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <input type="hidden" name="is_service_active_{{forloop.counter}}" id="is_service_active_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_service_update_{{forloop.counter}}" id="is_service_update_{{forloop.counter}}" value="yes" />
+                <input type="hidden" name="is_service_id_{{forloop.counter}}" id="is_service_id_{{forloop.counter}}" value="{{i.id}}" />
+                <label for="place_{{forloop.counter}}">Place</label>
+                <input type="text" value="{{ i.place }}" name="place_{{forloop.counter}}" id="place_{{forloop.counter}}" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <label for="expense_amount_{{forloop.counter}}">Expense Amount</label>
+                <input type="text" value="{{i.expense_amount}}" min="0"  name="expense_amount_{{forloop.counter}}" id="expense_amount_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="service_remarks_{{forloop.counter}}">Remarks</label>
+                <input type="text" value="{{i.remarks}}" name="service_remarks_{{forloop.counter}}" id="service_remarks_{{forloop.counter}}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deleteServiceRow({{forloop.counter}})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+    
+        </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12 mb-2" id="service-row-1">
+
+        <div class="row" >
+        
+            <div class="col-md-2">
+                <label for="service_date_1">Service Date</label>
+                <input type="date" name="service_date_1" id="service_date_1" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="next_due_date_1">Next Due Date</label>
+                <input type="date"  name="next_due_date_1" id="next_due_date_1" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <input type="hidden" name="is_service_active_1" id="is_service_active_1" value="yes" />
+                <input type="hidden" name="is_service_update_1" id="is_service_update_1" value="no" />
+               
+                <label for="place_1">Place</label>
+                <input type="text" name="place_1" id="place_1" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <label for="expense_amount_1">Expense Amount</label>
+                <input type="text" name="expense_amount_1" id="expense_amount_1"  value="0" min="0" class="form-control">
+            </div>
+
+            
+            <div class="col-md-2">
+                <label for="service_remarks_1">Remarks</label>
+                <input type="text"  name="service_remarks_1" id="service_remarks_1" class="form-control">
+            </div>
+            
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deleteServiceRow(1)" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+    
+        </div>
+    {% endif %}
+    
+</div>
+
+<button class="btn btn-primary mb-3" type="button" onclick="addServiceRow()">Add More</button>
+
+<script>
+    var serviceCurrentRow = parseInt(document.getElementById('trailor_service_total_rows').value) || 1
+    const addServiceRow = () => {
+        var newElement = document.createElement('div')
+        serviceCurrentRow += 1
+        newElement.classList.add('col-12')
+        newElement.setAttribute('id', `service-row-${serviceCurrentRow}`)
+        newElement.classList.add('mb-2')
+        newElement.innerHTML = `
+        <div class="row">
+            
+          
+            <div class="col-md-2">
+                <label for="service_date_${serviceCurrentRow}">Service Date</label>
+                <input type="date"  name="service_date_${serviceCurrentRow}" id="service_date_${serviceCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="next_due_date_${serviceCurrentRow}">Next Due Date</label>
+                <input type="date" name="next_due_date_${serviceCurrentRow}" id="next_due_date_${serviceCurrentRow}" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <input type="hidden" name="is_service_active_${serviceCurrentRow}" id="is_service_active_${serviceCurrentRow}" value="yes" />
+                <input type="hidden" name="is_service_update_${serviceCurrentRow}" id="is_service_update_${serviceCurrentRow}" value="no" />
+                <label for="place_${serviceCurrentRow}">Place</label>
+                <input type="text"  name="place_${serviceCurrentRow}" id="place_${serviceCurrentRow}" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <label for="expense_amount_${serviceCurrentRow}">Expense Amount</label>
+                <input type="text" name="expense_amount_${serviceCurrentRow}" value="0" min="0" id="expense_amount_${serviceCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="service_remarks_${serviceCurrentRow}">Remarks</label>
+                <input type="text"  name="service_remarks_${serviceCurrentRow}" id="service_remarks_${serviceCurrentRow}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                
+                <button type="button" onclick="deleteServiceRow(${serviceCurrentRow})" class="btn btn-danger mt-4">Delete</button>
+            </div>
+        </div>
+        `
+        document.getElementById('service-row').append(newElement)
+        document.getElementById('trailor_service_total_rows').value = serviceCurrentRow
+    }
+
+    const deleteServiceRow = (index) => {
+        console.log(index)
+        document.getElementById(`service-row-${index}`).style.display = "none";
+        document.getElementById(`is_service_active_${index}`).value = "no";
+    }
+</script>

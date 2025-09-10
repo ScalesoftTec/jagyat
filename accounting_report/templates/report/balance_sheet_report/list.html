@@ -1,0 +1,123 @@
+{% load humanize %}
+{% load mathfilters %}
+{% load custom_tags %}
+
+
+{% if liability.name.head_type == "T" %}
+<tr>
+  {% if not liability.type == "f2" %}
+  <td colspan="2">
+    {% if liability.name.head_type == "T" %}
+    <strong> {{liability.name}} </strong>
+    {% elif liability.name.head_type == "S" %} {{liability.name}} 
+    <small> {{liability.name}}</small>
+    {% else %}
+    <small> <i> {{liability.name}}</i></small>
+    {% endif %}
+  </td>
+  <td align="right">{{liability.total|floatformat:2|intcomma}}</td>
+ {% endif %}
+
+ {% if not asset.type == "f2" %}
+  <td colspan="2">
+  
+      {% if asset.name.head_type == "T" %}
+      <strong> {{asset.name}} </strong>
+      {% elif asset.name.head_type == "S" %} 
+     <small> {{asset.name}}</small>
+      {% else %}
+      <small> <i> {{asset.name}}</i></small>
+      {% endif %}
+   
+  </td>
+  <td align="right"><strong>{{asset.total|floatformat:2|intcomma}}</strong></td>
+  {% endif %}
+  
+</tr>
+{% else %} 
+<tr>
+
+  {% if not liability.type == "f2" %}
+  <td>
+    {% if liability.name.head_type == "T" %}
+    <strong> {{liability.name}} </strong>
+    {% elif liability.name.head_type == "S" %} 
+    {{liability.name}} 
+ 
+    {% else %}
+    <small> <i> {{liability.name}}</i></small>
+    {% endif %}
+  </td>
+  <td align="right">
+    {% if liability.name.head_type == "T" %}
+    <strong>{{liability.total|floatformat:2|intcomma}}</strong>
+    
+    {% elif liability.name.head_type == "S" %}
+    <small> <strong> {{liability.total|floatformat:2|intcomma}} </strong></small>
+    
+    {% else %}
+    <small><i> {{liability.total|floatformat:2|intcomma}}</i></small>
+     
+      {% endif %}
+  </td>
+
+  <td align="right"><strong>-</strong></td>
+
+  {% endif %}
+
+  {% if not asset.type == "f2" %}
+  <td>
+    
+      {% if asset.name.head_type == "T" %}
+      <strong> {{asset.name}} </strong>
+      {% elif asset.name.head_type == "S" %} 
+      {{asset.name}} 
+    
+      {% else %}
+      <small> <i> {{asset.name}}</i></small>
+      {% endif %}
+    
+  </td>
+  <td align="right">
+    {% if asset.name.head_type == "T" %}
+    <strong>{{asset.total|floatformat:2|intcomma}}</strong>
+    
+    {% elif asset.name.head_type == "S" %}
+    <small> <strong>{{asset.total|floatformat:2|intcomma}}</strong></small>
+    
+    {% else %}
+    <small><i> {{asset.total|floatformat:2|intcomma}}</i></small>
+     
+      {% endif %}
+</td>
+  <td align="right"><strong>-</strong></td>
+  {% endif %}
+</tr>
+{% endif %}
+
+
+{% if liability.data and asset.data %}
+{% with report_list=liability.data|zip_my_list:asset.data %}
+{% for liability,asset in report_list %}
+    {% include 'report/balance_sheet_report/list.html' %}
+{% endfor %}
+{% endwith  %}
+{% endif %}
+
+{% if report_in == 'D' %}
+{% if liability.data and not asset.data %}
+{% with report_list=liability.data|zip_my_list %}
+{% for liability,asset in report_list %}
+    {% include 'report/balance_sheet_report/list.html' %}
+{% endfor %}
+{% endwith  %}
+{% endif %}
+
+{% if not liability.data and  asset.data %}
+{% with report_list=asset.data|zip_my_list %}
+{% for asset,liability in report_list %}
+    {% include 'report/balance_sheet_report/list.html' %}
+{% endfor %}
+{% endwith  %}
+{% endif %}
+{% endif %}

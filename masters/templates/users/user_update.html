@@ -1,0 +1,220 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+
+    Update User
+
+</h1>
+
+<a href="{% url 'masters:user_list' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form action="{% url 'masters:update_user' module=module id=user.id %}" method='POST' enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    <div class="row">
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="office">Office</label>
+            <select name="office" id="office" class="form-control">
+                {% for office in offices %}
+                {% if user_account.office == office %}
+                <option value="{{office.id}}" select>{{office.company_name}}</option>
+                {% else %}
+                <option value="{{office.id}}">{{office.company_name}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" value="{{ user.username }}" name="username" id="username">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="first_name">First Name</label>
+            <input type="text" class="form-control" value="{{ user.first_name }}" name="first_name" id="first_name">
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="last_name">Last Name</label>
+            <input type="text" class="form-control" value="{{ user.last_name }}" name="last_name" id="last_name">
+        </div>
+        <div class="col-md-12 col-sm-12 mb-3">
+            <label for="email">Email</label>
+            <input type="text" class="form-control" value="{{ user.email }}" name="email" id="email">
+        </div>
+       
+
+        <div class="col-12 my-4">
+            <h5 class="mb-4">User Rights :</h5>
+            <div class="row">
+                <div class="col-auto mb-3">
+                    {% if user.is_superuser %}
+                    <input type="checkbox" name="is_admin" id="is_admin" checked>
+                    {% else %}
+                    <input type="checkbox" name="is_admin" id="is_admin">
+                    {% endif %}
+                    <label for="is_admin">Is Admin</label>
+                </div>
+
+                <div class="col-auto mb-3">
+                    {% if user_account.is_sea_export %}
+                    <input type="checkbox" name="is_sea_export" id="is_sea_export" checked>
+                    {% else %}
+                    <input type="checkbox" name="is_sea_export" id="is_sea_export">
+                    {% endif %}
+                    <label for="is_sea_export">Is Sea Export</label>
+                </div>
+                <div class="col-auto mb-3">
+                    {% if user_account.is_sea_import %}
+                    <input type="checkbox" name="is_sea_import" id="is_sea_import" checked>
+                    {% else %}
+                    <input type="checkbox" name="is_sea_import" id="is_sea_import">
+                    {% endif %}
+                    <label for="is_sea_import">Is Sea Import</label>
+                </div>
+                <div class="col-auto mb-3">
+                    {% if user_account.is_air_export %}
+                    <input type="checkbox" name="is_air_export" id="is_air_export" checked>
+                    {% else %}
+                    <input type="checkbox" name="is_air_export" id="is_air_export">
+                    {% endif %}
+                    <label for="is_air_export">Is Air Export</label>
+                </div>
+                <div class="col-auto mb-3">
+                    {% if user_account.is_air_import %}
+                    <input type="checkbox" name="is_air_import" id="is_air_import" checked>
+                    {% else %}
+                    <input type="checkbox" name="is_air_import" id="is_air_import">
+                    {% endif %}
+                    <label for="is_air_import">Is Air Import</label>
+                </div>
+                <div class="col-auto mb-3">
+                    {% if user_account.is_finance %}
+                    <input type="checkbox" name="is_finance" id="is_finance" checked>
+                    {% else %}
+                    <input type="checkbox" name="is_finance" id="is_finance">
+                    {% endif %}
+                    <label for="is_finance">Is Accounting</label>
+                </div>
+                <div class="col-auto mb-3">
+                    {% if user_account.is_crm %}
+                    <input type="checkbox" name="is_crm" id="is_crm" checked>
+                    {% else %}
+                    <input type="checkbox" name="is_crm" id="is_crm">
+                    {% endif %}
+                    <label for="is_crm">Is CRM</label>
+                </div>
+                <div class="col-auto mb-3">
+                    {% if user_account.is_bi %}
+                    <input type="checkbox" name="is_bi" id="is_bi" checked>
+                    {% else %}
+                    <input type="checkbox" name="is_bi" id="is_bi">
+                    {% endif %}
+                    <label for="is_bi">Is Business Intelligence</label>
+                </div>
+                <div class="col-auto mb-3">
+                    {% if user_account.is_operations %}
+                    <input type="checkbox" name="is_operations" id="is_operations" checked>
+                    {% else %}
+                    <input type="checkbox" name="is_operations" id="is_operations">
+                    {% endif %}
+                    <label for="is_operations">Is Operations</label>
+                </div>
+              
+                <div class="col-auto mb-3">
+                    {% if user_account.is_transportation %}
+                    <input type="checkbox" name="is_transportation" id="is_transportation" checked>
+                    {% else %}
+                    <input type="checkbox" name="is_transportation" id="is_transportation">
+                    {% endif %}
+                    <label for="is_transportation">Is Transportation</label>
+                </div>
+            
+                <div class="col-auto mb-3">
+                    {% if user_account.can_report %}
+                    <input type="checkbox" name="can_report" id="can_report" checked>
+                    {% else %}
+                    <input type="checkbox" name="can_report" id="can_report">
+                    {% endif %}
+                    <label for="can_report">View Report</label>
+                </div>
+            
+                <div class="col-auto mb-3">
+                    {% if user_account.see_global_data %}
+                    <input type="checkbox" name="see_global_data" id="see_global_data" checked>
+                    {% else %}
+                    <input type="checkbox" name="see_global_data" id="see_global_data">
+                    {% endif %}
+                    <label for="see_global_data">See Global Data</label>
+                </div>
+
+                <div class="col-auto mb-3">
+                    {% if user_account.create_global_data %}
+                    <input type="checkbox" name="create_global_data" id="create_global_data" checked>
+                    {% else %}
+                    <input type="checkbox" name="create_global_data" id="create_global_data">
+                    {% endif %}
+                    <label for="create_global_data">Create Global Data</label>
+                </div>
+
+        
+
+                <div class="col-auto mb-3">
+                    {% if user_account.also_handle_other_work %}
+                    <input type="checkbox" name="also_handle_other_work" id="also_handle_other_work" checked>
+                    {% else %}
+                    <input type="checkbox" name="also_handle_other_work" id="also_handle_other_work">
+                    {% endif %}
+                    <label for="also_handle_other_work">Also Handle Other Work (Within Branch)</label>
+                </div>
+
+                <div class="col-auto mb-3">
+                    {% if user_account.can_delete %}
+                    <input type="checkbox" name="can_delete" id="can_delete" checked>
+                    {% else %}
+                    <input type="checkbox" name="can_delete" id="can_delete">
+                    {% endif %}
+                    <label for="can_delete">Has Delete Permission</label>
+                </div>
+
+                <div class="col-auto mb-3">
+                    {% if user_account.handle_masters %}
+                    <input type="checkbox" name="handle_masters" id="handle_masters" checked>
+                    {% else %}
+                    <input type="checkbox" name="handle_masters" id="handle_masters">
+                    {% endif %}
+                    <label for="handle_masters">Handle Masters</label>
+                </div>
+                <div class="col-auto mb-3">
+                    {% if user_account.is_special_access %}
+                    <input type="checkbox" name="is_special_access" id="is_special_access" checked>
+                    {% else %}
+                    <input type="checkbox" name="is_special_access" id="is_special_access">
+                    {% endif %}
+                    <label for="is_special_access">Special Access</label>
+                </div>
+
+
+
+
+            </div>
+        </div>
+
+
+    </div>
+
+    <button type="submit" class="btn btn-primary my-3">
+
+        Update User
+
+    </button>
+
+</form>
+
+{% endblock %}

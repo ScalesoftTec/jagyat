@@ -1,0 +1,399 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+{% if update %}
+Update TDS - 
+{% else %}
+Book TDS - 
+{% endif %}
+{% endblock %}
+
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    {% if update %}
+        Update TDS
+        {% else %}
+        Book TDS
+        {% endif %}
+</h1>
+
+<style>
+    table th, table td{
+        padding: 0!important;
+    }
+</style>
+
+<a href="{% url 'accounting:bill_wise_tds_reciept_voucher_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+
+    <form enctype="multipart/form-data" method="post" autocomplete="off" onsubmit="return checkValidations();">
+        {% csrf_token %}
+        
+        {% include 'error_component.html' %}
+        <div class="row">
+
+           
+            <div class="col-md-3 col-sm-12 mb-1">
+                <input type="hidden" name="voucher_settled" value="0" id="voucher_settled"  />
+                <label class="required" for="id_company_type">Company</label>
+                {{ form.company_type }}
+            </div>
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_voucher_date">Date</label>
+                {{ form.voucher_date }}
+            </div>
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_party_name">Choose Party</label>
+                {{ form.party_name }}
+            </div>
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_party_address">Choose Party Address</label>
+                {{ form.party_address }}
+            </div>
+            <div class="col-md-2 col-sm-12 mb-1">
+                <label class="required" for="id_invoice">Choose Invoice</label>
+                {{ tds_form.invoice }}
+            </div>
+            <div class="col-md-2 col-sm-12 mb-1">
+                <label class="required" for="id_invoice_amount">Invoice Amount</label>
+                <input type="text" class="form-control form-control-sm" id="id_invoice_amount" disabled  />
+            </div>
+            <div class="col-md-2 col-sm-12 mb-1">
+                <label class="required" for="id_invoice_recieved_amount">Recieved Amount in Bank</label>
+                <input type="text" class="form-control form-control-sm" id="id_invoice_recieved_amount" disabled  />
+            </div>
+            <div class="col-md-2 col-sm-12 mb-1">
+                <label class="required" for="id_invoice_tds_amount">TDS Booked Amount</label>
+                <input type="text" class="form-control form-control-sm" id="id_invoice_tds_amount" disabled  />
+            </div>
+
+            <div class="col-md-2 col-sm-12 mb-1">
+                <label class="required" for="id_invoice_total_amount">Total Rec. Amount</label>
+                <input type="text" class="form-control form-control-sm" id="id_invoice_total_amount" disabled  />
+            </div>
+
+            <div class="col-md-2 col-sm-12 mb-1">
+                <label class="required" for="id_reciept_tds_amount">TDS Amount</label>
+                {{ form.reciept_tds_amount }}
+            </div>
+          
+            <div class="col-md-2 col-sm-12 mb-1">
+                <label class="required" for="id_excess_amount">Excess Amount</label>
+                <input type="number" step="0.001" value="0" class="form-control form-control-sm" name="excess_amount" id="id_excess_amount" readonly  />
+            </div>
+
+
+            <div class="col-12 mb-1" style="display: none;" id="invoice_heads_div">
+                <table class="table" id="invoice_heads">
+                    <tr>
+                        <th>Sr.</th>
+                        <th>Pending Amount</th>
+                        <th>Recieved Amount</th>
+                        <th>TDS Amount</th>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="col-12 mb-1" id="excess_amount_option_div" style="display: none;">
+                <label for="">Please select option for handling excess amount</label>
+                <div><input type="radio" onchange="handleNotTransferOperation()" name="excess_amount_option" checked id="create_new" value="transfer"> <label for="create_new">Yes, Transfer Excess Amount as Advance</label></div>
+                <div><input type="radio" onchange="handleNotTransferOperation()"   name="excess_amount_option" id="no_transfer" value="no_transfer"> <label for="no_transfer">No, I want to delete existing settled voucher</label>
+              
+                </div>
+            </div>
+          
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3"  id="submit-btn" >
+            {% if update %}
+                Update Bill Wise Reciept Voucher
+            {% else %}
+                Submit
+            {% endif %}
+        </button>
+
+        {% if update %}
+        <input type="hidden" id="is_update" value="true">
+    
+        {% else %}
+        <input type="hidden" id="is_update" value="false">
+        {% endif %}
+        <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+    
+    </form>
+
+{% endblock %}
+
+
+{% block js %}
+
+
+<script>
+
+    const handleNotTransferOperation = () => {
+        var no_transfer = document.getElementById('no_transfer').checked
+        var submit_btn = document.getElementById('submit-btn')
+        submit_btn.disabled=false
+        if(no_transfer){
+            submit_btn.disabled=true
+
+        }
+    }
+   
+ 
+
+    function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for(i = L; i >= 0; i--) {
+           selectElement.remove(i);
+        }
+        }
+
+    const getPartyInvoices = async() => {
+        
+        const company = document.getElementById('id_company_type').value
+        const party = document.getElementById('id_party_name').value
+       
+        if(party){
+            var invoices = await axios.get(`/api/v1/all-invoice/details?bill_to=${party}&company_type=${company}`)
+            var data = invoices.data
+           
+            const ref_invoice = document.getElementById('id_invoice'); 
+            const value = ref_invoice.value
+            removeOptions(ref_invoice);
+            
+            ref_invoice.required = true
+            var newOption = new Option("Choose Invoice","")
+            ref_invoice.add(newOption);
+            
+            data.map(item=>{
+                var newOption = new Option(item.final_invoice_no,item.id)
+                if(item.id == value){
+                    newOption.selected = true
+                }
+                ref_invoice.add(newOption);
+            })
+
+
+    }
+    }
+   
+    const getInvoiceSettlementAmount = async() => {
+        try{
+            const invoice = document.getElementById('id_invoice').value
+            if(invoice){
+                var invoices = await axios.get(`/api/v1/rv-invoice/details?invoice=${invoice}`)
+                var invoice_data = await axios.get(`/api/v1/all-invoice/details/${invoice}/`)
+                var data = invoices.data
+                var rec_amount = 0   
+                var tds_amount = 0   
+               
+                data.map(item=>{
+                    rec_amount += item.received_amount
+                    tds_amount += item.tds_amount
+                   
+                })
+               
+                invoice_data = invoice_data.data
+                console.log("Recieved Amount",rec_amount)
+                console.log("TDS Amount",tds_amount)
+                console.log("Net Amount",invoice_data.net_amount)
+                document.getElementById('id_invoice_amount').value = parseFloat(invoice_data.net_amount).toFixed(2)
+                document.getElementById('id_reciept_tds_amount').max = parseFloat(invoice_data.net_amount - tds_amount).toFixed(2)
+                document.getElementById('id_invoice_recieved_amount').value = parseFloat(rec_amount).toFixed(2)
+                document.getElementById('id_invoice_tds_amount').value = parseFloat(tds_amount).toFixed(2)
+                document.getElementById('id_invoice_total_amount').value = parseFloat(parseFloat(tds_amount) + parseFloat(rec_amount)).toFixed(2)
+
+                if(parseFloat(document.getElementById('id_invoice_total_amount').value) > 0){
+                    document.getElementById('invoice_heads_div').style.display = "block"
+                   
+                }
+                else{
+                    document.getElementById('invoice_heads_div').style.display = "block"
+
+                }
+                getInvoiceSettledDetails(invoices.data)
+            }
+    }catch(err){
+        console.log("Something went wrong")
+    }
+    }
+   
+    document.getElementById('id_party_name').addEventListener('change',getPartyInvoices)
+    document.getElementById('id_party_name').addEventListener('keyup',getPartyInvoices)
+   
+    document.getElementById('id_company_type').addEventListener('change',getPartyInvoices)
+    document.getElementById('id_company_type').addEventListener('keyup',getPartyInvoices)
+    
+
+    $("#id_invoice").on('select2:select',function () {
+                        
+        getInvoiceSettlementAmount(); // Notify any JS components that the value changed
+    });
+    
+    document.getElementById('id_party_name').required = true
+  
+
+    try{
+        if(document.getElementById('id_party_name').value  ){
+            getPartyInvoices()
+        }
+    }catch(err){
+    }
+
+
+    getInvoiceSettlementAmount();
+
+    const getInvoiceSettledDetails = (data) => {
+        var index = 0
+        document.getElementById('invoice_heads').innerHTML = ""
+        var newRow = document.getElementById('invoice_heads').insertRow(0)
+        var check_box = newRow.insertCell(0)
+        var sr_no = newRow.insertCell(1)
+        var pending_amount = newRow.insertCell(2)
+        var rec_amount = newRow.insertCell(3)
+        var tds_amount = newRow.insertCell(4)
+        sr_no.innerHTML = "Sr. No."
+        pending_amount.innerHTML = "Pending Amount"
+        rec_amount.innerHTML = "Recieved Amount"
+        tds_amount.innerHTML = "TDS Amount"
+        if(data.length > 0){
+            document.getElementById('voucher_settled').value = "1"
+        }
+        else{
+            document.getElementById('voucher_settled').value = "0"
+
+        }
+        data.map(item=>{
+            var newRow = document.getElementById('invoice_heads').insertRow(-1)
+            var check_box = newRow.insertCell(0)
+            var sr_no = newRow.insertCell(1)
+            var pending_amount = newRow.insertCell(2)
+            var rec_amount = newRow.insertCell(3)
+            var tds_amount = newRow.insertCell(4)
+            
+
+            
+            check_box.innerHTML = `
+            <input type="radio" name="to_advance_voucher" id="${item.id}" value="${item.id}" />
+            `
+            sr_no.innerHTML = `
+            ${++index}
+            `
+            pending_amount.innerHTML = item.pending_amount
+
+            rec_amount.innerHTML = item.received_amount
+
+            tds_amount.innerHTML = item.tds_amount
+        })
+    }
+
+    getInvoiceSettledDetails()
+
+
+</script>
+
+
+<script>
+    
+        async function getOnlyPartyAdress(id,address_id){
+            try{
+                
+                if(!id){
+                    return
+                }
+                
+                var adresses = await axios.get('/api/v1/party/details?party='+id)
+                adresses = adresses.data
+                const select = document.getElementById(address_id); 
+                if(is_update == 'true'){
+                var value = select.value
+                }
+                else{
+                    var  value = 0
+                }
+                //removeOptions(select);
+                select.innerHTML = ''
+                select.required = true
+                var newOption = new Option("Choose Address","")
+                select.add(newOption);
+                
+                adresses.map(item=>{
+                    var newOption = new Option(item.branch,item.id)
+                    if(item.id == value || adresses.length == 1){
+                        newOption.selected = true
+                    }
+                    select.add(newOption);
+                })
+        
+            }catch(err){
+                
+            }
+          }
+    
+          var is_update = document.getElementById('is_update').value
+     
+          
+            try{
+
+                getOnlyPartyAdress(document.getElementById('id_party_name').value,'id_party_address');
+            }catch(err){}
+    
+
+          document.getElementById('id_party_name').addEventListener('keyup',()=>getOnlyPartyAdress(document.getElementById('id_party_name').value,'id_party_address'))
+          document.getElementById('id_party_name').addEventListener('change',()=>getOnlyPartyAdress(document.getElementById('id_party_name').value,'id_party_address'))
+
+
+    
+</script>
+
+<script>
+    $('#id_invoice').select2({
+        placeholder: 'Choose Option',
+        templateSelection: function (data, container) {
+            // Add custom attributes to the <option> tag for the selected option
+                $(data.element).attr('data-custom-attribute', data.customValue);
+                return data.text;
+            } 
+        })
+</script>
+
+
+<script>
+
+    const getExcessAmount = () => {
+        document.getElementById('id_excess_amount').value = 0
+        var excess_amount_option_div = document.getElementById('excess_amount_option_div')
+        var reciept_tds_amount = parseFloat(document.getElementById('id_reciept_tds_amount').value)
+        var invoice_amount = parseFloat(document.getElementById('id_invoice_amount').value)
+        var invoice_total_amount = parseFloat(document.getElementById('id_invoice_total_amount').value)
+        var pending_amount = invoice_amount - invoice_total_amount
+        excess_amount_option_div.style.display = "none"
+        if (reciept_tds_amount > pending_amount) {
+            document.getElementById('id_excess_amount').value = parseFloat(reciept_tds_amount - pending_amount).toFixed(2)
+            excess_amount_option_div.style.display = "block"
+        }
+
+    }
+
+    document.getElementById('id_reciept_tds_amount').addEventListener('change',getExcessAmount)
+    document.getElementById('id_reciept_tds_amount').addEventListener('keyup',getExcessAmount)
+
+    const checkValidations = () => {
+        var reciept_tds_amount = parseFloat(document.getElementById('id_reciept_tds_amount').value)
+        var invoice_amount = parseFloat(document.getElementById('id_invoice_amount').value)
+        var invoice_total_amount = parseFloat(document.getElementById('id_invoice_total_amount').value)
+        var invoice_tds_amount = parseFloat(document.getElementById('id_invoice_tds_amount').value)
+        
+
+
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,76 @@
+{% load custom_tags %}
+{% load humanize %}
+
+<tr>
+  <th>{{ forloop.counter }}.</th>
+  <td align="center">{{ data.company_type.company_gst_code }}</td>
+  <td>
+    {% if data.final_invoice_no %}
+    {{data.final_invoice_no}}
+    {% else %}
+    {{data.invoice_no}}
+    {% endif %}
+  </td>
+
+  <td>
+    {% if data.einvoice_date %}
+    {{data.einvoice_date|date:"d/m/Y"}}
+    {% else %}
+    {{data.date_of_invoice|date:"d/m/Y"}}
+    {% endif %}
+  </td>
+  <td>
+    {% if data.type_of_invoice == "TAX INVOICE" %}
+    REG
+    {% elif data.type_of_invoice == "BILL OF SUPPLY" %}
+    BOS
+    {% else  %}
+    RCM
+    {% endif %}
+  
+  </td>
+  <td>
+
+    {% if data.type_of_invoice == "BILL OF SUPPLY" and data.category == "B2B" %}
+    B2B/OTHER
+    {% else  %}
+    {{data.category}}
+    {% endif %}
+
+  </td>
+  <td>{{data.job_no}}</td>
+  <td>{{data.job_no.module}}</td>
+  <td>{{data.bill_to_address.branch}}</td>
+  <td>{{data.bill_to_address.corp_gstin}}</td>
+  <td>{{data.bill_to_address.corp_state.name}}</td>
+  <td>{{data.bill_to.party_name}}</td>
+  <td>{{data.invoice_currency}}</td>
+  <td data-order="{{data.net_amount}}" align="right">{{data.net_amount|floatformat:2|intcomma}}</td>
+
+  {% if filter_percent == "All" %}
+  <td data-order="{{data.id |get_non_tax_amount_ri}}" align="right">{{data.id |get_non_tax_amount_ri|floatformat:2|intcomma}}</td>
+  {% endif %}
+
+  {% if filter_percent == "5" or filter_percent == "All" %}
+  <td data-order="{{data.id |get_5_tax_ri}}" align="right">{{data.id |get_5_tax_ri|floatformat:2|intcomma}}</td>
+  <td data-order="{{data.id |get_5_csgst_tax_ri}}" align="right">{{data.id |get_5_csgst_tax_ri|floatformat:2|intcomma}}</td>
+  <td data-order="{{data.id |get_5_csgst_tax_ri}}" align="right">{{data.id |get_5_csgst_tax_ri|floatformat:2|intcomma}}</td>
+  <td data-order="{{data.id |get_5_igst_tax_ri}}" align="right">{{data.id |get_5_igst_tax_ri|floatformat:2|intcomma}}</td>
+  {% endif %}
+
+  {% if filter_percent == "12" or filter_percent == "All" %}
+  <td data-order="{{data.id |get_12_tax_ri}}" align="right">{{data.id |get_12_tax_ri|floatformat:2|intcomma}}</td>
+  <td data-order="{{data.id |get_12_csgst_tax_ri}}" align="right">{{data.id |get_12_csgst_tax_ri|floatformat:2|intcomma}}</td>
+  <td data-order="{{data.id |get_12_csgst_tax_ri}}" align="right">{{data.id |get_12_csgst_tax_ri|floatformat:2|intcomma}}</td>
+  <td data-order="{{data.id |get_12_igst_tax_ri}}" align="right">{{data.id |get_12_igst_tax_ri|floatformat:2|intcomma}}</td>
+  {% endif %}
+
+  {% if filter_percent == "18" or filter_percent == "All" %}
+  <td data-order="{{data.id |get_18_tax_ri}}" align="right">{{data.id |get_18_tax_ri|floatformat:2|intcomma}}</td>
+  <td data-order="{{data.id |get_18_csgst_tax_ri}}" align="right">{{data.id |get_18_csgst_tax_ri|floatformat:2|intcomma}}</td>
+  <td data-order="{{data.id |get_18_csgst_tax_ri}}" align="right">{{data.id |get_18_csgst_tax_ri|floatformat:2|intcomma}}</td>
+  <td data-order="{{data.id |get_18_igst_tax_ri}}" align="right">{{data.id |get_18_igst_tax_ri|floatformat:2|intcomma}}</td>
+  {% endif %}
+
+  <td data-order="{{data.gst_amount}}" align="right">{{data.gst_amount|floatformat:2|intcomma}}</td>
+</tr>

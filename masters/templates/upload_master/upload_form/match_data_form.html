@@ -1,0 +1,45 @@
+<div class="tab-pane fade" id="match_data" role="tabpanel" aria-labelledby="match_data-tab">
+    <h5>Maatch File <span style="font-size: 14px;"></span></h5>
+    <div class="row">
+        <div class="col-12 mb-2">Please enter correct field name as per your excel file <i class="far fa-question-circle text-danger" style="cursor: pointer;"  data-toggle="tooltip" data-placement="right" title="All Fields Are Necessary."></i></div>
+
+
+        <div class="col-auto mb-3">
+            <label for="">Purchase Invoice</label>
+            <input type="radio" name="file_type" value="Purchase" />
+        </div>
+
+        <div class="col-auto mb-3">
+            <label for="">Purchase Invoice BH</label>
+            <input type="radio" name="file_type" value="PurchaseBH" />
+        </div>
+        
+        <div class="col-auto mb-3">
+            <label for="">Debit Note</label>
+            <input type="radio" name="file_type" value="DebitNote" />
+        </div>
+        
+        <div class="col-auto mb-3">
+            <label for="">Sales Invoice</label>
+            <input type="radio" name="file_type" value="SaleInvoice" />
+        </div>
+    
+        <div class="col-auto mb-3">
+            <label for="">Credit Note</label>
+            <input type="radio" name="file_type" value="CreditNote" />
+        </div>
+        
+      
+        
+        <div class="col-12 mb-3">
+            <label for="match_file">File</label>
+            <input type="file" class="form-control" name="match_file"
+             id="match_file">
+        </div>
+        
+        <div class="col-12 mb-3">
+            <input type="checkbox" name="match_file_upload" id="match_file_upload">
+            <label for="match_file_upload">I want to Check file</label>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,154 @@
+{% extends 'dashboard/index.html' %}
+{% load custom_tags %}
+{% block dashoard_title %} 
+{% if old %}
+Old Rate List | 
+{% else %}
+Active Rate List | 
+{% endif %}
+{% endblock %}
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+  {% if old %}
+    Old Rate List
+    {% else %}
+    Active Rate List
+    {% endif %}
+</h1>
+<div>
+
+  <a href="{% url 'operations:create_rate' module=module %}" class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Rate</a>
+
+  {% if old %}
+  <a href="{% url 'operations:rate_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> Active Rates</a>
+  {% else %}
+  <a href="{% url 'operations:rate_old_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> Old Rates</a>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<table class="table compact table-primary table-bordered table-md-responsive" id="rate_table">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Carrier</th>
+        <th scope="col">A/C</th>
+        <th scope="col">Size</th>
+        <th scope="col">POL</th>
+        <th scope="col">POD</th>
+        <th scope="col">FPOD</th>
+        <th scope="col">Effective</th>
+        <th scope="col">Valid</th>
+        <th scope="col">Amm</th>
+        <th scope="col">Basic Frt</th>
+        <th scope="col">Oth Frt</th>
+        <th scope="col">Ramp</th>
+        <th scope="col">Line Door</th>
+        <th scope="col">Trucking</th>
+        <th scope="col">Buying</th>
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in rates %}
+       
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>
+        {% if data.rate_file %}
+          <a href="{{data.rate_file.url}}" target="_blank">  {{ data.carrier.name |get_first_word }}</a>
+            {% else %}
+            {{ data.carrier.name |get_first_word }}
+        {% endif %}
+        </td>
+        <td>{{ data.ac_type }}</td>
+        <td>{{ data.size }}</td>
+        <td>{{ data.pol.name }}</td>
+        <td>{{ data.pod.name }}</td>
+        <td>{{ data.fpd.name }}</td>
+        <td>{{ data.from_date }}</td>
+        <td>{{ data.to_date }}</td>
+        <td>{{ data.ammendment }}</td>
+        <td>{{ data.basic_charges }}</td>
+        <td>{{ data.oth_charges }}</td>
+        <td>{{ data.ramp_charges }}</td>
+        <td>{{ data.line_door_charges }}</td>
+        <td>{{ data.trucking_charges }}</td>
+        <td>{{ data.net_charges }}</td>
+        <td>
+            <a href="{% url 'operations:rate_update' module=module id=data.id %}" target="_blank" class="btn btn-xs btn-info "><i class="fas fa-edit"></i></a>
+
+            <a href="{% url 'operations:rate_duplicate' module=module id=data.id %}" target="_blank" class="btn btn-xs btn-info "><i class="bi bi-clipboard-check"></i></a>
+
+            {% if request.user.user_account.can_delete %}
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.from_date}} {{data.to_date}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete From {{ data.pol.name }} To {{ data.pod.name }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'operations:rate_delete' module=module id=data.id %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+        {% endif %}
+        </td>
+      </tr>
+    
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+
+
+  
+
+{% endblock %}
+
+{% block js %}
+<script>
+  let table = new DataTable('#rate_table', {
+    dom: 'BQlfrtip',
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+           
+        ]
+    },
+
+    ]
+
+});
+
+document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+
+{% endblock %}

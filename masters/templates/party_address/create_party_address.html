@@ -1,0 +1,213 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Create New Party Address
+</h1>
+
+<a href="{% url 'masters:party_address_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+    <form enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        {% include 'error_component.html' %}
+        <div class="row">
+
+            <div class="col-md-3 col-sm-12 mb-3">
+                <label for="id_party">Party</label>
+                {{ form.party }}
+            </div>
+            <div class="col-md-3 col-sm-12 mb-3">
+                <label for="id_branch">Branch</label>
+                {{ form.branch }}
+            </div>
+            <div class="col-md-3 col-sm-12 mb-3">
+                <label for="id_corp_country"> Country</label>
+                {{ form.corp_country}}
+            </div>
+            
+            <div class="col-md-3 col-sm-12 mb-3">
+                <label for="id_corp_state"> State</label>
+                {{ form.corp_state}}
+            </div>
+
+            <div class="col-md-3 col-sm-12 mb-3">
+                <label for="id_corp_city"> City</label>
+                {{ form.corp_city}}
+            </div>
+
+          
+            <div class="col-md-3 col-sm-12 mb-3">
+                <label for="id_corp_email"> Email</label>
+                {{ form.corp_email}}
+            </div>
+
+            <div class="col-md-3 col-sm-12 mb-3">
+                <label for="id_corp_website"> Website</label>
+                {{ form.corp_website}}
+            </div>
+
+            <div class="col-md-3 col-sm-12 mb-3">
+                <label for="id_corp_website"> GSTIN</label>
+                {{ form.corp_gstin}}
+            </div>
+
+            <div class="col-md-3 col-sm-12 mb-3">
+                <label for="id_corp_zip"> ZIP</label>
+                {{ form.corp_zip}}
+            </div>
+
+            <div class="col-md-3 col-sm-12 mb-3">
+                <label for="id_corp_fax"> Fax</label>
+                {{ form.corp_fax}}
+            </div>
+
+        
+
+            <div class="col-md-3 col-sm-12 mb-3">
+                <label for="id_corp_contact"> Contact</label>
+                {{ form.corp_contact}}
+            </div>
+
+            <div class="col-md-3 col-sm-12 mb-3">
+                <label for="id_corp_pan"> PAN</label>
+                {{ form.corp_pan}}
+            </div>
+           
+            <div class="col-md-12 mb-3 col-sm-12">
+                <div class="row">
+                    
+                    <div class="col-12 mb-3">
+                        <label for="id_corp_address_line1"> Adress Detail</label>
+                        <div class="mb-3">
+                            {{ form.corp_address_line1}}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.corp_address_line2}}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.corp_address_line3}}
+                        </div>
+                    </div>
+
+                    
+
+
+                </div>
+            </div>
+
+            
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update Party Address
+        {% else %}
+        Submit
+        {% endif %}
+        
+        </button>
+    </form>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+        integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  
+
+
+    <script>
+        // For Country
+    const config = {
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "X-CSCAPI-KEY": "Wm5kc3hoMFNUSFRqWUNNQTJ5cFNtUlZ3dzNiakFkTmVwMjhveG5wdQ=="
+        },
+    }
+    axios.get('https://api.countrystatecity.in/v1/countries', config).then((res) => {
+    
+        var data = res.data.map(item => item.name.toUpperCase())
+        
+        $("#id_corp_country").autocomplete({
+            minLength: 2,
+            delay: 100,
+            source: data,
+         
+        });
+
+        $("#id_bill_country").autocomplete({
+            minLength: 2,
+            delay: 100,
+            source: data
+        });
+
+    }).catch(err => {
+        console.log(err)
+    })
+    
+    axios.get('/api/v1/city/details', config).then((res) => {
+        console.log(res.data)
+        var data = res.data.map(item => item.name.toUpperCase())
+        
+        $("#id_corp_city").autocomplete({
+            minLength: 2,
+            delay: 100,
+            source: data,
+         
+        });
+
+        $("#id_bill_city").autocomplete({
+            minLength: 2,
+            delay: 100,
+            source: data
+        });
+
+    }).catch(err => {
+        console.log(err)
+    })
+
+    function copyToBillingInfo(){
+        const same_or_not = document.getElementById('same_to_bill').checked
+        if(same_or_not){
+
+            document.getElementById('id_bill_address_line1').value = document.getElementById('id_corp_address_line1').value
+            document.getElementById('id_bill_address_line2').value = document.getElementById('id_corp_address_line2').value
+        document.getElementById('id_bill_address_line3').value = document.getElementById('id_corp_address_line3').value
+        document.getElementById('id_bill_country').value = document.getElementById('id_corp_country').value
+        document.getElementById('id_bill_state').value = document.getElementById('id_corp_state').value
+        document.getElementById('id_bill_city').value = document.getElementById('id_corp_city').value
+        document.getElementById('id_bill_email').value = document.getElementById('id_corp_email').value
+        document.getElementById('id_bill_website').value = document.getElementById('id_corp_website').value
+        document.getElementById('id_bill_gstin').value = document.getElementById('id_corp_gstin').value
+        document.getElementById('id_bill_zip').value = document.getElementById('id_corp_zip').value
+        document.getElementById('id_bill_fax').value = document.getElementById('id_corp_fax').value
+        document.getElementById('id_bill_contact').value = document.getElementById('id_corp_contact').value
+        document.getElementById('id_bill_pan').value = document.getElementById('id_corp_pan').value
+    }else{
+
+        document.getElementById('id_bill_address_line1').value = ''
+        document.getElementById('id_bill_address_line2').value = ''
+        document.getElementById('id_bill_address_line3').value = ''
+        document.getElementById('id_bill_country').value =  ''
+        document.getElementById('id_bill_state').value =  ''
+        document.getElementById('id_bill_city').value =  ''
+        document.getElementById('id_bill_email').value =  ''
+        document.getElementById('id_bill_website').value =  ''
+        document.getElementById('id_bill_gstin').value =  ''
+        document.getElementById('id_bill_zip').value =  ''
+        document.getElementById('id_bill_fax').value =  ''
+        document.getElementById('id_bill_contact').value =  ''
+        document.getElementById('id_bill_pan').value = ''
+
+    }
+    }
+
+    </script>
+
+{% endblock %}

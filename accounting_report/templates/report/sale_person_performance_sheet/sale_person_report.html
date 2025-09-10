@@ -1,0 +1,433 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load custom_tags %}
+
+{% block dashoard_title %}
+Sales Person Performance -
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Sales Person Performance List
+</h1>
+
+<style>
+  table th,
+  td {
+
+    padding: 0px !important;
+  }
+  .modal table th{
+    color:white!important;
+    font-weight: 500;
+  }
+</style>
+
+{% endblock %}
+
+{% block dashboard_content %}
+<form method="post">
+  {% csrf_token %}
+  <div class="row mb-2">
+    <div class="col-2">
+      <label for="region">Choose Country</label>
+      <select name="region" id="region" required class="form-control">
+        {% if not selected_region %}
+        <option value="" selected hidden disabled>Choose Country</option>
+        {% endif %}
+
+        {% for i in company_regions %}
+        {% if i.region == selected_region %}
+        <option value="{{i.region}}" selected >{{i.region}}</option>
+        {% else %}
+        <option value="{{i.region}}">{{i.region}}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-12">
+      <label for="company">Company</label>
+      <select name="company" id="company" class="form-control form-control-sm">
+        {% if selected_company == "A" or not selected_company %}
+        <option value="A" selected>All</option>
+        {% else %}
+        <option value="A">All</option>
+        {% endif %}
+        {% for company in global_companies %}
+        {% if company.id == selected_company %}
+        <option value="{{company.id}}" selected>{{company}}</option>
+        {% else %}
+        <option value="{{company.id}}">{{company}}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+   
+   
+    <div class="col-md-2 col-sm-12">
+      <label for="from_date">From</label>
+      <input type="date" value="{{from_date|date:'Y-m-d'}}" name="from_date" required id="from_date"
+        class="form-control form-control-sm" />
+    </div>
+    <div class="col-md-2 col-sm-12">
+      <label for="  ">To</label>
+      <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" required id="to_date"
+        class="form-control form-control-sm" />
+    </div>
+    
+    <div class="col-md-2 col-sm-12">
+      <button  type="submit" id="getReportButton" class="btn btn-sm btn-primary mt-4">Get Report</button>
+    </div>
+  </div>
+</form>
+
+
+
+<div class="large-table-fake-top-scroll-container-3">
+  <div>&nbsp;</div>
+</div>
+
+
+
+<div class="table-responsive">
+
+  <table class="table table-primary compact table-bordered " id="job_cost_sheet_table">
+    <thead>
+      <tr>
+
+       
+        <th scope="col" style="min-width: 100px!important;">Sales&nbsp;Person</th>
+        <th scope="col" style="min-width: 100px!important;">Container&nbsp;Count</th>
+        
+        <th scope="col" style="min-width: 80px!important;">Sales</th>
+        <th scope="col" style="min-width: 100px!important;">CRN</th>
+        <th scope="col" style="min-width: 100px!important;">Net&nbsp;Sales</th>
+        <th scope="col" style="min-width: 100px!important;">Dir.&nbsp;Purchase</th>
+        <th scope="col" style="min-width: 100px!important;">DRN</th>
+        <th scope="col" style="min-width: 100px!important;">Ind.&nbsp;Exp.</th>
+        <th scope="col" style="min-width: 100px!important;">Net&nbsp;Purch.</th>
+        <th scope="col" style="min-width: 100px!important;">Total&nbsp;P/L</th>
+
+
+
+
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for data in report %}
+     
+          <tr>
+     
+     
+        <td>{{data.person}}</td>
+        <td class="text-center" data-order="{{data.total_container.count}}">
+          <a href="#"  data-toggle="modal"  data-target="#job_contaier_count_modal{{ forloop.counter }}">
+           
+            {{data.total_container.count}}
+          
+          </a>
+        </td>
+
+      
+
+       
+        <td class="text-right" data-order="{{data.sales.gross|floatformat:0|floatformat:2}}">
+        
+            {{data.sales.gross|floatformat:0|floatformat:2}}
+           
+         
+    
+         
+        </td>
+        <td class="text-right" data-order="{{data.sales_return.gross|floatformat:0|floatformat:2}}">
+       
+            {{data.sales_return.gross|floatformat:0|floatformat:2}}
+           
+        
+    
+         
+        </td>
+        <td class="text-right" data-order="{{data.sales.gross|sub:data.sales_return.gross|floatformat:0|floatformat:2}}">{{data.sales.gross|sub:data.sales_return.gross|floatformat:0|floatformat:2}}</td>
+
+       
+          <td class="text-right" data-order="{{data.purchase.gross|floatformat:0|floatformat:2}}">
+          
+          
+         
+          {{data.purchase.gross|floatformat:0|floatformat:2}}
+       
+      
+  
+       
+      </td>
+ 
+      <td class="text-right" data-order="{{data.purchase_return.gross|floatformat:0|floatformat:2}}">
+   
+
+         
+   
+          {{data.purchase_return.gross|floatformat:0|floatformat:2}}
+    
+         
+    
+
+        </td>
+        <td class="text-right" data-order="{{data.expense.gross|floatformat:0|floatformat:2}}">
+            {{data.expense.gross|floatformat:0|floatformat:2}}
+          
+        </td>
+       
+        <td align="right" data-order="{{data.purchase.gross|add:data.expense.gross|sub:data.purchase_return.gross|floatformat:0|floatformat:2}}">{{data.purchase.gross|add:data.expense.gross|sub:data.purchase_return.gross|floatformat:0|floatformat:2}}</td>
+
+        <td class="text-right" data-order="{{data.profit.gross|floatformat:0|floatformat:2}}">
+          
+         
+            {{data.profit.gross|floatformat:0|floatformat:2}}
+     
+        
+    
+     
+        </td>
+        
+      </tr>
+    
+      {% endfor %}
+
+    </tbody>
+
+    <tfoot>
+      <tr>
+      
+        <td  class="text-center text-white">Total</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white">0</td>
+        <td class="text-right text-white">0</td>
+      </tr>
+      
+    </tfoot>
+  </table>
+
+</div>
+
+
+
+{% for data in report %}
+ <!-- Container Count Modal -->
+ <div class="modal fade" id="job_contaier_count_modal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="job_contaier_count_modal{{ forloop.counter }}Label" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+      <div class="modal-header">
+      <h6 class="modal-title" id="job_contaier_count_modal{{ forloop.counter }}Label">View Container Count
+      </h6>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+      </div>
+      <div class="modal-body">
+        <table class="table compact display table-primary table-bordered">
+          <thead>
+            <tr>
+              <th>Container&nbsp;Type</th>
+              <th>Container&nbsp;Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in data.total_container.details %}
+            <tr>
+              <td>{{i.container_type}}</td>
+              <td>{{i.count}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        
+
+      </div>
+      <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+     
+      </div>
+  </div>
+  </div>
+</div>
+<!-- End of Container Count Modal -->
+
+
+
+{% endfor %}
+
+
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+  var selected_ids = []
+  $(document).ready(function () {
+    jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+      return this.flatten().reduce( function ( a, b ) {
+          var x = parseFloat(a) ;
+          var y = parseFloat($(b).attr('data-order')) ;
+  
+          return parseFloat(x + y).toFixed(2)
+      }, 0 );
+  } );
+    var job_cost_sheet = []
+
+    var table = new DataTable('#job_cost_sheet_table', {
+      // options
+      dom: 'BQlfrtip',
+      "columnDefs": [
+        { "type": "date", "targets": 3 }
+      ],
+      select: {
+        style: "multiple",
+      },
+    
+      
+      lengthMenu: [
+        [10, 25, 50, -1],
+        [10, 25, 50, 'All'],
+      ],
+      buttons: [
+      {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+              { extend: 'copy', footer: true, header:true,exportOptions: {
+                format: {
+                  body: function ( data, row, column, node ) {
+                      //replace ampersands and other special chars
+                      data = data.replace(/&gt;/g, '>')
+                                 .replace(/&lt;/g, '<')
+                                 .replace(/&amp;/g, '&')
+                                 .replace(/&quot;/g, '"')
+                                 .replace(/&#163;/g, '£')
+                                 .replace(/&#39;/g, '\'')
+                                 .replace(/&#10;/g, '\n');
+                      //replace html tags with one space
+                      data = data.replace(/<[^>]*>/g, ' ');
+                      //replace multiple spaces and tabs etc with one space
+                      return data.replace(/\s\s+/g, ' ');
+                  },
+              }
+              }   },
+              { extend: 'excel', footer: true, header:true,
+              exportOptions: {
+                format: {
+                  body: function ( data, row, column, node ) {
+                    
+                      //replace ampersands and other special chars
+                      data = data.replace(/&gt;/g, '>')
+                                 .replace(/&lt;/g, '<')
+                                 .replace(/&amp;/g, '&')
+                                 .replace(/&quot;/g, '"')
+                                 .replace(/&#163;/g, '£')
+                                 .replace(/&#39;/g, '\'')
+                                 .replace(/&#10;/g, '\n');
+                      //replace html tags with one space
+                      data = data.replace(/<[^>]*>/g, ' ');
+                      //replace multiple spaces and tabs etc with one space
+                      return data.replace(/\s\s+/g, ' ');
+                  },
+              }
+              }  
+           },
+           
+              { extend: 'csv', footer: true, header:true,exportOptions: {
+                format: {
+                  body: function ( data, row, column, node ) {
+                      //replace ampersands and other special chars
+                      data = data.replace(/&gt;/g, '>')
+                                 .replace(/&lt;/g, '<')
+                                 .replace(/&amp;/g, '&')
+                                 .replace(/&quot;/g, '"')
+                                 .replace(/&#163;/g, '£')
+                                 .replace(/&#39;/g, '\'')
+                                 .replace(/&#10;/g, '\n');
+                      //replace html tags with one space
+                      data = data.replace(/<[^>]*>/g, ' ');
+                      //replace multiple spaces and tabs etc with one space
+                      return data.replace(/\s\s+/g, ' ');
+                  },
+              }
+              }   },
+              { extend: 'pdf', footer: true, header:true , orientation: 'landscape',exportOptions: {
+                format: {
+                  body: function ( data, row, column, node ) {
+                      //replace ampersands and other special chars
+                      data = data.replace(/&gt;/g, '>')
+                                 .replace(/&lt;/g, '<')
+                                 .replace(/&amp;/g, '&')
+                                 .replace(/&quot;/g, '"')
+                                 .replace(/&#163;/g, '£')
+                                 .replace(/&#39;/g, '\'')
+                                 .replace(/&#10;/g, '\n');
+                      //replace html tags with one space
+                      data = data.replace(/<[^>]*>/g, ' ');
+                      //replace multiple spaces and tabs etc with one space
+                      return data.replace(/\s\s+/g, ' ');
+                  },
+              }
+              }  },
+           
+              ]
+      },
+
+    ],
+
+    drawCallback: function () {
+
+
+      var api = this.api();
+      
+      var list = [1,2,3,4,5,6,7,8,9]
+    
+      list.forEach(item=>{
+        $( api.table().column(item).footer() ).html(
+            api.column( item, {page:'current'} ).nodes().sum()
+        );
+       
+    
+      })
+    
+    
+     
+    }
+ 
+ 
+
+    });
+
+document.querySelector('.dtsb-title').style.display = 'none'
+   })
+   $(function() {
+  var tableContainer = $(".table-responsive");
+  var table = $(".table-responsive table");
+  var fakeContainer = $(".large-table-fake-top-scroll-container-3");
+  var fakeDiv = $(".large-table-fake-top-scroll-container-3 div");
+
+  var tableWidth = table.width();
+  fakeDiv.width(tableWidth);
+
+  fakeContainer.scroll(function() {
+tableContainer.scrollLeft(fakeContainer.scrollLeft());
+  });
+})
+
+
+
+
+
+</script>
+
+{% endblock %}

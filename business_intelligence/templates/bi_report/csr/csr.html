@@ -1,0 +1,190 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+Job CSR List - 
+{% endblock %}
+{% block dashboard_heading %}
+<h5 class="h5 mb-0 text-gray-800">
+    CSR Report
+</h5>
+
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<div class="row ">
+ 
+    <div class="col-12">
+        
+       
+
+        <form method="post">
+            {% csrf_token %}
+          
+            <div class="row">
+
+                <div class="col-md-4 col-sm-12 mb-3"  id="choose_by_date">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12">
+                            <label for="from_date">From</label>
+                            <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control" id="from_date" >
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <label for="to_date">To</label>
+                            <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control" id="to_date" >
+                        </div>
+                    </div>
+                </div>
+
+              
+
+                <div class="col-md-3 col-sm-12 mb-3">
+                    <button type="submit" style="margin-top: 33px;" class=" btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<div class="table-responsive">
+
+  
+<table class="table compact table-bordered table-md-responsive table-primary" id="job_table">
+    <thead>
+      <tr>
+        <th scope="col">S.&nbsp;No.</th>
+        <th scope="col">Job&nbsp;No.</th>
+        <th scope="col">POL</th>
+        <th scope="col">POD</th>
+        <th scope="col">Shipper</th>
+        <th scope="col">Consignee</th>
+        <th scope="col">shipping&nbsp;line</th>
+        <th scope="col">No.&nbsp;of&nbsp;containers</th>
+        <th scope="col">Container&nbsp;Details</th>
+        <th scope="col">Sales&nbsp;Person</th>
+        
+     
+
+        
+      </tr>
+    </thead>
+    <tbody>
+      {% for data in jobs %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ data.job_no }}</td>
+        <td>{{ data.port_of_loading }}</td>
+        <td>{{ data.port_of_discharge }}</td>
+        <td>{{ data.shipper }}</td>
+        <td>{{ data.importer }}</td>
+        <td>{{ data.shipping_line.name }}</td>
+        <td>
+           
+                <a href="#"  data-toggle="modal" data-target="#job_contaier_count_modal{{ forloop.counter }}">
+                  {% if data.job_container.count > 1 %}
+                  {{data.job_container.count}} Containers
+                  {% else %}
+                  {{data.job_container.count}} Container
+                  {% endif %}
+                </a>
+            
+
+             <!-- Container Count Modal -->
+ <div class="modal fade" id="job_contaier_count_modal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="job_contaier_count_modal{{ forloop.counter }}Label" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h6 class="modal-title" id="job_contaier_count_modal{{ forloop.counter }}Label">View Container Count
+        </h6>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+          <table class="table compact display table-primary table-bordered">
+            <thead>
+              <tr>
+                <th>Container&nbsp;Type</th>
+                <th>Container&nbsp;Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in data.get_job_container_group %}
+              <tr>
+                <td>{{i.container_type}}</td>
+                <td>{{i.count}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          
+  
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+       
+        </div>
+    </div>
+    </div>
+  </div>
+  <!-- End of Container Count Modal -->
+
+        </td>
+        <td>
+          {% for i in data.get_job_container_group %}
+         <span><strong>{{i.container_type}} X </strong>{{i.count}}</span><br>
+         
+         
+          {% endfor %}
+        </td>
+        <td>{{ data.account_manager }}</td>
+
+       
+
+
+      
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+
+
+</div>
+
+
+{% endblock %}
+
+
+{% block js %}
+<script>
+  let table = new DataTable('#job_table', {
+    dom: 'BQlfrtip',
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+           
+        ]
+    },
+
+    ]
+
+});
+
+document.querySelector('.dtsb-title').style.display = 'none'
+
+
+
+</script>
+
+{% endblock %}

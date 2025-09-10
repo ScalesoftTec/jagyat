@@ -1,0 +1,343 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+Invoice Payable Details - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Invoice Payable List
+</h1>
+
+<div class="">
+
+    <a href="{% url 'accounting:create_invoice_payable' module=module %}" class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create New</a>
+    
+</div>
+
+
+
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<div class="">
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-2">
+                <label for="choose_company">Choose Branch</label>
+                <select name="choose_company" class="form-control form-control-sm" id="choose_company" >
+                    {% if choose_company == 'All' %}
+                    <option value="All" selected>All</option>
+                    {% else %}
+                    <option value="All">All</option>
+                    {% endif %}
+                    {% for data in global_companies %}
+                    {% if choose_company == data.id %}
+                    <option value="{{data.id}}" selected>{{data.company_name}}</option>
+                    {% else %}
+                    <option value="{{data.id}}">{{data.company_name}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+              </div>
+            <div class="col-2">
+                <label for="from_date">From Date</label>
+                <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="start_date">
+            </div>
+            <div class="col-2">
+                <label for="to_date">To Date</label>
+                <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="to_date">
+            </div>
+            <div class="col-2">
+                <button type="submit" class="btn btn-primary btn-sm mt-4">Filter</button>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+
+
+<div class="table-responsive">
+<table class="table compact table-primary table-bordered" id="invoice_table">
+    <thead>
+      <tr>
+
+        <th scope="col">Branch</th>
+        <th scope="col">Job&nbsp;No.</th>
+        <th scope="col">Invoice&nbsp;No.</th>
+        <th scope="col">Date</th>
+        <th scope="col">Party</th>
+        <th scope="col">Narration</th>
+        <th scope="col">Gross&nbsp;Amt</th>
+        <th scope="col">GST&nbsp;Amt</th>
+        <th scope="col">TDS&nbsp;Amt</th>
+        <th scope="col">Net&nbsp;Amt</th>
+        <th scope="col">Checked</th>
+        <th scope="col">Created By</th>
+        <th scope="col">Updated By</th>
+  
+        <th style="width: 100px;" scope="col">Actions</th>
+        <th scope="col">PDF</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in notes %}
+        {% if data.is_checked %}
+        <tr class="bg-success">
+          {% else %}
+        <tr>
+            {% endif %}
+            
+        <td>{{ data.company_type.branch_name }}</td>
+        <td>{{ data.job_no.job_no  }}</td>
+        <td>{{ data.purchase_invoice_no }}</td>
+        <td>{{ data.date_of_invoice|date:"Y-m-d" }}</td>
+        <td>
+            {% if data.party_type == "Direct" %}
+                {{ data.bill_from.party_name }}
+            {% else %}
+                {{ data.vendor.vendor_name }}
+            {% endif %}
+        </td>
+        <td>{{ data.remark_on_invoice }}</td>
+ 
+
+        <td align="right">{{ data.gross_amount|floatformat:2 }}</td>
+        <td align="right">{{ data.gst_amount|floatformat:2 }}</td>
+        <td align="right">{{ data.tds_payable|floatformat:2 }}</td>
+        <td align="right">{{ data.net_amount|floatformat:2 }}</td>
+        <td align="right">{{ data.is_checked}}</td>
+        <td align="right">{{ data.created_by}}</td>
+        <td align="right">{{ data.updated_by}}</td>
+        
+        <td>
+            
+            {% if  data.pay_payment_inv.count == 0 and not data.is_approved %}
+           
+            <a href="{% url 'accounting:invoice_payable_update' module=module id=data.id %}" class="btn btn-info btn-xs "><i class="fas fa-edit"></i></a>
+            
+            {% endif %}
+
+
+           
+            {% if request.user.user_account.can_approve %}
+                 <!-- Button trigger modal -->
+                <button type="button" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#approveModal{{ forloop.counter }}">
+                    <i class="bi bi-check2-square"></i>
+                </button>
+    
+                <!-- Modal -->
+                <div class="modal fade" id="approveModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="approveModal{{ forloop.counter }}Label" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h5 class="modal-title" id="approveModal{{ forloop.counter }}Label">Approve {{data.invoice_no}}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure want to approve {{ data.invoice_no }}?
+                            <form target="_blank" action="{% url 'accounting:approve_invoice_payable' module=module id=data.id %}" method="post">
+                                {% csrf_token %}
+                                <input type="text" name="verify_invoice_no" placeholder="Enter Invoice No." required class="form-control" />
+                                
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" >Submit</button>
+                            
+                            </div>
+                        </form>
+                    </div>
+                    </div>
+                </div>
+            {% endif %}
+   
+    {% if request.user.user_account.can_delete %}
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal{{ forloop.counter }}">
+            <i class="fas fa-trash"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.invoice_no}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                Are you sure want to delete {{ data.invoice_no }}?
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'accounting:invoice_payable_delete' module=module id=data.id  %}" class="btn btn-primary">Confirm Delete</a>
+                </div>
+            </div>
+            </div>
+        </div>
+        {% endif %}
+        {% comment %}
+            <!-- Button trigger modal -->
+        <button type="button" class="btn btn-xs btn-primary ml-1" data-toggle="modal" data-target="#adjustmentModal{{ forloop.counter }}">
+            <i class="fas fa-eye"></i>
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="adjustmentModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="adjustmentModal{{ forloop.counter }}Label" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="adjustmentModal{{ forloop.counter }}Label">Adjustment {{data.purchase_invoice_no}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="text-danger">Please note this adjustment box only for journally adjusted bills not for payment voucher bill wise adjustment</h6>
+                   <hr>
+                   <table class="table table-primary">
+                    <thead>
+                        <tr>
+                            <th>Instrument No.</th>
+                            <th>Paid Amount</th>
+                            <th>TDS Amount</th>
+                            <th>Adj. Amount</th>
+                            <th>Pending Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in  data.pay_payment_inv.all %}
+                        <tr>
+                            <td>{{ i.voucher.instrument_no }}</td>
+                            <td>{{ i.paid_amount }}</td>
+                            <td>{{ i.tds_amount }}</td>
+                            <td>{{ i.adjustment_amount }}</td>
+                            <td>{{ i.pending_amount }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                   </table>
+                   <hr>
+                    <h6>Invoice Net Amount - {{data.net_amount}}</h6>
+                    <h6>Invoice Pending Amount - {{data.pending_amount}}</h6>
+                    <hr>
+                    <form action="{% url 'accounting:invoice_payable_adjustment' module=module id=data.id %}" method="post">
+
+                        {% csrf_token %}
+                        {% if request.user.user_account.can_delete and data.pending_amount > 0 %}
+                        <div>
+                            <label for="adjusted_amount">Adjustment Amount</label>
+                            <input type="number" step="0.01" class="form-control form-control-sm" name="adjusted_amount" id="adjusted_amount" />
+                        </div>
+                        <div class="my-3">
+                            <input type="checkbox" required name="confirm" id="confirm"  />&nbsp;<label for="">I confirm and  want to settle (reduce pending amount) because it is journal adjusted above input amount against invoice - {{ data.purchase_invoice_no }}</label>
+                        </div>
+                        {% else %}
+                        <div>
+                            <label for="">Adjustment Amount</label>
+                            <input type="text"  disabled class="form-control form-control-sm" placeholder="Please check invoice pending amount or may you not authorised to perform this action" />
+                        </div>
+                        {% endif %}
+                       
+                    </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                {% if request.user.user_account.can_delete and data.pending_amount > 0 %}
+                <button type="submit" class="btn btn-primary" >Confirm</button>
+                
+                {% endif %}
+                </div>
+            </form>
+            </div>
+            </div>
+        </div>
+       
+        {% endcomment %}
+        
+        </td>
+        <td>
+        {% if data.invoice_file_1 %}
+          <a class="btn btn-xs btn-primary" href="{{ data.invoice_file_1.url }}" target="_blank"><i class="fas fa-file-pdf"></i>1</a>
+        {% endif %}
+        {% if data.invoice_file_2 %}
+          <a class="btn btn-xs btn-primary" href="{{ data.invoice_file_2.url }}" target="_blank"><i class="fas fa-file-pdf"></i>2</a>
+        {% endif %}
+        {% if data.invoice_file_3 %}
+          <a class="btn btn-xs btn-primary" href="{{ data.invoice_file_3.url }}" target="_blank"><i class="fas fa-file-pdf"></i>3</a>
+        {% endif %}
+        {% if data.invoice_file_4 %}
+          <a class="btn btn-xs btn-primary" href="{{ data.invoice_file_4.url }}" target="_blank"><i class="fas fa-file-pdf"></i>4</a>
+        {% endif %}
+        {% if data.invoice_file_5 %}
+          <a class="btn btn-xs btn-primary" href="{{ data.invoice_file_5.url }}" target="_blank"><i class="fas fa-file-pdf"></i>5</a>
+        {% endif %}
+        </td>
+      
+    
+      </tr>
+       
+
+      {% endfor %}
+     
+    </tbody>
+  </table>
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    var selected_ids = []
+    $(document).ready(function () {
+
+
+        let table = new DataTable('#invoice_table', {
+            // options
+            dom: 'BQlfrtip',
+            "columnDefs": [
+                { "type": "date", "targets": 3 },
+              
+            ],
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+            "pageLength": 50,
+            buttons: [
+            {
+                extend: 'collection',
+                text: 'Export',
+                buttons: [
+                    'copy',
+                    'excel',
+                    'csv',
+                    'pdf',
+                   
+                ]
+            },
+    
+            ]
+        });
+        document.querySelector('.dtsb-title').style.display = 'none'
+    })
+
+  
+   
+
+</script>
+
+{% endblock %}

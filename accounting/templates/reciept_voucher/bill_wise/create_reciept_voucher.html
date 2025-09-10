@@ -1,0 +1,743 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+{% if update %}
+Update Bill Wise Reciept Voucher - 
+{% else %}
+Create Bill Wise Reciept Voucher - 
+{% endif %}
+{% endblock %}
+
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    {% if update %}
+        Update Bill Wise Reciept Voucher
+        {% else %}
+        Create New Bill Wise Reciept Voucher
+        {% endif %}
+</h1>
+
+<style>
+    table th, table td{
+        padding: 0!important;
+    }
+</style>
+
+<a href="{% url 'accounting:bill_wise_reciept_voucher_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+
+    <form enctype="multipart/form-data" method="post" autocomplete="off" onsubmit="return checkValidations();">
+        {% csrf_token %}
+        
+        {% include 'error_component.html' %}
+        <div class="row">
+
+            <div class="col-md-12 col-sm-12 mb-1">
+                {{ form.rounded_off }}
+                <label class="required" for="id_rounded_off">Round Off</label>
+            </div>
+           
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_company_type">Company</label>
+                {{ form.company_type }}
+            </div>
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_voucher_date">Date</label>
+                {{ form.voucher_date }}
+            </div>
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_party_name">Choose Party</label>
+                {{ form.party_name }}
+            </div>
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_party_address">Choose Party Address</label>
+                {{ form.party_address }}
+            </div>
+            
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_settle_from">Settle From</label>
+                {{ form.settle_from }}
+            </div>
+
+            <div class="col-12 row" id="voucher_row" style="display: none;">
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_to_bank">Voucher</label>
+                {{ form.voucher }}
+            </div>
+        </div>
+
+        <div class="col-12 row" id="bank_row" style="display: none;">
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_instrument_no">Instrument No</label>
+                {{ form.instrument_no }}
+            </div>
+            
+            
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_to_bank">To Bank</label>
+                {{ form.to_bank }}
+            </div>
+            
+
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_received_amount_date">Recieved Amount Date</label>
+                {{ form.received_amount_date }}
+            </div>
+        </div>
+
+           <div class="col-12 mb-2">
+            <div class="row">
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label class="required" for="id_received_amount">Recieved Amount</label>
+                    {{ form.received_amount }}
+                </div>
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label class="required" for="id_round_off_amount">Round Off Amount</label>
+                    {{ form.round_off_amount }}
+                </div>
+          
+          
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label class="required" for="calculated_recieved_amount">Bank Amount</label>
+                    <input type="text" class="form-control" disabled id="calculated_recieved_amount">
+                </div>
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label class="required" for="id_reciept_tds_amount">TDS Amount</label>
+                    {{ form.reciept_tds_amount }}
+                </div>
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label class="required" for="id_adjustment_amount">Adjusted Amount</label>
+                    {{ form.adjustment_amount }}
+                </div>
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label class="required" for="id_net_amount">Net Recieved Amount</label>
+                    {{ form.net_amount }}
+                </div>
+               
+            </div>
+           </div>
+          
+            
+            <input type="hidden" name="invoice-heads-total" id="invoice-heads-total" value="0">
+           
+    
+            <div class="col-12">
+                <table id="invoice_heads" class="table table-bordered">
+                    
+                    
+    
+                </table>
+    
+              
+    
+            </div>
+           
+          
+            <div class="col-md-12 col-sm-12 mb-1">
+                <label for="id_narration">Narration</label>
+                {{ form.narration }}
+            </div>
+
+            <div class="col-12">
+                <input type="checkbox" id="cofirm_signal" onchange="checkConfirmation()" onkeyup="checkConfirmation()" />
+                <label for="confirm_signal">I confirm above balances and figures are correct and ready for create/update.</label>
+            </div>
+
+        </div>
+
+        <button type="submit" class="btn btn-primary"  id="submit-btn" disabled>
+        {% if update %}
+        Update Bill Wise Reciept Voucher
+        {% else %}
+        Create New Bill Wise Reciept Voucher
+        {% endif %}
+        
+        </button>
+
+        {% if update %}
+        <input type="hidden" id="is_update" value="true">
+    
+        {% else %}
+        <input type="hidden" id="is_update" value="false">
+        {% endif %}
+        <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+        <input type="hidden" id="user_back_permission" value="{{ request.user.user_account.can_backlog }}">
+    
+    </form>
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+    if(document.getElementById('user_back_permission').value == "False"){
+        setDateLimit(3,document.getElementById('id_voucher_date'))
+    }
+
+     var submit_btn_type= document.getElementById('submit-btn')
+    submit_btn_type.disabled=true
+    const checkConfirmation = () => {
+        var confirm_box = document.getElementById('cofirm_signal').checked
+        if(confirm_box){
+            submit_btn_type.disabled = false
+            var status = confirm("Are you sure to create/update this entry.")
+            if(!status.valueOf()){
+                document.getElementById('cofirm_signal').checked = false
+                submit_btn_type.disabled = true
+            }
+        }
+        else{
+            submit_btn_type.disabled = true
+        }
+    }
+</script>
+
+
+<script>
+    var currentRowNumber = 0
+    var availableRowNumber = 0
+    var totalRecievedAmount = parseFloat(document.getElementById('id_received_amount').value) || 0
+    var totalAdvanceAmount =   0
+    var totalRoundOffAmount =   0
+    function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for(i = L; i >= 0; i--) {
+           selectElement.remove(i);
+        }
+        }
+
+        var decimalRoundOffValue = 0
+    const handleRoundOff = () => {
+        const rounded_off = document.getElementById('id_rounded_off').checked
+        if(rounded_off){
+            decimalRoundOffValue = 0
+        }else{
+            decimalRoundOffValue = 2
+        }
+        if(currentRowNumber > 0){
+            getPartyInvoices()
+        }
+    }
+    document.getElementById('id_rounded_off').addEventListener('click',handleRoundOff)
+    document.getElementById('id_rounded_off').addEventListener('change',handleRoundOff)
+
+
+    var advance_amounts_party = []
+    const getPartyAdvanceAmounts = async() => {
+        try{
+
+            const party = document.getElementById('id_party_name').value
+            const party_address = document.getElementById('id_party_address').value
+            const res = await axios.get(`/api/v1/rv/party/advance-details?party_name=${party}&party_address=${party_address}`)
+         
+            advance_amounts_party = res.data
+  
+            const select = document.getElementById('id_voucher'); 
+                removeOptions(select);
+                select.innerHTML = ''
+                select.required = true
+                var newOption = new Option("Choose Voucher","")
+                select.add(newOption);
+                
+                res.data.map(item=>{
+                    if(item.advance_amount > 0){
+                        option_name = `${item.voucher_no} (${item.instrument_no})`
+                        var newOption = new Option(option_name,item.id)
+                        
+                        select.add(newOption);
+                    }
+                })
+
+        }catch(err){
+
+        }
+
+    }
+    document.getElementById('id_party_address').addEventListener('change',getPartyAdvanceAmounts)
+    document.getElementById('id_party_address').addEventListener('keyup',getPartyAdvanceAmounts)
+    document.getElementById('id_party_name').addEventListener('change',getPartyAdvanceAmounts)
+    document.getElementById('id_party_name').addEventListener('keyup',getPartyAdvanceAmounts)
+    const resetInvoices = () => {
+        for(var i=0; i<currentRowNumber; i++){
+            document.getElementById(`received_amount_${i}`).value = 0
+           
+            document.getElementById(`tds_amount_${i}`).value = 0
+            document.getElementById(`tds_amount_${i}`).readOnly =false
+            document.getElementById(`adjustment_amount_${i}`).value = 0
+            document.getElementById(`adjustment_amount_${i}`).readOnly =false
+        }
+    }
+    const handleRVSettleFrom = () => {
+        var settle_from = document.getElementById('id_settle_from').value
+        var bank_row = document.getElementById('bank_row')
+        var voucher_row = document.getElementById('voucher_row')
+        if(settle_from == 'BANK'){
+            bank_row.style.display = 'flex'
+            voucher_row.style.display = 'none'
+            totalRecievedAmount = 0
+            document.getElementById('id_received_amount').value = 0
+          
+            document.getElementById('id_instrument_no').required = true
+            document.getElementById('id_to_bank').required = true
+            document.getElementById('id_received_amount_date').required = true
+            document.getElementById('id_voucher').required = false
+            
+            resetInvoices()
+        }
+        
+        if(settle_from == "ADVANCE"){
+            bank_row.style.display = 'none'
+            voucher_row.style.display = 'flex'
+            totalRecievedAmount = 0
+            document.getElementById('id_received_amount').value = 0
+            document.getElementById('id_received_amount').readOnly = false
+ 
+            resetInvoices()
+            document.getElementById('id_instrument_no').required = false
+            document.getElementById('id_to_bank').required = false
+            document.getElementById('id_received_amount_date').required = false
+            document.getElementById('id_voucher').required = true
+        }
+    }
+
+    const handleVoucherSelection = () => {
+        var voucher = document.getElementById('id_voucher').value
+        var selected_voucher =  advance_amounts_party.filter(item=>item.id==voucher)
+        selected_voucher = selected_voucher[0]
+        totalRecievedAmount = selected_voucher.advance_amount
+        document.getElementById('id_received_amount').value = selected_voucher.advance_amount
+        document.getElementById('id_received_amount').max = selected_voucher.advance_amount
+       
+        
+    }
+
+
+    document.getElementById('id_voucher').addEventListener('change',handleVoucherSelection)
+    document.getElementById('id_voucher').addEventListener('keyup',handleVoucherSelection)
+
+    document.getElementById('id_settle_from').addEventListener('change',handleRVSettleFrom)
+    document.getElementById('id_settle_from').addEventListener('keyup',handleRVSettleFrom)
+
+    if(document.getElementById('submit-btn').innerText != 'Update Reciept Voucher'){
+        document.getElementById('id_received_amount').value = ''
+    }
+
+
+    document.getElementById('id_reciept_tds_amount').readOnly = true
+    document.getElementById('id_adjustment_amount').readOnly = true
+    document.getElementById('id_net_amount').readOnly = true
+
+    
+ 
+
+    var invoices_received_amount = 0
+    document.getElementById('id_received_amount').addEventListener('keyup',()=>{
+        try{
+
+            totalRecievedAmount = parseFloat(document.getElementById('id_received_amount').value)
+           
+        }catch(err){
+            totalRecievedAmount = 0
+        }
+    })
+    var round_off_amount = 0
+    document.getElementById('id_round_off_amount').addEventListener('keyup',()=>{
+        try{
+
+            totalRoundOffAmount = parseFloat(document.getElementById('id_round_off_amount').value)
+           
+        }catch(err){
+            totalRoundOffAmount = 0
+        }
+    })
+    
+    
+  
+    const billingsContent = document.getElementById('invoice_heads');
+
+
+    const checkRecievedAmountInvoiceSettlement = (index) => {
+            var pending_amount = parseFloat(parseFloat(document.getElementById(`pending_amount_${index}`).value).toFixed(2))
+            var received_amount = document.getElementById('received_amount_'+index)
+            var tds_amount = document.getElementById('tds_amount_'+index)
+            var adjustment_amount = document.getElementById('adjustment_amount_'+index)
+            var calculated_amount = 0
+            if (!isNaN((parseFloat(received_amount.value)))) {
+                calculated_amount += parseFloat(received_amount.value)
+            }
+            if (!isNaN((parseFloat(tds_amount.value)))) {
+                calculated_amount += parseFloat(tds_amount.value)
+            }
+            if (!isNaN((parseFloat(adjustment_amount.value)))) {
+                calculated_amount += parseFloat(adjustment_amount.value)
+            }
+            if(calculated_amount > pending_amount){
+                
+                Snackbar.show({ text: `Please Check Invoice At Index ${index+1} Again.`, pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+            }
+            if(calculated_amount == pending_amount){
+                tds_amount.readOnly = true
+                adjustment_amount.readOnly = true
+            }else{
+                tds_amount.readOnly = false
+                adjustment_amount.readOnly = false
+            }
+        }
+        
+        const checkTdsAmountInvoiceSettlement = (index) => {
+            var pending_amount = parseFloat(parseFloat(document.getElementById(`pending_amount_${index}`).value).toFixed(2))
+            var received_amount = document.getElementById('received_amount_'+index)
+            var tds_amount = document.getElementById('tds_amount_'+index)
+            var adjustment_amount = document.getElementById('adjustment_amount_'+index)
+            var calculated_amount = 0
+            if (!isNaN((parseFloat(received_amount.value)))) {
+                calculated_amount += parseFloat(received_amount.value)
+            }
+            if (!isNaN((parseFloat(tds_amount.value)))) {
+                calculated_amount += parseFloat(tds_amount.value)
+            }
+            if (!isNaN((parseFloat(adjustment_amount.value)))) {
+                calculated_amount += parseFloat(adjustment_amount.value)
+            }
+            if(calculated_amount > pending_amount){
+                
+                Snackbar.show({ text: `Please Check Invoice At Index ${index+1} Again.`, pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+            }
+            if(calculated_amount == pending_amount){
+                received_amount.readOnly = true
+                adjustment_amount.readOnly = true
+            }
+            else{
+                received_amount.readOnly = false
+                adjustment_amount.readOnly = false
+
+            }
+        }
+       
+        const checkAdjustmentAmountInvoiceSettlement = (index) => {
+            var pending_amount = parseFloat(parseFloat(document.getElementById(`pending_amount_${index}`).value).toFixed(2))
+            var received_amount = document.getElementById('received_amount_'+index)
+            var tds_amount = document.getElementById('tds_amount_'+index)
+            var adjustment_amount = document.getElementById('adjustment_amount_'+index)
+            var calculated_amount = 0
+            if (!isNaN((parseFloat(received_amount.value)))) {
+                calculated_amount += parseFloat(received_amount.value)
+            }
+            if (!isNaN((parseFloat(tds_amount.value)))) {
+                calculated_amount += parseFloat(tds_amount.value)
+            }
+            if (!isNaN((parseFloat(adjustment_amount.value)))) {
+                calculated_amount += parseFloat(adjustment_amount.value)
+            }
+            if(calculated_amount > pending_amount){
+                
+                Snackbar.show({ text: `Please Check Invoice At Index ${index+1} Again.`, pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+            }
+            if(calculated_amount == pending_amount){
+                received_amount.readOnly = true
+                tds_amount.readOnly = true
+            }
+            else{
+                received_amount.readOnly = false
+                tds_amount.readOnly = false
+            }
+        }
+        
+    const getPartyInvoices = async() => {
+        const company = document.getElementById('id_company_type').value
+        const party = document.getElementById('id_party_name').value
+       
+        if(party){
+           
+            var invoices = await axios.get(`/api/v1/invoice/details?bill_to=${party}&company_type=${company}&is_single=true`)
+           
+         
+        invoices = invoices.data
+        billingsContent.innerHTML = ''
+        document.getElementById('invoice-heads-total').value = invoices.length
+        currentRowNumber = invoices.length
+        var newRow = document.getElementById('invoice_heads').insertRow(-1)
+        newRow.id = `entry-${currentRowNumber}`
+        newRow.classList.add("entry")
+        var invoice = newRow.insertCell(0)
+        var invoice_date = newRow.insertCell(1)
+        var invoice_net_amount = newRow.insertCell(2)
+        var invoice_pending_amount = newRow.insertCell(3)
+        var invoice_receivce_amount = newRow.insertCell(4)
+        
+        var invoice_tds_amount = newRow.insertCell(5)
+        var invoice_adjustment_amount = newRow.insertCell(6)
+        invoice.innerHTML = `
+        Invoice No
+        `
+        invoice_date.innerHTML = `
+        Invoice Date
+        `
+        invoice_net_amount.innerHTML = `
+        Net Amount
+        `
+        invoice_pending_amount.innerHTML = `
+        Pending Amount
+        `
+        invoice_receivce_amount.innerHTML = `
+        Rec. Amount
+        `
+        invoice_adjustment_amount.innerHTML = `
+        Adjust Amount
+        `
+        invoice_tds_amount.innerHTML = `
+        TDS Amount
+        `
+      
+
+
+        for(var i = 1; i<=invoices.length; i++){
+            var j = i-1
+           
+            var newRow = document.getElementById('invoice_heads').insertRow(-1)
+            newRow.id = `entry-${currentRowNumber}`
+            newRow.classList.add("entry")
+            var invoice = newRow.insertCell(0)
+            var invoice_date = newRow.insertCell(1)
+            var invoice_net_amount = newRow.insertCell(2)
+            var invoice_pending_amount = newRow.insertCell(3)
+            var invoice_receivce_amount = newRow.insertCell(4)
+            var invoice_tds_amount = newRow.insertCell(5)
+            var invoice_adjustment_amount = newRow.insertCell(6)
+
+            
+
+            invoice.innerHTML = `
+            <input type="hidden" name="isActive_${j}" value="1" id="isActive_${j}">
+            <input type="hidden" class="form-control" value="${invoices[j].id}" name="invoice_id_${j}" />
+            <input  type="text" class="form-control" value="${invoices[j].final_invoice_no ? invoices[j].final_invoice_no : invoices[j].invoice_no}" disabled name="invoice_${j}" id="invoice_${j}" />
+            `
+            invoice_date.innerHTML = `
+            <input type="date" class="form-control" value="${invoices[j].date_of_invoice}" disabled name="invoice_date_${j}" id="invoice_date_${j}" />
+            `
+            invoice_net_amount.innerHTML = `
+            <input required type="text" name="net_amount_${j}" value="${parseFloat(parseFloat(invoices[j].net_amount).toFixed(decimalRoundOffValue)).toFixed(2)}" disabled id="net_amount_${j}" class="form-control">
+            `
+            invoice_pending_amount.innerHTML = `
+            <input required type="text" name="pending_amount_${j}" value="${parseFloat(parseFloat(invoices[j].pending_amount).toFixed(decimalRoundOffValue)).toFixed(2)}" disabled id="pending_amount_${j}" class="form-control">
+            `
+            invoice_receivce_amount.innerHTML = `
+            <input  type="number" step="0.01" value="0" name="received_amount_${j}" id="received_amount_${j}" onkeyup="checkAmountValidations(${j});  calculateTDSInvoiceWise(${j}); checkAmountSettlements(); checkRecievedAmountInvoiceSettlement(${j}); calculateRecievedInvoiceWise(); " class="form-control">
+            `
+
+            invoice_adjustment_amount.innerHTML = `
+            <input  type="number" step="0.001" value="0" name="adjustment_amount_${j}" id="adjustment_amount_${j}" onkeyup="calculateAdjustInvoiceWise(); checkAmountSettlements(); checkAdjustmentAmountInvoiceSettlement(${j})" class="form-control">
+            `
+
+            invoice_tds_amount.innerHTML = `
+            <input  type="number" step="0.001" value="0" name="tds_amount_${j}" id="tds_amount_${j}" onkeyup="checkAmountValidations(${j}); checkAmountSettlements(); checkTdsAmountInvoiceSettlement(${j})" class="form-control">
+            `
+      
+        }
+  
+  
+    }
+    }
+   
+    document.getElementById('id_party_name').addEventListener('change',getPartyInvoices)
+    document.getElementById('id_party_name').addEventListener('keyup',getPartyInvoices)
+   
+    document.getElementById('id_company_type').addEventListener('change',getPartyInvoices)
+    document.getElementById('id_company_type').addEventListener('keyup',getPartyInvoices)
+    
+    document.getElementById('id_party_name').required = true
+  
+
+    try{
+        if(document.getElementById('id_party_name').value  ){
+            getPartyInvoices()
+        }
+    }catch(err){
+
+    }
+
+    const calculateRecievedInvoiceWise = () => {
+            var rec_amount = 0
+            for(var i=0; i<currentRowNumber; i++){
+                if (!isNaN((parseFloat(document.getElementById(`received_amount_${i}`).value)))) {
+                    rec_amount += parseFloat(document.getElementById(`received_amount_${i}`).value)
+                } 
+            }
+            rec_amount = parseFloat(rec_amount.toFixed(2))
+
+            document.getElementById('calculated_recieved_amount').value = rec_amount
+    }
+    const calculateAdjustInvoiceWise = () => {
+            var adjustment_amount = 0
+            for(var i=0; i<currentRowNumber; i++){
+                if (!isNaN((parseFloat(document.getElementById(`adjustment_amount_${i}`).value)))) {
+                    adjustment_amount += parseFloat(document.getElementById(`adjustment_amount_${i}`).value)
+                } 
+            }
+
+            adjustment_amount = parseFloat(adjustment_amount.toFixed(2))
+            document.getElementById('id_adjustment_amount').value = adjustment_amount
+    }
+
+    const calculateTDSInvoiceWise = (index) => {
+            var tds_amount = 0
+            for(var i=0; i<currentRowNumber; i++){
+                if (!isNaN((parseFloat(document.getElementById(`tds_amount_${i}`).value)))) {
+                    tds_amount += parseFloat(document.getElementById(`tds_amount_${i}`).value)
+                }
+            }
+            tds_amount = parseFloat(tds_amount.toFixed(2))
+            document.getElementById('id_reciept_tds_amount').value = tds_amount
+    }
+
+    const checkAmountSettlements = () => {
+        var received_amount = 0
+        var tds_amount = 0
+        var adjust_amount = 0
+        for(var i=0; i<currentRowNumber; i++){
+            if (!isNaN((parseFloat(document.getElementById(`received_amount_${i}`).value)))) {
+                received_amount += parseFloat(document.getElementById(`received_amount_${i}`).value)
+            }
+            if (!isNaN((parseFloat(document.getElementById(`tds_amount_${i}`).value)))) {
+                tds_amount += parseFloat(document.getElementById(`tds_amount_${i}`).value)
+            }
+            if (!isNaN((parseFloat(document.getElementById(`adjustment_amount_${i}`).value)))) {
+                adjust_amount += parseFloat(document.getElementById(`adjustment_amount_${i}`).value)
+            }
+           
+        }
+
+        received_amount = parseFloat(received_amount.toFixed(2))
+        adjust_amount = parseFloat(adjust_amount.toFixed(2))
+        tds_amount = parseFloat(tds_amount.toFixed(2))
+
+
+        const id_net_amount = document.getElementById('id_net_amount')
+        received_amount +=  totalRoundOffAmount
+        var net_calculated_amount = received_amount + tds_amount + adjust_amount 
+        net_calculated_amount = parseFloat(net_calculated_amount.toFixed(2))
+        id_net_amount.value = parseFloat(net_calculated_amount.toFixed(2))
+        if (received_amount < totalRecievedAmount) {
+           
+            
+        }
+        if (received_amount > totalRecievedAmount ) {
+            Snackbar.show({ text: 'Please fill correct recieved amount.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+            
+        }
+        if (received_amount == totalRecievedAmount && net_calculated_amount == id_net_amount.value) {
+            document.getElementById('submit-btn').disabled = false
+        }
+        if (net_calculated_amount > id_net_amount.value) {
+            Snackbar.show({ text: 'Net amount is lower.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+
+            
+        }
+        if (net_calculated_amount < id_net_amount.value  ) {
+            
+        }
+    }
+
+    const checkAmountValidations = (index) => {
+        var received_amount = 0
+        var tds_amount = 0
+        var amount_rec = parseFloat(document.getElementById(`received_amount_${index}`).value)
+        var amount_pending =parseFloat(parseFloat(document.getElementById(`pending_amount_${index}`).value).toFixed(2))
+
+        for(var i=0; i<currentRowNumber; i++){
+            if (!isNaN((parseFloat(document.getElementById(`received_amount_${i}`).value)))) {
+                received_amount += parseFloat(document.getElementById(`received_amount_${i}`).value)
+            }
+            if (!isNaN((parseFloat(document.getElementById(`tds_amount_${i}`).value)))) {
+                
+                tds_amount += parseFloat(document.getElementById(`tds_amount_${i}`).value)
+            }
+        }
+
+        document.getElementById('id_reciept_tds_amount').value = tds_amount
+        
+        invoices_received_amount = received_amount
+
+      
+        if (amount_rec > amount_pending) {
+            Snackbar.show({ text: 'Pending Amount is Less Than You Entered.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+        }
+      
+    }
+ 
+    const checkValidations = () => {
+        var ir_amt = parseFloat(invoices_received_amount.toFixed(2))
+        var ttir_amt = parseFloat(totalRecievedAmount.toFixed(2))
+        if (currentRowNumber == 0 || (ir_amt > ttir_amt) ) {
+            Snackbar.show({ text: 'Please Check Form Again.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+            event.preventDefault();
+            return false
+        }
+    }
+
+</script>
+
+
+<script>
+    
+        async function getOnlyPartyAdress(id,address_id){
+            try{
+                
+                if(!id){
+                    return
+                }
+
+                if (id){
+
+                    var adresses = await axios.get('/api/v1/party/details?party='+id)
+                    adresses = adresses.data
+                    const select = document.getElementById(address_id); 
+                    if(is_update == 'true'){
+                        var value = select.value
+                    }
+                    else{
+                        var  value = 0
+                    }
+                    //removeOptions(select);
+                    select.innerHTML = ''
+                    select.required = true
+                    var newOption = new Option("Choose Address","")
+                    select.add(newOption);
+                    
+                    adresses.map(item=>{
+                        var newOption = new Option(item.branch,item.id)
+                        if(item.id == value || adresses.length == 1){
+                            newOption.selected = true
+                        }
+                        select.add(newOption);
+                    })
+                    
+                }
+            }catch(err){
+                
+            }
+          }
+    
+          var is_update = document.getElementById('is_update').value
+     
+         
+          try{
+              getOnlyPartyAdress(document.getElementById('id_party_name').value,'id_party_address');
+          }catch(err){
+
+          }
+
+          document.getElementById('id_party_name').addEventListener('keyup',()=>getOnlyPartyAdress(document.getElementById('id_party_name').value,'id_party_address'))
+          document.getElementById('id_party_name').addEventListener('change',()=>getOnlyPartyAdress(document.getElementById('id_party_name').value,'id_party_address'))
+
+    
+</script>
+
+{% endblock %}

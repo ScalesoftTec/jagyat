@@ -1,0 +1,135 @@
+<div  class="tab-pane fade" id="job_vessel" role="tabpanel" aria-labelledby="job_vessel-tab">
+    <div class="row">
+        {% if module == 'sea_export' or module == 'sea_import' %}
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_vessel_voy_name">Vessel Voyage</label>
+            {{ form.vessel_voy_name }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_vessel_voy_date">Vessel Voyage Date</label>
+            {{ form.vessel_voy_date }}
+        </div>
+        {% elif module == 'air_export' or module == 'air_import' %}
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_flight_no">Flight No</label>
+            {{ form.flight_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_flight_date">Flight Date</label>
+            {{ form.flight_date }}
+        </div>
+        {% endif %}
+
+        <div class="col-md-3 col-sm-12 mb-1">
+    
+            <label for="id_via_no">VIA No.</label>
+            {{ form.via_no }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+    
+            <label for="id_rotation_no">Rotation No.</label>
+            {{ form.rotation_no }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+    
+            <label for="id_gate_open_date">Gate Open</label>
+            {{ form.gate_open_date }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+    
+            <label for="id_gate_cutoff_date">Gate Cut Off</label>
+            {{ form.gate_cutoff_date }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_eta_date">ETA Date</label>
+            {{ form.eta_date }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_etd_date">ETD Date</label>
+            {{ form.etd_date }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_si_cut_off_date"> SI Cut Off</label>
+            {{ form.si_cut_off_date }}
+        </div>
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_document_cutoff_date">Document Cut Off</label>
+            {{ form.document_cutoff_date }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_vgm_cut_off_date">VGM Cut Off</label>
+            {{ form.vgm_cut_off_date }}
+        </div>
+
+
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_form13_cutoff_date">Form 13 Cut Off</label>
+            {{ form.form13_cutoff_date }}
+        </div>
+        
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_sob_date">SOB</label>
+            {{ form.sob_date }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_actual_arrival_pod_date">POD Arrival</label>
+            {{ form.actual_arrival_pod_date }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_fpod_date">FPOD Arrival</label>
+            {{ form.fpod_date }}
+        </div>
+
+        <div class="col-12">
+            <table class="table table-bordered compact display">
+                <tr>
+                    <th colspan="4" align="center">Trans Shipment 1</th>
+                </tr>
+                <tr>
+                    <th>ETA</th>
+                    <th>Vessel</th>
+                    <th>Country</th>
+                    <th>ETD</th>
+                </tr>
+                <tr>
+                    <td>{{form.transipment1_eta}}</td>
+                    <td>{{form.transipment1_vessel}}</td>
+                    <td>{{form.transipment1_country}}</td>
+                    <td>{{form.transipment1_etd}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="col-12">
+            <table class="table table-bordered compact display">
+                <tr>
+                    <th colspan="4" align="center">Trans Shipment 2</th>
+                </tr>
+                <tr>
+                    <th>ETA</th>
+                    <th>Vessel</th>
+                    <th>Country</th>
+                    <th>ETD</th>
+                </tr>
+                <tr>
+                    <td>{{form.transipment2_eta}}</td>
+                    <td>{{form.transipment2_vessel}}</td>
+                    <td>{{form.transipment2_country}}</td>
+                    <td>{{form.transipment2_etd}}</td>
+                </tr>
+            </table>
+        </div>
+        
+
+    </div>
+</div>

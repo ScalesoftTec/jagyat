@@ -1,0 +1,149 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+Job List - 
+{% endblock %}
+{% block dashboard_heading %}
+<h5 class="h5 mb-0 text-gray-800">
+    Jobs Lists
+</h5>
+
+<a href="{% url 'operations:create_job' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Job</a>
+
+
+{% endblock %}
+
+{% block css %}
+<style>
+
+
+    .large-table-container-3 {
+    max-width: 100vw;
+    overflow-x: scroll;
+    overflow-y: auto;
+    }
+   
+    .large-table-fake-top-scroll-container-3 {
+    max-width: 100vw;
+    overflow-x: scroll;
+    overflow-y: auto;
+    }
+    .large-table-fake-top-scroll-container-3 div {
+    
+    font-size:1px;
+    line-height:1px;
+    }
+
+
+</style>
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+
+
+<div class="row ">
+ 
+    <div class="col-12">
+    
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="choose_option" value="month" id="choose_option">
+            <div class="row">
+
+                <div class="col-md-4 col-sm-12 mb-3"  id="choose_by_date">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12">
+                            <label for="from_date">From</label>
+                            <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control" id="from_date" >
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <label for="to_date">To</label>
+                            <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control" id="to_date" >
+                        </div>
+                    </div>
+                </div>
+
+             
+
+                <div class="col-md-3 col-sm-12 mb-3">
+                    <button type="submit" style="margin-top: 33px;" class=" btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<div class="large-table-fake-top-scroll-container-3">
+    <div>&nbsp;</div>
+  </div>
+
+<div class="table-responsive">
+
+    
+    
+ {% if module == "sea_export" or module == "air_export" or  module == "sea_import" or module == "air_import" %}
+ {% include 'job/export_job_list.html' %}
+{% endif %}
+    
+
+ {% if module == "transportation" %}
+ {% include 'job/transport_job_list.html' %}
+{% endif %}
+</div>
+
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+  let table = new DataTable('#job_table', {
+   
+    dom: 'BQlfrtip',
+    // scrollX: true,
+    // scrollY: 200,
+    // scrollY: '100vh',
+    "pageLength": 50,
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+           
+        ]
+        
+    },
+
+    ]
+
+});
+
+document.querySelector('.dtsb-title').style.display = 'none'
+
+
+
+$(function() {
+  var tableContainer = $(".table-responsive");
+  var table = $(".table-responsive table");
+  var fakeContainer = $(".large-table-fake-top-scroll-container-3");
+  var fakeDiv = $(".large-table-fake-top-scroll-container-3 div");
+
+  var tableWidth = table.width();
+  fakeDiv.width(tableWidth);
+
+  fakeContainer.scroll(function() {
+tableContainer.scrollLeft(fakeContainer.scrollLeft());
+  });
+})
+
+</script>
+
+{% endblock %}

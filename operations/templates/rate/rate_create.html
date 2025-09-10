@@ -1,0 +1,344 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+Rate Master |
+{% endblock %}
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Rate
+    {% else %}
+    Create New Rate
+    {% endif %}
+
+    <style>
+        table th, table td{
+            padding: 0px!important;
+        }
+    </style>
+
+</h1>
+
+<a href="{% url 'operations:rate_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_carrier">Carrier</label>
+            {{ form.carrier }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_ac_type">A/C</label>
+            {{ form.ac_type }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_size">Size</label>
+            {{ form.size }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_pol">POL</label>
+            {{ form.pol }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_pod">POD</label>
+            {{ form.pod }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_fpd">FPD</label>
+            {{ form.fpd }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_from_date">Effect From</label>
+            {{ form.from_date }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_to_date">Valid To</label>
+            {{ form.to_date }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_ammendment">Amm</label>
+            {{ form.ammendment }}
+        </div>
+
+        <div class="col-12 table-responsive">
+            {% if not update or data.rate_details.all|length == 0 %}
+            <input type="hidden" name="rate_head_total" value="1"  id="rate_head_total" />
+            {% else %}
+            <input type="hidden" name="rate_head_total" value="{{ data.rate_details.all|length }}"  id="rate_head_total" />
+            {% endif %}
+
+            <table class="table table-bordered" id="rate_head">
+                <tr>
+                    <th>Bill Head</th>
+                    <th>Type</th>
+                    <th>Rate</th>
+                    <th>Total</th>
+                    <th></th>
+                </tr>
+                {% if not update or data.rate_details.all|length == 0 %}
+                <tr id="entry-1">
+                    <td>
+                        <input type="hidden" name="active-1" id="active-1" value="yes" />
+                        <select required name="bill_head-1" id="bill_head-1" class="form-control">
+                            <option value="" selected hidden disabled>Choose Bill Head</option>
+                            {% for i in global_billing_head %}
+                            <option value="{{i.id}}">{{i.billing_head}}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select onchange="calculateHeads()" onkeyup="calculateHeads()" required name="type-1" id="type-1" class="form-control">
+                            <option value="" selected disabled hidden>Choose Type</option>
+                            <option value="BASIC">BASIC</option>
+                            <option value="RAMP">RAMP</option>
+                            <option value="OTH">OTH</option>
+                            <option value="LINE-DOOR">LINE-DOOR</option>
+                            <option value="TRUCKING">TRUCKING</option>
+                        </select>
+                    </td>
+                    <td><input type="number"  onkeyup="calculateHeads()" step="0.01" name="rate-1" id="rate-1" required class="form-control"></td>
+                    <td><input type="number" readonly step="0.01" name="total-1" id="total-1" required class="form-control"></td>
+                    <td><button type="button" onclick="deleteRow(1)" class="btn btn-close btn-outline-danger btn-sm"><i class="bi bi-x-lg"></i></button></td>
+                </tr>
+                {% else %}
+                {% for head in  data.rate_details.all %}
+                <tr id="entry-{{forloop.counter}}">
+                    <td>
+                        <input type="hidden" name="active-{{forloop.counter}}" id="active-{{forloop.counter}}" value="yes" />
+                        <select required name="bill_head-{{forloop.counter}}" id="bill_head-{{forloop.counter}}" class="form-control">
+                          
+                            {% for i in global_billing_head %}
+                            {% if i.id == head.billing_head.id %}
+                            <option value="{{i.id}}" selected>{{i.billing_head}}</option>
+                            {% else %}
+                            <option value="{{i.id}}">{{i.billing_head}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select onchange="calculateHeads()" onkeyup="calculateHeads()" required name="type-{{forloop.counter}}" id="type-{{forloop.counter}}" class="form-control">
+                            <option value="" selected disabled hidden>Choose Type</option>
+                            {% if head.bh_type == "BASIC" %}
+                            <option value="BASIC" selected>BASIC</option>
+                            {% else %}
+                            <option value="BASIC">BASIC</option>
+                            {% endif %}
+                            
+                            {% if head.bh_type == "RAMP" %}
+                            <option value="RAMP" selected>RAMP</option>
+                            {% else %}
+                            <option value="RAMP">RAMP</option>
+                            {% endif %}
+                            
+                            {% if head.bh_type == "OTH" %}
+                            <option value="OTH" selected>OTH</option>
+                            {% else %}
+                            <option value="OTH">OTH</option>
+                            {% endif %}
+                           
+                            
+                            {% if head.bh_type == "LINE-DOOR" %}
+                            <option value="LINE-DOOR" selected>LINE-DOOR</option>
+                            {% else %}
+                            <option value="LINE-DOOR">LINE-DOOR</option>
+                            {% endif %}
+
+                            {% if head.bh_type == "TRUCKING" %}
+                            <option value="TRUCKING" selected>TRUCKING</option>
+                            {% else %}
+                            <option value="TRUCKING">TRUCKING</option>
+                            {% endif %}
+
+
+                            
+                        </select>
+                    </td>
+                    <td><input type="number" value="{{head.amount}}"  onkeyup="calculateHeads()" step="0.01" name="rate-{{forloop.counter}}" id="rate-{{forloop.counter}}" required class="form-control"></td>
+                    <td><input type="number" value="{{head.net_amount}}" readonly step="0.01" name="total-{{forloop.counter}}" id="total-{{forloop.counter}}" required class="form-control"></td>
+                    <td><button type="button" onclick="deleteRow('{{forloop.counter}}')" class="btn btn-close btn-outline-danger btn-sm"><i class="bi bi-x-lg"></i></button></td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+
+            </table>
+
+            <div class="text-right">
+                <button type="button" onclick="addMore()" class="btn btn-primary btn-sm"><i class="bi bi-patch-plus"></i></button>
+            </div>
+
+        </div> 
+
+        <div class="col-12 row">
+
+        
+
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_basic_charges">Basic Charges</label>
+            {{ form.basic_charges }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_oth_charges">Oth Charges</label>
+            {{ form.oth_charges }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_ramp_charges">Ramp Charges</label>
+            {{ form.ramp_charges }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_line_door_charges">Line/Door Charges</label>
+            {{ form.line_door_charges }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_trucking_charges">Trucking Charges</label>
+            {{ form.trucking_charges }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_net_charges">Net Charges</label>
+            {{ form.net_charges }}
+        </div>
+        <div class="col-12 col-sm-12 mb-1">
+            <label for="id_rate_file">File Upload</label>
+            {{ form.rate_file }}
+        </div>
+
+    </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update Rate
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+</form>
+
+
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    var currentRowNumber = parseInt(document.getElementById('rate_head_total').value);
+    var availableRowNumber = parseInt(document.getElementById('rate_head_total').value);
+    const addMore = () => {
+        currentRowNumber += 1;
+        availableRowNumber += 1;
+
+        var newRow =  document.getElementById('rate_head').insertRow(-1)
+            newRow.id = `entry-${currentRowNumber}`
+            newRow.classList.add("entry")
+            var billing_head = newRow.insertCell(0)
+            var type = newRow.insertCell(1)
+            var rate = newRow.insertCell(2)
+            var total = newRow.insertCell(3)
+ 
+            var deleteRow = newRow.insertCell(4)
+
+            billing_head.innerHTML = `
+            <input type="hidden" name="active-${currentRowNumber}" id="active-${currentRowNumber}" value="yes" />
+            <select required name="bill_head-${currentRowNumber}" id="bill_head-${currentRowNumber}" class="form-control">
+                <option value="" selected hidden disabled>Choose Bill Head</option>
+                {% for i in global_billing_head %}
+                <option value="{{i.id}}">{{i.billing_head}}</option>
+                {% endfor %}
+            </select>
+            `
+            type.innerHTML = `
+            <select onchange="calculateHeads()" onkeyup="calculateHeads()" required name="type-${currentRowNumber}" id="type-${currentRowNumber}" class="form-control">
+                <option value="" selected disabled hidden>Choose Type</option>
+                <option value="BASIC">BASIC</option>
+                <option value="RAMP">RAMP</option>
+                <option value="OTH">OTH</option>
+                <option value="LINE-DOOR">LINE-DOOR</option>
+                <option value="TRUCKING">TRUCKING</option>
+            </select>
+            `
+            rate.innerHTML = `
+            <input type="number" onkeyup="calculateHeads()" step="0.01" name="rate-${currentRowNumber}" id="rate-${currentRowNumber}" required class="form-control">
+            `
+            total.innerHTML = `
+            <input type="number" step="0.01" readonly name="total-${currentRowNumber}" id="total-${currentRowNumber}" required class="form-control">
+            
+            `
+           
+            deleteRow.innerHTML = `
+            <button type="button" class="btn btn-close btn-outline-danger btn-sm" onclick="deleteRow(${currentRowNumber})"><i class="bi bi-x-lg"></i></button>
+            `
+
+      
+        document.getElementById('rate_head_total').value = currentRowNumber
+
+    }
+
+    const deleteRow = (index) => {
+
+        availableRowNumber -= 1;
+        document.getElementById(`active-${index}`).value = 'no'
+        document.getElementById(`bill_head-${index}`).required = false
+        document.getElementById(`type-${index}`).required = false
+        document.getElementById(`rate-${index}`).required = false
+        document.getElementById(`total-${index}`).required = false
+      
+           
+        document.getElementById(`entry-${index}`).style.display = 'none'
+        availableRowNumber -= 1
+        calculateHeads()
+    }
+
+    const calculateHeads = () => {
+        var basic_total = 0
+        var oth_total = 0
+        var ramp_total = 0
+        var line_door_total = 0
+        var trucking_total = 0
+        for(var i=1; i<= currentRowNumber; i++){
+            var active = document.getElementById(`active-${i}`).value
+            var type = document.getElementById(`type-${i}`).value
+            var rate = parseFloat(document.getElementById(`rate-${i}`).value)
+            document.getElementById(`total-${i}`).value = parseFloat(document.getElementById(`rate-${i}`).value)
+            if(active == "yes"){
+
+                if(rate){
+                
+                if(type == 'BASIC') 
+                    basic_total += parseFloat(rate)
+                    
+                if(type == 'OTH')        
+                    oth_total += parseFloat(rate)        
+              
+                if(type == 'RAMP')        
+                    ramp_total += parseFloat(rate)        
+                    
+                if(type == 'LINE-DOOR')    
+                    line_door_total += parseFloat(rate)        
+                    
+                if(type == 'TRUCKING')    
+                    trucking_total += parseFloat(rate)        
+            }
+            
+        }
+        }
+
+        document.getElementById('id_basic_charges').value = basic_total
+        document.getElementById('id_oth_charges').value = oth_total
+        document.getElementById('id_ramp_charges').value = ramp_total
+        document.getElementById('id_line_door_charges').value = line_door_total
+        document.getElementById('id_trucking_charges').value = trucking_total
+        document.getElementById('id_net_charges').value = basic_total + oth_total + ramp_total + line_door_total + trucking_total
+    }
+
+</script>
+
+{% endblock %}

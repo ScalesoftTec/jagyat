@@ -1,0 +1,29 @@
+<div class="tab-pane fade" id="ledger_category" role="tabpanel" aria-labelledby="ledger_category-tab">
+            
+    <h5>Ledger Category File <span style="font-size: 14px;">Total Ledger Category : {{ledger_category_global_length}}</span></h5>
+    <div class="row">
+        <div class="col-12 mb-2">Please enter correct field name as per your excel file <i class="far fa-question-circle text-danger" style="cursor: pointer;"  data-toggle="tooltip" data-placement="right" title="If GST Code Is Not In Excel File Then You Create a Field for the same and make value is 00 and enter field name in correct place."></i></div>
+
+
+        <div class="col-md-6 col-sm-12 mb-3">
+            <label for="ledger_category_name">For Name</label>
+            <input type="text" class="form-control" name="ledger_category_name" id="ledger_category_name">
+        </div>
+        <div class="col-md-6 col-sm-12 mb-3">
+            <label for="ledger_cat_type">For Type</label>
+            <input type="text" class="form-control"  name="ledger_cat_type" id="ledger_cat_type">
+        </div>
+      
+        <div class="col-12 mb-3">
+            <label for="country_file">Ledger Category File</label>
+            <input type="file" class="form-control" name="ledger_category_file"
+             id="ledger_category_file">
+        </div>
+        
+        <div class="col-12 mb-3">
+            <input type="checkbox" name="ledger_category_upload" id="ledger_category_upload">
+            <label for="ledger_category_upload">I want to upload Ledger Category file</label>
+        </div>
+    </div>
+
+</div>

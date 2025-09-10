@@ -1,0 +1,117 @@
+<table class="table compact display table-bordered table-primary" style="width:100%" id="job_table">
+    <thead>
+<tr>
+    <th scope="col">S. No.</th>
+    <th>Job No</th>
+    <th>Date</th>
+    <th>Company</th>
+    <th>Alt. Company</th>
+    <th>Shipper</th>
+    <th>Consignee</th>
+    <th>Shipper Invoice	date</th>
+    <th>Gross weight</th>
+    <th>Net weight</th>
+    <th>Ship bill no</th>
+    <th>Ship bill date</th>
+    <th>Shipping Line</th>
+    <th>Booking No</th>
+    <th>POL </th>
+    <th>POD</th>
+    <th>SI cut off date</th>
+    <th>Rail out date</th>
+    <th>Vessel Voyage</th>
+    <th>Sailing date</th>
+    <th>MBL No</th>
+    <th>MBL Date</th>
+    <th>HBL No</th>
+    <th>HBL Date</th>
+    <th>Container no</th>
+    <th>Container type</th>
+    <th>Container Count</th>
+    <th>TAX INV NO & DT</th>
+    <th>Approved</th>
+    <th>Created&nbsp;By</th>
+    <th>Created&nbsp;At</th>
+    <th>Last&nbsp;Updated&nbsp;By</th>
+    <th>Last&nbsp;Updated&nbsp;At</th>
+    <th>Action</th>
+
+    <!-- <th scope="col">Actions</th> -->
+    
+</tr>
+</thead>
+<tbody>
+    {% for data in jobs %}
+    <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{data.job_no}}</td>
+        <td>{{data.job_date}}</td>
+        <td>{{data.company_type}}</td>
+        <td>{{data.alternate_company}}</td>
+        <td>{{data.shipper}}</td>
+        <td>{{data.consignee}}</td>
+        <td>{{data.shipper_invoice_date}}</td>
+        <td>{{data.gross_weight}}</td>
+        <td>{{data.net_weight}}</td>
+        <td>{{data.ship_bill_no}}</td>
+        <td>{{data.ship_bill_date}}</td>
+        <td>{{data.shipping_line}}</td>
+        <td>{{data.booking_no}}</td>
+        <td>{{data.port_of_loading}}</td>
+        <td>{{data.port_of_discharge}}</td>
+        <td>{{data.si_cut_off_date}}</td>
+        <td>{{data.rail_out_date}}</td>
+        <td>{{data.vessel_voy_name}}</td>
+        <td>{{data.sailing_date}}</td>
+        <td>{{data.mbl_no}}</td>
+        <td>{{data.mbl_date}}</td>
+        <td>{{data.hbl_no}}</td>
+        <td>{{data.hbl_date}}</td>
+        <td>
+            {% for cont in data.job_container.all %}
+            {{cont.container_type}}/{{cont.job_container_no}} ,
+            {% endfor %}
+        </td>
+        <td>{{data.container_type}}</td>
+        <td>{{data.container_count}}</td>
+        <td>{{data.shipper_invoice_no}}</td>
+
+    {% if data.company_type.is_job_approve_required  %}
+    
+    {% if data.is_approved and data.application_handler %}
+    <td><span class="badge rounded-pill bg-success">Approved</span></td>
+    {% elif data.is_approved and not data.application_handler %}
+    <td><span class="badge rounded-pill bg-success">N/A</span></td>
+    {% else %}
+    <td><span class="badge rounded-pill bg-danger">Pending</span></td>
+    {% endif %}
+    
+    {% else %}
+    <td><span class="badge rounded-pill bg-danger">N/A</span></td>
+    {% endif %}
+
+    <td>{{data.created_by}}</td>
+    <td>{{data.created_at}}</td>
+    <td>{{data.updated_by}}</td>
+    <td>{{data.updated_at}}</td>
+
+    <td> 
+        <div class="d-flex  gap-2 justify-content-center align-items-center">
+            <a href="{% url 'operations:close_job_update' module=module id=data.id %}" class="btn btn-xs btn-info mr-3"><i class="fas fa-edit"></i></a>    
+            <a href="{% url 'operations:reterive_cancelled_jobs' module=module id=data.id %}" class="btn btn-xs btn-info mr-3"><i class="fa fa-undo" aria-hidden="true"></i></a>
+        </div>
+    
+    </td>
+
+   
+
+   
+   
+    </tr>
+  {% endfor %}
+  
+
+
+ 
+</tbody>
+</table>

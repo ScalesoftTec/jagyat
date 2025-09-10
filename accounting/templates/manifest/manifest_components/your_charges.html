@@ -1,0 +1,197 @@
+<div class="tab-pane fade" id="your_charges" role="tabpanel" aria-labelledby="your_charges-tab">
+
+
+
+    {% if update %}
+    <input type="hidden" name="total_your_rows" id="total_your_rows" value="{{data.manifest_your_charges.all|length}}">
+    {% else %}
+    <input type="hidden" name="total_your_rows" id="total_your_rows" value="1">
+    {% endif %}
+ 
+    <table class="table table-bordered " id="your_entry">
+         
+        <tr>
+            <th>Billing Head</th>
+            <th>Qty</th>
+            <th>Curr.</th>
+            <th>Ex. Rate</th>
+            <th>Rate</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+        {% if not update %}
+        <tr id="your_entry-1">
+
+            <td>
+                <input type="hidden" name="is_your_active-1" value="yes" id="is_your_active-1">
+                
+                <select name="your_billing_head-1" id="your_billing_head-1" class="form-control">
+                    <option value=""> Choose Billing Head </option>
+                    {% for head in global_billing_head %}
+                    <option value="{{head.id}}">{{ head }}</option>
+                    {% endfor %}
+                </select>
+
+            </td>
+            <td>
+                <input type="number" step="0.01" onkeyup="calculateYourTotal(1)"  class="form-control" name="your_qty-1" id="your_qty-1"  />
+            </td>
+            <td>
+                <select name="your_currency-1" id="your_currency-1" class="form-control">
+                    <option value=""> Choose Currency </option>
+                    {% for curr in global_currencies %}
+                    <option value="{{curr.id}}">{{ curr }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        <td>
+            <input type="number" step="0.01" onkeyup="calculateYourTotal(1)"  class="form-control" name="your_ex_rate-1" id="your_ex_rate-1"  />
+        </td>
+        <td>
+            <input type="number" step="0.01" onkeyup="calculateYourTotal(1)"  class="form-control" name="your_rate-1" id="your_rate-1"  />
+        </td>
+        <td>
+            <input type="number" step="0.01"  class="form-control" name="your_total-1" id="your_total-1"  />
+        </td>
+        
+        <td><div class="btn btn-sm btn-danger" onclick="deleteyourRow(1)">Remove</div></td>
+    </tr>
+        
+    {% else %}
+    {% for i in data.manifest_your_charges.all %}
+        <tr id="your_entry-{{forloop.counter}}">
+
+        <td>
+          
+            <select name="your_billing_head-{{forloop.counter}}" id="your_billing_head-{{forloop.counter}}" class="form-control">
+                <option value=""> Choose Billing Head </option>
+                {% for head in global_billing_head %}
+                {% if head.id == i.billing_head.id %}
+                <option value="{{head.id}}" selected>{{ head }}</option>
+                {% else %}
+                <option value="{{head.id}}">{{ head }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </td>
+
+        <td>
+            <input type="hidden" name="is_your_active-{{forloop.counter}}" value="yes" id="is_your_active-{{forloop.counter}}">
+            <input type="number"  step="0.01"  value="{{i.qty}}"  onkeyup="calculateYourTotal({{forloop.counter}})" class="form-control" name="your_qty-{{forloop.counter}}" id="your_qty-{{forloop.counter}}"  />
+        </td>
+        <td>
+            <select name="your_currency-{{forloop.counter}}" id="your_currency-{{forloop.counter}}" class="form-control">
+                <option value=""> Choose Currency </option>
+                {% for curr in global_currencies %}
+                {% if i.curr.id == curr.id %}
+                <option value="{{curr.id}}" selected>{{ curr }}</option>
+                {% else %}
+                <option value="{{curr.id}}">{{ curr }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </td>
+        <td>
+            <input type="number" step="0.01" value="{{i.ex_rate}}"  onkeyup="calculateYourTotal({{forloop.counter}})"  class="form-control" name="your_ex_rate-{{forloop.counter}}" id="your_ex_rate-{{forloop.counter}}"  />
+        </td>
+        <td>
+            <input type="number" step="0.01" value="{{i.rate}}"  onkeyup="calculateYourTotal({{forloop.counter}})"  class="form-control" name="your_rate-{{forloop.counter}}" id="your_rate-{{forloop.counter}}"  />
+        </td>
+        <td>
+            <input type="number" step="0.01" value="{{i.total}}"  class="form-control" id="your_total-{{forloop.counter}}" name="your_total-{{forloop.counter}}"  />
+        </td>
+        
+      
+        <td><div class="btn btn-sm btn-danger" onclick="deleteyourRow({{forloop.counter}})">Remove</div></td>
+        </tr>
+    {% endfor %}
+    {% endif %}
+    </table>
+    <div class="text-right w-100">
+        <button type="button" class="btn btn-sm btn-primary" onclick="addyourRow()"> Add More </button>
+    </div>
+
+
+    <script>
+     
+        var yourCurrentRowNumber = parseInt(document.getElementById('total_your_rows').value) || 0
+        var yourAvailableRowNumber = parseInt(document.getElementById('total_your_rows').value) || 0
+        const addyourRow = () => {
+            yourCurrentRowNumber += 1
+            yourAvailableRowNumber += 1
+            var newRow =  document.getElementById('your_entry').insertRow(-1)
+            newRow.id = `your_entry-${yourCurrentRowNumber}`
+            newRow.classList.add("entry")
+            var billing_head = newRow.insertCell(0)
+            var qty = newRow.insertCell(1)
+            var curr = newRow.insertCell(2)
+            var ex_rate = newRow.insertCell(3)
+            var rate = newRow.insertCell(4)
+            var total = newRow.insertCell(5)
+          
+            var delete_cell = newRow.insertCell(6)
+            
+            billing_head.innerHTML = `
+            <input type="hidden" name="is_your_active-${yourCurrentRowNumber}" value="yes" id="is_your_active-${yourCurrentRowNumber}">
+            <select name="your_billing_head-${yourCurrentRowNumber}" id="your_billing_head-${yourCurrentRowNumber}" class="form-control">
+                <option value=""> Choose Billing Head </option>
+                {% for head in global_billing_head %}
+                <option value="{{head.id}}">{{ head }}</option>
+                {% endfor %}
+            </select>
+            `
+            qty.innerHTML = `
+                <input type="number" step="0.01"  class="form-control"  onkeyup="calculateYourTotal(${yourCurrentRowNumber})" id="your_qty-${yourCurrentRowNumber}" name="your_qty-${yourCurrentRowNumber}"  />
+            `
+            curr.innerHTML = `
+            <select name="your_currency-${yourCurrentRowNumber}" id="your_currency-${yourCurrentRowNumber}" class="form-control">
+                <option value=""> Choose Currency </option>
+                {% for curr in global_currencies %}
+                <option value="{{curr.id}}">{{ curr }}</option>
+                {% endfor %}
+            </select>
+            `
+            ex_rate.innerHTML = `
+            <input type="number" step="0.01"  class="form-control"  onkeyup="calculateYourTotal(${yourCurrentRowNumber})" id="your_ex_rate-${yourCurrentRowNumber}" name="your_ex_rate-${yourCurrentRowNumber}"  />
+            `
+            rate.innerHTML = `
+            <input type="number" step="0.01"  class="form-control"  onkeyup="calculateYourTotal(${yourCurrentRowNumber})" id="your_rate-${yourCurrentRowNumber}" name="your_rate-${yourCurrentRowNumber}"  />
+            `
+            total.innerHTML = `
+            <input type="number" step="0.01"  class="form-control" name="your_total-${yourCurrentRowNumber}" id="your_total-${yourCurrentRowNumber}"  />
+            `
+    
+            
+            delete_cell.innerHTML = `
+                <div class="btn btn-sm btn-danger" onclick="deleteyourRow(${yourCurrentRowNumber})">Remove</div>
+            `
+          
+            document.getElementById('total_your_rows').value = yourCurrentRowNumber
+        }
+    
+       
+    
+        const deleteyourRow = (index) => {
+            document.getElementById(`is_your_active-${index}`).value = "no"
+           
+            document.getElementById(`your_entry-${index}`).style.display = 'none'
+            yourAvailableRowNumber -= 1
+        }
+        const calculateYourTotal = (id) => {
+            var yourQty = document.getElementById(`your_qty-${id}`).value
+            var yourRate = document.getElementById(`your_rate-${id}`).value
+            var yourExRate = document.getElementById(`your_ex_rate-${id}`).value
+            var yourTotal = document.getElementById(`your_total-${id}`)
+         
+            yourQty = parseFloat(yourQty)
+            yourRate = parseFloat(yourRate)
+            yourExRate = parseFloat(yourExRate)
+            yourTotal.value = Math.round((yourQty * yourRate * yourExRate) * 100)/100
+           
+        }
+    
+    </script>
+    
+
+    
+</div>

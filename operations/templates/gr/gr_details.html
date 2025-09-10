@@ -1,0 +1,179 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %}
+GR List -
+{% endblock %}
+
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    GR List
+</h1>
+
+<a href="{% url 'operations:create_gr' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-plus text-white-50"></i> Create GR</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<input type="hidden" id="current_month" value="{{ current_month }}">
+
+<div class="row ">
+
+    <div class="col-12">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="row">
+
+
+                <div class="col-md-4 col-sm-12 mb-3" id="choose_by_date">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12">
+                            <label for="from_date">From</label>
+                            <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control" id="from_date">
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <label for="to_date">To</label>
+                            <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control" id="to_date">
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="col-md-3 col-sm-12 mb-3">
+                    <button type="submit" style="margin-top: 33px;" class=" btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+
+
+<table class="table compact table-primary table-bordered table-md-responsive" id="gsr_table">
+    <thead>
+        <tr>
+            <th scope="col">S. No.</th>
+            <th scope="col">GR No.</th>
+            <th scope="col">Job No.</th>
+            <th scope="col">Job Date</th>
+            <th scope="col">GR Date</th>
+            <th scope="col">Consignor</th>
+            <th scope="col">Consignee</th>
+            <th scope="col">Company</th>
+
+            <th scope="col">Billed</th>
+
+            <th scope="col">Actions</th>
+            <th scope="col">PDF</th>
+
+
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in grs %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ data.gr_no }}</td>
+            <td>{{ data.job }}</td>
+            <td>{{ data.job.job_date }}</td>
+            <td>{{ data.gr_date }}</td>
+            <td>{{ data.consignor }}</td>
+            <td>{{ data.consignee }}</td>
+            <td>{{ data.company_type }}</td>
+            <td>
+                {% if data.invoice_gr.count > 0 %}
+                <span class="badge badge-success">Done {{data.invoice_gr.count}}</span>
+                {% else %}
+                <span class="badge badge-danger">Pending</span>
+                {% endif %}
+
+            </td>
+
+            <td>
+                <a href="{% url 'operations:gr_update' module=module id=data.id %}" class="btn btn-xs btn-info mr-3"><i
+                        class="fas fa-edit"></i></a>
+
+                {% if request.user.user_account.can_delete %}
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-danger btn-xs" data-toggle="modal"
+                    data-target="#deleteModal{{ forloop.counter }}">
+                    <i class="fas fa-trash"></i>
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog"
+                    aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete {{data.job}}
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure want to delete {{ data.job }}?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <a href="{% url 'operations:gr_delete' module=module id=data.id %}"
+                                    class="btn btn-primary">Confirm Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+            </td>
+
+            <td><a href="{% url 'operations:gr_pdf' id=data.id %}" target="_blank" class="btn btn-xs btn-primary"><i
+                        class="fas fa-file-pdf"></i></a></td>
+
+
+        </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
+
+
+
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+    let table = new DataTable('#gsr_table', {
+        // options
+        dom: 'BQlfrtip',
+        buttons: [
+            {
+                extend: 'collection',
+                text: 'Export',
+                buttons: [
+                    'copy',
+                    'excel',
+                    'csv',
+                    'pdf',
+
+                ]
+            },
+
+        ]
+    });
+
+
+    document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+{% endblock %}

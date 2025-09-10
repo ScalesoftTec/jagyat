@@ -1,0 +1,86 @@
+<div class="tab-pane fade" id="drn" role="tabpanel" aria-labelledby="drn-tab">
+            
+    <h5>Debit Note File <span style="font-size: 14px;">Total Debit Note : {{debit_note_global_length}}</span></h5>
+    <div class="row">
+        <div class="col-12 mb-2">Please enter correct field name as per your excel file <i class="far fa-question-circle text-danger" style="cursor: pointer;"  data-toggle="tooltip" data-placement="right" title="Please enter correct field name as per your excel file"></i></div>
+
+        <div class="col-md-12 col-sm-12 mb-3">
+            <label for="id_drn_company_type">Choose Company</label>
+            <select name="drn_company_type" id="id_drn_company_type" class="form-control">
+                <option value="" selected hidden disabled>--------</option>
+                {% for company in companies %}
+                <option value="{{ company.id }}">{{ company }}</option>
+                {% endfor %}
+            </select>
+            <hr>
+        </div>
+
+        {% for i in drn_data_fields %}
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_drn{{i.name}}">{{i.label_name}}  </label>
+            <input type="text" name="drn_{{i.name}}" id="id_drn{{i.name}}" value="{{i.name}}"  class="form-control">
+        </div>
+        {% endfor %}
+
+        <div class="row col-12 mb-2">
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_drn_invoice">debit Note</label>
+                <input type="text" name="drn_head_pay_invoice" id="id_drn_invoice" value="invoice"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_billing_head">Billing Head</label>
+                <input type="text" name="drn_head_billing_head" id="id_billing_head" value="billing_head"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_currency">Currency</label>
+                <input type="text" name="drn_head_currency" id="id_currency" value="currency"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_ex_rate">Ex Rate</label>
+                <input type="text" name="drn_head_ex_rate" id="id_ex_rate" value="ex_rate"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_rate">Rate</label>
+                <input type="text" name="drn_head_rate" id="id_rate" value="rate"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_qty_unit">Qty</label>
+                <input type="text" name="drn_head_qty_unit" id="id_qty_unit" value="qty_unit"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_amount">Amount</label>
+                <input type="text" name="drn_head_amount" id="id_amount" value="amount"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_gst">GST%</label>
+                <input type="text" name="drn_head_gst" id="id_gst" value="gst"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_gst_amount">GST Amount</label>
+                <input type="text" name="drn_head_gst_amount" id="id_gst_amount" value="gst_amount"  class="form-control">
+            </div>
+            <div class="col-md-2 col-sm-12 mb-3">
+                <label for="id_total">Total</label>
+                <input type="text" name="drn_head_total" id="id_total" value="total"  class="form-control">
+            </div>
+        </div>
+
+        
+        <div class="col-12 mb-3">
+            <label for="drn_file">Debit Note File</label>
+            <input type="file" class="form-control"  name="drn_file"
+             id="drn_file">
+        </div>
+        <div class="col-12 mb-3">
+            <label for="drn_head_file">Debit Note Head File</label>
+            <input type="file" class="form-control"  name="drn_head_file"
+             id="drn_head_file">
+        </div>
+        
+        <div class="col-12 mb-3">
+            <input type="checkbox" name="drn_upload" id="drn_upload">
+            <label for="drn_upload">I want to upload Debit Note file</label>
+        </div>
+    </div>
+
+</div>

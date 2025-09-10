@@ -1,0 +1,170 @@
+{% extends 'dashboard/index.html' %} 
+{% load mathfilters %}
+ {% load humanize %}
+{% block dashoard_title %} {{party}} - Ageing Analysis
+- {% endblock %} {% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">{{ party }} - Ageing Analysis Report Details</h1>
+
+<style>
+  table th,
+  td {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+  }
+</style>
+
+{% endblock %} {% block dashboard_content %}
+
+<table class="table table-bordered table-primary compact display detail-table">
+  <thead>
+    <tr>
+    {% if range.end == 0 %}
+      <th colspan="11" class="text-center">{{range.start}}+ Days</th>
+      {% else %}
+      <th colspan="11" class="text-center">{{range.start}} - {{range.end}} Days</th>
+  {% endif %}
+    </tr>
+    <tr>
+      <th>Branch&nbsp;Name</th>
+      <th>Job&nbsp;No.</th>
+      <th>Job&nbsp;Date</th>
+      <th>Currency</th>
+      <th>Party&nbsp;Branch</th>
+      
+      <th>Document&nbsp;No.</th>
+      <th>Document&nbsp;Date</th>
+      <th>Gross&nbsp;Amount</th>
+      <th>Tax&nbsp;Amount</th>
+      <th>Net&nbsp;Amount</th>
+      <th>Pending&nbsp;Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for data in bills %}
+    <tr>
+      <td>{{data.company_type.branch_name}}</td>
+      <td>{{data.job_no.job_no}}</td>
+      <td>{{data.job_no.job_date}}</td>
+      <td>{{data.invoice_currency.short_name}}</td>
+      {% if type == 'D' %}
+      <td>{{data.bill_to_address.branch}}</td>
+      <td>{{data.final_invoice_no}}</td>
+      <td>{{data.einvoice_date}}</td>
+      {% elif type ==  "C" %}
+      <td>{{data.bill_from_address.branch}}</td>
+      <td>{{data.purchase_invoice_no}}</td>
+      <td>{{data.date_of_invoice}}</td>
+      {% else %}
+      <td>&nbsp;</td>
+      <td>{{data.bill_no}}</td>
+      <td>{{data.bill_date}}</td>
+      {% endif %}
+      {% if data.invoice_currency.short_name == "INR" %}
+      <td data-order="{{data.gross_amount|floatformat:2}}">{{data.gross_amount|floatformat:2}}</td>
+      <td data-order="{{data.gst_amount|floatformat:2}}">{{data.gst_amount|floatformat:2}}</td>
+      <td data-order="{{data.net_amount|floatformat:2}}">{{data.net_amount|floatformat:2}}</td>
+      <td data-order="{{data.pending_amount|floatformat:2}}">{{data.pending_amount|floatformat:2}}</td>
+      {% else %}
+      <td data-order="{{data.gross_amount|mul:data.currency_ex_rate|floatformat:2}}">{{data.gross_amount|mul:data.currency_ex_rate|floatformat:2}}</td>
+      <td data-order="{{data.gst_amount|mul:data.currency_ex_rate|floatformat:2}}">{{data.gst_amount|mul:data.currency_ex_rate|floatformat:2}}</td>
+      <td data-order="{{data.net_amount|mul:data.currency_ex_rate|floatformat:2}}">{{data.net_amount|mul:data.currency_ex_rate|floatformat:2}}</td>
+      <td data-order="{{data.pending_amount|mul:data.currency_ex_rate|floatformat:2}}">{{data.pending_amount|mul:data.currency_ex_rate|floatformat:2}}</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr>
+
+        <td colspan="6"></td>
+        <td class="text-white">Total</td>
+        
+        
+        
+        
+        <td class="text-white">0</td>
+        <td class="text-white">0</td>
+        <td class="text-white">0</td>
+        <td class="text-white">0</td>
+
+    </tr>
+  </tfoot>
+</table>
+
+
+
+{% endblock %} {% block js %}
+
+<script>
+  $(document).ready(function () {
+
+    jQuery.fn.dataTable.Api.register('sum()', function () {
+      return this.flatten().reduce(function (a, b) {
+        var x = parseFloat(a);
+        var y = parseFloat($(b).attr('data-order'));
+
+        return parseFloat((x + y)).toFixed(2)
+      }, 0);
+    });
+
+    let table = new DataTable(".detail-table", {
+      // options
+      dom: "BQlfrtip",
+      pageLength: 25,
+      ordering: false,
+      columnDefs: [],
+      lengthMenu: [
+        [10, 25, 50, -1],
+        [10, 25, 50, "All"],
+      ],
+
+      buttons: [
+        {
+          extend: "collection",
+          text: "Export",
+
+          buttons: [
+            { extend: "copy", footer: true, header: true },
+            {
+              extend: "excel",
+              footer: true,
+              header: true,
+              exportOptions: {
+                format: {
+                  header: function (data) {
+                    return $("<div></div>")
+                      .append(data)
+                      .find(".tooltip")
+                      .remove()
+                      .end()
+                      .text();
+                  },
+                },
+              },
+            },
+
+            { extend: "csv", footer: true, header: true },
+            { extend: "pdf", footer: true, header: true },
+          ],
+        },
+      ],
+
+
+      drawCallback: function () {
+        var api = this.api();
+
+        var array = [7,8,9,10]
+        array.forEach((item)=>{
+
+          $(api.table().column(item).footer()).html(
+            api.column(item, { page: 'current' }).nodes().sum()
+          );
+        })
+      }
+
+    });
+
+    document.querySelector(".dtsb-title").style.display = "none";
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,151 @@
+<div class="tab-pane fade" id="indirect-expense" role="tabpanel" aria-labelledby="indirect-expense-tab">
+    <div class="col-12">
+        <h6>Total Expense : <span id="total_indirect"></span></h6>
+    </div>
+    <div class="col-12 row">
+        {% if update %}
+        <input type="hidden" name="expense_total_head" id="expense_total_head" value="{{expense_count}}">
+        {% else %}
+        <input type="hidden" name="expense_total_head" id="expense_total_head" value="0">
+        {% endif %}
+        <table class="table table-bordered" id="expense_entry">
+            <tr>
+                <th style="min-width: 20px!important;">Final</th>
+                <th class="required">Date</th>
+                <th class="required">Invoice No.</th>
+                <th class="required">Amount</th>
+              
+                <th style="min-width: 50px!important;">Action</th>
+            </tr>
+            {% if update %}
+            {% for i in ledger.ledger_opening_details.all %}
+            {% if i.indirect_expense %}
+            <tr id="expense_entry-{{forloop.counter}}">
+                
+                <td style="min-width: 30px!important;" class="text-center">
+                    
+                    {% if not i.expense_is_final %}
+                    <input class="my-2" onclick="handleLocalexpenseConfirmSignal('{{forloop.counter}}')" type="checkbox" name="expense_is_final-{{forloop.counter}}" id="expense_is_final-{{forloop.counter}}">
+                    {% endif %}
+                </td>
+                <td>
+                    <input type="hidden" name="expense_is_active-{{forloop.counter}}" value="yes"  id="expense_is_active-{{forloop.counter}}" />
+                    <input type="date" required value="{{i.date|date:'Y-m-d'}}" name="expense_date-{{forloop.counter}}" id="expense_date-{{forloop.counter}}" class="form-control" />
+                </td>
+                <td><input type="text" required value="{{i.invoice_no}}" name="expense_invoice_no-{{forloop.counter}}"
+                        id="expense_invoice_no-{{forloop.counter}}" class="form-control" onkeyup="checkInvoiceNo('{{forloop.counter}}')" /></td>
+                <td><input type="number" required step="0.01" value="{{i.amount}}" onkeyup="calculateIndirectSum()" name="expense_amount-{{forloop.counter}}"
+                        id="expense_amount-{{forloop.counter}}" class="form-control" /></td>
+               
+                <td style="min-width: 50px!important;">
+                    <input type="hidden" value="{{i.id}}" name="expense_existing_id_{{forloop.counter}}">
+                    {% if not i.expense_is_final %}
+                    
+                    {%  if i.invoice %}
+                  
+                    {% if not i.indirect_expense.net_amount == i.indirect_expense.pending_amount %}
+                    <input type="hidden" value="0" name="expense_is_deletable_{{forloop.counter}}">
+                    {% else %}
+                    <input type="hidden" value="1" name="expense_is_deletable_{{forloop.counter}}">
+                   
+                    
+                    <div class="btn btn-sm btn-danger" onclick="expenseDeleteRow('{{forloop.counter}}')">Remove</div>
+                    {% endif %}
+                    {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        </table>
+        <div class="col-12">
+            <div class="text-right w-100">
+                <button type="button" class="btn btn-sm btn-primary" onclick="expenseAddRow();"> Add More </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+       var expenseCurrentRowNumber = parseInt(document.getElementById('expense_total_head').value) || 0
+    var expenseAvailableRowNumber = parseInt(document.getElementById('expense_total_head').value) || 0
+    const expenseAddRow = () => {
+        expenseCurrentRowNumber += 1
+        expenseAvailableRowNumber += 1
+        var newRow = document.getElementById('expense_entry').insertRow(-1)
+        newRow.id = `expense_entry-${expenseCurrentRowNumber}`
+        newRow.classList.add("entry")
+        var final = newRow.insertCell(0)
+        var date = newRow.insertCell(1)
+        var invoice_no = newRow.insertCell(2)
+        var amount = newRow.insertCell(3)
+  
+        var delete_cell = newRow.insertCell(4)
+        final.setAttribute('style','min-width:30px!important;')
+        delete_cell.setAttribute('style','min-width:50px!important;')
+        final.setAttribute('class','text-center')
+        final.innerHTML = `
+        <td><input onclick="handleLocalexpenseConfirmSignal(${expenseCurrentRowNumber})" type="checkbox" name="expense_is_final-${expenseCurrentRowNumber}" class="my-2" id="expense_is_final-${expenseCurrentRowNumber}"></td>
+        `
+
+
+        date.innerHTML = `
+        <input type="hidden" name="expense_is_active-${expenseCurrentRowNumber}" value="yes"  id="expense_is_active-${expenseCurrentRowNumber}" />
+        <input type="date" value="{{i.date}}" required name="expense_date-${expenseCurrentRowNumber}" id="expense_date-${expenseCurrentRowNumber}" class="form-control" />
+            `
+        invoice_no.innerHTML = `
+                <input type="text" value="{{i.invoice_no}}" required name="expense_invoice_no-${expenseCurrentRowNumber}" id="expense_invoice_no-${expenseCurrentRowNumber}" class="form-control" onkeyup="checkInvoiceNo(${expenseCurrentRowNumber})" />
+            `
+        amount.innerHTML = `
+               <input type="number" step="0.01" value="{{i.amount}}" required onkeyup="calculateIndirectSum()" required name="expense_amount-${expenseCurrentRowNumber}" id="expense_amount-${expenseCurrentRowNumber}" class="form-control" />
+            `
+  
+        delete_cell.innerHTML = `
+             <input type="hidden" value="0" name="expense_existing_id_${expenseCurrentRowNumber}">
+                <input type="hidden" value="0" name="expense_is_deletable_${expenseCurrentRowNumber}">
+                <div class="btn btn-sm btn-danger" onclick="expenseDeleteRow(${expenseCurrentRowNumber})">Remove</div>
+            `
+        document.getElementById('expense_total_head').value = expenseCurrentRowNumber
+       
+        
+    }
+
+    const expenseDeleteRow = (index) => {
+        document.getElementById(`expense_is_active-${index}`).value = "no"
+        
+        document.getElementById(`expense_date-${index}`).required = false
+        document.getElementById(`expense_invoice_no-${index}`).required = false
+        document.getElementById(`expense_amount-${index}`).required = false
+        document.getElementById(`expense_entry-${index}`).style.display = 'none'
+        expenseAvailableRowNumber -= 1
+        calculateIndirectSum()
+    }
+
+    const handleLocalexpenseConfirmSignal = (index) => {
+        var checkboxStatus = document.getElementById(`expense_is_final-${index}`).checked
+        if(checkboxStatus){
+            var status = confirm('After check you not able to edit or delete this entry please confirm and check.')
+           if (!status.valueOf()){
+            document.getElementById(`expense_is_final-${index}`).checked = false;
+           }
+        }
+    }
+
+    const calculateIndirectSum = () => {
+        var total_indirect = 0
+        for(var i=1; i<=expenseCurrentRowNumber; i++){
+            var purchase = parseFloat(document.getElementById(`expense_amount-${i}`).value) || 0
+            if(!isNaN(purchase)  && document.getElementById(`expense_is_active-${i}`).value == 'yes'){
+                total_indirect += purchase
+            }
+        }
+        document.getElementById('total_indirect').innerText = total_indirect
+
+    }
+    calculateIndirectSum()
+
+
+</script>

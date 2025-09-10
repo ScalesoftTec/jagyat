@@ -1,0 +1,403 @@
+{% load mathfilters %}
+{% load custom_tags %}
+<ENVELOPE>
+    <HEADER>
+        <TALLYREQUEST>Import Data</TALLYREQUEST>
+    </HEADER>
+    <BODY>
+    <IMPORTDATA>
+        <REQUESTDESC>
+            <REPORTNAME>Vouchers</REPORTNAME>
+            <STATICVARIABLES>
+                <SVCURRENTCOMPANY>{{company.legal_name}}</SVCURRENTCOMPANY>
+            </STATICVARIABLES>
+            		</REQUESTDESC>
+            <REQUESTDATA>
+                {% for data in invoices %}
+                {% if data.type_of_invoice == "TAX INVOICE" or data.type_of_invoice == "BILL OF SUPPLY" %}
+                {% with gst_desc=data.id|calculate_tax_by_bh %}
+                <TALLYMESSAGE xmlns:UDF="TallyUDF">
+                    <VOUCHER REMOTEID="{{data.id}}-Sales-{{data.id}}" VCHKEY="{{data.id}}:000{{data.id}}-SalesKEY-{{data.id}}" VCHTYPE="" ACTION="Create" OBJVIEW="Accounting Voucher View">
+                        <DATE> {{data.einvoice_date|date:'Ymd'}} </DATE>
+                        <GUID> {{data.id}}-SALES </GUID>
+                        <NARRATION>JOB NO. = {{data.job_no.job_no}} ,BILL No = {{data.final_invoice_no}} ,BILL DATE = {{data.einvoice_date|date:'Ymd'}}</NARRATION>
+                        <PARTYGSTIN>   {{data.bill_to_address.corp_gstin}}  </PARTYGSTIN>
+                        <VOUCHERTYPENAME>Sales - {{data.company_type.branch_name}} </VOUCHERTYPENAME>
+                        <VOUCHERNUMBER> {{data.final_invoice_no}} </VOUCHERNUMBER>
+                        <REFERENCE>  {{data.final_invoice_no}}  </REFERENCE>
+                        <PARTYLEDGERNAME>{{data.bill_to.party_name}} </PARTYLEDGERNAME>
+                        <CSTFORMISSUETYPE/>
+                        <CSTFORMRECVTYPE/>
+                        <FBTPAYMENTTYPE>Default</FBTPAYMENTTYPE>
+                        <PERSISTEDVIEW>Acounting Voucher View</PERSISTEDVIEW>
+                        <PLACEOFSUPPLY>  {{data.bill_to_address.corp_state.name}}  </PLACEOFSUPPLY>
+                        <CONSIGNEEGSTIN>   {{data.bill_to_address.corp_gstin}}  </CONSIGNEEGSTIN>
+                        <VCHGSTCLASS/>
+                        <COSTCENTRENAME> {{data.company_type.cost_center_name}}</COSTCENTRENAME>
+                        <VCHENTRYMODE> As Voucher</VCHENTRYMODE>
+                        <VOUCHERTYPEORIGNAME> Sales</VOUCHERTYPEORIGNAME>
+                        <DIFFACTUALQTY> No</DIFFACTUALQTY>
+                        <AUDITED> No </AUDITED>
+                        <FORJOBCOSTING> No </FORJOBCOSTING>
+                        <ISOPTIONAL> No </ISOPTIONAL>
+                        <EFFECTIVEDATE>{{data.einvoice_date|date:'Ymd'}}</EFFECTIVEDATE>
+                        <ISFORJOBWORKIN>No</ISFORJOBWORKIN>
+                        <ALLOWCONSUMPTION>No</ALLOWCONSUMPTION>
+                        <USEFORINTEREST>No</USEFORINTEREST>
+                        <USEFORGAINLOSS>No</USEFORGAINLOSS>
+                        <USEFORGODOWNTRANSFER> No </USEFORGODOWNTRANSFER>
+                        <USEFORCOMPOUND> No </USEFORCOMPOUND>
+                        <ALTERID/>
+                        <EXCISEOPENING> No </EXCISEOPENING>
+                        <ISCANCELLED> No </ISCANCELLED>
+                        <HASCASHFLOW> No </HASCASHFLOW>
+                        <ISPOSTDATED> No </ISPOSTDATED>
+                        <USETRACKINGNUMBER> No </USETRACKINGNUMBER>
+                        <ISINVOICE>No</ISINVOICE>
+                        <MFGJOURNAL> No </MFGJOURNAL>
+                        <HASDISCOUNTS> No </HASDISCOUNTS>
+                        <ASPAYSLIP> No </ASPAYSLIP>
+                        <ISCOSTCENTRE>Yes</ISCOSTCENTRE>
+                        <ISSTXNONREALIZEDVCH>No</ISSTXNONREALIZEDVCH>
+                        <ISEXCISEMANUFACTURERON>No</ISEXCISEMANUFACTURERON>
+                        <ISDELETED>No</ISDELETED>
+                        <ASORIGINAL> No </ASORIGINAL>
+                        <VCHISFROMSYNC> No </VCHISFROMSYNC>
+                        <AUDITENTRIES.LIST/>
+                        <INVOICEDELNOTES.LIST/>
+                        <INVOICEORDERLIST.LIST/>
+                        <INVOICEINDENTLIST.LIST/>
+                        <ATTENDANCEENTRIES.LIST/>
+                        <ALLLEDGERENTRIES.LIST>
+                            <LEDGERNAME> {{data.bill_to.party_name}} </LEDGERNAME>
+                            <GSTCLASS/>
+                            <ISDEEMEDPOSITIVE> Yes </ISDEEMEDPOSITIVE>
+                            <LEDGERFROMITEM> No </LEDGERFROMITEM>
+                            <REMOVEZEROENTRIES> No </REMOVEZEROENTRIES>
+                            <ISPARTYLEDGER> Yes </ISPARTYLEDGER>
+                            <ISLASTDEEMEDPOSITIVE> Yes </ISLASTDEEMEDPOSITIVE>
+                            <AMOUNT> -{{ data.net_amount|floatformat:2 }} </AMOUNT>
+                            <BANKALLOCATIONS.LIST/>
+                            <BILLALLOCATIONS.LIST>
+                                <NAME> {{data.final_invoice_no}} </NAME>
+                                <BILLCREDITPERIOD>  10 </BILLCREDITPERIOD>
+                                <BILLTYPE> New Ref </BILLTYPE>
+                                <TDSDEDUCTEEISSPECIALRATE> No </TDSDEDUCTEEISSPECIALRATE>
+                                <AMOUNT> -{{ data.net_amount|floatformat:2 }} </AMOUNT>
+                                <INTERESTCOLLECTION.LIST/>
+                            </BILLALLOCATIONS.LIST>
+                            <INTERESTCOLLECTION.LIST/>
+                            <AUDITENTRIES.LIST/>
+                            <TAXBILLALLOCATIONS.LIST/>
+                            <TAXOBJECTALLOCATIONS.LIST/>
+                            <TDSEXPENSEALLOCATIONS.LIST/>
+                            <VATSTATUTORYDETAILS.LIST/>
+                            <COSTTRACKALLOCATIONS.LIST/>
+                        </ALLLEDGERENTRIES.LIST>
+
+                        {% for head in data.recievable_invoice_reference.all %}
+                        <ALLLEDGERENTRIES.LIST>
+                            <LEDGERNAME> {{head.billing_head.billing_head}} </LEDGERNAME>
+                            <GSTCLASS/>
+                            {% if not data.bill_to_address.corp_state.gst_code == data.company_type.company_gst_code or head.billing_head.always_igst %}
+                            <GSTOVRDNNATURE> Interstate Sales Taxable </GSTOVRDNNATURE>
+                            {% endif %}
+
+                            <GSTOVRDNTAXABILITY> 
+                                {% if head.tax_applicable == "T" %}
+                                TAXABLE
+                                {% elif head.tax_applicable == "L" %}
+                                NIL
+                                {% elif head.tax_applicable == "E" %}
+                                EXEMPT
+                                {% elif head.tax_applicable == "N" %}
+                                NON GST
+                                {% elif head.tax_applicable == "F" %}
+                                FREE SUPPLIES
+                                {% else %}
+                                TAXABLE
+                                {% endif %}
+                            </GSTOVRDNTAXABILITY>
+                            <ISDEEMEDPOSITIVE> No </ISDEEMEDPOSITIVE>
+                            <LEDGERFROMITEM> No </LEDGERFROMITEM>
+                            <REMOVEZEROENTRIES> No </REMOVEZEROENTRIES>
+                            <ISPARTYLEDGER> No </ISPARTYLEDGER>
+                            <ISLASTDEEMEDPOSITIVE> No </ISLASTDEEMEDPOSITIVE>
+                            <AMOUNT> {{head.amount|floatformat:2}} </AMOUNT>
+                            <CATEGORYALLOCATIONS.LIST>
+                                <CATEGORY> Primary Cost Category </CATEGORY>
+                                <ISDEEMEDPOSITIVE> No </ISDEEMEDPOSITIVE>
+                                <COSTCENTREALLOCATIONS.LIST>
+                                    <NAME> {{data.company_type.cost_center_name}} </NAME>
+                                    <AMOUNT> {{head.amount|floatformat:2}} </AMOUNT>
+                                </COSTCENTREALLOCATIONS.LIST>
+                            </CATEGORYALLOCATIONS.LIST>
+                            <BANKALLOCATIONS.LIST/>
+                            <BILLALLOCATIONS.LIST/>
+                            <INTERESTCOLLECTION.LIST/>
+                            <AUDITENTRIES.LIST/>
+                            <TAXBILLALLOCATIONS.LIST/>
+                            <TAXOBJECTALLOCATIONS.LIST/>
+                            <TDSEXPENSEALLOCATIONS.LIST/>
+                            <VATSTATUTORYDETAILS.LIST/>
+                            <COSTTRACKALLOCATIONS.LIST/>
+                        </ALLLEDGERENTRIES.LIST>
+                        {% endfor %}
+
+                        {% for tax in gst_desc %}
+                        {% if tax.amount > 0 %}
+                        <ALLLEDGERENTRIES.LIST>
+                            <LEDGERNAME> {{tax.name}} </LEDGERNAME>
+                            <GSTCLASS/>
+                            <ISDEEMEDPOSITIVE> No </ISDEEMEDPOSITIVE>
+                            <LEDGERFROMITEM> No </LEDGERFROMITEM>
+                            <REMOVEZEROENTRIES> No </REMOVEZEROENTRIES>
+                            <ISPARTYLEDGER> No </ISPARTYLEDGER>
+                            <ISLASTDEEMEDPOSITIVE> No </ISLASTDEEMEDPOSITIVE>
+                            <AMOUNT> {{tax.amount}} </AMOUNT>
+                            <BANKALLOCATIONS.LIST/>
+                            <BILLALLOCATIONS.LIST/>
+                            <INTERESTCOLLECTION.LIST/>
+                            <AUDITENTRIES.LIST/>
+                            <TAXBILLALLOCATIONS.LIST/>
+                            <TAXOBJECTALLOCATIONS.LIST/>
+                            <TDSEXPENSEALLOCATIONS.LIST/>
+                            <VATSTATUTORYDETAILS.LIST/>
+                            <COSTTRACKALLOCATIONS.LIST/>
+                        </ALLLEDGERENTRIES.LIST>
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if not data.net_amount|floatformat:0|sub:data.net_amount|floatformat:2 == 0|floatformat:2 %}
+                        <ALLLEDGERENTRIES.LIST>
+                            <LEDGERNAME> Round Off - Sales </LEDGERNAME>
+                            <GSTCLASS/>
+                            <ISDEEMEDPOSITIVE> 
+                             {% if not data.net_amount|floatformat:0|sub:data.net_amount|floatformat:2 > 0|floatformat:2 %}
+                             YES
+                             {% else %}
+                             NO
+                             {% endif %}
+                            </ISDEEMEDPOSITIVE>
+                            <LEDGERFROMITEM> No </LEDGERFROMITEM>
+                            <REMOVEZEROENTRIES> No </REMOVEZEROENTRIES>
+                            <ISPARTYLEDGER> No </ISPARTYLEDGER>
+                            <ISLASTDEEMEDPOSITIVE> No </ISLASTDEEMEDPOSITIVE>
+                            <AMOUNT> {{ data.net_amount|floatformat:0|sub:data.net_amount|floatformat:2|abs }} </AMOUNT>
+                            <BANKALLOCATIONS.LIST/>
+                            <BILLALLOCATIONS.LIST/>
+                            <INTERESTCOLLECTION.LIST/>
+                            <AUDITENTRIES.LIST/>
+                            <TAXBILLALLOCATIONS.LIST/>
+                            <TAXOBJECTALLOCATIONS.LIST/>
+                            <TDSEXPENSEALLOCATIONS.LIST/>
+                            <VATSTATUTORYDETAILS.LIST/>
+                            <COSTTRACKALLOCATIONS.LIST/>
+                        </ALLLEDGERENTRIES.LIST>
+                        {% endif %}
+
+                        <ATTDRECORDS.LIST/>
+                        <LEDGERENTRIESRECORDS.LIST/>
+                        <LEDGERCSTENTRIESRECORDS.LIST/>
+                    </VOUCHER>
+                </TALLYMESSAGE>
+                {% endwith %}
+                {% endif %}
+
+                {% if data.type_of_invoice == "RCM" %}
+                {% with gst_desc=data.id|calculate_tax_by_bh %}
+                <TALLYMESSAGE xmlns:UDF="TallyUDF">
+                    <VOUCHER REMOTEID="{{data.id}}-Sales-{{data.id}}" VCHKEY="{{data.id}}:000{{data.id}}-SalesKEY-{{data.id}}" VCHTYPE="" ACTION="Create" OBJVIEW="Accounting Voucher View">
+                        <DATE> {{data.einvoice_date|date:'Ymd'}} </DATE>
+                        <GUID> {{data.id}}-SALES </GUID>
+                        <NARRATION>JOB NO. = {{data.job_no.job_no}} ,BILL No = {{data.final_invoice_no}} ,BILL DATE = {{data.einvoice_date|date:'Ymd'}}</NARRATION>
+                        <PARTYGSTIN>   {{data.bill_to_address.corp_gstin}}  </PARTYGSTIN>
+                        <VOUCHERTYPENAME>Sales -UP RCM </VOUCHERTYPENAME>
+                        <VOUCHERNUMBER> {{data.final_invoice_no}} </VOUCHERNUMBER>
+                        <REFERENCE>  {{data.final_invoice_no}}  </REFERENCE>
+                        <PARTYLEDGERNAME>{{data.bill_to.party_name}} </PARTYLEDGERNAME>
+                        <CSTFORMISSUETYPE/>
+                        <CSTFORMRECVTYPE/>
+                        <FBTPAYMENTTYPE>Default</FBTPAYMENTTYPE>
+                        <PERSISTEDVIEW>Acounting Voucher View</PERSISTEDVIEW>
+                        <PLACEOFSUPPLY>  {{data.bill_to_address.corp_state.name}}  </PLACEOFSUPPLY>
+                        <CONSIGNEEGSTIN>   {{data.bill_to_address.corp_gstin}}  </CONSIGNEEGSTIN>
+                        <VCHGSTCLASS/>
+                        <COSTCENTRENAME> UTTAR PRADESH</COSTCENTRENAME>
+                        <VCHENTRYMODE> As Voucher</VCHENTRYMODE>
+                        <VOUCHERTYPEORIGNAME> Sales</VOUCHERTYPEORIGNAME>
+                        <DIFFACTUALQTY> No</DIFFACTUALQTY>
+                        <AUDITED> No </AUDITED>
+                        <FORJOBCOSTING> No </FORJOBCOSTING>
+                        <ISOPTIONAL> No </ISOPTIONAL>
+                        <EFFECTIVEDATE>{{data.einvoice_date|date:'Ymd'}}</EFFECTIVEDATE>
+                        <ISFORJOBWORKIN>No</ISFORJOBWORKIN>
+                        <ALLOWCONSUMPTION>No</ALLOWCONSUMPTION>
+                        <USEFORINTEREST>No</USEFORINTEREST>
+                        <USEFORGAINLOSS>No</USEFORGAINLOSS>
+                        <USEFORGODOWNTRANSFER> No </USEFORGODOWNTRANSFER>
+                        <USEFORCOMPOUND> No </USEFORCOMPOUND>
+                        <ALTERID/>
+                        <EXCISEOPENING> No </EXCISEOPENING>
+                        <ISCANCELLED> No </ISCANCELLED>
+                        <HASCASHFLOW> No </HASCASHFLOW>
+                        <ISPOSTDATED> No </ISPOSTDATED>
+                        <USETRACKINGNUMBER> No </USETRACKINGNUMBER>
+                        <ISINVOICE>No</ISINVOICE>
+                        <MFGJOURNAL> No </MFGJOURNAL>
+                        <HASDISCOUNTS> No </HASDISCOUNTS>
+                        <ASPAYSLIP> No </ASPAYSLIP>
+                        <ISCOSTCENTRE>Yes</ISCOSTCENTRE>
+                        <ISSTXNONREALIZEDVCH>No</ISSTXNONREALIZEDVCH>
+                        <ISEXCISEMANUFACTURERON>No</ISEXCISEMANUFACTURERON>
+                        <ISDELETED>No</ISDELETED>
+                        <ASORIGINAL> No </ASORIGINAL>
+                        <VCHISFROMSYNC> No </VCHISFROMSYNC>
+                        <AUDITENTRIES.LIST/>
+                        <INVOICEDELNOTES.LIST/>
+                        <INVOICEORDERLIST.LIST/>
+                        <INVOICEINDENTLIST.LIST/>
+                        <ATTENDANCEENTRIES.LIST/>
+                        <ALLLEDGERENTRIES.LIST>
+                            <LEDGERNAME> {{data.bill_to.party_name}} </LEDGERNAME>
+                            <GSTCLASS/>
+                            <ISDEEMEDPOSITIVE> Yes </ISDEEMEDPOSITIVE>
+                            <LEDGERFROMITEM> No </LEDGERFROMITEM>
+                            <REMOVEZEROENTRIES> No </REMOVEZEROENTRIES>
+                            <ISPARTYLEDGER> Yes </ISPARTYLEDGER>
+                            <ISLASTDEEMEDPOSITIVE> Yes </ISLASTDEEMEDPOSITIVE>
+                            <AMOUNT> -{{ data.net_amount|floatformat:2 }} </AMOUNT>
+                            <BANKALLOCATIONS.LIST/>
+                            <BILLALLOCATIONS.LIST>
+                                <NAME> {{data.final_invoice_no}} </NAME>
+                                <BILLCREDITPERIOD>  10 </BILLCREDITPERIOD>
+                                <BILLTYPE> New Ref </BILLTYPE>
+                                <TDSDEDUCTEEISSPECIALRATE> No </TDSDEDUCTEEISSPECIALRATE>
+                                <AMOUNT> -{{ data.net_amount|floatformat:2 }} </AMOUNT>
+                                <INTERESTCOLLECTION.LIST/>
+                            </BILLALLOCATIONS.LIST>
+                            <INTERESTCOLLECTION.LIST/>
+                            <AUDITENTRIES.LIST/>
+                            <TAXBILLALLOCATIONS.LIST/>
+                            <TAXOBJECTALLOCATIONS.LIST/>
+                            <TDSEXPENSEALLOCATIONS.LIST/>
+                            <VATSTATUTORYDETAILS.LIST/>
+                            <COSTTRACKALLOCATIONS.LIST/>
+                        </ALLLEDGERENTRIES.LIST>
+
+                        {% for head in data.recievable_invoice_reference.all %}
+                        <ALLLEDGERENTRIES.LIST>
+                            <LEDGERNAME> {{head.billing_head.billing_head}} </LEDGERNAME>
+                            <GSTCLASS/>
+
+                            <GSTOVRDNTAXABILITY> 
+                                {% if head.tax_applicable == "T" %}
+                                TAXABLE
+                                {% elif head.tax_applicable == "L" %}
+                                NIL
+                                {% elif head.tax_applicable == "E" %}
+                                EXEMPT
+                                {% elif head.tax_applicable == "N" %}
+                                NON GST
+                                {% elif head.tax_applicable == "F" %}
+                                FREE SUPPLIES
+                                {% else %}
+                                TAXABLE
+                                {% endif %}
+                            </GSTOVRDNTAXABILITY>
+                            <ISDEEMEDPOSITIVE> No </ISDEEMEDPOSITIVE>
+                            <LEDGERFROMITEM> No </LEDGERFROMITEM>
+                            <REMOVEZEROENTRIES> No </REMOVEZEROENTRIES>
+                            <ISPARTYLEDGER> No </ISPARTYLEDGER>
+                            <ISLASTDEEMEDPOSITIVE> No </ISLASTDEEMEDPOSITIVE>
+                            <AMOUNT> {{head.amount|floatformat:2}} </AMOUNT>
+                            <CATEGORYALLOCATIONS.LIST>
+                                <CATEGORY> Primary Cost Category </CATEGORY>
+                                <ISDEEMEDPOSITIVE> No </ISDEEMEDPOSITIVE>
+                                <COSTCENTREALLOCATIONS.LIST>
+                                    <NAME> {{data.company_type.branch_name}} </NAME>
+                                    <AMOUNT> {{head.amount|floatformat:2}} </AMOUNT>
+                                </COSTCENTREALLOCATIONS.LIST>
+                            </CATEGORYALLOCATIONS.LIST>
+                            <BANKALLOCATIONS.LIST/>
+                            <BILLALLOCATIONS.LIST/>
+                            <INTERESTCOLLECTION.LIST/>
+                            <AUDITENTRIES.LIST/>
+                            <TAXBILLALLOCATIONS.LIST/>
+                            <TAXOBJECTALLOCATIONS.LIST/>
+                            <TDSEXPENSEALLOCATIONS.LIST/>
+                            <VATSTATUTORYDETAILS.LIST/>
+                            <COSTTRACKALLOCATIONS.LIST/>
+                        </ALLLEDGERENTRIES.LIST>
+                        {% endfor %}
+
+                        {% for tax in gst_desc %}
+                        {% if tax.amount > 0 %}
+                        <ALLLEDGERENTRIES.LIST>
+                            <LEDGERNAME> {{tax.name}} </LEDGERNAME>
+                            <GSTCLASS/>
+                            <ISDEEMEDPOSITIVE> No </ISDEEMEDPOSITIVE>
+                            <LEDGERFROMITEM> No </LEDGERFROMITEM>
+                            <REMOVEZEROENTRIES> No </REMOVEZEROENTRIES>
+                            <ISPARTYLEDGER> No </ISPARTYLEDGER>
+                            <ISLASTDEEMEDPOSITIVE> No </ISLASTDEEMEDPOSITIVE>
+                            <AMOUNT> {{tax.amount}} </AMOUNT>
+                            <BANKALLOCATIONS.LIST/>
+                            <BILLALLOCATIONS.LIST/>
+                            <INTERESTCOLLECTION.LIST/>
+                            <AUDITENTRIES.LIST/>
+                            <TAXBILLALLOCATIONS.LIST/>
+                            <TAXOBJECTALLOCATIONS.LIST/>
+                            <TDSEXPENSEALLOCATIONS.LIST/>
+                            <VATSTATUTORYDETAILS.LIST/>
+                            <COSTTRACKALLOCATIONS.LIST/>
+                        </ALLLEDGERENTRIES.LIST>
+                        {% endif %}
+                        {% endfor %}
+
+
+                        {% if not data.net_amount|floatformat:0|sub:data.net_amount|floatformat:2 == 0|floatformat:2 %}
+                        <ALLLEDGERENTRIES.LIST>
+                            <LEDGERNAME> Round Off - Sales </LEDGERNAME>
+                            <GSTCLASS/>
+                            <ISDEEMEDPOSITIVE> 
+                             {% if not data.net_amount|floatformat:0|sub:data.net_amount|floatformat:2 < 0|floatformat:2 %}
+                             YES
+                             {% else %}
+                             NO
+                             {% endif %}
+                             </ISDEEMEDPOSITIVE>
+                        <LEDGERFROMITEM> No </LEDGERFROMITEM>
+                        <REMOVEZEROENTRIES> No </REMOVEZEROENTRIES>
+                        <ISPARTYLEDGER> No </ISPARTYLEDGER>
+                        <ISLASTDEEMEDPOSITIVE> No </ISLASTDEEMEDPOSITIVE>
+                        <AMOUNT> {{ data.net_amount|floatformat:0|sub:data.net_amount|floatformat:2|abs }} </AMOUNT>
+                        <BANKALLOCATIONS.LIST/>
+                        <BILLALLOCATIONS.LIST/>
+                        <INTERESTCOLLECTION.LIST/>
+                        <AUDITENTRIES.LIST/>
+                        <TAXBILLALLOCATIONS.LIST/>
+                        <TAXOBJECTALLOCATIONS.LIST/>
+                        <TDSEXPENSEALLOCATIONS.LIST/>
+                        <VATSTATUTORYDETAILS.LIST/>
+                        <COSTTRACKALLOCATIONS.LIST/>
+                        </ALLLEDGERENTRIES.LIST>
+                        {% endif %}
+                        <ATTDRECORDS.LIST/>
+                        <LEDGERENTRIESRECORDS.LIST/>
+                        <LEDGERCSTENTRIESRECORDS.LIST/>
+                        </VOUCHER>
+                </TALLYMESSAGE>
+                {% endwith %}
+                {% endif %}
+
+
+                {% endfor %}
+
+            </REQUESTDATA>
+
+
+</IMPORTDATA>
+
+</BODY>
+</ENVELOPE>

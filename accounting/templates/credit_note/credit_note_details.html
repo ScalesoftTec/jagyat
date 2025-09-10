@@ -1,0 +1,308 @@
+{% extends 'dashboard/index.html' %}
+
+
+
+{% block dashoard_title %}
+Credit Note Details -
+{% endblock %}
+
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Credit Note List
+</h1>
+
+<div class="">
+    <a href="{% url 'accounting:create_credit_note' module=module %}"
+        class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create New</a>
+
+    
+</div>
+{% endblock %}
+
+
+{% block dashboard_content %}
+<table class="table compact table-primary table-bordered table-md-responsive " id="cn_table">
+    <thead>
+        <tr>
+
+            <th scope="col">Branch</th>
+            <th scope="col">Job No.</th>
+            <th scope="col">Credit Note No.</th>
+            <th scope="col">Date</th>
+
+
+            <th scope="col">Invoice No.</th>
+            <th scope="col">Gross Amount</th>
+            <th scope="col">Net Amount</th>
+            <th scope="col">Final</th>
+            <th scope="col">RCM</th>
+            <th scope="col">Actions</th>
+            <th scope="col">PDF</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in notes %}
+
+        <tr>
+
+            <td>{{ data.company_type.branch_name }}</td>
+            <td>{{ data.job_no }}</td>
+            <td>{{ data.credit_note_no }}</td>
+            <td>{{ data.date_of_note|date:"Y-m-d" }}</td>
+
+
+            <td>{{ data.invoice_no }}</td>
+            <td align="right">{{ data.gross_amount|floatformat:0|floatformat:2 }}</td>
+            <td align="right">{{ data.net_amount|floatformat:0|floatformat:2 }}</td>
+            <td>
+                {% if data.is_final %}
+                <span class="badge badge-primary">YES</span>
+                {% else %}
+                <span class="badge badge-danger">NO</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if data.is_rcm %}
+                <span class="badge badge-primary">YES</span>
+                {% else %}
+                <span class="badge badge-danger">NO</span>
+                {% endif %}
+            </td>
+
+            <td>
+                
+                <a href="{% url 'accounting:credit_note_update' module=module id=data.id %}"
+                    class="btn btn-info btn-xs "><i class="fas fa-edit"></i></a>
+                
+
+
+                {% if data.is_final %}
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-xs btn-primary" data-toggle="modal"
+                    data-target="#e_invoice{{ forloop.counter }}" data-toggle="tooltip" data-placement="top"
+                    title="Make E-Invoice">
+                    <i class="bi bi-tag"></i>
+                </button>
+                {% else %}
+                <button type="button" class="btn btn-xs btn-secondary" data-toggle="tooltip" data-placement="top"
+                    title="Please Final Your Credit Note To Proceed"><i class="bi bi-tag"></i></button>
+                {% endif %}
+
+                <!-- Modal -->
+                <div class="modal fade" id="e_invoice{{ forloop.counter }}" tabindex="-1" role="dialog"
+                    aria-labelledby="e_invoice{{ forloop.counter }}Label" aria-hidden="true">
+                    <div class="modal-dialog modal-xl" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="e_invoice{{ forloop.counter }}Label">Details
+                                    {{data.credit_note_no}}</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+
+                                <strong> Are you sure want to create E-Invoice For {{ data.credit_note_no }}?</strong>
+
+                                <div class="table-responsive">
+
+
+                                    <table class="table compact table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th style="color:black!important;">Ref Invoice NO.</th>
+                                                <th style="color:black!important;">Ref Invoice Date</th>
+
+                                                <th style="color:black!important;">Company Gstin</th>
+                                                <th style="color:black!important;">Intra / Inter</th>
+                                                <th style="color:black!important;">Document Type</th>
+                                                <th style="color:black!important;">Category</th>
+                                                <th style="color:black!important;">Date</th>
+                                                <th style="color:black!important;">Reverse Charge</th>
+                                                <th style="color:black!important;">Place of Supply</th>
+                                                <th style="color:black!important;">Company GSTIN</th>
+                                                <th style="color:black!important;">Company Legal Name</th>
+                                                <th style="color:black!important;">Company Address</th>
+                                                <th style="color:black!important;">Branch Name</th>
+                                                <th style="color:black!important;">Company GST Code</th>
+                                                <th style="color:black!important;">Company PIN Code</th>
+                                                <th style="color:black!important;">Buyer GSTIN</th>
+                                                <th style="color:black!important;">Buyer Legal Name</th>
+                                                <th style="color:black!important;">Buyer Address 1</th>
+                                                <th style="color:black!important;">Buyer Location</th>
+                                                <th style="color:black!important;">Buyer GST Code</th>
+                                                <th style="color:black!important;">Buyer PIN Code</th>
+                                                <th style="color:black!important;">Total Discount</th>
+                                                <th style="color:black!important;">Total Taxable Value</th>
+                                                <th style="color:black!important;">Total Invoice Value</th>
+
+
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr>
+                                                <td>{{data.invoice_no}}</td>
+                                                <td>{{data.invoice_date|date:"Y-m-d"}}</td>
+                                                <td>{{data.company_type.gstin_no}}</td>
+                                                <td>
+                                                    {% if data.bill_to_address.corp_state.gst_code == data.company_type.company_gst_code %}
+                                                    Intra
+                                                    {% else %}
+                                                    Inter
+                                                    {% endif %}
+                                                </td>
+                                                <td>Credit Note (C)</td>
+                                                <td>{{data.category}}</td>
+                                                <td>{{current_date|date:"Y-m-d"}}</td>
+                                                <td>
+                                                    {% if data.type_of_invoice == "RCM" %}
+                                                    <span class="badge badge-success">Yes</span>
+                                                    {% else %}
+                                                    <span class="badge badge-danger">No</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{data.bill_to_address.corp_state.gst_code}}</td>
+                                                <td>{{data.company_type.gstin_no}}</td>
+                                                <td>{{data.company_type.legal_name}}</td>
+                                                <td>{{data.company_type.address_line_1}}</td>
+                                                <td>{{data.company_type.branch_name}}</td>
+                                                <td>{{data.company_type.company_gst_code}}</td>
+                                                <td>{{data.company_type.pin_code}}</td>
+                                                <td>{{data.bill_to_address.corp_gstin}}</td>
+                                                <td>{{data.bill_to.party_name}}</td>
+                                                <td>{{data.bill_to_address.corp_address_line1}}</td>
+                                                <td>{{data.bill_to_address.corp_state.name}}</td>
+                                                <td>{{data.bill_to_address.corp_state.gst_code}}</td>
+                                                <td>{{data.bill_to_address.corp_zip}}</td>
+                                                <td>0</td>
+                                                <td>{{data.gross_amount}}</td>
+                                                <td>{{data.net_amount}}</td>
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <a onclick="disableMe(this)"  href="{% url 'accounting:make_eninvoice_credit_note' module=module id=data.id  %}"
+                                    class="btn btn-primary">Confirm E-Invoice</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                {% if request.user.user_account.can_delete %}
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-xs btn-danger" data-toggle="modal"
+                    data-target="#deleteModal{{ forloop.counter }}">
+                    <i class="fas fa-trash"></i>
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog"
+                    aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete
+                                    {{data.credit_note_no}}</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure want to delete {{ data.credit_note_no }}?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <a href="{% url 'accounting:credit_note_delete' module=module id=data.id  %}"
+                                    class="btn btn-primary">Confirm Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </td>
+            <td>
+                <a class="btn btn-xs btn-primary" href="{% url 'accounting:credit_note_pdf' id=data.id  %}"
+                    target="_blank"><i class="fas fa-file-pdf"></i></a>
+            </td>
+           
+
+
+        </tr>
+
+
+        {% endfor %}
+
+    </tbody>
+</table>
+
+
+
+
+{% endblock %}
+
+
+
+{% block js %}
+
+<script>
+
+    var selected_ids = []
+    $(document).ready(function () {
+
+
+        let table = new DataTable('#cn_table', {
+            // options
+            dom: 'BQlfrtip',
+            "columnDefs": [
+                { "type": "date", "targets": 2 },
+
+            ],
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+            "pageLength": 50,
+
+            buttons: [
+                {
+                    extend: 'collection',
+                    text: 'Export',
+                    buttons: [
+                        'copy',
+                        'excel',
+                        'csv',
+                        'pdf',
+
+                    ]
+                },
+
+            ]
+        });
+        document.querySelector('.dtsb-title').style.display = 'none'
+    })
+
+
+
+
+</script>
+
+<script> 
+    function disableMe(link) {
+    
+      link.onclick = function(event) {
+         link.href = "#"
+         link.style.backgroundColor = "grey";
+      }
+    }   
+ </script>
+
+{% endblock %}

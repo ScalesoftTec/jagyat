@@ -1,0 +1,233 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+{% if update %}
+Update On Account Reciept Voucher - 
+{% else %}
+Create On Account Reciept Voucher - 
+{% endif %}
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    {% if update %}
+        Update On Account Reciept Voucher
+        {% else %}
+        Create New On Account Reciept Voucher
+        {% endif %}
+</h1>
+
+<style>
+    table th, table td{
+        padding: 0!important;
+    }
+</style>
+{% if from_date and to_date %}
+<a href="{% url 'accounting:indirect_on_account_reciept_voucher_details' module=module from_date=from_date|date:'Y-m-d' to_date=to_date|date:'Y-m-d' %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% else %}
+<a href="{% url 'accounting:indirect_on_account_reciept_voucher_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endif %}
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+
+    <input type="hidden" id="pre_recieve_voucher" value="{{ settings.pre_recieve_voucher }}">
+    <input type="hidden" id="length" value="{{ length }}">
+
+    <form enctype="multipart/form-data" method="post" autocomplete="off" onsubmit="disableSubmit(); return checkValidations();">
+        {% csrf_token %}
+        
+        {% include 'error_component.html' %}
+        <div class="row">
+
+            {% if request.user.user_account.create_global_data %}
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_company_type">Choose Company</label>
+                {{ form.company_type }}
+            </div>
+            {% else %}
+                <input type="hidden" name="company_type" id="id_company_type" value="{{ request.user.user_account.office.id }}">
+            {% endif %}
+         
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_voucher_date">Date</label>
+                {{ form.voucher_date }}
+            </div>
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_party_name">Choose Vendor</label>
+                {{ form.vendor }}
+            </div>
+         
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_recieve_in">Choose Recieved In</label>
+                {{ form.recieve_in }}
+            </div>
+
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_instrument_no">Instrument No</label>
+                {{ form.instrument_no }}
+            </div>
+        
+            <div class="col-md-3 col-sm-12 mb-1 cash_div">
+                <label class="required" for="id_cash">Choose Cash In</label>
+                {{ form.cash }}
+            </div>
+          
+            <div class="col-md-3 col-sm-12 mb-1 bank_div">
+                <label class="required" for="id_to_bank">To Bank</label>
+                {{ form.to_bank }}
+            </div>
+            
+
+              
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_received_amount_date">Recieved Amount Date</label>
+                {{ form.received_amount_date }}
+            </div>
+           
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_bank_charges">Bank Charges</label>
+                {{ form.bank_charges }}
+            </div>
+              
+            <div class="col-md-3 col-sm-12 mb-1">
+                <label class="required" for="id_advance_amount">Recieved Amount</label>
+                {{ form.advance_amount }}
+            </div>
+        
+            <div class="col-md-12 col-sm-12 mb-1">
+                <label for="id_narration">Narration</label>
+                {{ form.narration }}
+            </div>
+            
+
+        </div>
+
+        <button type="submit" class="btn btn-primary"  id="submit-btn">
+        {% if update %}
+        Update On Account Reciept Voucher
+        {% else %}
+        Create On Account New Reciept Voucher
+        {% endif %}
+        
+        </button>
+
+        {% if update %}
+        <input type="hidden" id="is_update" value="true">
+    
+        {% else %}
+        <input type="hidden" id="is_update" value="false">
+        {% endif %}
+        <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+        <input type="hidden" id="user_back_permission" value="{{ request.user.user_account.can_backlog }}">
+    
+    </form>
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+
+    if(document.getElementById('user_back_permission').value == "False"){
+        setDateLimit(3,document.getElementById('id_voucher_date'))
+    }
+
+  var is_update = document.getElementById('is_update').value
+  if(is_update == "true"){
+    document.getElementById('id_advance_amount').readOnly = true
+  }
+
+  var cash_div = document.querySelector('.cash_div')
+  var bank_div = document.querySelector('.bank_div')
+  var id_cash = document.getElementById('id_cash')
+  var id_to_bank = document.getElementById('id_to_bank')
+  cash_div.style.display = 'none'
+  id_cash.required = false
+  
+  function handle_recieve_in(){
+      var recieve_in = document.getElementById('id_recieve_in').value
+      console.log(recieve_in)
+      if(recieve_in == "BANK"){
+          cash_div.style.display = "none"
+          id_cash.required = false
+          id_to_bank.required = true
+          bank_div.style.display = "block"
+        }else{
+            cash_div.style.display = "block"
+            id_cash.required = true
+            id_to_bank.required = false
+            bank_div.style.display = "none"
+
+        }
+
+    }
+
+    document.getElementById('id_recieve_in').addEventListener('change',handle_recieve_in)
+    document.getElementById('id_recieve_in').addEventListener('keyup',handle_recieve_in)
+
+
+    function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for(i = L; i >= 0; i--) {
+           selectElement.remove(i);
+        }
+        }
+
+        async function getOnlyPartyAdress(id,address_id){
+            try{
+                
+          
+                var adresses = await axios.get('/api/v1/party/details?party='+id)
+                adresses = adresses.data
+                const select = document.getElementById(address_id); 
+                select.required = true
+                if(is_update == 'true'){
+                var value = select.value
+                }
+                else{
+                    var  value = 0
+                }
+                //removeOptions(select);
+                select.innerHTML = ''
+                select.required = true
+                var newOption = new Option("Choose Address","")
+                select.add(newOption);
+                
+                adresses.map(item=>{
+                    var newOption = new Option(item.branch,item.id)
+                    if(item.id == value){
+                        newOption.selected = true
+                    }
+                    select.add(newOption);
+                })
+        
+            }catch(err){
+                
+            }
+          }
+    
+          var is_update = document.getElementById('is_update').value
+     
+          if(is_update == "false" || !document.getElementById('id_party_address').value){
+              document.getElementById('id_party_address').innerHTML = ''
+            
+          }
+          else{
+              getOnlyPartyAdress(document.getElementById('id_party_name').value,'id_party_address');
+            
+          }
+
+          document.getElementById('id_party_name').addEventListener('keyup',()=>getOnlyPartyAdress(document.getElementById('id_party_name').value,'id_party_address'))
+          document.getElementById('id_party_name').addEventListener('change',()=>getOnlyPartyAdress(document.getElementById('id_party_name').value,'id_party_address'))
+
+
+
+    
+</script>
+
+{% endblock %}

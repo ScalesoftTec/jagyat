@@ -1,0 +1,143 @@
+<div class="row mb-3">
+
+  <div class="col-4">
+    {% if request.user.user_account.see_global_data and global_companies|length > 1 %}
+      <select name="accounting_company" id="accounting_company" class="form-control">
+        {% for i in global_companies %}
+        <option value="{{i.id}}">{{i}}</option>
+        {% endfor %}
+      </select>
+    {% else %}
+        <input type="hidden" name="accounting_company" id="accounting_company" value="{{ request.user.user_account.office.id }}">
+    {% endif %}
+   
+  </div>
+</div>
+<div class="row mb-3">
+                      
+      <div class="col-md-3 col-sm-12 mb-3">
+        <a href="{% url 'dashboard:invoice_payable_details' module='accounting' %}" style="text-decoration: none;">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Total Recievable Invoices</h6>
+              
+              <h4 id="total_rec_inv">0</h4>
+            </div>
+          </div>
+        </a>
+      </div>
+    
+      <div class="col-md-3 col-sm-12 mb-3">
+          <div class="card">
+              <div class="card-body">
+                <h6 class="card-title">Active Recievable Invoices</h6>
+                
+                <h4 id="active_rec_inv">0</h4>
+              </div>
+            </div>
+      </div>
+
+      <div class="col-md-3 col-sm-12 mb-3">
+          <div class="card">
+              <div class="card-body">
+                <h6 class="card-title">Closed Recievable Invoices</h6>
+                
+                <h4 id="closed_rec_inv">0</h4>
+              </div>
+            </div>
+      </div>
+    
+      <div class="col-md-3 col-sm-12 mb-3">
+          <div class="card">
+              <div class="card-body">
+                <h6 class="card-title">Cancelled Recievable Invoices</h6>
+                
+                <h4 id="cancelled_rec_inv">0</h4>
+              </div>
+            </div>
+      </div>
+    
+
+    <div class="col-md-3 col-sm-12 mb-3">
+        <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Total Payable Invoices</h6>
+              
+              <h4>{{ payable_invoices_global_length }}</h4>
+            </div>
+          </div>
+    </div>
+  
+
+  
+    <div class="col-md-3 col-sm-12 mb-3">
+        <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Total Debit Note</h6>
+              
+              <h4>{{ debit_note_global_length }}</h4>
+            </div>
+          </div>
+    </div>
+    
+
+  
+    <div class="col-md-3 col-sm-12 mb-3">
+        <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Total Credit Note</h6>
+              
+              <h4>{{ credit_note_global_length }}</h4>
+            </div>
+          </div>
+    </div>
+    
+    
+    <div class="col-md-3 col-sm-12 mb-3">
+        <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Total Reciept Voucher</h6>
+              
+              <h4>{{ receipt_voucher_global_length }}</h4>
+            </div>
+          </div>
+    </div>
+    
+  
+    <div class="col-md-3 col-sm-12 mb-3">
+        <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Total Payment Voucher</h6>
+              
+              <h4>{{ payment_voucher_global_length }}</h4>
+            </div>
+          </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-12 mb-3">
+        <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Total Contra Voucher</h6>
+              
+              <h4>0</h4>
+            </div>
+          </div>
+    </div>
+                     
+</div>
+
+
+<script>
+  const getData = async() => {
+    const company = document.getElementById('accounting_company').value
+    const res = await axios.get(`/api/v1/invoice/report/details?company_type=${company}`)
+    const res2 = await axios.get(`/api/v1/invoice/report/details?company_type=${company}&invoice_status=Cancel`)
+    const res3 = await axios.get(`/api/v1/invoice/report/details?company_type=${company}&pending_amount=0`)
+    document.getElementById('total_rec_inv').innerText = res.data.length
+    document.getElementById('cancelled_rec_inv').innerText = res2.data.length
+    document.getElementById('active_rec_inv').innerText = parseInt(res.data.length) - parseInt(res2.data.length) - parseInt(res3.data.length) 
+    document.getElementById('closed_rec_inv').innerText = parseInt(res3.data.length) 
+
+  }
+  getData();
+</script>

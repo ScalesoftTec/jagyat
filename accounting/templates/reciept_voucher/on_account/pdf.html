@@ -1,0 +1,129 @@
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+
+<html>
+
+<head>
+    <title>Invoice - {{data.final_invoice_no}}</title>
+    <style>
+        * {
+            margin-bottom: 0px !important;
+            margin-top: 0px !important;
+        }
+
+        .align-right {
+            text-align: right !important;
+        }
+
+        div {
+            font-size: 9px !important;
+            line-height: 3px;
+        }
+
+        .border-right-r {
+            border: 0.5px solid black;
+            border-top: none;
+            border-right: none;
+            border-collapse: collapse;
+        }
+
+        @page {
+            size: a4 portrait;
+            border: 1px solid black;
+            
+            @frame header_frame {
+                /* Static Frame */
+                -pdf-frame-content: header_content;
+                left: 10pt;
+                right: 10pt;
+                top: 40pt;
+                height: 80pt;
+            }
+
+            @frame content_frame {
+                /* Content Frame */
+                left: 10pt;
+                right: 10pt;
+                top: 120pt;
+            
+                height: 700pt;
+                border-bottom: none !important;
+            }
+
+        }
+
+        
+
+            
+        
+    </style>
+
+
+</head>
+
+<body>
+    <div id="header_content">
+        <table style="border-top:1px solid black; border-left:1px solid black;">
+            <tr>
+                <td style="width:80%"> <img width="100%" height="auto" src="{{ head.letter_head.url }}" alt="" /></td>
+                
+            </tr>
+        </table>
+       
+    </div><br>
+    <div style="font-size: 20px; margin:15px;margin-top:15px;">
+       <span>To</span><br><br>
+       <span>{{data.party_name.party_name}}</span><br><br>
+       <span>{{data.party_address.corp_address_line1}}</span><br>
+       <span>{{data.party_address.corp_address_line2}}</span><br>
+       <span>{{data.party_address.corp_address_line3}}</span><br><br><br>
+
+       <span>Dear Sir/Madam</span><br><br>
+       <span>Thanks for Paying us the Amount of Rs {{data.total_recieved_amount|floatformat:2}} </span>
+
+
+
+
+       <br>
+       <br>
+       <br>
+       <br>
+       <br>
+       <br>
+       <br>
+       <br>
+       <br>
+       <br>
+       <br>
+       
+       <span>With Best Regards</span> <br><br>
+       <span>Finance Department </span><br><br>
+       <span>Rk container line (Thailand) LTD</span> 
+
+
+
+
+
+
+
+
+    </div>
+
+  
+
+
+
+
+    
+   
+
+    
+
+    
+       
+
+
+</body>
+
+</html>

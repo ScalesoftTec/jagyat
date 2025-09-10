@@ -1,0 +1,300 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+Reciept TDS Report - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Reciept TDS 
+</h1>
+
+<style>
+  table td, th{
+    padding: 1px!important;
+  }
+</style>
+
+
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+<div>
+  <form action="" method="post">
+    {% csrf_token %}
+    <div class="row">
+
+      <div class="col-2">
+        <label for="company">Choose Company</label>
+          <select name="company" required class="form-control" id="company">
+              <option value="" selected disabled hidden>Choose Company</option>
+              {% for item in global_companies %}
+              {% if company == item.id %}
+              <option value="{{item.id}}" selected>{{item}}</option>
+              {% else %}
+              <option value="{{item.id}}" >{{item}}</option>
+              {% endif %}
+              {% endfor %}
+          </select>
+          
+        </div>
+     
+        
+     
+      
+
+      <div class="col-2">
+        <label for="from_date">From</label>
+        <input type="date" name="from_date" id="from_date" value="{{from_date|date:'Y-m-d'}}"
+          class="form-control form-control-sm" required />
+      </div>
+
+      <div class="col-2">
+        <label for="to_date">To</label>
+        <input type="date" name="to_date" id="to_date" value="{{to_date|date:'Y-m-d'}}"
+          class="form-control form-control-sm" required />
+      </div>
+      <div class="col-2">
+        <label for="from_date">Filter From</label>
+        <select name="date_filter_from" class="form-control form-control-sm" id="date_filter_from">
+          {% if date_filter_from == "Input" %}
+          <option value="Input" selected>Input Date</option>
+          {% else %}
+          <option value="Input">Input Date</option>
+          {% endif %}
+          
+          {% if date_filter_from == "Claimed" %}
+          <option value="Claimed" selected>Claimed Date</option>
+          {% else %}
+          <option value="Claimed">Claimed Date</option>
+          {% endif %}
+
+        </select>
+      </div>
+      
+      <div class="col-2 mt-4">
+        
+        <button class="btn btn-sm btn-primary" id="getReportButton" type="submit">Get Report</button>
+      </div>
+    </div>
+  </form>
+
+  <form action="{% url 'acr:reciept_tds_claim_action' module=module %}" method="post" id="action_form"  style="display: none;">
+    {% csrf_token %}
+    <div class="row">
+
+      <div class="col-md-2 col-sm-12" >
+        <label for="status" class="text-danger">Update Status</label>
+        <select name="status" id="status" class="form-control form-control-sm" required>
+          <option value="F" selected>Final</option>
+          <option value="UF" selected>Unfinal</option>
+          
+        </select>
+      </div>
+      <div class="col-md-2 col-sm-12" >
+        <label for="claim_date" class="text-danger">Claim Date</label>
+       <input type="date" class="form form-control form-control-sm" name="claim_date" id="claim_date" />
+      </div>
+      <div class="col-2 mt-4">
+        <input type="hidden" id="selected_fields" name="selected_fields" value="">
+        <input type="hidden" id="list_selected" name="list_selected" value="0">
+        <button class="btn btn-sm btn-primary" id="getReportButton" type="submit">Update Status</button>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+{% if report %}
+<div class="table-repsonsive">
+<table class="table table-primary table-bordered table-hover" id="reciept_tds_table">
+    <thead>
+      <tr>
+
+        <th scope="col">Branch</th>
+        <th scope="col">Job No.</th>
+        <th scope="col">Bill No.</th>
+        <th scope="col">Bill Date</th>
+        <th scope="col">Party Name</th>
+        <th scope="col">Party PAN</th>
+        <th scope="col">Party TAN</th>
+        <th scope="col">Invoice Amount</th>
+      
+        <th scope="col">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for data in report %}
+      {% if data.tds_amount > 0 %}
+
+      {% if data.tds_claimed %}
+      <tr class="bg-sucess">
+        {% else %}
+      <tr>
+        {% endif %}
+        
+        <td>
+          <input type="hidden" value="{{data.id}}" id="voucher_{{forloop.counter}}" name="voucher_{{forloop.counter}}">
+          {{data.voucher.company_type}}
+        </td>
+
+        <td>{{ data.invoice.job_no }}</td>
+        <td>
+         
+          {{ data.invoice.final_invoice_no }}
+          
+        </td>
+        <td>{{data.invoice.einvoice_date|date:'Y-m-d'}}</td>
+        <td>{{ data.party.party_name }}</td>
+        <td>{{ data.party_address.corp_pan }}</td>
+        <td>{{ data.party_address.corp_tan }}</td>
+        <td data-order="{{ data.invoice.net_amount|floatformat:2 }}" align="right">{{ data.invoice.net_amount|floatformat:2 }}</td>
+    
+        <td align="right" data-order="{{ data.tds_amount|floatformat:0|floatformat:2 }}">{{ data.tds_amount|floatformat:0|floatformat:2 }}</td>
+      
+   
+       
+    
+      </tr>
+      {% endif %}
+      {% endfor %}
+     
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="6"></td>
+        <td class="text-right text-white">Total</td>
+        <td class="text-right text-white"></td>
+        <td class="text-right text-white"></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  var selected_ids = []
+  $(document).ready(function () {
+
+    jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+      return this.flatten().reduce( function ( a, b ) {
+          var x = parseFloat(a) ;
+          var y = parseFloat($(b).attr('data-order')) ;
+  
+          return parseFloat((x+y)).toFixed(2)
+      }, 0 );
+  } );
+
+  let table = new DataTable('#reciept_tds_table', {
+      // options
+      dom: 'BQlfrtip',
+      columnDefs: [
+          { "type": "date", "targets": 4,"displayFormat": 'dddd D MMMM YYYY' },
+       
+          ],
+          lengthMenu: [
+              [10, 25, 50, -1],
+              [10, 25, 50, 'All'],
+          ],
+          order: [[4, 'asc']],
+
+          select: {
+            style: "multiple",
+          },
+        
+      buttons: [
+          {
+              extend: 'collection',
+              text: 'Export',
+              buttons: [
+                  'copy',
+                  'excel',
+                  'csv',
+                  'pdf',
+                  'print'
+              ]
+          }
+          ],
+          drawCallback: function () {
+            var api = this.api();
+            $( api.table().column(7).footer() ).html(
+                api.column( 7, {page:'current'} ).nodes().sum()
+            );
+           
+            $( api.table().column(8).footer() ).html(
+                api.column( 8, {page:'current'} ).nodes().sum()
+            );
+           
+          
+         
+          
+           
+          }
+  });
+  
+  table.on('select', function (e, dt, type, indexes) {
+    var rowData = table.rows(indexes).data().toArray();
+    console.log(rowData)
+    indexes.map(index => {
+
+      var selected_fields = document.getElementById('selected_fields')
+
+      var indexValue = document.getElementById(`voucher_${index + 1}`).value
+ 
+      selected_ids.push(indexValue)
+      selected_fields.value = selected_ids
+
+
+    })
+
+    if (selected_ids.length > 0) {
+      var action_form = document.getElementById('action_form')
+      action_form.style.display = 'block'
+      document.getElementById('status').required = true
+      document.getElementById('claim_date').required = true
+      document.getElementById('list_selected').value = 1
+      document.getElementById('getReportButton').innerText = "Update"
+    }
+  })
+    .on('deselect', function (e, dt, type, indexes) {
+      var rowData = table.rows(indexes).data().toArray();
+      console.log("Index Length is : " + indexes[0])
+      indexes.map(index => {
+
+        var selected_fields = document.getElementById('selected_fields')
+
+        var indexValue = document.getElementById(`voucher_${index + 1}`).value
+     
+     
+      
+        selected_ids = selected_ids.filter(item => item !== indexValue)
+
+
+  
+        selected_fields.value = selected_ids
+    
+
+      })
+
+      if (selected_ids.length == 0) {
+        var action_form = document.getElementById('action_form')
+        action_form.style.display = 'none'
+        document.getElementById('status').required = false
+        document.getElementById('claim_date').required = false
+        document.getElementById('list_selected').value = 0
+        document.getElementById('getReportButton').innerText = "Get Report"
+      }
+
+    })
+
+  document.querySelector('.dtsb-title').style.display = 'none'
+})
+</script>
+{% endblock %}

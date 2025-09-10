@@ -1,0 +1,358 @@
+{% extends 'dashboard/index.html' %}
+{% load static %}
+{% block dashoard_title %} 
+{% if update %}
+Update Job - 
+{% else %}
+Create Job - 
+{% endif %}
+
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Job
+    {% else %}
+    Create New Job
+    {% endif %}
+</h1>
+
+<a href="{% url 'operations:job_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+<style>
+    .table th, .table td{
+        padding: 0!important;
+        min-width: 200px!important;
+    }
+</style>
+<input type="hidden" id="job_length" value="{{ last_job }}">
+<input type="hidden" id="module" value="{{ module }}">
+
+
+<form enctype="multipart/form-data" method="post" id="job_form" onsubmit="disableSubmit()" data-inq-url="{% url 'home:ajax_inquiry_details' %}">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+        {% if update %}
+        <input type="hidden" id="is_update" value="true">
+  
+        {% else %}
+        <input type="hidden" id="is_update" value="false">
+        {% endif %}
+        
+       
+       
+        
+        <div class="col-md-12 col-sm-12 mb-1">
+            <label for="id_remarks">Remaks</label>
+            {{ form.remarks }}
+        </div>
+
+        {% if request.user.user_account.create_global_data %}
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_company_type">Choose Company</label>
+            {{ form.company_type }}
+        </div>
+        
+        {% else %}
+            <input type="hidden" name="id_company_type" id="id_company_type" value="{{ request.user.user_account.office.id }}">
+        {% endif %}
+        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_alternate_company">Assigned Company</label>
+            {{ form.alternate_company }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_inquiry">Quotation</label>
+            {{ form.inquiry }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_account_manager">Account Manager</label>
+            {{ form.account_manager }}
+        </div>
+
+      
+        
+        {% if module == 'sea_export' or module == 'air_export' %}
+        {% include 'job/export_job.html' %}
+        {% elif module == 'sea_import' or module == 'air_import' %}
+        {% include 'job/import_job.html' %}
+        {% elif module == 'transportation' %}
+        {% include 'job/transport_job.html' %}
+        {% endif %}
+
+       <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_gross_weight">Gross Weight</label>
+            {{ form.gross_weight }}
+        </div>
+
+        <!-- <div class="col-md-12 col-sm-12 mb-1">
+            <label for="id_scale_of_work">Scale of Work</label>
+            {{ form.scale_of_work }}
+        </div> -->
+        <div class="col-12 mt-3">
+        <div class="row gx-3 ">
+            <div class="col-md-12 col-sm-12">
+                <nav class="nav nav-tabs  mb-2">
+                    <a class="nav-item  nav-link active" id="job_file-tab" data-toggle="tab" href="#job_file">Uploads</a>
+                    <a class="nav-item  nav-link" id="transhipment-tab" data-toggle="tab" href="#transhipment">Transhipment (If Any)</a>
+
+                    
+                    <a class="nav-item  nav-link" id="job_invoice_details-tab" data-toggle="tab" href="#job_invoice_details">Invoice Details</a>
+                    
+                    <a class="nav-item  nav-link" id="job_container_details-tab" data-toggle="tab" href="#job_container_details">Container Details</a>
+
+                    
+                   
+            
+                </nav>
+            </div>
+    
+            <div class="col-12 col-12">
+                <div class="tab-content" id="myTabContent">
+               
+                    {% include 'job/job_file.html' %}
+                    {% include 'job/job_transhipment.html' %}
+                    {% include 'job/job_invoice_details.html' %}
+                    {% include 'job/job_container.html' %}
+                  
+                    
+                </div>
+                
+            </div>
+    
+        </div>
+        </div>
+     
+    </div>
+
+ 
+
+    <button type="submit" id="submitBtn" class="btn btn-primary">
+        
+        {% if update %}
+        Update Job
+        {% else %}
+        Create New Job
+        {% endif %}
+
+    </button>
+
+    <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+
+ 
+
+
+
+</form>
+
+
+
+
+{% endblock %}
+
+
+{% block js %}
+
+
+
+<script>
+    $("#id_inquiry").change(function () {
+        var url = $("#job_form").attr("data-inq-url");
+        var inquiry = $(this).val();
+        $.ajax({
+          url: url,
+          data: { 'inquiry': inquiry },
+          dataType: 'json',
+          success: function (data) {
+          const inquiry = data.inquiry[0]
+       
+          $("#id_account").val(inquiry.party_id);
+          $("#id_port_of_loading").val(inquiry.pol_id);
+          $("#id_port_of_discharge").val(inquiry.pod_id);
+          $("#id_final_destination").val(inquiry.destination_id);
+          $("#id_shipping_line").val(inquiry.shipping_line_id);
+          $("#id_no_of_packages").val(inquiry.total_packages);
+          $("#id_packages_type").val(inquiry.total_packages_type);
+          $("#id_commodity").val(inquiry.commodity);
+          $("#id_commodity_type").val(inquiry.commodity_type);
+          $("#id_gross_weight").val(inquiry.gross);
+          $("#id_container_type").val(inquiry.container_type);
+          
+          if(inquiry.party_id){
+            getOnlyPartyAdress()
+        }
+        
+
+          }
+        });
+      });
+</script>
+
+
+
+
+<script>
+    try{
+
+        var data = JSON.parse("{{jobs_current_len_of_companies|escapejs}}");
+    }catch(err){
+        var data = []
+    }
+  
+    if(document.getElementById('is_update').value == 'false'){
+        document.getElementById('id_company_type').value = document.getElementById('user_company').value
+        document.getElementById('id_alternate_company').value = document.getElementById('user_company').value
+    }
+
+    function pad(num, size) {
+        num = num.toString();
+        while (num.length < size) num = "0" + num;
+        return num;
+    }
+
+    var company_id = document.getElementById('id_company_type').value
+
+    var current_company = data.find(item => item.company_type == company_id)
+
+    document.getElementById('id_company_type').addEventListener('change', (event) => {
+        updateCompanyType(event.target.value);
+
+    })
+    function updateCompanyType(company_id) {
+
+        var current_company = data.find(item => item.company_type == company_id)
+
+
+        try {
+            var module = document.getElementById('module').value
+            const length = pad(parseInt(current_company.count) + 1,6)
+            const job_no = document.getElementById('id_job_no').value
+            var before_text = current_company.job_starting
+            console.log(before_text)
+            document.getElementById('id_job_no').value = before_text + length
+            
+
+        } catch (err) {
+
+        }
+
+    }
+
+
+    try {
+        var module = document.getElementById('module').value
+        const length = pad(parseInt(current_company.count) + 1,6)
+        const job_no = document.getElementById('id_job_no').value
+        var before_text = current_company.job_starting
+        if (job_no == '') {
+
+            document.getElementById('id_job_no').value = before_text + length
+        }
+    } catch (err) {
+
+    }
+
+
+    if (module == 'sea_export') {
+        document.getElementById('id_module').value = 'Sea Export'
+    }
+    else if (module == 'sea_import') {
+        document.getElementById('id_module').value = 'Sea Import'
+    }
+    else if (module == 'air_export') {
+        document.getElementById('id_module').value = 'Air Export'
+    }
+    else if (module == 'air_import') {
+        document.getElementById('id_module').value = 'Air Import'
+    }
+    else if (module == 'transportation') {
+        document.getElementById('id_module').value = 'Transport'
+    }
+
+
+
+
+</script>
+
+
+
+<script type="text/javascript">
+function showEditPopup(url) {
+    var win = window.open(url, "Edit", 
+        'height=500,width=800,resizable=yes,scrollbars=yes');
+    return false;
+}
+function showAddPopup(triggeringLink) {
+    var name = triggeringLink.id.replace(/^add_/, '');
+    href = triggeringLink.href;
+    var win = window.open(href, name, 'height=500,width=800,resizable=yes,scrollbars=yes');
+    win.focus();
+    return false;
+}
+function closePopup(win, newID, newRepr, id) {
+    $(id).append('<option value=' + newID + ' selected >' + newRepr + '</option>')
+    win.close();
+}
+
+</script>
+
+
+<script>
+    const is_update = document.getElementById('is_update').value
+ 
+    if(is_update == false){
+        document.getElementById('id_account_address').innerHTML = ''
+    }
+    else{
+        getOnlyPartyAdress()
+    }
+    function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for(i = L; i >= 0; i--) {
+           selectElement.remove(i);
+        }
+        }
+    
+    
+    document.getElementById('id_account').addEventListener('change',getOnlyPartyAdress)
+    document.getElementById('id_account').addEventListener('keyup',getOnlyPartyAdress)
+    async function getOnlyPartyAdress(){
+        try{
+    
+            const party = document.getElementById('id_account').value
+            var adresses = await axios.get('/api/v1/party/details?party='+party)
+            adresses = adresses.data
+            const select = document.getElementById('id_account_address'); 
+            const value = select.value
+            removeOptions(select);
+            
+            select.required = true
+            var newOption = new Option("Choose Address","")
+            select.add(newOption);
+            
+            adresses.map(item=>{
+                var newOption = new Option(item.branch,item.id)
+                if(item.id == value){
+                    newOption.selected = true
+                }
+                select.add(newOption);
+            })
+        }catch(err){
+            console.log(err)
+        }
+      }
+    
+</script>
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,387 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load custom_tags %}
+
+{% block dashoard_title %}
+GSTR1 List -
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+  GSTR1 Recievables List
+</h1>
+
+<style>
+  table td,
+  th {
+    font-size: 13px !important;
+    padding: 1px !important;
+  }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<div class="mb-4">
+
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="row">
+     
+      <div class="col-2">
+        <label for="from_date">From</label>
+        <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" required id="from_date"
+          class="form-control form-control-sm" />
+      </div>
+      <div class="col-2">
+        <label for="to_date">To</label>
+        <input type="date" name="to_date" required id="to_date" value="{{to_date|date:'Y-m-d'}}"
+          class="form-control form-control-sm" />
+      </div>
+
+      <div class="col-md-3">
+        <button type="button" id="invoice_button" class="btn btn-primary btn-sm mt-4">Filter</button>
+      </div>
+    </div>
+  </form>
+
+</div>
+
+
+<div class="table-responsive">
+
+
+  <table class="table table-primary  table-bordered compact display" id="gstr1_table" >
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th style="min-width:150px!important" scope="col">Company GST Code</th>
+        <th style="min-width:150px!important" scope="col">Bill No.</th>
+        <th style="min-width:150px!important" scope="col">Date</th>
+        <th style="min-width:50px!important" scope="col">Type</th>
+        <th style="min-width:50px!important" scope="col">Category</th>
+        <th style="min-width:100px!important" scope="col">Job No</th>
+        <th style="min-width:100px!important" scope="col">Job Type</th>
+        <th style="min-width:150px!important" scope="col">Location</th>
+        <th style="min-width:150px!important" scope="col">GST No.</th>
+        <th style="min-width:150px!important" scope="col">State</th>
+        <th style="min-width:150px!important" scope="col">Party Name</th>
+        <th style="min-width:50px!important" scope="col">Currency</th>
+        <th style="min-width:100px!important" scope="col">Total Amount</th>
+       
+        {% if filter_percent == "All" %}
+        <th scope="col">Non Tax Amount</th>
+        {% endif %}
+
+        {% if filter_percent == "5" or filter_percent == "All" %}
+        <th scope="col">Taxable 5%</th>
+        <th scope="col">CGST 2.5%</th>
+        <th scope="col">SGST 2.5%</th>
+        <th scope="col">IGST 5%</th>
+        {% endif %}
+
+        {% if filter_percent == "12" or filter_percent == "All" %}
+        <th scope="col">Taxable 12%</th>
+        <th scope="col">CGST 6%</th>
+        <th scope="col">SGST 6%</th>
+        <th scope="col">IGST 12%</th>
+        {% endif %}
+
+        {% if filter_percent == "18" or filter_percent == "All" %}
+        <th scope="col">Taxable 18%</th>
+        <th scope="col">CGST 9%</th>
+        <th scope="col">SGST 9%</th>
+        <th scope="col">IGST 18%</th>
+        {% endif %}
+
+        <th scope="col">Total GST</th>
+
+
+      </tr>
+    </thead>
+    <tbody id="tbody">
+     
+
+    </tbody>
+
+    <tfoot>
+      <tr align="right">
+        <td style="color: white!important;" colspan="14"></td>
+        <td style="color: white!important;">Total</td>
+
+
+        <td class="text-right" style="color: white!important;" align="right"></td>
+    
+        {% if filter_percent == "All" %}
+        <td class="text-right" style="color: white!important;" align="right"></td>
+
+        {% endif %}
+
+        {% if filter_percent == "5" or filter_percent == "All" %}
+        <td class="text-right" style="color: white!important; " align="right"></td>
+        <td class="text-right" style="color: white!important; " align="right"></td>
+        <td class="text-right" style="color: white!important; " align="right"></td>
+        <td class="text-right" style="color: white!important; " align="right"></td>
+        {% endif %}
+
+        {% if filter_percent == "12" or filter_percent == "All" %}
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        {% endif %}
+
+        {% if filter_percent == "18" or filter_percent == "All" %}
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        <td class="text-right" style="color: white!important;" align="right"></td>
+        {% endif %}
+ 
+        <td style="color: white!important;" align="right"></td>
+
+
+
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+
+<script src="https://cdn.datatables.net/plug-ins/1.13.4/api/sum().js"></script>
+<script>
+  $(document).ready(function () {
+    var invoices = []
+ 
+    jQuery.fn.dataTable.Api.register('sum()', function () {
+      return this.flatten().reduce(function (a, b) {
+        var x = parseFloat(a);
+        var y = parseFloat($(b).attr('data-order'));
+
+        return parseFloat(x + y).toFixed(2)
+      }, 0);
+    });
+    
+
+    let table = new DataTable('#gstr1_table', {
+      dom: "BQflrtip",
+      oLanguage: {sProcessing: "<div id='table_content_loader'></div>"},
+      
+     "data":invoices,
+    processing:true,
+    lengthMenu: [
+      [10, 25, 50, -1],
+      [10, 25, 50, 'All'],
+    ],
+
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+            'copy',
+            { extend: 'excel', footer: true,header:true},
+            { extend: 'csv', footer: true,header:true},
+            { extend: 'pdf', footer: true,header:true},
+        
+        ]
+    }
+    ],
+
+    'columnDefs': [
+    {
+       'targets': 1,
+       'createdCell':  function (td, cellData, rowData, row, col) {
+    
+          if(cellData == 'Cancelled'){  
+            $(row).attr('class', 'strikeout'); 
+          }
+       }
+    },
+
+  
+    {
+       'targets': [14,15,16,17,18,19,20,21,22,23,24,25,26,27,28],
+       'createdCell':  function (td, cellData, rowData, row, col) {
+        $(td).attr('class', 'text-right'); 
+        $(td).attr('data-order', cellData); 
+        $(td).attr('align', 'right'); 
+      
+      $(td).attr('data-column', col); 
+         
+       }
+    },
+    
+    
+    ],
+      drawCallback: function () {
+        var api = this.api();
+
+        var from_row = 14
+        var to_row = 28
+
+        for (var i = from_row; i <= to_row; i++) {
+          $(api.table().column(i).footer()).html(
+            api.column(i, { page: 'current' }).nodes().sum()
+          );
+        }
+
+
+      }
+
+    });
+
+    document.querySelector('.dtsb-title').style.display = 'none'
+    async function getInvoices(){
+      invoices = []
+      var filter_by_per = "All"
+      
+      var from_date = document.getElementById('from_date').value
+      var to_date = document.getElementById('to_date').value
+
+      $('.dataTables_processing', $('#gstr1_table').closest('.dataTables_wrapper')).show();
+      const api_url = `/api/v1/invoice/gstr/details?einvoice_date__gte=${from_date}&einvoice_date__lte=${to_date}&is_einvoiced=1&old_invoice=0&company_type__tax_policy=GST`
+      
+      var res = await axios.get(api_url)
+      var error_list = []
+      res.data.map((item,index)=>{
+          var non_tax_amount =  0
+          var taxable_5 =  0
+          var total_cs5 =  0
+          var total_i5 =  0
+          var taxable_12 =  0
+          var total_cs12 =  0
+          var total_i12 =  0
+          var taxable_18 =  0
+          var total_cs18 =  0
+          var total_i18 =  0
+          customer_gst_code = "00"
+          try{
+            customer_gst_code = item.bill_to_address.corp_state.gst_code
+          }
+          catch(err){
+            error_list.push({'invoice_no':item.final_invoice_no})
+          }
+
+          company_gst_code = "00"
+          try{
+            company_gst_code = item.company_type.company_gst_code
+          }
+          catch(err){
+
+          }
+          item.recievable_invoice_reference.map(bill=>{
+            if(bill.gst == 0){
+              non_tax_amount += parseFloat(bill.total)
+            }
+            if(parseInt(bill.gst) == 5){
+              taxable_5 += parseFloat(bill.amount)
+              if(
+                (
+                (company_gst_code == customer_gst_code && item.type_of_invoice != 'RCM')
+                ||
+                (customer_gst_code == "09" && item.type_of_invoice == 'RCM'))
+                && 
+                !bill.billing_head.always_igst){
+                total_cs5 += parseFloat(item.gst_amount) / 2
+              }
+              if(!((company_gst_code == customer_gst_code && item.type_of_invoice != 'RCM')||(customer_gst_code == "09" && item.type_of_invoice == 'RCM')) || bill.billing_head.always_igst){
+                total_i5 += parseFloat(bill.gst_amount)
+              }
+            }
+
+            if(parseInt(bill.gst) == 12){
+              taxable_12 += parseFloat(bill.amount)
+              if(((company_gst_code == customer_gst_code && item.type_of_invoice != 'RCM')||(customer_gst_code == "09" && item.type_of_invoice == 'RCM')) && !bill.billing_head.always_igst){
+                total_cs12 += parseFloat(bill.gst_amount) / 2
+               
+              }
+              if(!((company_gst_code == customer_gst_code && item.type_of_invoice != 'RCM')||(customer_gst_code == "09" && item.type_of_invoice == 'RCM')) || bill.billing_head.always_igst){
+                total_i12 += parseFloat(bill.gst_amount)
+              } 
+            }
+
+
+            if(parseInt(bill.gst) == 18){
+              taxable_18 += parseFloat(bill.amount)
+              if(((company_gst_code == customer_gst_code && item.type_of_invoice != 'RCM')||(customer_gst_code == "09" && item.type_of_invoice == 'RCM')) && !bill.billing_head.always_igst){
+                total_cs18 += parseFloat(bill.gst_amount) / 2
+              }
+              if(!((company_gst_code == customer_gst_code && item.type_of_invoice != 'RCM')||(customer_gst_code == "09" && item.type_of_invoice == 'RCM')) || bill.billing_head.always_igst){
+                total_i18 += parseFloat(bill.gst_amount)
+              }
+            }
+          })
+
+          non_tax_amount = non_tax_amount.toFixed(2)
+          taxable_5 = taxable_5.toFixed(2)
+          taxable_12 = taxable_12.toFixed(2)
+          taxable_18 = taxable_18.toFixed(2)
+          total_cs5 = parseFloat(total_cs5).toFixed(2)
+          total_i5 = parseFloat(total_i5).toFixed(2)
+          total_cs12 = parseFloat(total_cs12).toFixed(2)
+          total_i12 = parseFloat(total_i12).toFixed(2)
+          total_cs18 = parseFloat(total_cs18).toFixed(2)
+          total_i18 = parseFloat(total_i18).toFixed(2)
+          var einvoice_date = new Date(Date.parse(item.einvoice_date))
+          einvoice_date = `${einvoice_date.getFullYear()}-${("0" + (einvoice_date.getMonth() + 1)).slice(-2)}-${("0" + einvoice_date.getDate()).slice(-2)}`
+         
+   
+          branch = ""
+          gstin = ""
+          corp_state = ""
+          try{
+            branch = item.bill_to_address.branch
+
+          }catch(err){
+
+          }
+          try{
+            gstin = item.bill_to_address.corp_gstin
+
+          }catch(err){
+
+          }
+          try{
+            corp_state = item.bill_to_address.corp_state.name
+
+          }catch(err){
+
+          }
+
+          try{
+
+            invoices.push([
+            index+1,company_gst_code,item.final_invoice_no,einvoice_date,item.type_of_invoice,item.category,item.job_no.job_no,item.job_no.module,branch,gstin,corp_state,item.bill_to.party_name,item.invoice_currency.short_name,item.net_amount,non_tax_amount,taxable_5,total_cs5,total_cs5,total_i5,taxable_12,total_cs12,total_cs12,total_i12,taxable_18,total_cs18,total_cs18,total_i18,item.gst_amount
+            ])
+          }
+          catch(err){
+            
+          }
+
+          
+
+        }
+      )
+
+      table.clear()
+      table.rows.add(invoices).draw()
+      console.log(error_list)
+ 
+   $('.dataTables_processing', $('#gstr1_table').closest('.dataTables_wrapper')).hide();
+   }
+   document.getElementById('invoice_button').addEventListener('click',getInvoices)
+  })
+
+  
+
+</script>
+
+{% endblock %}

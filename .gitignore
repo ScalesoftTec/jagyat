@@ -1,0 +1,93 @@
+# Python
+__pycache__/
+**/__pycache__/
+
+migrations/
+**/migrations/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+*.pyo
+*.pyd
+*.pdb
+*.log
+
+# Environments
+.env
+.env.*
+.venv/
+venv/
+ENV/
+env.bak/
+*.env
+
+# Django-specific
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+static_root/
+local_settings.py
+
+# VSCode and other editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Mac OS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Byte-compiled / optimized / DLL files
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Test/migrations
+*.mo
+*.pot
+*.log
+*.coverage
+.tox/
+coverage.xml
+htmlcov/
+.mypy_cache/
+.pytest_cache/
+pytestdebug.log
+
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Build
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Git
+*.orig
+*.swp
+*.swo
+*.bak
+
+# Celery
+celerybeat-schedule
+
+# Security
+secrets.json
+
+# Node (if using webpack or similar)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Docker
+*.pid

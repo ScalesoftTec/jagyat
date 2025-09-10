@@ -1,0 +1,158 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load humanize %}
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Party Wise Outstanding
+</h1>
+
+<style>
+    table td, th{
+        padding: 0px!important;
+    }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<form action="" method="post">
+{% csrf_token %}
+    <div class="row">
+
+   
+
+    <div class="col-2">
+        <label for="region">Choose Region</label>
+        <select name="region" id="region" required class="form-control">
+          {% if not selected_region %}
+          <option value="" selected hidden disabled>Choose Region</option>
+          {% endif %}
+
+          {% for i in company_regions %}
+          {% if i.region == selected_region %}
+          <option value="{{i.region}}" selected >{{i.region}}</option>
+          {% else %}
+          <option value="{{i.region}}">{{i.region}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+
+  
+    <div class="col-md-2 col-sm-12 mb-3">
+        <button type="submit" class="btn btn-sm btn-primary mt-4">Filter</button>
+    </div>
+</div>
+</form>
+
+<div class="table-responsive">
+
+
+
+    <table class="display table table-primary table-bordered table-hover" id="party_ledger_table">
+        <thead>
+          
+            <tr>
+                <th>Party</th>
+                <th>Account Manager</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        
+        <tbody>
+         {% for i in report %}
+         <tr>
+            <td>{{i.party.party_name}}</td>
+            <td>
+                
+                {{i.party.account_manager}}
+
+            </td>
+            <td align="right" data-order="{{i.outstanding|floatformat:0|floatformat:2}}">{{i.outstanding|floatformat:0|floatformat:2}}</td>
+         </tr>
+         {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+               <td></td>
+               <td style="color:white!important;">Total</td>
+               <td style="color: white !important;" class="text-right">0</td>
+            </tr>
+        </tfoot>
+    </table>
+
+
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    $(document).ready(function () {
+
+        jQuery.fn.dataTable.Api.register( 'sum()', function ( ) {
+          return this.flatten().reduce( function ( a, b ) {
+              var x = parseFloat(a) ;
+              var y = parseFloat($(b).attr('data-order')) ;
+      
+              return parseFloat((x+y)).toFixed(2)
+          }, 0 );
+      } );
+
+
+      
+      let table = new DataTable('#party_ledger_table', {
+            // options
+            dom: 'BQlfrtip',
+          
+        
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+           
+            buttons: [
+            {
+                extend: 'collection',
+                text: 'Export',
+                buttons: [
+                { extend: 'copy', footer: true, header:true, title:'Pinkcity Logistics Party Wise O/S' },
+                { extend: 'excel', footer: true, header:true, title:'Pinkcity Logistics Party Wise O/S' },
+                { extend: 'csv', footer: true, header:true, title:'Pinkcity Logistics Party Wise O/S' },
+                { extend: 'pdf', footer: true, header:true , title:'Pinkcity Logistics Party Wise O/S',orientation: 'landscape',},
+             
+                ]
+            }
+            ],
+
+            select: {
+                style:'multiple'
+            },
+        
+            drawCallback: function () {
+                var api = this.api();
+                $( api.table().column(2).footer() ).html(
+                    api.column( 2, {page:'current'} ).nodes().sum()
+                );
+               
+              
+             
+              
+               
+              }
+        });
+       
+      
+        document.querySelector('.dtsb-title').style.display = 'none'
+        
+    })
+
+
+  
+
+</script>
+{% endblock %}

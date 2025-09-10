@@ -1,0 +1,151 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load custom_tags %}
+{% load humanize %}
+{% block dashoard_title %} 
+Balance Sheet Report - 
+{% endblock %}
+
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Balance Sheet Report
+</h1>
+<style>
+    table td, th{
+        padding: 0px!important;
+    }
+</style>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<div class="">
+    
+    <form method="post" class="mb-3">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-2 col-sm-12 mb-2">
+                <label for="company">Choose Company</label>
+                <select name="company" required class="form-control" id="company">
+                    <option value="" selected disabled hidden>Choose Company</option>
+                    {% for item in global_companies %}
+                    {% if company == item.id %}
+                    <option value="{{item.id}}" selected>{{item}}</option>
+                    {% else %}
+                    <option value="{{item.id}}" >{{item}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 mb-2">
+                <label for="report_in">View</label>
+                <select name="report_in" required class="form-control" id="report_in">
+                   
+                    {% for item in report_in_options %}
+                    {% if item.value == report_in %}
+                    <option value="{{item.value}}" selected>{{item.name}}</option>
+                    {% else %}
+                    <option value="{{item.value}}" >{{item.name}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 col-sm-12 mb-2">
+                <label for="from_date">From Date</label>
+                <input type="date" required name="from_date" id="from_date" class="form-control" value="{{from_date|date:'Y-m-d'}}" >
+            </div>
+            <div class="col-md-2 col-sm-12 mb-2">
+                <label for="to_date">To Date</label>
+                <input type="date" required name="to_date" id="to_date" class="form-control" value="{{to_date|date:'Y-m-d'}}" >
+            </div>
+            <div class="col-md-1 col-sm-12">
+
+                <button class="btn mt-4 btn-primary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+
+
+
+
+
+    <table class="table table-primary table-bordered table-md-responsive" id="bs_table">
+        <thead class="table-dark">
+            <tr>
+               
+      
+                <th colspan="2" align="center">Liabilities</th>
+                
+                <th align="center">Amount</th>
+      
+                <th colspan="2" align="center">Assets</th>
+                <th align="center">Amount</th>
+                
+            </tr>
+           
+        </thead>
+
+
+        <tbody>
+            {% if profit_loss != 0 %}
+            <tr>
+                {% if profit_loss > 0 %}
+                <td> <strong> Net Profit </strong></td>
+                {% elif profit_loss < 0 %}
+                <td><strong>Net Loss</strong></td>
+                {% endif %}
+                <td>&nbsp;</td>
+                <td align="right"><strong>{{profit_loss|floatformat:2|intcomma}}</strong></td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+            {% endif %}
+        {% for liability,asset in report_list %}
+            {% include 'report/balance_sheet_report/list.html' %}
+        {% endfor %}
+
+       
+          
+        </tbody>
+
+        <tfoot class="table-dark">
+
+           
+            <tr>
+                <td></td>
+                <td></td>
+                <td align="right" class="text-white"> {{liability_sum|floatformat:2|intcomma}} </td>
+                <td></td>
+                <td></td>
+                <td align="right" class="text-white">{{asset_sum|floatformat:2|intcomma}} </td>
+                
+              
+            </tr>
+            
+
+ 
+
+           
+          
+
+        </tfoot>
+
+    </table>
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    let table = new DataTable('#hh', {
+        // options
+        ordering:false
+    });
+  </script>
+{% endblock %}

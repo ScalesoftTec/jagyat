@@ -1,0 +1,609 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+Party Master |
+{% endblock %}
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Create New Party
+</h1>
+
+<a href="{% url 'masters:party_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+<style>
+   
+  
+        .table th, .table td{
+            padding: 0!important;
+            min-width: 250px!important;
+        }
+
+</style>
+
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    {% if update %}
+    <input type="hidden" name="total_rows" id="total_rows" value="{{data.party_address.all|length}}">
+    {% else %}
+    <input type="hidden" name="total_rows" id="total_rows" value="1">
+    {% endif %}
+    <div class="row">
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_party_name">Party Name</label>
+            {{ form.party_name }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_party_type" class="d-block required">Party Type</label>
+            {{ form.party_type }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_alias">Alias</label>
+            {{ form.alias }}
+        </div>
+    <!-- 
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_fin_non_fin">Financial/Non Financial</label>
+            {{ form.fin_non_fin }}
+        </div> -->
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_for_station">Party Creation</label>
+            {{ form.for_station }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_party_company_type">Company Type</label>
+            {{ form.party_company_type }}
+        </div>
+
+
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_account_manager">Account Manager</label>
+            {{ form.account_manager }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_iec_code">IEC Code</label>
+            {{ form.iec_code }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_cin_number">CIN Number</label>
+            {{ form.cin_number }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_credit_days">Credit Days</label>
+            {{ form.credit_days }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="kyc_form">KYC/CAF
+                {% if update and data.kyc_form %}
+                <a href="{{ data.kyc_form.url }}" target="_blank">View</a>
+                {% endif %}
+            </label>
+            {{form.kyc_form}}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_gst_certificate">GST Certificate
+                {% if update and data.gst_certificate %}
+                <a href="{{ data.gst_certificate.url }}" target="_blank">View</a>
+                {% endif %}
+            </label>
+            {{form.gst_certificate}}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_other_document">Other Document
+                {% if update and data.other_document %}
+                <a href="{{ data.other_document.url }}" target="_blank">View</a>
+                {% endif %}
+            </label>
+            {{form.other_document}}
+        </div>
+       
+       
+        <div class="col-md-12 col-sm-12 mb-1">
+            <label for="id_is_active" class="mb-0">Is Active</label>
+
+                <div class="custom-control custom-switch">
+                    <!-- Render the toggle checkbox -->
+                    {{ form.is_active }}
+                    <label class="custom-control-label" for="id_is_active"></label>
+                </div>
+
+        </div>
+
+        <div class="col-md-12 col-sm-12 mb-1">
+            <hr> 
+        </div>
+        <div class="col-md-2">
+            <label for="id_company_type">Company</label>
+            {{form.company_type}}
+        </div>
+        <div class="col-md-2">
+            <label for="id_opening_balance">Opening Balance</label>
+            {{form.opening_balance}}
+        </div>
+        <div class="col-md-2">
+            <label for="id_opening_in">Opening In</label>
+            {{form.opening_in}}
+        </div>
+        <div class="col-md-2">
+            <label for="id_opening_date">Opening Date</label>
+            {{form.opening_date}}
+        </div>
+        <div class="col-md-2">
+            <label for="id_opening_date">Acc. Group</label>
+            {{form.tally_group}}
+        </div>
+        <div class="col-md-12 col-sm-12 mb-1">
+            <hr>
+            
+        </div>
+        </div>
+       
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <div class="d-flex py-2 px-2 w-100" style="border: 2px #dadada solid; background-color:#eeeeee;">
+                    <h2 style="font-size: 18px;" class="mb-0">
+                        Party Branch Details
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div id="branchContainer">
+
+            {% if not update %}
+            
+                <div class="col-12 mb-3 mt-4 pb-4 pt-3" id="entry-1" style="border: 1px solid rgb(211, 210, 210); box-shadow: 3px 4px 6px rgb(231, 231, 231); border-radius: 7px;">
+
+
+                    <input type="hidden" name="is_update-1" value="no" id="is_update-1">
+                    <input type="hidden" name="is_active-1" value="yes" id="is_active-1">
+                    <div class="row">
+                        <div class="col-md-2 col-sm-12">
+                            <label for="branch_1" class="required">Branch</label>
+                            <input type="text" name="branch-1" id="branch-1" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-2 col-sm-12">
+                            <label for="address_line_1-1" class="required">Address Line 1</label>
+                            <input type="text" name="address_line_1-1" id="address_line_1-1" class="form-control" required>
+                        </div>
+
+                        
+                        <div class="col-md-2 col-sm-12">
+                            <label for="address_line_2" class="required"> Address Line 2</label>
+                            <input type="text" name="address_line_2-1" id="address_line_2-1" class="form-control" required>
+                        </div>
+                        
+                        
+                        <div class="col-md-2 col-sm-12">
+                            <label for="address_line_3 " class="required">Address Line 3</label>
+                            <input type="text" name="address_line_3-3" id="address_line_3-1" class="form-control" required>
+                        </div>
+
+                        
+                        <div class="col-md-2 col-sm-12">
+                            <label for="city-1" class="required">City</label>
+                            <input type="text" name="city-1" id="city-1"  class="form-control"  onkeyup="getCity(1)" required>
+                        </div>
+                        
+                        <div class="col-md-2 col-sm-12">
+                            <label for="state-1" class="required" >State</label>
+                            <!-- <input type="text" name="state-1" id="state-1"  class="form-control"> -->
+                            <select name="state-1" id="state-1" class="form-control" required>
+                                <option value=""> Choose State </option>
+                                {% for state in all_states %}
+                                <option value="{{state.id}}">{{ state.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        
+                        <div class="col-md-2 col-sm-12">
+                            <label for="country-1" class="required">Country</label>
+                            <input type="text" name="country-1" id="country-1"  class="form-control"  onkeyup="getCountry(1)" required>
+                        </div>
+                        
+                        <div class="col-md-2 col-sm-12">
+                            <label for="zip-1" class="required">Pin Code</label>
+                            <input type="text" name="zip-1" id="zip-1"  class="form-control" required>
+                        </div>
+                        <div class="col-md-2 col-sm-12">
+                            <label for="gstin-1">GSTIN</label>
+                            <input type="text" name="gstin-1" id="gstin-1"  class="form-control">
+                        </div>
+
+                        <div class="col-md-2 col-sm-12">
+                            <label for="contact-1">Contact</label>
+                            <input type="text" name="contact-1" id="contact-1"  class="form-control">
+                        </div>
+
+                        
+                        <div class="col-md-2 col-sm-12">
+                            <label for="email-1">Email</label>
+                            <input type="text" name="email-1" id="email-1"  class="form-control">
+                        </div>
+                        
+                        <div class="col-md-2 col-sm-12">
+                            <label for="pan-1">Pan</label>
+                            <input type="text" name="pan-1" id="pan-1"  class="form-control">
+                        </div>
+
+                       
+                        <div class="col-md-2 col-sm-12">
+                            <label for="pan-1">Contact Person</label>
+                            <input type="text" name="contact_person-1" id="contact_person-1"  class="form-control">
+                        </div>
+
+
+                        <div class="col-md-12 col-sm-12 my-3">
+                            <div class='d-flex flex-row justify-content-center align-items-center btn btn-outline-danger' onclick="deleteRow(1);" style='padding:10px; width:120px;'>
+                                Delete 
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            {% elif update %}
+                {% for i in data.party_address.all %}
+
+                    <div class="col-12 mb-3 mt-4 pb-4 pt-3" id="entry-{{forloop.counter}}" style="border: 1px solid rgb(211, 210, 210); box-shadow: 3px 4px 6px rgb(231, 231, 231); border-radius: 7px;">
+
+                        <input type="hidden" name="is_active-{{forloop.counter}}" value="yes" id="is_active-{{forloop.counter}}">
+                        <input type="hidden" name="is_update-{{forloop.counter}}" value="yes" id="is_update-{{forloop.counter}}">
+                        <input type="hidden" name="party_address_id-{{forloop.counter}}" value="{{i.id}}" id="party_address_id-{{forloop.counter}}">
+
+                        <div class="row justify-content-between">
+                            <div class="col-md-2 col-sm-12">
+                                <label for="branch-{{forloop.counter}}" class="required">Branch</label>
+                                <input type="text" name="branch-{{forloop.counter}}" value="{{i.branch}}" id="branch-{{forloop.counter}}" class="form-control" required>
+                            </div>
+
+                            <div class="col-md-2 col-sm-12">
+                                <label for="address_line_1-{{forloop.counter}}" class="required">Address Line 1</label>
+                                <input type="text" name="address_line_1-{{forloop.counter}}" value="{{i.corp_address_line1}}" id="address_line_1-{{forloop.counter}}" class="form-control" required>
+                            </div>
+
+                            
+                            <div class="col-md-2 col-sm-12">
+                                <label for="address_line_2-{{forloop.counter}}" class="required">Address Line 2</label>
+                                <input type="text" name="address_line_2-{{forloop.counter}}" value="{{i.corp_address_line2}}" id="address_line_2-{{forloop.counter}}" class="form-control" required>
+                            </div>
+                            
+                            
+                            <div class="col-md-2 col-sm-12">
+                                <label for="address_line_3-{{forloop.counter}}" class="required">Address Line 3</label>
+                                <input type="text" name="address_line_3-{{forloop.counter}}" value="{{i.corp_address_line3}}" id="address_line_3-{{forloop.counter}}" class="form-control" required>
+                            </div>
+
+                            
+                            <div class="col-md-2 col-sm-12">
+                                <label for="city-{{forloop.counter}}" class="required">City</label>
+                                <input type="text" name="city-{{forloop.counter}}" id="city-{{forloop.counter}}" onkeyup="getCity('{{forloop.counter}}')"  value="{{i.corp_city}}"  class="form-control"   required>
+                            </div>
+                            
+                            <div class="col-md-2 col-sm-12">
+                                <label for="state-{{forloop.counter}}" class="required">State</label>
+                                <!-- <input type="text" name="state-1" id="state-1"  class="form-control"> -->
+                                <select name="state-{{forloop.counter}}" id="state-{{forloop.counter}}" class="form-control" required>
+                                    <option value=""> Choose State </option>
+                                    {% for state in all_states %}
+                                        {% if state.id == i.corp_state.id %}
+                                            <option value="{{state.id}}" selected>{{ state.name }}</option>
+                                        {% else %}
+                                            <option value="{{state.id}}">{{ state.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            
+                            <div class="col-md-2 col-sm-12">
+                                <label for="country-{{forloop.counter}}" class="required">Country</label>
+                                <input type="text" name="country-{{forloop.counter}}" id="country-{{forloop.counter}}"  value="{{i.corp_country}}"  class="form-control"  onkeyup="getCountry(1)" required>
+                            </div>
+                            
+                            <div class="col-md-2 col-sm-12">
+                                <label for="zip-{{forloop.counter}}" class="required">Pin Code</label>
+                                <input type="text" name="zip-{{forloop.counter}}" id="zip-{{forloop.counter}}" value="{{i.corp_zip}}" class="form-control" required>
+                            </div>
+                            <div class="col-md-2 col-sm-12">
+                                <label for="gstin-{{forloop.counter}}">GSTIN</label>
+                                <input type="text" name="gstin-{{forloop.counter}}" id="gstin-{{forloop.counter}}" value="{{i.corp_gstin}}"  class="form-control" >
+                            </div>
+
+                            <div class="col-md-2 col-sm-12">
+                                <label for="contact-{{forloop.counter}}">Contact</label>
+                                <input type="text" name="contact-{{forloop.counter}}" id="contact-{{forloop.counter}}" value="{{i.corp_contact}}" class="form-control">
+                            </div>
+
+                            
+                            <div class="col-md-2 col-sm-12">
+                                <label for="email-{{forloop.counter}}">Email</label>
+                                <input type="text" name="email-{{forloop.counter}}" id="email-{{forloop.counter}}" value="{{i.corp_email}}" class="form-control">
+                            </div>
+                            
+                            <div class="col-md-2 col-sm-12">
+                                <label for="pan-{{forloop.counter}}">Pan</label>
+                                <input type="text" name="pan-{{forloop.counter}}" id="pan-{{forloop.counter}}" value="{{i.corp_pan}}" class="form-control" required>
+                            </div>
+
+                            
+                            <div class="col-md-2 col-sm-12">
+                                <label for="contact_person-{{forloop.counter}}">Contact Person</label>
+                                <input type="text" name="contact_person-{{forloop.counter}}" id="contact_person-{{forloop.counter}}" value="{{i.corp_contact_person}}" class="form-control">
+                            </div>
+
+                            <div class="col-md-12 col-sm-12 my-3">
+                                <div class='d-flex flex-row justify-content-center align-items-center btn btn-outline-danger' onclick="deleteRow('{{forloop.counter}}');" style='padding:10px; width:120px;'>
+                                    Delete 
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+           
+            
+        </div>
+        <div class="text-right w-100">
+            <button type="button" class="btn btn-sm btn-primary" onclick="addMore()"> Add More Branch</button>
+        </div>
+
+
+    <button type="submit" class="btn btn-primary py-3 px-5 mb-5">
+        {% if update %}
+        Update Party
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+    integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+
+    
+<script>
+    var party_type = document.getElementById('id_party_type')
+    party_type.classList.add('row')
+    var party_type_nodes = document.getElementById('id_party_type').childNodes
+    for(var i=0; i<party_type_nodes.length; i++){
+        party_type_nodes[i].classList.add('col-auto')
+    }
+
+</script>
+
+<script>
+    var countries = []
+    const config = {
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "X-CSCAPI-KEY": "Wm5kc3hoMFNUSFRqWUNNQTJ5cFNtUlZ3dzNiakFkTmVwMjhveG5wdQ=="
+        },
+    }
+    axios.get('https://api.countrystatecity.in/v1/countries', config).then((res) => {
+        var data = res.data.map(item => item.name.toUpperCase())
+        countries = data
+    }).catch(err => {
+        console.log(err)
+    })
+    const getCountry = (index) => {
+        const country_id = `#country-` + index
+        $(country_id).autocomplete({
+            minLength: 2,
+            delay: 100,
+            source: countries,
+        });
+    }
+
+    var cities = []
+    axios.get('/api/v1/city/details', config).then((res) => {
+        var data = res.data.map(item => item.name.toUpperCase())
+        cities = data
+
+    }).catch(err => {
+        console.log(err)
+    })
+
+    const getCity = (index) => {
+        const city_id = `#city-` + index
+        $(city_id).autocomplete({
+            minLength: 2,
+            delay: 100,
+            source: cities,
+        });
+    }
+
+
+    var currentRowNumber = parseInt(document.getElementById('total_rows').value)
+    var availableRowNumber = parseInt(document.getElementById('total_rows').value)
+    var currency_data = []
+    var billing_data = []
+    axios.get('/api/v1/currency/details').then((res) => {
+        currency_data = res.data
+
+    }).catch(err => {
+    })
+    axios.get('/api/v1/billing-head/details').then((res) => {
+        billing_data = res.data
+
+    }).catch(err => {
+    })
+    const MainDiv = document.getElementById('branchContainer');
+
+    const addMore = () => {
+        currentRowNumber += 1;
+        availableRowNumber += 1;
+
+        var newElement = document.createElement('div')
+        newElement.classList.add('col-12')
+        newElement.setAttribute('id', `entry-${currentRowNumber}`)
+        newElement.style.border = '1px solid rgb(211, 210, 210)';
+        newElement.style.boxShadow = '3px 4px 6px rgb(231, 231, 231)';
+        newElement.style.borderRadius = '7px';
+        newElement.style.padding = '15px 15px';
+        newElement.style.marginTop = '10px';
+
+        newElement.classList.add('mb-3')
+
+        newElement.innerHTML = `
+        <div class="row px-2 justify-content-between">
+            <input type="hidden" name="is_active-${currentRowNumber}" value="yes" id="is_active-${currentRowNumber}">
+            <input type="hidden" name="is_update-${currentRowNumber}" value="no" id="is_update-${currentRowNumber}">
+            
+           
+            <div class='row' >
+                <div class="col-md-2 col-sm-12">
+                    <label for="branch-${currentRowNumber}">Branch</label>
+                    <input type="text" name="branch-${currentRowNumber}" value="{{i.branch}}" id="branch-${currentRowNumber}" class="form-control" required>
+                </div>
+
+                <div class="col-md-2 col-sm-12">
+                    <label for="address_line_1-${currentRowNumber}">Address Line 1</label>
+                    <input type="text" name="address_line_1-${currentRowNumber}" value="{{i.corp_address_line1}}" id="address_line_1-${currentRowNumber}" class="form-control" required>
+                </div>
+
+                
+                <div class="col-md-2 col-sm-12">
+                    <label for="address_line_2-${currentRowNumber}">Address Line 2</label>
+                    <input type="text" name="address_line_2-${currentRowNumber}" value="{{i.corp_address_line2}}" id="address_line_2-${currentRowNumber}" class="form-control">
+                </div>
+                
+                
+                <div class="col-md-2 col-sm-12">
+                    <label for="address_line_3-${currentRowNumber}">Address Line 3</label>
+                    <input type="text" name="address_line_3-${currentRowNumber}" value="{{i.corp_address_line3}}" id="address_line_3-${currentRowNumber}" class="form-control" required>
+                </div>
+
+                
+                <div class="col-md-2 col-sm-12">
+                    <label for="city-${currentRowNumber}">City</label>
+                    <input type="text" name="city-${currentRowNumber}" id="city-${currentRowNumber}" value="{{i.corp_city}}"  class="form-control"  onkeyup="getCity(${currentRowNumber})"  required>
+                </div>
+                
+                <div class="col-md-2 col-sm-12">
+                    <label for="state-${currentRowNumber}">State</label>
+                    <!-- <input type="text" name="state-1" id="state-1"  class="form-control"> -->
+                    <select name="state-${currentRowNumber}" id="state-${currentRowNumber}" class="form-control" required>
+                        <option value=""> Choose State </option>
+                        {% for state in all_states %}
+                            {% if state.id == i.corp_state.id %}
+                                <option value="{{state.id}}" selected>{{ state.name }}</option>
+                            {% else %}
+                                <option value="{{state.id}}">{{ state.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                    
+
+                <div class="col-md-2 col-sm-12">
+                    <label for="country-${currentRowNumber}">Country</label>
+                    <input type="text" name="country-${currentRowNumber}" id="country-${currentRowNumber}"  value="{{i.corp_country}}"  class="form-control"  onkeyup="getCountry(${currentRowNumber})"  required>
+                </div>
+                                
+                <div class="col-md-2 col-sm-12">
+                    <label for="zip-${currentRowNumber}">Pin Code</label>
+                    <input type="text" name="zip-${currentRowNumber}" id="zip-${currentRowNumber}" value="{{i.corp_zip}}" class="form-control" required>
+                </div>
+
+                <div class="col-md-2 col-sm-12">
+                    <label for="gstin-${currentRowNumber}">GSTIN</label>
+                    <input type="text" name="gstin-${currentRowNumber}" id="gstin-${currentRowNumber}" value="{{i.corp_gstin}}"  class="form-control" >
+                </div>
+
+                <div class="col-md-2 col-sm-12">
+                    <label for="contact-${currentRowNumber}">Contact</label>
+                    <input type="text" name="contact-${currentRowNumber}" id="contact-${currentRowNumber}" value="{{i.corp_contact}}" class="form-control">
+                </div>
+
+                
+                <div class="col-md-2 col-sm-12">
+                    <label for="email-${currentRowNumber}">Email</label>
+                    <input type="text" name="email-${currentRowNumber}" id="email-${currentRowNumber}" value="{{i.corp_email}}" class="form-control">
+                </div>
+                
+                <div class="col-md-2 col-sm-12">
+                    <label for="pan-${currentRowNumber}">Pan</label>
+                    <input type="text" name="pan-${currentRowNumber}" id="pan-${currentRowNumber}" value="{{i.corp_pan}}" class="form-control">
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <label for="contact-person-${currentRowNumber}">Contact Person</label>
+                    <input type="text" name="contact_person-${currentRowNumber}" id="contact_person-${currentRowNumber}" value="{{i.corp_contact_person}}" class="form-control">
+                </div>
+            </div>
+
+           
+            <div class="col-md-12 col-sm-12 my-3">
+                <div class='d-flex flex-row justify-content-center align-items-center btn btn-outline-danger'  style='pading:10px; width:120px;' onclick="deleteRow(${currentRowNumber});">
+                    Delete 
+                </div>
+            </div>
+            
+        </div>
+        `
+        // Snackbar.show({ text: 'Please Choose at invoice head.', pos: 'bottom-right', actionText: "Close", alertScreenReader: true, duration: 4000 });
+
+        MainDiv.append(newElement)
+        document.getElementById('total_rows').value = currentRowNumber
+
+    }
+
+    const deleteRow = (index) => {
+
+        availableRowNumber -= 1;
+        console.log(index);
+        document.getElementById(`is_active-${index}`).value = 'no'
+       // document.getElementById(`corp_contact-${index}`).required = false
+       // document.getElementById(`corp_email-${index}`).required = false
+       // document.getElementById(`corp_gstin-${index}`).required = false
+        document.getElementById(`address_line_1-${index}`).required = false
+        document.getElementById(`address_line_2-${index}`).required = false
+        document.getElementById(`address_line_3-${index}`).required = false
+        document.getElementById(`branch-${index}`).required = false
+        document.getElementById(`zip-${index}`).required = false
+        document.getElementById(`pan-${index}`).required = false
+        document.getElementById(`country-${index}`).required = false
+        document.getElementById(`state-${index}`).required = false
+        document.getElementById(`city-${index}`).required = false
+        document.getElementById(`entry-${index}`).style.display = 'none'
+
+    }
+
+    
+    
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.select2').select2(); 
+    });
+</script>
+
+
+{% endblock %}

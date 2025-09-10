@@ -1,0 +1,217 @@
+{% extends 'dashboard/index.html' %} 
+{% block dashoard_title %} Acccounting | {% endblock %} 
+{% block dashboard_heading %}
+<style>
+  a {
+    text-decoration: none !important;
+  }
+  .blue {
+    background-color: #065568;
+  }
+  .green {
+    background-color: #036b28;
+  }
+  .orange {
+    background-color: #ef7700;
+  }
+  .red {
+    background-color: #b00707;
+  }
+  .card {
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+  }
+  .card:hover {
+    transform: scale(1.01);
+  }
+  .card h6 {
+    font-size: 14px;
+  }
+</style>
+
+<h1 class="h3 mb-0 text-gray-800">
+  <span class="greeting-text">{{greeting}}</span>, {{ request.user.first_name }}
+  {{ request.user.last_name }}
+</h1>
+{% if request.user.user_account.can_report %}
+<div class="dropdown">
+  <a
+    class="btn btn-primary dropdown-toggle"
+    href="#"
+    role="button"
+    data-toggle="dropdown"
+    aria-expanded="false">
+    Reports
+  </a>
+
+  <div class="dropdown-menu">
+    <a
+      class="dropdown-item"
+      href="{% url 'acr:job_cost_sheet_detail' module=module %}"
+      >Job Cost Sheet</a
+    >
+    <a
+      class="dropdown-item"
+      href="{% url 'acr:ageing_analysis' module=module %}"
+      >Ageing Analysis</a
+    >
+   
+    <a
+      class="dropdown-item"
+      href="{% url 'acr:ledger_report' module=module %}"
+      >Ledgers</a
+    >
+    <a
+      class="dropdown-item"
+      href="{% url 'acr:trial_balance_report' module=module %}"
+      >Trial Balance</a
+    >
+    <a
+      class="dropdown-item"
+      href="{% url 'acr:profit_loss_report' module=module %}"
+      >Profit & Loss</a
+    >
+    <a
+      class="dropdown-item"
+      href="{% url 'acr:gstr1_recievable' module=module %}"
+      >GSTR1 Recievale</a
+    >
+    <a
+      class="dropdown-item"
+      href="{% url 'acr:gstr2_payable' module=module %}"
+      >GSTR2 Payable</a
+    >
+    <a class="dropdown-item" href="{% url 'acr:gstr3b' module=module %}"
+      >GSTR3B</a
+    >
+    <a
+      class="dropdown-item"
+      href="{% url 'acr:reciept_tds' module=module %}"
+      >Reciept TDS</a
+    >
+    <a
+      class="dropdown-item"
+      href="{% url 'acr:payment_tds' module=module %}"
+      >Payment TDS</a
+    >
+    <a
+      class="dropdown-item"
+      href="{% url 'acr:sales_outstanding' module=module %}"
+      >Debtors O/S</a
+    >
+    <a
+      class="dropdown-item"
+      href="{% url 'acr:direct_creditors_outstanding' module=module %}"
+      >Direct Cr. O/S</a
+    >
+    <a
+      class="dropdown-item"
+      href="{% url 'acr:indirect_creditors_outstanding' module=module %}"
+      >Indirect Cr. O/S</a
+    >
+  </div>
+</div>
+{% endif %} 
+{% endblock %}
+ {% block dashboard_content %} 
+
+
+<div class="row mb-1">
+  <div class="col-md-3 col-sm-12 mb-1">
+    <a
+      href="{% url 'accounting:recievable_invoice_details' module='accounting' %}"
+      style="text-decoration: none">
+      <div class="card green">
+        <div class="card-body">
+          <h6 class="card-title text-white">
+            <i class="bi bi-receipt"></i> Total Recievable Invoices
+          </h6>
+          <div class="row">
+            <div class="col-6">
+              <h6 class="text-white">Proforma</h6>
+              <h6 class="text-white">{{proforma_invoice_count}}</h6>
+            </div>
+            <div class="col-6">
+              <h6 class="text-white">E-invoiced</h6>
+              <h6 class="text-white">{{final_rec_invoice_count}}</h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-3 col-sm-12 mb-1">
+    <a
+      href="{% url 'accounting:credit_note_details' module='accounting' %}"
+      style="text-decoration: none">
+      <div class="card blue">
+        <div class="card-body">
+          <h6 class="card-title text-white">
+            <i class="bi bi-receipt"></i> Total Credit Note
+          </h6>
+          <div class="row">
+            <div class="col-6">
+              <h6 class="text-white">Proforma</h6>
+              <h6 class="text-white">{{proforma_crn_count}}</h6>
+            </div>
+            <div class="col-6">
+              <h6 class="text-white">E-invoiced</h6>
+              <h6 class="text-white">{{final_crn_count}}</h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-3 col-sm-12 mb-1">
+    <a
+      href="{% url 'accounting:invoice_payable_details' module='accounting' %}"
+      style="text-decoration: none">
+      <div class="card red">
+        <div class="card-body">
+          <h6 class="card-title text-white">
+            <i class="bi bi-receipt"></i> Total Payable Invoices
+          </h6>
+
+          <div class="row">
+            <div class="col-6">
+              <h6 class="text-white">Unfinal</h6>
+              <h6 class="text-white">{{unfinal_invoice_payable_count}}</h6>
+            </div>
+            <div class="col-6">
+              <h6 class="text-white">Final</h6>
+              <h6 class="text-white">{{final_invoice_payable_count}}</h6>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-3 col-sm-12 mb-1">
+    <a
+      href="{% url 'accounting:debit_note_details' module='accounting' %}"
+      style="text-decoration: none">
+      <div class="card orange">
+        <div class="card-body">
+          <h6 class="card-title text-white">
+            <i class="bi bi-receipt"></i> Total Debit Note
+          </h6>
+          <div class="row">
+            <div class="col-6">
+              <h6 class="text-white">Count</h6>
+              <h6 class="text-white">{{drn_count}}</h6>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+ 
+</div>
+
+{% endblock %}

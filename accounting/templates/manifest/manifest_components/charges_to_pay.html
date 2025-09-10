@@ -1,0 +1,196 @@
+<div class="tab-pane fade" id="charges_to_pay" role="tabpanel" aria-labelledby="charges_to_pay-tab">
+
+    {% if update %}
+    <input type="hidden" name="total_pay_rows" id="total_pay_rows" value="{{data.manifest_charges_pay.all|length}}">
+    {% else %}
+    <input type="hidden" name="total_pay_rows" id="total_pay_rows" value="1">
+    {% endif %}
+ 
+    <table class="table table-bordered " id="pay_entry">
+         
+        <tr>
+            <th>Billing Head</th>
+            <th>Qty</th>
+            <th>Curr.</th>
+            <th>Ex. Rate</th>
+            <th>Rate</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+        {% if not update %}
+        <tr id="pay_entry-1">
+
+            <td>
+                <input type="hidden" name="is_pay_active-1" value="yes" id="is_pay_active-1">
+                
+                <select name="pay_billing_head-1" id="pay_billing_head-1" class="form-control">
+                    <option value=""> Choose Billing Head </option>
+                    {% for head in global_billing_head %}
+                    <option value="{{head.id}}">{{ head }}</option>
+                    {% endfor %}
+                </select>
+
+            </td>
+            <td>
+                <input type="number" step="0.01"  class="form-control"  onkeyup="calculatePayTotal(1)" name="pay_qty-1" id="pay_qty-1"  />
+            </td>
+            <td>
+                <select name="pay_currency-1" id="pay_currency-1" class="form-control">
+                    <option value=""> Choose Currency </option>
+                    {% for curr in global_currencies %}
+                    <option value="{{curr.id}}">{{ curr }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        <td>
+            <input type="number" step="0.01"  class="form-control"  onkeyup="calculatePayTotal(1)" name="pay_ex_rate-1" id="pay_ex_rate-1"  />
+        </td>
+        <td>
+            <input type="number" step="0.01"  class="form-control"  onkeyup="calculatePayTotal(1)" name="pay_rate-1" id="pay_rate-1"  />
+        </td>
+        <td>
+            <input type="number" step="0.01"  class="form-control" name="pay_total-1" id="pay_total-1"  />
+        </td>
+        
+        <td><div class="btn btn-sm btn-danger" onclick="deletepayRow(1)">Remove</div></td>
+    </tr>
+        
+    {% else %}
+    {% for i in data.manifest_charges_pay.all %}
+        <tr id="pay_entry-{{forloop.counter}}">
+
+        <td>
+          
+            <select name="pay_billing_head-{{forloop.counter}}" id="pay_billing_head-{{forloop.counter}}" class="form-control">
+                <option value=""> Choose Billing Head </option>
+                {% for head in global_billing_head %}
+                {% if head.id == i.billing_head.id %}
+                <option value="{{head.id}}" selected>{{ head }}</option>
+                {% else %}
+                <option value="{{head.id}}">{{ head }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </td>
+
+        <td>
+            <input type="hidden" name="is_pay_active-{{forloop.counter}}" value="yes" id="is_pay_active-{{forloop.counter}}">
+            <input type="number"  step="0.01"  value="{{i.qty}}"  onkeyup="calculatePayTotal({{forloop.counter}})" class="form-control" name="pay_qty-{{forloop.counter}}" id="pay_qty-{{forloop.counter}}"  />
+        </td>
+        <td>
+            <select name="pay_currency-{{forloop.counter}}" id="pay_currency-{{forloop.counter}}" class="form-control">
+                <option value=""> Choose Currency </option>
+                {% for curr in global_currencies %}
+                {% if i.curr.id == curr.id %}
+                <option value="{{curr.id}}" selected>{{ curr }}</option>
+                {% else %}
+                <option value="{{curr.id}}">{{ curr }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </td>
+        <td>
+            <input type="number" step="0.01" value="{{i.ex_rate}}"  onkeyup="calculatePayTotal({{forloop.counter}})"  class="form-control" name="pay_ex_rate-{{forloop.counter}}" id="pay_ex_rate-{{forloop.counter}}"  />
+        </td>
+        <td>
+            <input type="number" step="0.01" value="{{i.rate}}"  onkeyup="calculatePayTotal({{forloop.counter}})"  class="form-control" name="pay_rate-{{forloop.counter}}" id="pay_rate-{{forloop.counter}}"  />
+        </td>
+        <td>
+            <input type="number" step="0.01" value="{{i.total}}"  class="form-control" name="pay_total-{{forloop.counter}}" id="pay_total-{{forloop.counter}}"  />
+        </td>
+        
+      
+        <td><div class="btn btn-sm btn-danger" onclick="deletepayRow({{forloop.counter}})">Remove</div></td>
+        </tr>
+    {% endfor %}
+    {% endif %}
+    </table>
+    <div class="text-right w-100">
+        <button type="button" class="btn btn-sm btn-primary" onclick="addpayRow()"> Add More </button>
+    </div>
+
+
+    <script>
+     
+        var payCurrentRowNumber = parseInt(document.getElementById('total_pay_rows').value) || 0
+        var payAvailableRowNumber = parseInt(document.getElementById('total_pay_rows').value) || 0
+        const addpayRow = () => {
+            payCurrentRowNumber += 1
+            payAvailableRowNumber += 1
+            var newRow =  document.getElementById('pay_entry').insertRow(-1)
+            newRow.id = `pay_entry-${payCurrentRowNumber}`
+            newRow.classList.add("entry")
+            var billing_head = newRow.insertCell(0)
+            var qty = newRow.insertCell(1)
+            var curr = newRow.insertCell(2)
+            var ex_rate = newRow.insertCell(3)
+            var rate = newRow.insertCell(4)
+            var total = newRow.insertCell(5)
+          
+            var delete_cell = newRow.insertCell(6)
+            
+            billing_head.innerHTML = `
+            <input type="hidden" name="is_pay_active-${payCurrentRowNumber}" value="yes" id="is_pay_active-${payCurrentRowNumber}">
+            <select name="pay_billing_head-${payCurrentRowNumber}" id="pay_billing_head-${payCurrentRowNumber}" class="form-control">
+                <option value=""> Choose Billing Head </option>
+                {% for head in global_billing_head %}
+                <option value="{{head.id}}">{{ head }}</option>
+                {% endfor %}
+            </select>
+            `
+            qty.innerHTML = `
+                <input type="number" step="0.01"  class="form-control"  onkeyup="calculatePayTotal(${payCurrentRowNumber})" id="pay_qty-${payCurrentRowNumber}" name="pay_qty-${payCurrentRowNumber}"  />
+            `
+            curr.innerHTML = `
+            <select name="pay_currency-${payCurrentRowNumber}" id="pay_currency-${payCurrentRowNumber}" class="form-control">
+                <option value=""> Choose Currency </option>
+                {% for curr in global_currencies %}
+                <option value="{{curr.id}}">{{ curr }}</option>
+                {% endfor %}
+            </select>
+            `
+            ex_rate.innerHTML = `
+            <input type="number" step="0.01"  class="form-control"  onkeyup="calculatePayTotal(${payCurrentRowNumber})" id="pay_ex_rate-${payCurrentRowNumber}" name="pay_ex_rate-${payCurrentRowNumber}"  />
+            `
+            rate.innerHTML = `
+            <input type="number" step="0.01"  class="form-control"  onkeyup="calculatePayTotal(${payCurrentRowNumber})" id="pay_rate-${payCurrentRowNumber}" name="pay_rate-${payCurrentRowNumber}"  />
+            `
+            total.innerHTML = `
+            <input type="number" step="0.01"  class="form-control" id="pay_total-${payCurrentRowNumber}" name="pay_total-${payCurrentRowNumber}"  />
+            `
+    
+            
+            delete_cell.innerHTML = `
+                <div class="btn btn-sm btn-danger" onclick="deletepayRow(${payCurrentRowNumber})">Remove</div>
+            `
+          
+            document.getElementById('total_pay_rows').value = payCurrentRowNumber
+        }
+    
+       
+    
+        const deletepayRow = (index) => {
+            document.getElementById(`is_pay_active-${index}`).value = "no"
+           
+            document.getElementById(`pay_entry-${index}`).style.display = 'none'
+            payAvailableRowNumber -= 1
+        }
+
+        const calculatePayTotal = (id) => {
+            var payQty = document.getElementById(`pay_qty-${id}`).value
+            var payRate = document.getElementById(`pay_rate-${id}`).value
+            var payExRate = document.getElementById(`pay_ex_rate-${id}`).value
+            var payTotal = document.getElementById(`pay_total-${id}`)
+         
+            payQty = parseFloat(payQty)
+            payRate = parseFloat(payRate)
+            payExRate = parseFloat(payExRate)
+            payTotal.value = Math.round((payQty * payRate * payExRate) * 100)/100
+           
+        }
+    
+    
+    
+    </script>
+    
+</div>

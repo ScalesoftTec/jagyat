@@ -1,0 +1,78 @@
+<strong>Hello, </strong> {{first_data.job.account_address.party.party_name}}
+
+<br>
+
+<strong>CURRENT STATUS OF YOUR SHIPMENT</strong>
+
+<br>
+
+<table border="1px solid black">
+    <tr>
+        <th>#</th>
+        <th>Job</th>
+        <th>Invoice</th>
+        <th>Invoice Date</th>
+        <th>S. Bill No.</th>
+        <th>Date</th>
+        <th>EGM Date</th>
+        <th>No</th>
+        <th>PFI No.</th>
+        <th>Shipment Term</th>
+        <th>Consignee</th>
+        <th>No. of Container</th>
+        <th>POD</th>
+        <th>Net Qty</th>
+        <th>Fact Out Date</th>
+        <th>Doc Rec Date</th>
+        <th>Cont Hold Date</th>
+        <th>Cont Release Date</th>
+        <th>Rail Out Date</th>
+        <th>Port In Date</th>
+        <th>Vessel Name</th>
+        <th>Vessel Sailed</th>
+        <th>Actual Arrival at POD</th>
+        <th>BL Release</th>
+        <th>BL No.</th>
+        <th>BL Instr. To Given</th>
+        <th>Shipping Line</th>
+        <th>Doc Scan Date</th>
+        <th>DSR Status</th>
+        <th>Remarks</th>
+    </tr>
+
+    {% for i in data %}
+    <tr>
+        <th scope="row">
+        </th>
+        <td> {{i.job.job_no}} </td>
+        <td> {{i.invoice}} </td>
+        <td> {{i.container_inv_date}} </td>
+        <td> {{i.s_bill_no}} </td>
+        <td> {{i.date}} </td>
+        <td> {{i.egm_date}} </td>
+        <td> {{i.no}} </td>
+        <td> {{i.pfi_no}} </td>
+        <td> {{i.shipment_term}} </td>
+        <td> {{i.consignee}} </td>
+        <td> {{i.no_of_container}} </td>
+        <td> {{i.pod}} </td>
+        <td> {{i.net_qty}} </td>
+        <td> {{i.desp_date}} </td>
+        <td> {{i.doc_rec_date}} </td>
+        <td> {{i.cont_hold_date}} </td>
+        <td> {{i.cont_release_date}} </td>
+        <td> {{i.rail_out_date}} </td>
+        <td> {{i.port_in_date}} </td>
+        <td> {{i.vessel_name}} </td>
+        <td> {{i.vessel_sailed}} </td>
+        <td> {{i.eta_date}} </td>
+        <td> {{i.bl_release_date}} </td>
+        <td> {{i.bl_no}} </td>
+        <td> {{i.bl_instr_given_to_line}} </td>
+        <td> {{i.shipping_line}} </td>
+        <td> {{i.doc_scan_date}} </td>
+        <td> {{i.dsr_status}} </td>
+        <td> {{i.remarks}} </td>
+    </tr>
+{% endfor %}
+</table>

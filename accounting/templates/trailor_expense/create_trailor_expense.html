@@ -1,0 +1,498 @@
+{% extends 'dashboard/index.html' %}
+
+
+
+{% block dashoard_title %}
+Trailor Expense Create -
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Create New Trailor Expense
+</h1>
+
+<style>
+    .table td, .table th{
+        padding: 0px;
+    }
+    
+</style>
+
+<a href="{% url 'accounting:trailor_expense_details' module=module  %}"
+    class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<input type="hidden" id="invoice_length" value="{{ invoice_length }}">
+
+
+<input type="hidden" id="module" value="{{ module }}">
+
+
+<form enctype="multipart/form-data" method="post" autocomplete="off" onsubmit="return checkValidations()"
+    id="inv_rec_form" data-job-url="{% url 'home:ajax_load_jobdetails' %}">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+
+    <div class="row">
+
+        {% if request.user.user_account.create_global_data %}
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label class="required" for="id_company_type">Choose Company</label>
+            {{ form.company_type }}
+        </div>
+        {% else %}
+        <input type="hidden" name="id_company_type" id="id_company_type"
+            value="{{ request.user.user_account.office.id }}">
+        {% endif %}
+
+
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label  for="id_job_no">Job No.</label>
+            {{ form.job_no }}
+        </div>
+
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label  for="id_trailor_no">Trailor No</label>
+            {{ form.trailor_no }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label class="required" for="id_own_hire">Owned/Hire</label>
+            {{ form.own_hire }}
+        </div>
+
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label  for="id_driver">Driver</label>
+            {{ form.driver }}
+        </div>
+
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label  for="id_container_no">Container No</label>
+            {{ form.container_no }}
+        </div>
+
+    </div>
+
+    <hr>
+
+    {% if update %}
+
+    <input type="hidden" name="expense-heads-total" id="expense-heads-total" value="{{total_invoice_heads}}">
+    {% else %}
+    <input type="hidden" name="expense-heads-total" id="expense-heads-total" value="1">
+    {% endif %}
+    <div class="row">
+
+        <div class="col-12">
+
+            <table class="table compact table-bordered" id="expense_head">
+                <tr>
+                    <th class="required">Billing Head</th>
+                    <th>Remarks</th>
+                    <th class="required">Date</th>
+                    <th class="required">Payment Type</th>
+                    <th>Vendor (if Required)</th>
+                    <th class="required">Charges</th>
+                    <th></th>
+                </tr>
+                {% if not update %}
+                <tr id="entry-1">
+                    <td>
+                        <input type="hidden" name="isActive_1" value="1" id="isActive_1">
+                       
+                        <select required class="form-control" name="billing_head_1" id="billing_head_1"
+                           >
+                            <option value="" disabled selected>-----</option>
+                            {% for head in global_trailor_billing_head %}
+                            <option value="{{head.id}}">{{head.billing_head}}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" name="remarks_1" class="form-control">
+                    </td>
+                    <td>
+                      
+                        <input required class="form-control" type="date" name="date_1" id="date_1" />
+                    </td>
+                    <td>
+                        
+                        <select required onkeyup="calculateHeads()" onchange="calculateHeads()" class="form-control" name="payment_type_1" id="payment_type_1">
+                            <option value="CASH">CASH</option>
+                            <option value="DIESEL CARD">DIESEL CARD</option>
+                            <option value="FASTTAG CARD">FASTTAG CARD</option>
+                            <option value="PUMP">PUMP</option>
+                        </select>
+                    </td>
+                    <td>
+                       
+                        <select  class="form-control" name="vendor_1" id="vendor_1"
+                           >
+                            <option value=""  selected>-----</option>
+                            {% for i in global_vendor %}
+                            <option value="{{i.id}}">{{i.vendor_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        
+                        <input class="form-control" type="number" required onkeyup="calculateHeads()" step="0.01" name="charges_1" id="charges_1" />
+                    </td>
+                    <td><span class="btn btn-danger btn-xs" onclick="deleteRow(1)">Remove</span></td>
+                </tr>
+                {% else %}
+                {% for head in invoice_heads %}
+                <tr id="entry-{{forloop.counter}}">
+                    <td>
+                        <input type="hidden" name="isActive_{{forloop.counter}}" value="1" id="isActive_{{forloop.counter}}">
+                       
+                        <select required class="form-control" name="billing_head_{{forloop.counter}}" id="billing_head_{{forloop.counter}}"
+                           >
+                            <option value="" disabled selected>-----</option>
+                            {% for data in global_trailor_billing_head %}
+                            {% if head.billing_head.id == data.id  %}
+                            <option value="{{data.id}}" selected>{{data.billing_head}}</option>
+                            {% else %}
+                            <option value="{{data.id}}">{{data.billing_head}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </td>
+                   
+                        <td>
+                            <input type="text" value="{{head.remarks}}" name="remarks_{{forloop.counter}}" class="form-control">
+                        </td>
+                    
+                    <td>
+                     
+                        <input required type="date" class="form-control" value="{{head.date|date:'Y-m-d'}}" name="date_{{forloop.counter}}" id="date_{{forloop.counter}}" />
+                    </td>
+                    <td>
+                     
+                        <select required onkeyup="calculateHeads()" class="form-control" onchange="calculateHeads()" name="payment_type_{{forloop.counter}}" id="payment_type_{{forloop.counter}}">
+                            {% if head.payment_type == 'CASH' %}
+                            <option value="CASH" selected>CASH</option>
+                            {% else %}
+                            <option value="CASH">CASH</option>
+                            {% endif %}
+                            {% if head.payment_type == 'DIESEL CARD' %}
+                            <option value="DIESEL CARD" selected>DIESEL CARD</option>
+                            {% else %}
+                            <option value="DIESEL CARD">DIESEL CARD</option>
+                            {% endif %}
+                           
+                            {% if head.payment_type == 'FASTTAG CARD' %}
+                            <option value="FASTTAG CARD" selected>FASTTAG CARD</option>
+                            {% else %}
+                            <option value="FASTTAG CARD">FASTTAG CARD</option>
+                            {% endif %}
+                           
+                            {% if head.payment_type == 'PUMP' %}
+                            <option value="PUMP" selected>PUMP</option>
+                            {% else %}
+                            <option value="PUMP">PUMP</option>
+                            {% endif %}
+                           
+                        </select>
+                    </td>
+                    <td>
+                       
+                        <select  class="form-control" name="vendor_{{forloop.counter}}" id="vendor_{{forloop.counter}}"
+                           >
+                       
+                            <option value=""  selected>-----</option>
+                            {% for i in global_vendor %}
+                            {% if head.vendor.id == i.id %}
+                            <option value="{{i.id}}" selected>{{i.vendor_name}}</option>
+                            {% else %}
+                            <option value="{{i.id}}">{{i.vendor_name}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        
+                        <input required class="form-control" type="number" step="0.01" name="charges_{{forloop.counter}}" value="{{head.charges}}"  onkeyup="calculateHeads()" id="charges_{{forloop.counter}}" />
+                    </td>
+                    <td><span type="button" class="btn btn-danger btn-xs" onclick="deleteRow('{{forloop.counter}}')">Remove</span></td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+            </table>
+
+            <button class="btn btn-primary mb-4" type="button" onclick="addMore();"> + Add More</button>
+
+        </div>
+
+
+        <div class="col-md-12 col-sm-12 mb-1">
+            <div class="row">
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label class="required" for="id_cash_expense">Cash Expense</label>
+                    {{ form.cash_expense }}
+                </div>
+
+
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label class="required" for="id_card_expense">Diesel Card Expense</label>
+                    {{ form.card_expense }}
+                </div>
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label class="required" for="id_fast_card_expense">Fast Card Expense</label>
+                    {{ form.fast_card_expense }}
+                </div>
+
+
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label class="required" for="id_pump_expense">Pump Expense</label>
+                    {{ form.pump_expense }}
+                </div>
+
+
+                <div class="col-md-4 col-sm-12 mb-1">
+                    <label class="required" for="id_net_amount">Net Expense</label>
+                    {{ form.net_amount }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 col-sm-12 mb-1">
+            <label for="id_remarks">Remarks</label>
+            {{ form.remarks }}
+        </div>
+
+        <div class="col-12 mb-2">
+            <div class="row">
+                <div class="col-auto">
+                    <label for="id_file1">File 1</label>
+                    {{form.file1}}
+                </div>
+                <div class="col-auto">
+                    <label for="id_file2">File 2</label>
+                    {{form.file2}}
+                </div>
+                <div class="col-auto">
+                    <label for="id_file3">File 3</label>
+                    {{form.file3}}
+                </div>
+                
+            </div>
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update Trailor Expense
+        {% else %}
+        Submit
+        {% endif %}
+
+    </button>
+
+
+    {% if update %}
+    <input type="hidden" id="is_update" value="true">
+
+    {% else %}
+    <input type="hidden" id="is_update" value="false">
+    {% endif %}
+    <input type="hidden" id="user_company" value="{{ request.user.user_account.office.id }}">
+
+
+</form>
+
+
+{% endblock %}
+
+{% block js %}
+
+
+<script>
+
+
+    if (document.getElementById('is_update').value == 'false') {
+        document.getElementById('id_company_type').value = document.getElementById('user_company').value
+    }
+
+    var currentRowNumber = parseInt(document.getElementById('expense-heads-total').value)
+    var availableRowNumber = parseInt(document.getElementById('expense-heads-total').value)
+    var currency_data = []
+    var billing_data = []
+   
+    axios.get('/api/v1/billing-head/details').then((res) => {
+        billing_data = res.data
+
+    }).catch(err => {
+    })
+    const billingsContent = document.getElementById('invoice_heads');
+    const addMore = () => {
+        currentRowNumber += 1;
+        availableRowNumber += 1;
+
+        var newRow =  document.getElementById('expense_head').insertRow(-1)
+            newRow.id = `entry-${currentRowNumber}`
+            newRow.classList.add("entry")
+            var billing_head = newRow.insertCell(0)
+            var remarks = newRow.insertCell(1)
+            var date = newRow.insertCell(2)
+            var payment_type = newRow.insertCell(3)
+            var vendor = newRow.insertCell(4)
+            var charges = newRow.insertCell(5)
+            var deleteRow = newRow.insertCell(6)
+
+            billing_head.innerHTML = `
+            <input type="hidden" name="isActive_${currentRowNumber}" value="1" id="isActive_${currentRowNumber}">
+                       
+            <select required class="form-control" name="billing_head_${currentRowNumber}" id="billing_head_${currentRowNumber}"
+               >
+                <option value="" disabled selected>-----</option>
+                {% for head in global_trailor_billing_head %}
+                <option value="{{head.id}}">{{head.billing_head}}</option>
+                {% endfor %}
+            </select>
+            `
+            remarks.innerHTML = `
+        
+                <input type="text"  name="remarks_${currentRowNumber}" class="form-control">
+           
+            `
+            date.innerHTML = `
+            <input required class="form-control" type="date" name="date_${currentRowNumber}" id="date_${currentRowNumber}" />
+            `
+            charges.innerHTML = `
+            <input required class="form-control" type="number" onkeyup="calculateHeads()" step="0.01" name="charges_${currentRowNumber}" id="charges_${currentRowNumber}" />
+            
+            `
+            vendor.innerHTML = `
+           
+                <select  class="form-control" name="vendor_${currentRowNumber}" id="vendor_${currentRowNumber}"
+                   >
+                    <option value=""  selected>-----</option>
+                    {% for i in global_vendor %}
+                    <option value="{{i.id}}">{{i.vendor_name}}</option>
+                    {% endfor %}
+                </select>
+         
+            `
+            payment_type.innerHTML = `
+            <select required class="form-control" onkeyup="calculateHeads()" onchange="calculateHeads()"  name="payment_type_${currentRowNumber}" id="payment_type_${currentRowNumber}">
+                <option value="CASH">CASH</option>
+                <option value="DIESEL CARD">DIESEL CARD</option>
+                <option value="FASTTAG CARD">FASTTAG CARD</option>
+                <option value="PUMP">PUMP</option>
+            </select>
+            `
+            deleteRow.innerHTML = `
+            <span class="btn btn-danger btn-xs" onclick="deleteRow(${currentRowNumber})">Remove</span>
+            `
+
+      
+        document.getElementById('expense-heads-total').value = currentRowNumber
+
+    }
+
+    const deleteRow = (index) => {
+
+        availableRowNumber -= 1;
+        document.getElementById(`isActive_${index}`).value = '0'
+        document.getElementById(`billing_head_${index}`).required = false
+        document.getElementById(`date_${index}`).required = false
+        document.getElementById(`payment_type_${index}`).required = false
+        document.getElementById(`charges_${index}`).required = false
+      
+           
+        document.getElementById(`entry-${index}`).style.display = 'none'
+        availableRowNumber -= 1
+        calculateHeads()
+    }
+
+    const calculateHeads = () => {
+        var cash_total = 0
+        var card_total = 0
+        var fast_card_total = 0
+        var pump_total = 0
+        for(var i=1; i<= currentRowNumber; i++){
+            var active = document.getElementById(`isActive_${i}`).value
+            var type = document.getElementById(`payment_type_${i}`).value
+            var expense = parseFloat(document.getElementById(`charges_${i}`).value)
+            if(active == '1'){
+            if(expense){
+
+                if(type == 'CASH') 
+                    cash_total += parseFloat(expense)
+
+                if(type == 'DIESEL CARD')        
+                    card_total += parseFloat(expense)        
+              
+                if(type == 'FASTTAG CARD')        
+                    fast_card_total += parseFloat(expense)        
+                    
+                if(type == 'PUMP')    
+                    pump_total += parseFloat(expense)        
+            }
+            }
+            
+        }
+
+        document.getElementById('id_cash_expense').value = cash_total
+        document.getElementById('id_fast_card_expense').value = fast_card_total
+        document.getElementById('id_card_expense').value = card_total
+        document.getElementById('id_pump_expense').value = pump_total
+        document.getElementById('id_net_amount').value = card_total + cash_total + pump_total + fast_card_total
+    }
+
+    function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for (i = L; i >= 0; i--) {
+            selectElement.remove(i);
+        }
+    }
+
+    document.getElementById('id_company_type').addEventListener('change', getOnlyCompanyJobs)
+    async function getOnlyCompanyJobs() {
+        try {
+
+            const company = document.getElementById('id_company_type').value
+            var jobs = await axios.get('/api/v1/jobs/details?company_type=' + company)
+            jobs = jobs.data
+            const select = document.getElementById('id_job_no');
+            const value = select.value
+            removeOptions(select);
+
+            var newOption = new Option("Choose Job", "")
+            select.add(newOption);
+
+            jobs.map(item => {
+                var newOption = new Option(item.job_no, item.id)
+                if (item.id == value) {
+                    newOption.selected = true
+                }
+                select.add(newOption);
+            })
+
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    getOnlyCompanyJobs()
+
+
+    const getGSTFromBillingHead = async (index) => {
+        const billing_head = document.getElementById(`billing_head_${index}`).value
+        const res = await axios.get(`/api/v1/billing-head/details/${billing_head}/`)
+        const data = res.data
+        document.getElementById(`gst_${index}`).value = data.gst
+
+    }
+
+</script>
+
+{% endblock %}

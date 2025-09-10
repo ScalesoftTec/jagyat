@@ -1,0 +1,155 @@
+<div class="tab-pane fade show active" id="sales-invoice" role="tabpanel" aria-labelledby="sales-invoice-tab">
+    <div class="col-12">
+        <h6>Total Sales : <span id="total_sales"></span></h6>
+    </div>
+    <div class="col-12 row">
+        {% if update %}
+        <input type="hidden" name="sales_total_head" id="sales_total_head" value="{{sales_count}}">
+        {% else %}
+        <input type="hidden" name="sales_total_head" id="sales_total_head" value="0">
+        {% endif %}
+        <table class="table table-bordered" id="address_entry">
+            <tr>
+                <th style="min-width: 20px!important;">Final</th>
+                <th class="required">Date</th>
+                <th class="required">Invoice No.</th>
+                <th class="required">Amount</th>
+              
+                <th style="min-width: 50px!important;">Action</th>
+            </tr>
+            {% if update %}
+            {% for i in ledger.ledger_opening_details.all %}
+            {% if i.invoice %}
+            <tr id="sales_entry-{{forloop.counter}}">
+                
+                <td style="min-width: 30px!important;" class="text-center">
+                    
+                    {% if not i.sales_is_final %}
+                    <input class="my-2" onclick="handleLocalSalesConfirmSignal('{{forloop.counter}}')" type="checkbox" name="sales_is_final-{{forloop.counter}}" id="sales_is_final-{{forloop.counter}}">
+                    {% endif %}
+                </td>
+                <td>
+                    <input type="hidden" name="sales_is_active-{{forloop.counter}}" value="yes"  id="sales_is_active-{{forloop.counter}}" />
+                    <input type="date" required value="{{i.date|date:'Y-m-d'}}" name="sales_date-{{forloop.counter}}" id="sales_date-{{forloop.counter}}" class="form-control" />
+                </td>
+                <td><input type="text" required value="{{i.invoice_no}}" name="sales_invoice_no-{{forloop.counter}}"
+                        id="sales_invoice_no-{{forloop.counter}}" class="form-control" onkeyup="checkInvoiceNo('{{forloop.counter}}')" /></td>
+                <td><input type="number" required step="0.01" value="{{i.amount}}" onkeyup="calculateSum()" name="sales_amount-{{forloop.counter}}"
+                        id="sales_amount-{{forloop.counter}}" class="form-control" /></td>
+               
+                <td style="min-width: 50px!important;">
+                    <input type="hidden" value="{{i.id}}" name="sales_existing_id_{{forloop.counter}}">
+                    {% if not i.sales_is_final %}
+                    <input type="hidden" value="1" name="sales_is_changeable_{{forloop.counter}}">
+                    
+                    {%  if i.invoice %}
+                    
+                    {% if not i.invoice.net_amount == i.invoice.pending_amount %}
+                    <input type="hidden" value="0" name="sales_is_deletable_{{forloop.counter}}">
+                    {% else %}
+                    <input type="hidden" value="1" name="sales_is_deletable_{{forloop.counter}}">
+                    
+                    
+                    <div class="btn btn-sm btn-danger" onclick="salesDeleteRow('{{forloop.counter}}')">Remove</div>
+                    {% endif %}
+                    {% else %}
+                    <input type="hidden" value="0" name="sales_is_changeable_{{forloop.counter}}">
+
+                    {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        </table>
+        <div class="col-12">
+            <div class="text-right w-100">
+                <button type="button" class="btn btn-sm btn-primary" onclick="salesAddRow();"> Add More </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+    var salesCurrentRowNumber = parseInt(document.getElementById('sales_total_head').value) || 0
+    var salesAvailableRowNumber = parseInt(document.getElementById('sales_total_head').value) || 0
+    const salesAddRow = () => {
+        salesCurrentRowNumber += 1
+        salesAvailableRowNumber += 1
+        var newRow = document.getElementById('address_entry').insertRow(-1)
+        newRow.id = `sales_entry-${salesCurrentRowNumber}`
+        newRow.classList.add("entry")
+        var final = newRow.insertCell(0)
+        var date = newRow.insertCell(1)
+        var invoice_no = newRow.insertCell(2)
+        var amount = newRow.insertCell(3)
+  
+        var delete_cell = newRow.insertCell(4)
+        final.setAttribute('style','min-width:30px!important;')
+        delete_cell.setAttribute('style','min-width:50px!important;')
+        final.setAttribute('class','text-center')
+        final.innerHTML = `
+        <td><input onclick="handleLocalSalesConfirmSignal(${salesCurrentRowNumber})" type="checkbox" name="sales_is_final-${salesCurrentRowNumber}" class="my-2" id="sales_is_final-${salesCurrentRowNumber}"></td>
+        `
+
+
+        date.innerHTML = `
+        <input type="hidden" name="sales_is_active-${salesCurrentRowNumber}" value="yes"  id="sales_is_active-${salesCurrentRowNumber}" />
+        <input type="date" value="{{i.date}}" required name="sales_date-${salesCurrentRowNumber}" id="sales_date-${salesCurrentRowNumber}" class="form-control" />
+            `
+        invoice_no.innerHTML = `
+                <input type="text" value="{{i.invoice_no}}" required name="sales_invoice_no-${salesCurrentRowNumber}" id="sales_invoice_no-${salesCurrentRowNumber}" class="form-control" onkeyup="checkInvoiceNo(${salesCurrentRowNumber})" />
+            `
+        amount.innerHTML = `
+               <input type="number" step="0.01" value="{{i.amount}}" required  required name="sales_amount-${salesCurrentRowNumber}" onkeyup="calculateSum()" id="sales_amount-${salesCurrentRowNumber}" class="form-control" />
+            `
+  
+        delete_cell.innerHTML = `
+             <input type="hidden" value="0" name="sales_existing_id_${salesCurrentRowNumber}">
+                <input type="hidden" value="0" name="sales_is_deletable_${salesCurrentRowNumber}">
+                <div class="btn btn-sm btn-danger" onclick="salesDeleteRow(${salesCurrentRowNumber})">Remove</div>
+            `
+        document.getElementById('sales_total_head').value = salesCurrentRowNumber
+       
+        
+    }
+
+    const salesDeleteRow = (index) => {
+        document.getElementById(`sales_is_active-${index}`).value = "no"
+        
+        document.getElementById(`sales_date-${index}`).required = false
+        document.getElementById(`sales_invoice_no-${index}`).required = false
+        document.getElementById(`sales_amount-${index}`).required = false
+        document.getElementById(`sales_entry-${index}`).style.display = 'none'
+        salesAvailableRowNumber -= 1
+        
+        calculateSum()
+    }
+    const calculateSum = () => {
+        var totalSalesSum = 0
+        for(var i=1; i<=salesCurrentRowNumber; i++){
+            var sales = parseFloat(document.getElementById(`sales_amount-${i}`).value) || 0
+            if(!isNaN(sales) && document.getElementById(`sales_is_active-${i}`).value == 'yes'){
+                totalSalesSum += sales
+            }
+        }
+        document.getElementById('total_sales').innerText = totalSalesSum
+
+    }
+    calculateSum()
+
+    const handleLocalSalesConfirmSignal = (index) => {
+        var checkboxStatus = document.getElementById(`sales_is_final-${index}`).checked
+        if(checkboxStatus){
+            var status = confirm('After check you not able to edit or delete this entry please confirm and check.')
+           if (!status.valueOf()){
+            document.getElementById(`sales_is_final-${index}`).checked = false;
+           }
+        }
+    }
+
+
+</script>

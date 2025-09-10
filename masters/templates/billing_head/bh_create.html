@@ -1,0 +1,81 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+Billing Head - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Billing Head
+    {% else %}
+    Create New Billing Head
+    {% endif %}
+</h1>
+
+<a href="{% url 'masters:billing_head_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+    <form enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        {% include 'error_component.html' %}
+        <div class="row">
+
+            <div class="col-md-2 col-sm-12 ">
+                <label for="id_billing_head" class="required">Billing Head</label>
+                {{ form.billing_head }}
+            </div>
+           
+            <div class="col-md-2 col-sm-12 ">
+                <label for="id_alias">Alias</label>
+                {{ form.alias }}
+            </div>
+
+            <div class="col-md-2 col-sm-12 ">
+                <label for="id_hsn_code" class="required">HSN Code</label>
+                {{ form.hsn_code }}
+            </div>
+           
+            <div class="col-md-2 col-sm-12 ">
+                <label for="id_tally_group" class="required">Acc. Group</label>
+                {{ form.tally_group }}
+            </div>
+           
+           
+            <div class="col-md-3 col-sm-12 ">
+                <label for="id_gst">GST %</label>
+                {{ form.gst }}
+            </div>
+            <div class="col-md-12 col-sm-12 mt-3 mb-1">
+                {{ form.is_service }}
+                <label for="id_is_service">Is Service</label>
+            </div>
+           
+            <div class="col-md-12 col-sm-12 mt-3 mb-1">
+                {{ form.always_igst }}
+                <label for="id_always_igst">Always IGST</label>
+            </div>
+           
+            <div class="col-md-12 col-sm-12 ">
+                {{ form.is_disabled }}
+                <label for="id_is_disabled">Disable</label>
+            </div>
+
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">
+        {% if update %}
+        Update Billing Head
+        {% else %}
+        Create New Billing Head
+        {% endif %}
+        
+        </button>
+    </form>
+
+
+
+{% endblock %}

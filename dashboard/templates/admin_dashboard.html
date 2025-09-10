@@ -1,0 +1,111 @@
+ 
+                    <div class="row mb-3">
+                        {% if module == 'advance_admin' %}
+                        <div class="col-md-4 col-sm-12 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                  <h5 class="card-title">Total Users</h5>
+                                  
+                                  <h4>{{ users_global_length }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if module == 'advance_admin'  %}
+                        <div class="col-md-4 col-sm-12 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                  <h5 class="card-title">Total Jobs</h5>
+                                  
+                                  <h4>{{ jobs_global_length }}</h4>
+                                </div>
+                              </div>
+                        </div>
+                        {% endif %}
+
+                        {% if module == 'advance_admin' or module == 'accounting' %}
+                        <div class="col-md-4 col-sm-12 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                  <h5 class="card-title">Total Recievable Invoices</h5>
+                                  
+                                  <h4>{{ recievable_invoices_global_length }}</h4>
+                                </div>
+                              </div>
+                        </div>
+                        {% endif %}
+
+                        {% if module == 'advance_admin' or module == 'accounting' %}
+                        <div class="col-md-4 col-sm-12 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                  <h5 class="card-title">Total Payable Invoices</h5>
+                                  
+                                  <h4>{{ payable_invoices_global_length }}</h4>
+                                </div>
+                              </div>
+                        </div>
+                        {% endif %}
+
+                        {% if module == 'advance_admin' or module == 'accounting' %}
+                        <div class="col-md-4 col-sm-12 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                  <h5 class="card-title">Total Debit Note</h5>
+                                  
+                                  <h4>{{ debit_note_global_length }}</h4>
+                                </div>
+                              </div>
+                        </div>
+                        {% endif %}
+
+                        {% if module == 'advance_admin' or module == 'accounting' %}
+                        <div class="col-md-4 col-sm-12 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                  <h5 class="card-title">Total Credit Note</h5>
+                                  
+                                  <h4>{{ credit_note_global_length }}</h4>
+                                </div>
+                              </div>
+                        </div>
+                        {% endif %}
+
+                        {% if module == 'advance_admin' or module == 'accounting' %}
+                        <div class="col-md-4 col-sm-12 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                  <h5 class="card-title">Total Reciept Voucher</h5>
+                                  
+                                  <h4>{{ receipt_voucher_global_length }}</h4>
+                                </div>
+                              </div>
+                        </div>
+                        {% endif %}
+
+                        {% if module == 'advance_admin' or module == 'accounting' %}
+                        <div class="col-md-4 col-sm-12 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                  <h5 class="card-title">Total Payment Voucher</h5>
+                                  
+                                  <h4>{{ payment_voucher_global_length }}</h4>
+                                </div>
+                              </div>
+                        </div>
+                        {% endif %}
+
+
+                        {% if module == 'advance_admin' or module == 'accounting' %}
+                        <div class="col-md-4 col-sm-12 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                  <h5 class="card-title">Total Contra Voucher</h5>
+                                  
+                                  <h4>0</h4>
+                                </div>
+                              </div>
+                        </div>
+                        {% endif %} 
+                    </div>

@@ -1,0 +1,104 @@
+{% extends 'dashboard/index.html' %}
+{% block dashoard_title %} 
+Top Customers |
+{% endblock %}
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Top Customers
+</h1>
+
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<div class="">
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-2">
+            <label for="choose_company">Choose Branch</label>
+            <select name="choose_company" required class="form-control form-control-sm" id="choose_company" >
+                {% if not choose_company %}
+                <option value="" disabled hidden selected>Choose Company</option>
+               
+                {% endif %}
+                {% for data in global_companies %}
+                {% if choose_company == data.id %}
+                <option value="{{data.id}}" selected>{{data.company_name}}</option>
+                {% else %}
+                <option value="{{data.id}}">{{data.company_name}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+          </div>
+          
+         
+            <div class="col-2">
+                <button type="submit" class="btn btn-primary btn-sm mt-4">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    {% if invoices %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-primary compact display" id="party_table">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Currency</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in invoices %}
+                {% if data.sum > 0 %}
+                <tr>
+                    <td>{{data.bill_to__party_name}}</td>
+                    <td>{{data.invoice_currency__short_name}}</td>
+                    <td>{{data.sum|floatformat:2}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  let table = new DataTable('#party_table', {
+    dom: 'BQlfrtip',
+    order: [[2, 'desc']],
+    lengthMenu: [
+    [10, 25, 50, -1],
+    [10, 25, 50, 'All'],
+    ],
+    buttons: [
+    {
+        extend: 'collection',
+        text: 'Export',
+        buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+           
+        ]
+    },
+
+    ]
+
+});
+
+document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+
+{% endblock %}

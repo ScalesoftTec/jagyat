@@ -1,0 +1,405 @@
+{% extends 'dashboard/index.html' %}
+{% load mathfilters %}
+{% load humanize %}
+{% block dashoard_title %} 
+GSTR 3B - ({{selected_gst_code}}) - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    GSTR3B List
+</h1>
+
+<style>
+
+  table td,th{
+    padding: 3px!important;
+  }
+</style>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<form action="" method="post">
+  {% csrf_token %}
+  <div class="row mb-2">
+    <div class="col-2">
+      <label for="company_gst_code">GST Code</label>
+      <select name="company_gst_code" class="form-control" id="company_gst_code" required>
+        {% if not selected_gst_code %}
+        <option value="" selected disabled>Choose GST Code</option>
+        {% endif %}
+        {% for i in companies_gst_code %}
+        {% if i.company_gst_code == selected_gst_code and selected_gst_code %}
+        <option value="{{i.company_gst_code}}" selected>{{i.company_gst_code}}</option>
+        {% else %}
+        <option value="{{i.company_gst_code}}" >{{i.company_gst_code}}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-2">
+      <label for="from_date">From</label>
+      <input type="date" value="{{from_date|date:'Y-m-d'}}" name="from_date" required id="from_date" class="form-control form-control-sm" />
+    </div>
+    <div class="col-2">
+      <label for="to_date">To</label>
+      <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" required id="to_date" class="form-control form-control-sm" />
+    </div>
+
+    <div class="col-12">
+      <button type="submit" class="btn btn-sm btn-primary mt-4">Get Report</button>
+    </div>
+  </div>
+</form>
+
+{% if report %}
+<div class="table-responsive">
+
+
+<table class="table table-primary compact table-hover table-bordered" id="gstr3b_table">
+    <thead>
+      <tr>
+        <th scope="col">Description</th>
+        <th scope="col">Sale</th>
+        <th scope="col">Credit Note</th>
+        <th scope="col">Debit Note</th>
+
+        <th scope="col">&nbsp</th>
+       
+        <th scope="col">Description</th>
+        <th scope="col">Purchase</th>
+        <th scope="col">Credit Note</th>
+        <th scope="col">Debit Note</th>
+       
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 5 C% -->
+      <tr>
+        <th>CGST OUTWARD @ 2.5%	</th>
+        <td align="right">{{out_total_cs5|intcomma}}</td>
+        <td align="right">{{cr_out_total_cs5|intcomma}}</td>
+        <td align="right">{{dr_out_total_cs5|floatformat:2|intcomma}}</td>
+   
+        
+        <td>&nbsp</td>
+       
+        <td>CGST INWARD @ 2.5%	</td>
+        <td align="right">{{in_total_cs5|floatformat:2|intcomma}}</td>
+        <td align="right">{{cr_in_total_cs5|floatformat:2|intcomma}}</td>
+        <td align="right">{{dr_in_total_cs5|floatformat:2|intcomma}}</td>
+
+      </tr>
+      <!-- 5% End -->
+      
+      <!-- 5 S% -->
+      <tr>
+        <th>SGST OUTWARD @ 2.5%	</th>
+        <td align="right">{{out_total_cs5|floatformat:2|intcomma}}</td>
+        <td align="right">{{cr_out_total_cs5|floatformat:2|intcomma}}</td>
+        <td align="right">{{dr_out_total_cs5|floatformat:2|intcomma}}</td>
+      
+        <td>&nbsp</td>
+       
+        <td>SGST INWARD @ 2.5%	</td>
+        <td align="right">{{in_total_cs5|floatformat:2|intcomma}}</td>
+        <td align="right">{{cr_in_total_cs5|floatformat:2|intcomma}}</td>
+        <td align="right">{{dr_in_total_cs5|floatformat:2|intcomma}}</td>
+    
+      </tr>
+      <!-- 5% End -->
+      
+      <!-- 5 I% -->
+      <tr>
+        <th>IGST OUTWARD @ 5%	</th>
+        <td align="right">{{out_total_i5|floatformat:2|intcomma}}</td>
+        <td align="right">{{cr_out_total_i5|floatformat:2|intcomma}}</td>
+        <td align="right">{{dr_out_total_i5|floatformat:2|intcomma}}</td>
+        
+        
+        <td>&nbsp</td>
+       
+        <td>IGST INWARD @ 5%	</td>
+        <td align="right">{{in_total_i5|floatformat:2|intcomma}}</td>
+        <td align="right">{{cr_in_total_i5|floatformat:2|intcomma}}</td>
+        <td align="right">{{dr_in_total_i5|floatformat:2|intcomma}}</td>
+        
+      </tr>
+      <!-- 5% End -->
+
+      <tr>
+        <td colspan="9">&nbsp</td>
+      </tr>
+
+
+  <!-- 12 C% -->
+  <tr>
+    <th>CGST OUTWARD @ 6%	</th>
+    <td align="right">{{out_total_cs12|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_out_total_cs12|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_out_total_cs12|floatformat:2|intcomma}}</td>
+    
+    
+    <td>&nbsp</td>
+  
+    <td>CGST INWARD @ 6%	</td>
+    <td align="right">{{in_total_cs12|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_in_total_cs12|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_in_total_cs12|floatformat:2|intcomma}}</td>
+    
+  </tr>
+  <!-- 12% End -->
+
+  <!-- 12 S% -->
+  <tr>
+    <th>SGST OUTWARD @ 6%	</th>
+    <td align="right">{{out_total_cs12|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_out_total_cs12|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_out_total_cs12|floatformat:2|intcomma}}</td>
+    
+    
+    <td>&nbsp</td>
+  
+    <td>SGST INWARD @ 6%	</td>
+    <td align="right">{{in_total_cs12|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_in_total_cs12|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_in_total_cs12|floatformat:2|intcomma}}</td>
+    
+  </tr>
+  <!-- 12% End -->
+
+  <!-- 12 I% -->
+  <tr>
+    <th>IGST OUTWARD @ 12%	</th>
+    <td align="right">{{out_total_i12|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_out_total_i12|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_out_total_i12|floatformat:2|intcomma}}</td>
+    
+    
+    <td>&nbsp</td>
+  
+    <td>IGST INWARD @ 12%	</td>
+    <td align="right">{{in_total_i12|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_in_total_i12|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_in_total_i12|floatformat:2|intcomma}}</td>
+    
+  </tr>
+  <!-- 12% End -->
+      <tr>
+        <td colspan="9">&nbsp</td>
+      </tr>
+
+
+  <!-- 18 C% -->
+  <tr>
+    <th>CGST OUTWARD @ 9%	</th>
+    <td align="right">{{out_total_cs18|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_out_total_cs18|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_out_total_cs18|floatformat:2|intcomma}}</td>
+    
+    
+    <td>&nbsp</td>
+  
+    <td>CGST INWARD @ 9%	</td>
+    <td align="right">{{in_total_cs18|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_in_total_cs18|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_in_total_cs18|floatformat:2|intcomma}}</td>
+    
+  </tr>
+  <!-- 18% End -->
+
+  <!-- 18 S% -->
+  <tr>
+    <th>SGST OUTWARD @ 9%	</th>
+    <td align="right">{{out_total_cs18|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_out_total_cs18|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_out_total_cs18|floatformat:2|intcomma}}</td>
+    
+    
+    <td>&nbsp</td>
+  
+    <td>SGST INWARD @ 9%	</td>
+    <td align="right">{{in_total_cs18|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_in_total_cs18|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_in_total_cs18|floatformat:2|intcomma}}</td>
+    
+  </tr>
+  <!-- 18% End -->
+
+  <!-- 18 I% -->
+  <tr>
+    <th>IGST OUTWARD @ 18%	</th>
+    <td align="right">{{out_total_i18|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_out_total_i18|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_out_total_i18|floatformat:2|intcomma}}</td>
+    
+    
+    <td>&nbsp</td>
+  
+    <td>IGST INWARD @ 18%	</td>
+    <td align="right">{{in_total_i18|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_in_total_i18|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_in_total_i18|floatformat:2|intcomma}}</td>
+    
+  </tr>
+  <!-- 18% End -->
+
+  <tr>
+    <td colspan="9">&nbsp</td>
+  </tr>
+ 
+  <!-- 28 C% -->
+  <tr>
+    <th>CGST OUTWARD @ 14%	</th>
+    <td align="right">{{out_total_cs28|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_out_total_cs28|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_out_total_cs28|floatformat:2|intcomma}}</td>
+    
+    
+    <td>&nbsp</td>
+  
+    <td>CGST INWARD @ 14%	</td>
+    <td align="right">{{in_total_cs28|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_in_total_cs28|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_in_total_cs28|floatformat:2|intcomma}}</td>
+    
+  </tr>
+  <!-- 18% End -->
+
+  <!-- 18 S% -->
+  <tr>
+    <th>SGST OUTWARD @ 14%	</th>
+    <td align="right">{{out_total_cs28|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_out_total_cs28|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_out_total_cs28|floatformat:2|intcomma}}</td>
+    
+    
+    <td>&nbsp</td>
+  
+    <td>SGST INWARD @ 14%	</td>
+    <td align="right">{{in_total_cs28|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_in_total_cs28|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_in_total_cs28|floatformat:2|intcomma}}</td>
+    
+  </tr>
+  <!-- 18% End -->
+
+  <!-- 18 I% -->
+  <tr>
+    <th>IGST OUTWARD @ 28%	</th>
+    <td align="right">{{out_total_i28|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_out_total_i28|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_out_total_i28|floatformat:2|intcomma}}</td>
+    
+    
+    <td>&nbsp</td>
+  
+    <td>IGST INWARD @ 28%	</td>
+    <td align="right">{{in_total_i28|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_in_total_i28|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_in_total_i28|floatformat:2|intcomma}}</td>
+    
+  </tr>
+  <!-- 28% End -->
+
+      <tr>
+        <td colspan="9">&nbsp</td>
+      </tr>
+
+
+  <!-- 5 RCM  C% -->
+  <tr>
+    <th>CGST RCM @ 2.5%	</th>
+    <td align="right">{{out_total_rcm_cs5|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_out_total_rcm_cs5|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_out_total_rcm_cs5|floatformat:2|intcomma}}</td>
+    
+    
+    <td>&nbsp</td>
+  
+    <td>CGST RCM Credit @ 2.5%	</td>
+    <td align="right">{{in_total_rcm_cs5|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_in_total_rcm_cs5|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_in_total_rcm_cs5|floatformat:2|intcomma}}</td>
+    
+  </tr>
+  <!-- 5 RCM % End -->
+
+  <!-- 5 RCM  S% -->
+  <tr>
+    <th>SGST RCM @ 2.5%	</th>
+    <td align="right">{{out_total_rcm_cs5|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_out_total_rcm_cs5|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_out_total_rcm_cs5|floatformat:2|intcomma}}</td>
+    
+    
+    <td>&nbsp</td>
+  
+    <td>SGST RCM Credit @ 2.5%	</td>
+    <td align="right">{{in_total_rcm_cs5|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_in_total_rcm_cs5|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_in_total_rcm_cs5|floatformat:2|intcomma}}</td>
+    
+  </tr>
+  <!-- 5 RCM % End -->
+
+  <!-- 5 RCM  I% -->
+  <tr>
+    <th>IGST RCM @ 5%	</th>
+    <td align="right">{{out_total_rcm_i5|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_out_total_rcm_i5|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_out_total_rcm_i5|floatformat:2|intcomma}}</td>
+    
+    
+    <td>&nbsp</td>
+  
+    <td>IGST RCM Credit @ 5%	</td>
+    <td align="right">{{in_total_rcm_i5|floatformat:2|intcomma}}</td>
+    <td align="right">{{cr_in_total_rcm_i5|floatformat:2|intcomma}}</td>
+    <td align="right">{{dr_in_total_rcm_i5|floatformat:2|intcomma}}</td>
+    
+  </tr>
+  <!-- 5 RCM % End -->
+
+
+
+    </tbody>
+  
+    <tfoot>
+      <tr>
+        <td align="right" style="color: white;"></td>
+        <td align="right" style="color: white;">{{total_out_sales|floatformat:2|intcomma}}</td>
+        <td align="right" style="color: white;">{{total_cr_out_sales|floatformat:2|intcomma}}</td>
+        <td align="right" style="color: white;">{{total_dr_out_sales|floatformat:2|intcomma}}</td>
+       
+        <td align="right" style="color: white;"></td>
+        <td align="right" style="color: white;"></td>
+        <td align="right" style="color: white;">{{total_in_purchase|floatformat:2|intcomma}}</td>
+        <td align="right" style="color: white;">{{total_cr_in_sales|floatformat:2|intcomma}}</td>
+        <td align="right" style="color: white;">{{total_dr_in_sales|floatformat:2|intcomma}}</td>
+        
+      </tr>
+      <tr>
+        <td align="right" style="color: white;"></td>
+        <td align="right" colspan="3" style="color: white;">{{total_out|floatformat:2|intcomma}}</td>
+     
+        <td align="right" style="color: white;"></td>
+        <td align="right" style="color: white;"></td>
+        <td align="right" colspan="3" style="color: white;">{{total_in|floatformat:2|intcomma}}</td>
+      </tr>
+    </tfoot>
+
+  </table>
+  <div class="text-right">
+
+    <h3>PAYABLE : {{total_out|sub:total_in|floatformat:2|intcomma}}</h3>
+  </div>
+
+</div>
+{% endif %}
+
+{% endblock %}

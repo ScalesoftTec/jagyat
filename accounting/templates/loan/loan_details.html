@@ -1,0 +1,192 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+Loan Details - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Loan Details
+</h1>
+
+<a href="{% url 'accounting:create_loan' module=module %}" class=" d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-plus text-white-50"></i> Create Loan</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<div class="table-responsive">
+
+
+<table class="table compact table-primary table-bordered display" id="loan_table">
+    <thead>
+      <tr>
+
+        <th scope="col">Company</th>
+        <th scope="col">Loan&nbsp;No</th>
+        <th scope="col">Loan&nbsp;Date</th>
+        <th scope="col">Loan&nbsp;Type</th>
+        <th scope="col">Rate&nbsp;Type</th>
+        <th scope="col">Bank</th>
+        <th scope="col">Tenure</th>
+
+        <th scope="col">Principal&nbsp;Amount</th>
+        <th scope="col">Interest&nbsp;Rate</th>
+        <th scope="col">Interest&nbsp;Amount</th>
+        <th scope="col">Total&nbsp;Amount</th>
+        <th scope="col">Monthly&nbsp;EMI</th>
+        <th scope="col">Paid&nbsp;Tenure</th>
+        <th scope="col">Pending&nbsp;Amount</th>
+        <th scope="col">Actions</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in loans %}
+        <tr>
+
+            <td>{{ data.company_type }}</td>
+            <td>{{ data.loan_no }}</td>
+            <td>{{ data.loan_date }}</td>
+            <td>{{ data.loan_type }}</td>
+            <td>{{ data.rate_type }}</td>
+            <td>{{ data.bank }}</td>
+            <td>{{ data.loan_duration }}</td>
+            <td>{{ data.principal_amount }}</td>
+            <td>{{ data.interest_rate }}</td>
+            <td>{{ data.interest_amount }}</td>
+            <td>{{ data.total_amount }}</td>
+            <td>{{ data.monthly_emi }}</td>
+            <td>{{ data.paid_tenure }}</td>
+            <td>{{ data.pending_total_amount }}</td>
+            
+           
+      
+        <td>
+
+            <!-- Button trigger modal -->
+             <button type="button" class="btn btn-xs btn-info" data-toggle="modal"
+             data-target="#deleteModal{{ forloop.counter }}" data-toggle="tooltip" data-placement="top" title="Delete Invoice">
+             <i class="bi bi-wallet2"></i>
+           
+         </button>
+
+         <!-- Modal -->
+         <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog"
+             aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+             <div class="modal-dialog modal-xl" role="document">
+                 <div class="modal-content">
+                     <div class="modal-header">
+                         <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Pay EMI - 
+                             {{data.loan_no}}</h5>
+                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                             <span aria-hidden="true">&times;</span>
+                         </button>
+                     </div>
+                     <div class="modal-body">
+                        <table class="table table-bordered table-primary display compact">
+                            <thead>
+                                <tr>
+                                    <th>Paid</th>
+                                    <th>Due&nbsp;Date</th>
+                                    <th>Principal</th>
+                                    <th>Interest</th>
+                                    <th>Total</th>
+                                    <th>CGST</th>
+                                    <th>SGST</th>
+                                    <th>IGST</th>
+                                    <th>Late Fee / Other Charges</th>
+                                    <th>Payment&nbsp;Date</th>
+                                    <th>Inst.&nbsp;No.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <form action="{% url 'accounting:paid_loan_emi_update' module=module id=data.id %}" method="post">
+                                    {% csrf_token %}
+                                    {% for item in data.loan_record.all %}
+                                    <tr>
+                                        {% if not item.is_paid %}
+                                        <td><input type="checkbox" name="is_paid_{{item.id}}" /></td>
+                                        {% else %}
+                                        <td><span class="badge badge-primary">Paid</span></td>
+                                        {% endif %}
+                                        <td><input type="date"   readonly value="{{item.due_date|date:'Y-m-d'}}" class="form-control form-control-sm" /></td>
+                                        <td><input type="number" readonly  step="0.01" value="{{item.principal_amount}}" class="form-control form-control-sm" /></td>
+                                        <td><input type="number" readonly  step="0.01" value="{{item.interest_amount}}" class="form-control form-control-sm" /></td>
+                                        <td><input type="number" readonly  step="0.01" value="{{item.total_amount}}" class="form-control form-control-sm" /></td>
+                                        {% if item.is_paid %}
+                                        <td><input type="number" step="0.001" readonly value="{{item.cgst}}" name="cgst_{{item.id}}" id="cgst_{{item.id}}" step="0.01" placeholder="CGST" class="form-control form-control-sm" /></td>
+                                        <td><input type="number" step="0.001" readonly value="{{item.sgst}}" name="sgst_{{item.id}}" id="sgst_{{item.id}}" step="0.01" placeholder="SGST" step="0.001" class="form-control form-control-sm" /></td>
+                                        <td><input type="number" step="0.001" readonly value="{{item.igst}}" name="igst_{{item.id}}" id="igst_{{item.id}}" step="0.01" placeholder="IGST" step="0.001" class="form-control form-control-sm" /></td>
+                                        <td><input type="number" step="0.001" readonly value="{{item.late_fee}}" name="late_fee_{{item.id}}" id="late_fee_{{item.id}}" step="0.01" placeholder="Late Fee" class="form-control form-control-sm" /></td>
+                                        <td><input type="date" readonly name="payment_date_{{item.id}}" value="{{item.payment_date|date:'Y-m-d'}}" id="payment_date_{{item.id}}" class="form-control form-control-sm" /></td>
+                                        <td><input type="text" readonly name="instrument_no_{{item.id}}" value="{{item.instrument_no}}" id="instrument_no_{{item.id}}" class="form-control form-control-sm" /></td>
+                                        {% else %}
+                                        <td><input type="number" step="0.001" value="{{item.cgst}}" name="cgst_{{item.id}}" id="cgst_{{item.id}}" step="0.01" placeholder="CGST" step="0.001" class="form-control form-control-sm" /></td>
+                                        <td><input type="number" step="0.001" value="{{item.sgst}}" name="sgst_{{item.id}}" id="sgst_{{item.id}}" step="0.01" placeholder="SGST" class="form-control form-control-sm" /></td>
+                                        <td><input type="number" step="0.001" value="{{item.igst}}" name="igst_{{item.id}}" id="igst_{{item.id}}" step="0.01" placeholder="IGST" step="0.001" class="form-control form-control-sm" /></td>
+                                        <td><input type="number" step="0.001" value="{{item.late_fee}}" name="late_fee_{{item.id}}" id="late_fee_{{item.id}}" step="0.01" placeholder="Late Fee" class="form-control form-control-sm" /></td>
+                                        <td><input type="date" name="payment_date_{{item.id}}" value="{{item.payment_date|date:'Y-m-d'}}" id="payment_date_{{item.id}}" class="form-control form-control-sm" /></td>
+                                        <td><input type="text" name="instrument_no_{{item.id}}" value="Instrument No." id="instrument_no_{{item.id}}" class="form-control form-control-sm" /></td>
+                                        {% endif %}
+
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Update</button>
+                        
+                    </div>
+                </form>
+                 </div>
+             </div>
+         </div>
+           
+            
+        </td>
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+</div>
+
+
+ 
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+    let table = new DataTable('#loan_table', {
+        // options
+        dom: 'BQlfrtip',
+        buttons: [
+        {
+            extend: 'collection',
+            text: 'Export',
+            buttons: [
+                'copy',
+                'excel',
+                'csv',
+                'pdf',
+               
+            ]
+        },
+
+        ]
+
+    });
+  
+    document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+
+{% endblock %}

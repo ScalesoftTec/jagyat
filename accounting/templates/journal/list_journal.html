@@ -1,0 +1,216 @@
+{% extends 'dashboard/index.html' %}
+{% load humanize %}
+{% block dashoard_title %} 
+Journal List - 
+{% endblock %}
+
+{% block css %}
+<style>
+  .nav-tabs .nav-link {
+    margin-bottom: -1px;
+    margin: 3px;
+    border-radius: 10px;
+    padding: 6px;
+    font-size: 14px;
+    border-color: aliceblue;
+    outline: none;
+    border: none;
+    color: white;
+    background: #1c0c7f;
+}
+
+.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link {
+    color: #ffffff;
+    background-color: #366cc3;
+    border-color: #f3f3f3 #dddfeb #fff;
+}
+</style>
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    Journal Book
+</h1>
+
+<style>
+    table td, th{
+        padding: 0px!important;
+    }
+</style>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+    <div>
+        <form  method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-2">
+                    <label for="choose_company">Choose Branch</label>
+                    <select name="choose_company" class="form-control form-control-sm" id="choose_company" >
+                        {% if choose_company == 'All' %}
+                        <option value="All" selected>All</option>
+                        {% else %}
+                        <option value="All">All</option>
+                        {% endif %}
+                        {% for data in global_companies %}
+                        {% if choose_company == data.id %}
+                        <option value="{{data.id}}" selected>{{data.company_name}}</option>
+                        {% else %}
+                        <option value="{{data.id}}">{{data.company_name}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                  </div>
+                <div class="col-2">
+                    <label for="from_date">From</label>
+                    <input type="date" value="{{from_date|date:'Y-m-d'}}"  name="from_date" id="from_date" class="form-control form-control-sm" />
+                </div>
+                <div class="col-2">
+                    <label for="for_year">From</label>
+                    <input type="date" value="{{to_date|date:'Y-m-d'}}"  name="to_date" id="to_date" class="form-control form-control-sm" />
+                </div>
+                <div class="col-2 mt-4">
+                    <button class="btn btn-primary" type="submit">Filter</button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+        
+    <div class="table-responsive">
+        <table class="table table-primary table-bordered table-md-responsive" >
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Particulars</th>
+                    <th>Dr.</th>
+                    <th>Cr.</th>
+                    <th>Created By</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+
+            <tbody>
+                {% for item in journals %}
+                <tr>
+                    <td>{{item.date|date:"d-b-Y"}}</td>
+                    <td>
+
+                        {% for data in item.journal_entry.all %}
+                        {% if data.dr_cr == "Debit" %}     
+                        <span><strong>To</strong>  {{data.account.ledger_name}}</span>
+                        <br>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        {% for data in item.journal_entry.all %}
+                        {% if data.dr_cr == "Credit" %}    
+                       <span class="ml-4"> <strong>By</strong>  {{data.account.ledger_name}}</span>
+                        <br />
+                        {% endif %}
+                        {% endfor %}
+                        
+                        ({{item.description}})
+
+                    </td>
+                    <td>
+                        
+                        {% for data in item.journal_entry.all %}
+                        {% if data.dr_cr == "Debit" %}     
+                        {{data.amount}}
+                        <br>
+                        {% endif %}
+                        {% endfor %}
+                     
+                    </td>
+                    <td>
+                        <br>
+                        {% for data in item.journal_entry.all %}
+                        {% if data.dr_cr == "Credit" %}     
+                        {{data.amount}}
+                        <br>
+                        {% endif %}
+                        {% endfor %}
+                      
+                    </td>
+
+                    <td>{{item.created_by}}</td>
+                    <td>{{item.created_at|date:"d-b-Y"}}</td>
+                    <td>
+                        
+                {% if request.user.user_account.can_delete %}
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-xs btn-danger" data-toggle="modal"
+                    data-target="#deleteModal{{ forloop.counter }}">
+                    <i class="fas fa-trash"></i>
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1" role="dialog"
+                    aria-labelledby="deleteModal{{ forloop.counter }}Label" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModal{{ forloop.counter }}Label">Delete
+                                    Journal Entry</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure want to delete this journal?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <a href="{% url 'accounting:journal_delete' module=module id=item.id  %}"
+                                    class="btn btn-primary">Confirm Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+
+
+        </table>
+     </div>
+{% endblock %}
+
+{% block js %}
+
+<script>
+   
+    let table = new DataTable('.table', {
+        dom: 'BQlfrtip',
+        lengthMenu: [
+        [10, 25, 50, -1],
+        [10, 25, 50, 'All'],
+      ],
+      buttons: [
+        {
+          extend: 'collection',
+          text: 'Export',
+          buttons: [
+            'copy',
+            'excel',
+            'csv',
+            'pdf',
+            'print'
+          ]
+        },
+
+      ],
+        order: [[0, 'asc']],
+    });
+    document.querySelector('.dtsb-title').style.display = 'none'
+
+  </script>
+{% endblock %}

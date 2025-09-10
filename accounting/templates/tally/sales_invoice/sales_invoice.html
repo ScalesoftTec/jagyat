@@ -1,0 +1,286 @@
+{% extends 'dashboard/index.html' %}
+{% load humanize %}
+
+
+{% block dashoard_title %}
+Export Sales Invoice XML -
+{% endblock %}
+
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    Sales Invoice List
+</h1>
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<style>
+  .dtsb-button{
+    margin: 0!important;
+    padding: 5px 10px!important;
+    font-size: 12px!important;
+    border-radius: 10px!important;
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-button:hover{
+    
+    font-size: 12px!important;
+  
+    background-color: #280466!important;
+    color: #ffffff!important;
+  }
+  .dtsb-criteria select{
+    font-size: 12px!important;
+  }
+</style>
+
+<form  method="post" action="{% url 'accounting:sales_invoice_details_tally' module=module %}" id="invoice_get_form" enctype="multipart/form-data">
+{% csrf_token %}
+
+<div class="row">
+  <div class="col-md-2 col-sm-12">
+    <label for="from_date">Company</label>
+    <select class="form-control form-control-sm" name="company_id" id="company">
+      {% for data in global_companies %}
+      {% if company_id == data.id %}
+      <option value="{{data.id}}" selected>{{data.branch_name}}</option>
+      {% else %}
+      <option value="{{data.id}}">{{data.branch_name}}</option>
+      {% endif %}
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2 col-sm-12">
+    <label for="from_date">From</label>
+    <input type="date" required name="from_date" class="form-control form-control-sm"  id="from_date" value="{{from_date|date:'Y-m-d'}}" />
+  </div>
+  <div class="col-md-2 col-sm-12">
+    <label for="to_date">To</label>
+    <input type="date" required name="to_date"  class="form-control form-control-sm" id="to_date" value="{{to_date|date:'Y-m-d'}}" />
+  </div>
+  <div class="col-auto">
+
+    <button class="btn btn-primary btn-sm mt-4">Get Invoices</button>
+  </div>
+</div>
+
+</form>
+
+<form  method="post" id="action_form" action="{% url 'accounting:sales_invoice_export_tally' module=module %}" style="display: none;" enctype="multipart/form-data" class="mt-2" target="_blank">
+{% csrf_token %}
+<input type="hidden" id="selected_fields" name="selected_fields" value="">
+<div class="row">
+  <div class="col-auto">
+    <label for="change_mode">Mode</label>
+    <select name="change_mode" class="form-control form-control-sm" id="change_mode">
+      <option value="Accounting Invoice">Accounting Invoice</option>
+      <option value="Item Invoice">Item Invoice</option>
+    </select>
+  </div>
+  <div class="col-auto">
+    <label for="voucher_name">Voucher Type Name</label>
+    <input type="text" value="Sales" name="voucher_name" id="voucher_name" class="form-control form-control-sm" /> 
+  </div>
+
+  <div class="col-auto">
+     <!-- Button trigger modal -->
+     <button type="button" class="btn  btn-info mt-4" data-toggle="modal"
+     data-target="#bhHeadsModal">
+     Change Billing Heads Name for Sales Heads as per tally
+ </button>
+
+ <!-- Modal -->
+ <div class="modal fade" id="bhHeadsModal" tabindex="-1" role="dialog"
+     aria-labelledby="bhHeadsModalLabel" aria-hidden="true">
+     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+         <div class="modal-content">
+             <div class="modal-header bg-dark text-white py-1 px-3">
+                 <h6 class="modal-title text-white" id="bhHeadsModalLabel">Check Sales Heads</h6>
+                 <button type="button" class="close text-danger" data-dismiss="modal" aria-label="Close">
+                     <span aria-hidden="true">&times;</span>
+                 </button>
+             </div>
+             <div class="modal-body">
+                <table class="table table-primary compact display table-bordered">
+                  <thead>
+                    <tr class="p-0">
+                      <th class="p-0">Billing Head</th>
+                      <th class="p-0">Change Sales Head Name as per your tally software</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for head in invoice_details %}
+                    <tr class="p-0">
+                      <td class="p-0">
+                        {{head.billing_head__billing_head}}
+                      </td>
+                      <td class="p-0">
+                        {% if head.billing_head__sales_head %}
+                        <input type="text" required class="form-control form-control-sm" value="{{head.billing_head__sales_head}}" name="billing_head_name_{{head.billing_head}}" id="billing_head_name_{{head.billing_head}}" />
+                        {% else %}
+                        <input type="text" required class="form-control form-control-sm" value="{{head.billing_head__billing_head}}" name="billing_head_name_{{head.billing_head}}" id="billing_head_name_{{head.billing_head}}" />
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+             </div>
+             <div class="modal-footer">
+                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                
+             </div>
+         </div>
+     </div>
+ </div>
+  </div>
+
+
+  <div class="col-12">
+
+    <button class="btn btn-sm btn-primary mt-4">Export DATA <i class="bi bi-arrow-bar-right"></i></button>
+  </div>
+</div>
+
+</form>
+
+<table class="table table-primary table-bordered table-md-responsive compact display" id="party_table">
+    <thead>
+      <tr>
+        
+        <th scope="col">S. No.</th>
+        <th scope="col">GST Code</th>
+        <th scope="col">Job No</th>
+        <th scope="col">Bill To</th>
+        <th scope="col">Party Location</th>
+        <th scope="col">Bill Type</th>
+        <th scope="col">Bill No.</th>
+        <th scope="col">Bill Date</th>
+        <th scope="col">Bill Amount</th>
+     
+
+      
+      </tr>
+    </thead>
+    <tbody>
+        {% for data in invoices %}
+      <tr>
+        <input type="hidden" id="sales_index_{{forloop.counter}}" name="index_{{forloop.counter}}"
+        value="{{data.id}}">
+       
+        <td>{{ forloop.counter }}</td>
+        <td>{{ data.company_type.company_gst_code }}</td>
+        <td>{{ data.job_no.job_no }}</td>
+        <td>{{ data.bill_to.party_name }}</td>
+        <td>{{ data.bill_to_address.branch }}</td>
+        <td>{{ data.type_of_invoice }}</td>
+        <td>{{ data.final_invoice_no }}</td>
+        <td>{{ data.einvoice_date }}</td>
+        <td>{{ data.net_amount|floatformat:2|intcomma }}</td>
+
+
+      </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  var selected_ids = []
+  $(document).ready(function () {
+
+  
+  let table = new DataTable('#party_table', {
+      // options
+      dom: 'BQlfrtip',
+      lengthMenu: [
+    [10, 25, 50, -1],
+    [10, 25, 50, 'All'],
+],
+    
+
+    select: {
+        style: 'multi',
+
+    },
+
+    buttons: [
+    
+        {
+            text: 'Select all',
+           
+            action: function () {
+                selected_ids = []
+                table.rows({ page: 'current' }).select();
+                
+
+            }
+        },
+        {
+            text: 'Deselect all',
+            
+            action: function () {
+                table.rows({ page: 'current' }).deselect();
+                selected_ids = []
+                
+            }
+        },
+
+    ],
+
+  });
+  table.on('select', function (e, dt, type, indexes) {
+              var rowData = table.rows(indexes).data().toArray();
+          
+              indexes.map(index => {
+
+                  var selected_fields = document.getElementById('selected_fields')
+
+                  var indexValue = document.getElementById(`sales_index_${index + 1}`).value
+                  selected_ids.push(indexValue)
+               
+                  selected_fields.value = selected_ids
+              
+
+              })
+
+              if (selected_ids.length > 0) {
+                  var action_form = document.getElementById('action_form')
+                  action_form.style.display = 'block'
+              }
+          })
+          .on('deselect', function (e, dt, type, indexes) {
+              var rowData = table.rows(indexes).data().toArray();
+           
+              indexes.map(index => {
+
+                  var selected_fields = document.getElementById('selected_fields')
+
+                  var indexValue = document.getElementById(`sales_index_${index + 1}`).value
+                  selected_ids = selected_ids.filter(item => item !== indexValue)
+                
+                  selected_fields.value = selected_ids
+              
+              })
+
+              if (selected_ids.length == 0) {
+                  var action_form = document.getElementById('action_form')
+                  action_form.style.display = 'none'
+              }
+
+          })
+
+          document.querySelector('.dtsb-title').style.display = 'none'
+          
+        })
+</script>
+{% endblock %}

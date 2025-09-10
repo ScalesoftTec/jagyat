@@ -1,0 +1,656 @@
+{% load truncate_filters %}
+
+
+<table class="table  table-primary table-bordered " id="dsr_table" >
+    <thead>
+      <tr>
+        <th>INV.&nbsp;NO.</th>
+        <th >INV.&nbsp;DATE </th>
+
+        {% if request.user.is_superuser  %}
+          <th style="color: rgb(81, 255, 81) !important;">Module</th>
+        {% endif %}
+
+        <th>PI&nbspNO</th>
+        <th>PO&nbspNO</th>
+        
+        <th>INVOICE&nbsp;VALUE</th>
+        <th>CONSIGNEE</th>
+        <th>DESTINATION</th>
+        <th>COUNTRY</th>
+        <th>CONT&nbsp;NO./ <span style="color:darkorange">AWB&nbsp;NO.</span></th>
+        <th>DRY/REEFER</th>
+        <th>BOOKING&nbsp;NO.</th>
+        <th>P.O.L</th>
+        <th>LINE</th>
+        <th>FORWADER</th>
+        <th>STUFFING&nbsp;DATE</th>
+        <th>ICD&nbsp;IN&nbsp;DATE</th>
+        <th>HANDOVER&nbsp;DATE</th>
+
+        <th>ICD HANDOVER TYPE</th>
+
+
+        <th>TR&nbsp;HANDOVER</th>
+        <th>RAIL&nbsp;OUT&nbsp;DATE</th>
+        <th>ARRIVAL&nbsp;DATE</th>
+        <th>SAILING&nbsp;DATE</th>
+        <th>DESTINATION&nbsp;ETA</th>
+        <th>VESSEL&nbsp;&&nbsp;VOYAGE</th>
+        <th>ARRIVAL&nbsp;TRANSIT&nbsp;PORT</th>
+        <th>TRANSIT&nbsp;PORT</th>
+        <th>TRANSIT&nbsp;VESSEL&nbsp;&&nbsp;VOYAGE</th>
+        <th>TRANSIT&nbsp;SAILING&nbsp;DATE</th>
+        <th>2nd&nbsp;ARRIVAL&nbsp;TRANSIT&nbsp;PORT&nbsp;</th>
+        <th>2nd&nbsp;TRANSIT</th>
+        <th>VESSEL&nbsp;&&nbsp;VOYAGE	</th>
+        <th>SAILING&nbsp;DATE</th>
+        <th>E.T.A.&nbsp;DATE</th>
+        <th>Gate&nbsp;Out&nbsp;DATE</th>
+        <th>TRANSIT&nbsp;DAYS</th>
+        <th>BL&nbsp;CHARGES</th>
+        <th>THC&nbsp;CHARGES</th>
+        <th>INLAND&nbsp;HAULAGE</th>
+        <th>SEAL&nbsp;CHARGES</th>
+        <th>ACD&nbsp;CHARGES</th>
+        <th>GSP&nbsp;Charges</th>
+        <th>Documentation&nbsp;Charges</th>
+        <th>Examination&nbsp;Charges</th>
+        <th>Agency&nbsp;Charges</th>
+        <th>Processing&nbsp;Charges</th>
+        <th>Amendment&nbsp;Charges</th>
+        <th>On&nbsp;Carrier&nbsp;Charges</th>
+        <th>AQT&nbsp;Charges</th>
+        <th>COO&nbsp;Charges</th>
+        <th>PQT&nbsp;Charges</th>
+        <th>FUMIGATION&nbsp;Charges</th>
+        <th>REMARKS</th>
+        <th>MAERSK</th>
+        <th>CMA</th>
+        <th>ANL</th>
+        <th>HAPAG</th>
+        <th>ZIM</th>
+        <th>MSC</th>
+        <th>OTHER</th>
+
+     
+    
+      </tr>
+    </thead>
+    <tbody class="text-center">
+    {% for data in report %}
+      <tr>
+        <th scope="row">
+          
+          <a href="{% url 'operations:job_update' module=module id=data.job.id %}">
+          {% for invoice in data.job.job_invoice.all %}
+        
+          {{invoice.invoice_no}}
+          {% if not forloop.last %}|
+
+          {% endif %}
+       
+          {% endfor %}
+        </a>
+          
+        </th>
+
+        <td style="width:500px !important;"> 
+          {% for i in data.job.job_invoice.all  %}
+          {{i.invoice_date|date:"d-m-Y"}}
+          {% if not forloop.last %}|
+          {% endif %}
+
+
+          {% endfor %}
+        </td>
+
+        {% if request.user.is_superuser  %}
+        <td>
+          <a href="{% url 'operations:job_update' module=module id=data.job.id %}">
+            {{data.job.module}}
+          </a>
+        </td>
+        {% endif %}
+        
+        <td> 
+
+          {% for i in data.job.job_invoice.all  %}
+
+          {{i.pi_no}}
+          {% if not forloop.last %}|
+            {% endif %}
+
+
+          {% endfor %}
+        </td>
+        
+
+
+        <td> 
+
+          {% for i in data.job.job_invoice.all  %}
+
+          {{i.po_no}}
+          {% if not forloop.last %}|
+            {% endif %}
+
+
+          {% endfor %}
+        </td>
+        <td> 
+          {% for i in data.job.job_invoice.all  %}
+          {{i.invoice_value}}
+          {% endfor %}
+        </td>
+        
+        
+
+        <td>
+          <input type="hidden" value="{{data.job.id}}" id="dsr_{{forloop.counter}}" name="dsr_{{forloop.counter}}">
+          {% if data.job.consignee.party_name %}
+            {{data.job.consignee.party_name}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.port_of_discharge %}
+            {{data.job.port_of_discharge}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+
+        <td>
+          {% if data.job.country %}
+            {{data.job.country}}
+
+
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        
+        <td>
+          {% if data.job.module == "Sea Export" or data.job.module == "Sea Import" %} 
+              {% if data.job.job_container.count > 0 %}
+                  {% for container in data.job.job_container.all %}
+                      <strong>{{ container.job_container_no }} / {{ container.container_type }}</strong><br>
+                  {% endfor %}
+              {% else %}
+                  <span>&nbsp;</span>
+              {% endif %}
+
+          {% elif data.job.module == "Air Export" or data.job.module == "Air Import" %}
+            <strong style="color: darkorange;">{{ data.job.booking_no }}</strong><br>
+          {% endif %}
+        </td>   
+
+        <td>
+          {% if data.container_mode %}
+          {{data.container_mode}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.booking_no %}
+          {{data.job.booking_no}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if  data.job.port_of_loading  %}
+            {{ data.job.port_of_loading }}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.shipping_line.short_name %}
+            {{data.job.shipping_line.short_name}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.forwarder %}
+            {{data.job.forwarder}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.stuffing_date %}
+            {{data.job.stuffing_date|date:'d-m-Y'}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.icd_gate_in %}
+            {{data.job.icd_gate_in|date:'d-m-Y'}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.icd_handover %}
+            {{data.job.icd_handover|date:'d-m-Y'}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+
+
+          
+
+        <td>
+          {% if data.job.icd_handover_type and data.job.module == "Sea Export" %}
+            {{data.job.icd_handover_type}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+
+
+
+        <td>
+          {% if data.job.tr_date %}
+            {{data.job.tr_date|date:'d-m-Y'}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% for container in data.track %}
+          {% if container.details.r_date %}
+          {{container.details.r_date|date:'d-m-Y'}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+          </td>
+        <td>
+          {% for container in data.track %}
+          {% if container.details.arrival_date %}
+          {{container.details.arrival_date|date:'d-m-Y'}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+          
+        </td>
+      <td>
+        {% for container in data.track %}
+        {% if container.details.sailing_date %}         
+        {{container.details.sailing_date|date:'d-m-Y'}}
+        {% else %}
+        --
+        {% endif %}
+        {% endfor %}
+
+      </td>
+
+
+       
+       
+        <td> 
+
+          {% for container in data.track %}
+          {% if container.details.arrival %}
+          {{container.details.arrival|date:'d-m-Y'}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+
+        </td>
+        
+        <td> 
+
+          {% for container in data.track %}
+          {% if container.details.vessel %}
+          {{container.details.vessel}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+
+
+        </td>
+        
+        <td>
+
+          
+          {% for container in data.track %}
+          {% if container.details.trans_port_arrival %}
+          {{container.details.trans_port_arrival|date:'d-m-Y'}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+
+        </td>
+        <td>  
+
+          {% for container in data.track %}
+          {% if container.details.trans_port %}
+          {{container.details.trans_port}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+
+
+      	</td>
+        <td>  
+          
+          {% for container in data.track %}
+          {% if container.details.trans_vessel %}
+          {{container.details.trans_vessel}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+        	</td>
+        <td> 
+
+          {% for container in data.track %}
+          {% if container.details.trans_sailing_date %}
+          {{container.details.trans_sailing_date|date:"d-m-Y"}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+
+
+        </td>
+        <td> 
+
+          
+          {% for container in data.track %}
+          {% if container.details.trans2_port_arrival %}
+          {{container.details.trans2_port_arrival|date:"d-m-Y"}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+
+        </td>
+        <td>
+          {% for container in data.track %}
+          {% if container.details.trans2_port %}
+          {{container.details.trans2_port}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+  
+          
+        </td>
+        <td> 
+
+          {% for container in data.track %}
+          {% if container.details.trans2_vessel %}
+          {{container.details.trans2_vessel}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+  
+
+        </td>
+        <td > 
+
+          {% for container in data.track %}
+          {% if container.details.trans2_sailing_date %}
+          {{container.details.trans2_sailing_date.date|date:'d-m-Y'}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+
+
+        </td>
+        <td>
+          {% for container in data.track %}
+          {% if container.details.arrival %}
+          {{container.details.arrival|date:'d-m-Y'}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+
+
+        </td>
+
+
+        <td>
+          {% for container in data.track %}
+          {% if container.details.gate_out %}
+          {{container.details.gate_out|date:'d-m-Y'}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+
+
+        </td>
+       
+        <td>
+
+          {% for container in data.track %}
+          {% if container.details.transit_days %}
+          {{container.details.transit_days}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+
+         </td>
+        
+         <td>
+          {% if data.job.bl_charges %}
+          {{data.job.bl_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.thc_charges %}
+          {{data.job.thc_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.inland_haulage %}
+          {{data.job.inland_haulage}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.seal_charges %}
+          {{data.job.seal_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.acd %}
+          {{data.job.acd}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+
+        <td>
+          {% if data.job.gsp_charges %}
+          {{data.job.gsp_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.documentation_charges %}
+          {{data.job.documentation_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.examination_charges %}
+          {{data.job.examination_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.agency_charges %}
+          {{data.job.agency_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.processing_charges %}
+          {{data.job.processing_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.ammendment_charges %}
+          {{data.job.ammendment_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.on_carriage_charges %}
+          {{data.job.on_carriage_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.aqt_charges %}
+          {{data.job.aqt_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.coo_charges %}
+          {{data.job.coo_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+        <td>
+          {% if data.job.pqt_charges %}
+          {{data.job.pqt_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+
+        <td>
+          {% if data.job.pqt_charges %}
+          {{data.job.fumigation_charges}}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+
+
+         <td>
+      
+          {% if data.job.icd_remarks %}
+          {{data.job.icd_remarks|truncate_with_ellipsis:10 }}
+          {% else %}
+          --
+          {% endif %}
+        </td>
+
+        <td>
+             
+          {% for i in data.rates %}
+          {% if i.maersk_rate %}
+         
+          {{i.maersk_rate}}
+          {% else %}
+          --
+          {% endif %}
+          {% endfor %}
+                 
+        </td>
+
+        <td>
+          {% for i in data.rates %}
+          {{i.cma_rate}}
+        
+        {% endfor %}
+        
+       
+        </td>
+        <td>
+        
+
+          {% for i in data.rates %}
+          {{i.anl_rate}}
+        
+        {% endfor %}
+
+          
+
+         
+        </td>
+        <td>
+
+          {% for i in data.rates %}
+          {{i.hapag_rate}}
+        
+        {% endfor %}
+        
+        
+        </td>
+        <td>
+
+          {% for i in data.rates %}
+          {{i.zim_rate}}
+        
+        {% endfor %}
+          
+         
+        </td>
+        <td>
+
+          {% for i in data.rates %}
+          {{i.msc_rate}}
+        
+        {% endfor %}
+        
+       
+        </td>
+        <td>
+
+          {% for i in data.rates %}
+          {{i.other_name}}
+        
+        {% endfor %}
+        
+        
+        </td>
+        
+          
+      </tr>
+
+      {% endfor %}
+     
+    </tbody>
+</table>

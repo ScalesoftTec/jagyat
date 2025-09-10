@@ -1,0 +1,346 @@
+{% extends 'dashboard/index.html' %}
+{% load custom_tags %}
+{% load humanize %}
+{% block dashoard_title %}
+E-Invoice Receivables Details -
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    E-Invoice Recievable Lists
+</h1>
+
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+<div class="">
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-2">
+                <label for="choose_company">Choose Branch</label>
+                <select name="choose_company" class="form-control form-control-sm" id="choose_company" >
+                    {% if choose_company == 'All' %}
+                    <option value="All" selected>All</option>
+                    {% else %}
+                    <option value="All">All</option>
+                    {% endif %}
+                    {% for data in global_companies %}
+                    {% if choose_company == data.id %}
+                    <option value="{{data.id}}" selected>{{data.company_name}}</option>
+                    {% else %}
+                    <option value="{{data.id}}">{{data.company_name}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+              </div>
+            <div class="col-2">
+                <label for="from_date">From Date</label>
+                <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="start_date">
+            </div>
+            <div class="col-2">
+                <label for="to_date">To Date</label>
+                <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="to_date">
+            </div>
+            
+            <div class="col-md-2 col-sm-12 mb-3">
+        
+                <label for="cancelled_bill" class="required">Is Cancelled</label>
+                <select name="cancelled_bill" required class="form-control form-control-sm" id="cancelled_bill" >
+                    {% if cancelled_bill == 'A' %}
+                    <option value="A" selected>All</option>
+                    {% else %}
+                    <option value="A">All</option>
+                    {% endif %}
+                    {% if cancelled_bill == 'Y' %}
+                    <option value="Y" selected>Cancelled</option>
+                    {% else %}
+                    <option value="Y">Cancelled</option>
+                    {% endif %}
+                    {% if cancelled_bill == 'N' %}
+                    <option value="N" selected>Not Cancelled</option>
+                    {% else %}
+                    <option value="N">Not Cancelled</option>
+                    {% endif %}
+
+                   
+                </select>
+            </div>
+            <div class="col-2">
+                <button type="submit" class="btn btn-primary btn-sm mt-4">Filter</button>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+
+<div class="table-responsive">
+
+
+<table class="table  nowrap compact table-primary table-bordered table-md-responsive" id="invoice_table">
+    <thead>
+        <tr>
+            <th scope="col">Job No.</th>
+
+            <th scope="col">E-Invoice No.</th>
+            <th scope="col">E-Invoice Date</th>
+          
+            <th scope="col">Due Date</th>
+            <th scope="col">Module</th>
+            <th scope="col">Bill To</th>
+            <th scope="col">Bill To Address</th>
+            <th scope="col">HBL</th>
+            <th scope="col">MBL</th>
+            <th scope="col">GST</th>
+            <th scope="col">Currency</th>
+            
+            <th scope="col">Company</th>
+            
+            <th scope="col">Gross Amount</th>
+            <th scope="col">GST Amount</th>
+            <th scope="col">Net Amount</th>
+
+            <th scope="col">Approved</th>
+            <th scope="col">Created At</th>
+          
+            <th scope="col">PDF</th>
+           
+        </tr>
+    </thead>
+    <tbody>
+
+        {% for data in invoices %}
+
+                {% if data.is_cancel %}
+
+                <tr class="strikeout bg-secondary">
+                   
+                    
+                {% else %}
+               
+                <tr>
+                 
+                {% endif %}
+                <td>{{ data.job_no }}</td>
+                {% if data.final_invoice_no %}
+                <td>{{ data.final_invoice_no }}</td>
+                {% else %}
+                <td>{{ data.invoice_no }}</td>
+                {% endif %}
+                {% if data.einvoice_date %}
+                <td>{{ data.einvoice_date|date:"Y-m-d" }}</td>
+                {% else %}
+                <td>{{ data.date_of_invoice|date:"Y-m-d" }}</td>
+                {% endif %}
+
+                
+                <td>{{ data.due_date|date:"Y-m-d" }}</td>
+                <td>{{ data.job_no.module }}</td>
+                <td>{{ data.bill_to }}</td>
+                <td>{{ data.bill_to_address.branch }}</td>
+                <td>
+                    {% for hbl in data.hbl_options.all %}
+                    {% if hbl.last %}
+                    {{hbl.job_hbl_no}}&nbsp;/&nbsp;{{hbl.job_hbl_date}}
+                    {% else %}
+                    {{hbl.job_hbl_no}}&nbsp;/&nbsp;{{hbl.job_hbl_date}}, 
+                    {% endif %}
+                    {% endfor %}
+
+                </td>
+                <td>
+                    {% for hbl in data.hbl_options.all %}
+                    {% if hbl.last %}
+                    {{hbl.mbl_no}}
+                    {% else %}
+                    {{hbl.mbl_no}} / 
+                    {% endif %}
+                    {% endfor %}
+
+                </td>
+                <td>{{ data.bill_to_address.corp_gstin }}</td>
+                <td>{{ data.invoice_currency }}</td>
+               
+                <td>{{ data.company_type }}</td>
+               
+                <td align="right" data-order="{{data.gross_amount|floatformat:0|floatformat:2}}">{{ data.gross_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.gst_amount|floatformat:0|floatformat:2}}">{{ data.gst_amount|floatformat:0|floatformat:2|intcomma }}</td>
+                <td align="right" data-order="{{data.net_amount|floatformat:0|floatformat:2}}">{{ data.net_amount|floatformat:0|floatformat:2|intcomma }}</td>
+
+                {% if data.company_type.is_rec_inv_approve_required %}
+
+                {% if data.is_approved and data.application_handler %}
+                <td><span class="badge rounded-pill bg-success">Approved</span></td>
+                {% elif data.is_approved and not data.application_handler %}
+                <td><span class="badge rounded-pill bg-success">N/A</span></td>
+                {% else %}
+                <td><span class="badge rounded-pill bg-danger">Pending</span></td>
+                {% endif %}
+
+                {% else %}
+                <td><span class="badge rounded-pill bg-danger">N/A</span></td>
+                {% endif %}
+                <td>{{ data.created_at }}</td>
+                {% if not data.is_cancel %}
+                <td>
+
+                    <button type="button" class="btn btn-xs btn-primary" data-toggle="modal"
+                    data-target="#send_email{{ forloop.counter }}" data-toggle="tooltip" data-placement="top" title="Send Invoice">
+                    <i class="bi bi-send"></i>
+                    </button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="send_email{{ forloop.counter }}" tabindex="-1" role="dialog"
+                        aria-labelledby="send_email{{ forloop.counter }}Label" aria-hidden="true">
+                        <div class="modal-dialog " role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="send_email{{ forloop.counter }}Label">Details
+                                        {{data.invoice_no}}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+
+                                  <strong>  Are you sure want to send invoice to {{ data.bill_to_address.corp_email }}?</strong> 
+
+                                   
+                                   
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    {% if data.bill_to_address.corp_email %}
+                                    <a href="{% url 'accounting:send_rec_invoice' module=module id=data.id from_url='recievable_invoice_details' %}"
+                                    class="btn  btn-info " data-toggle="tooltip" data-placement="top" title="Send Invoice">Confirm Send</a>
+                                    {% else %}
+                                    <a href="#"    class="btn  btn-secondary " data-toggle="tooltip" data-placement="top" title="Please fill email in party details">Confirm Send</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a class="btn btn-xs btn-primary" href="{% url 'accounting:recievable_invoice_pdf' id=data.id %}"
+                        target="_blank"><i class="fas fa-file-pdf"></i></a>
+                </td>
+                {% else %}
+                <td></td>
+                {% endif %}
+               
+
+            </tr>
+            
+
+
+            {% endfor %}
+      
+
+    </tbody>
+
+    <tfoot>
+        <tr>
+            <td  style="color: white!important;" colspan="9"></td>
+            <td  style="color: white!important;">Total</td>
+           
+           
+           
+            <td align="right" class="text-right" style="color: white!important;" ></td>
+            <td align="right" class="text-right" style="color: white!important;" ></td>
+            <td align="right" class="text-right" style="color: white!important;" ></td>
+            <td align="right" class="text-right" style="color: white!important;" ></td>
+            <td align="right" class="text-right" style="color: white!important;" ></td>
+            <td></td>
+            <td></td>
+            <td></td>  
+        </tr>
+    </tfoot>
+
+
+
+</table>
+</div>
+
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+
+    var selected_ids = []
+    $(document).ready(function () {
+        jQuery.fn.dataTable.Api.register('sum()', function () {
+            return this.flatten().reduce(function (a, b) {
+              var x = parseFloat(a);
+              var y = parseFloat($(b).attr('data-order'));
+      
+              return parseFloat(x + y).toFixed(2)
+            }, 0);
+          });
+     
+        
+        var table = new DataTable('#invoice_table', {
+            // options
+            dom: 'BQlfrtip',
+            "columnDefs": [
+          
+            
+            ],
+         
+           
+            oLanguage: {sProcessing: "<div id='table_content_loader'></div>"},
+            
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+            buttons: [
+            {
+                extend: 'collection',
+                text: 'Export',
+                buttons: [
+                    'copy',
+                    'excel',
+                    'csv',
+                    'pdf',
+
+                ]
+            },
+
+        ],
+            drawCallback: function () {
+                var api = this.api();
+        
+                var from_row =12
+                var to_row = 14
+        
+                for (var i = from_row; i <= to_row; i++) {
+                  $(api.table().column(i).footer()).html(
+                    api.column(i, { page: 'current' }).nodes().sum()
+                  );
+                }
+        
+        
+              }
+
+        });
+
+        document.querySelector('.dtsb-title').style.display = 'none'
+       
+
+    })
+
+
+  
+
+</script>
+
+{% endblock %}
