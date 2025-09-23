@@ -605,13 +605,25 @@ def final_invoice_recievable_details(request,module):
     context['module']= module
     return render(request,'receivable_invoice/final_invoice_recievable_details.html',context)
 
+
+
 @login_required(login_url='home:handle_login')
-def make_eninvoice_recievable(request,module,id):
-    check_permissions(request,module)
-    login_and_get_token(request)
-    status = add_invoice_recievable_irn(request,id)
-    messages.success(request,status)
-    return redirect('accounting:recievable_invoice_details',module=module)
+def make_eninvoice_recievable(request, module, id):
+    check_permissions(request, module)
+    
+    invoice = InvoiceReceivable.objects.get(id=int(id))
+    invoice.final_invoice_no = invoice.invoice_no
+
+    date_of_invoice = invoice.date_of_invoice
+    invoice.einvoice_date = timezone.make_aware(
+        datetime.combine(date_of_invoice, datetime.min.time())
+    )
+
+    invoice.is_einvoiced = True
+    invoice.save()
+    messages.add_message(request, messages.SUCCESS, "E-invoiced marked final")
+    return redirect('accounting:recievable_invoice_details', module=module)
+
 
 @login_required(login_url='home:handle_login')
 def recievable_invoice_delete(request,module,id):
@@ -4283,4 +4295,5 @@ def payment_export_tally(request,module):
         return response
     
     return redirect('accounting:payment_details_tally',module=module)
+
 
