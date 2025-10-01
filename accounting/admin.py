@@ -1,5 +1,5 @@
 from django.contrib import admin
-from accounting.models import PettyCash, ContraVoucher, InvoicePayable, InvoicePayableDetail, InvoiceReceivable,InvoiceReceivableDetail,CreditNote,CreditNoteDetail, PaymentVoucher, RecieptVoucher,Journal,JournalEntry,RecieptVoucherDetails,DebitNote,DebitNoteDetail,IndirectExpense,IndirectExpenseDetail,PaymentVoucherDetails,Manifest,IrisInvoiceSetting,TrailorExpense,TrailorExpenseDetail,Loan,LoanPaymentRecord,Salary,Voucher
+from accounting.models import PettyCash, ContraVoucher, InvoicePayable, InvoicePayableDetail, InvoiceReceivable,InvoiceReceivableDetail,CreditNote,CreditNoteDetail, PaymentVoucher, RecieptVoucher,Journal,JournalEntry,RecieptVoucherDetails,DebitNote,DebitNoteDetail,IndirectExpense,IndirectExpenseDetail,PaymentVoucherDetails,Manifest,IrisInvoiceSetting,TrailorExpense,TrailorExpenseDetail,Loan,LoanPaymentRecord,Salary,Voucher,bill_of_payment
 from masters.models import Party,PartyAddress,currency,BillingHead
 from import_export import resources,fields
 from import_export.admin import ImportExportModelAdmin,ImportExportActionModelAdmin
@@ -217,6 +217,12 @@ class VoucherList(admin.ModelAdmin):
     list_per_page = 100
     
 
+
+class billofpaymentList(admin.ModelAdmin):
+    list_display = ['invoice_no']
+    list_filter = ('invoice_no',)
+    list_per_page = 100
+
 admin.site.register(InvoiceReceivable,InvoiceRecievableList)
 admin.site.register(InvoiceReceivableDetail,InvoiceRecDetailsList)
 admin.site.register(InvoicePayable,InvoicePayableAdmin)
@@ -245,3 +251,4 @@ admin.site.register(Loan)
 admin.site.register(Salary,SalaryList)
 admin.site.register(LoanPaymentRecord)
 admin.site.register(Voucher,VoucherList)
+admin.site.register(bill_of_payment,billofpaymentList)

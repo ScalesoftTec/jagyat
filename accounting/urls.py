@@ -112,6 +112,8 @@ urlpatterns = [
     # Purchase Invoice Tally
     path('<module>/purchase-invoice-details/tally/',views.purchase_invoice_details_tally,name='purchase_invoice_details_tally'),
     path('<module>/purchase-invoice-export/tally/',views.purchase_invoice_export_tally,name='purchase_invoice_export_tally'),
+    path('<module>/master/details/bop/',views.bop_details,name='bop_details'),
+
     
  
  

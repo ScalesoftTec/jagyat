@@ -13,6 +13,7 @@ class UserAccount(models.Model):
     is_air_export = models.BooleanField(default=False)
     is_air_import = models.BooleanField(default=False)
     is_finance = models.BooleanField(default=False)
+    can_view_bills=models.BooleanField(default=False)
     is_crm = models.BooleanField(default=False)
     is_bi = models.BooleanField(default=False)
     is_transportation = models.BooleanField(default=False)

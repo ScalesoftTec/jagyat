@@ -2,6 +2,10 @@
 {% block dashoard_title %} Acccounting | {% endblock %} 
 {% block dashboard_heading %}
 <style>
+    @keyframes blinker {
+      50% { opacity: 0; }
+    }
+
   a {
     text-decoration: none !important;
   }
@@ -114,7 +118,154 @@
 {% endif %} 
 {% endblock %}
  {% block dashboard_content %} 
+{% if request.user.user_account.can_view_bills %}
 
+
+<div class="row">
+
+<div class="col-md-10 col-sm-12">
+<marquee style="background-color:rgb(63, 1, 63);color:white; border-radius: 10px;" scrollamount="4" >
+
+{% for invoice in current_month_invoices %}
+
+  <h6 style="color:white; margin-top:9px;">
+   
+    Your bills for the month of {{ invoice.invoice_month }} {{ invoice_year }}
+  </h6>
+
+
+  <p style="color:white">
+    Invoice No: {{ invoice.invoice_no }} - Invoice Date: {{ invoice.date_of_invoice }} — Invoice Amount: {{ invoice.balance }} {{invoice.payment_status}}
+    
+  </p>
+
+  {% if invoice.days_left != None %}
+    {% if invoice.days_left > 0 %}
+      <strong class="blinking-highlight">
+        Kindly Pay the amount before the Due Date: {{ invoice.due_date }}
+      </strong>
+    {% elif invoice.days_left == 0 %}
+      <strong><i>Due today</i></strong>
+    {% else %}
+      <strong class="overdue-highlight" style="color:red;">
+        Overdue by {{ invoice.days_left }} day(s)
+      </strong>
+    {% endif %}
+  {% else %}
+    <strong>No due date</strong>
+  {% endif %}
+{% empty %}
+  <p style="color:white;">No invoices found.</p>
+{% endfor %}
+
+</marquee>
+
+
+{% if pending_count > 0 %}
+  <div class="mt-3 alert alert-warning font-weight-bold">
+    {{ pending_count }} invoice  are still pending 
+    
+    <ul>
+  {% for invoice in pending_invoices %}
+    <li>Invoice No: {{ invoice.invoice_no }} | Balance: ₹{{ invoice.balance }}</li>
+  {% endfor %}
+</ul>
+   <!--  -->
+
+Total pending balance ₹{{ pending_total_amount }}   
+
+<br>
+<strong style="color: rgb(255, 0, 0); font-weight: bold; animation: blinker 2s linear infinite;" >
+ kindly pay the September 2025 bill amount till September 30,2025 otherwise your software will be deactivate from server side </strong><br>
+<button type="submit" class="btn btn-primary" >
+      <a href="{% url 'accounting:bop_details' module=module %}"><span style="color:white">View all bills</span></a></button>
+      
+      
+  </div>
+  {% else %}
+  <div class="mt-3">
+    <button type="submit" class="btn btn-primary" >
+      <a href="{% url 'accounting:bop_details' module=module %}"><span style="color:white">View all bills</span></a></button>
+      
+      
+  </div>
+
+
+{% endif %}
+</div>
+<div class="col-md-2 col-sm-12">
+<div class="col-md-2 col-sm-12">
+  
+    {% for invoice in current_month_invoices %}
+      {% if forloop.counter <= 2 and invoice.bill_upload %}
+        <a href="{{ invoice.bill_upload.url }}" target="_blank" title="Open full document">
+          <div class="iframe-thumbnail-wrapper">
+            <iframe src="{{ invoice.bill_upload.url }}?output=embed"></iframe>
+            <div class="iframe-text-overlay">PDF</div>
+          </div>
+        </a>
+
+
+
+      {% endif %}
+    {% endfor %}
+
+    {% if  current_month_invoices|length > 2  %}
+     
+      <button type="button" class="btn btn-primary mt-2" style="min-width: 160px;" data-toggle="modal" data-target="#remainingBillsModal">
+        View all current month bills ({{ current_month_invoices|length}})
+      </button>
+</a>
+      <div class="modal fade" id="remainingBillsModal" tabindex="-1" role="dialog" aria-labelledby="remainingBillsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="remainingBillsModalLabel">Remaining Bills</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" style="max-height:400px; overflow-y:auto;">
+             
+                <table class="table  table-bordered table-sm">
+                  <thead style="background-color:grey">
+                    <tr>
+                      <th>Invoice No</th>
+                      <th>Date</th>
+                      <th>Amount (₹)</th>
+                      <th>Bill</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for invoice in current_month_invoices %}
+                      <tr>
+                        <td>{{ invoice.invoice_no }}</td>
+                        <td>{{ invoice.date_of_invoice }}</td>
+                        <td>{{ invoice.balance }}</td>
+                        <td>
+                          {% if invoice.bill_upload %}
+                            <a href="{{ invoice.bill_upload.url }}" target="_blank" class="btn btn-sm btn-link p-0">View Bill</a>
+                          {% else %}
+                            <span class="text-muted">No bill uploaded</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              <!-- </div> -->
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+</div>
+    
+</div>
+</div>
+{% endif %}
 
 <div class="row mb-1">
   <div class="col-md-3 col-sm-12 mb-1">
@@ -214,4 +365,18 @@
  
 </div>
 
+
+
+<script>
+
+
+  document.getElementById("showTableBtn").addEventListener("click", function() {
+    var tableDiv = document.getElementById("soaTable");
+    if (tableDiv.style.display === "none" || tableDiv.style.display === "") {
+      tableDiv.style.display = "block";  
+    } else {
+      tableDiv.style.display = "none";  
+    }
+  });
+</script>
 {% endblock %}

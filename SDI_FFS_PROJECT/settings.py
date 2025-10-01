@@ -228,6 +228,11 @@ CORS_ALLOW_METHODS = [
     "GET",
 ]
 
+
+MAINTENANCE_MODE = False 
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 INTERNAL_IPS = [
     # ...
     "127.0.0.1",

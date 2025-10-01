@@ -1645,3 +1645,51 @@ class RevisedLoan(LogFolder):
     def __str__(self) -> str:
         return self.loan.loan_no
 
+
+
+
+
+PAYMENT_STATUS = (
+    ('Pending','Pending'),
+    ('Paid','Paid'),
+    ('Partial-Paid','Partial-Paid'),
+    
+)
+
+
+class bill_of_payment(LogFolder):
+    invoice_no = models.CharField(max_length=200,null=True,blank=True)
+    invoice_year = models.CharField(max_length=50,null=True,blank=True)
+    date_of_invoice=models.DateField(null=True,blank=True)
+    # transactions = models.CharField(max_length=30,choices=TRANSACTIONS_TYPE)
+    payment_status = models.CharField(max_length=30,choices=PAYMENT_STATUS,default="None")
+    # details=models.CharField(max_length=255,null=True,blank=True)
+    days_left=models.FloatField(default=0,null=True,blank=True)
+    amount=models.FloatField(default=0)
+    payments=models.FloatField(default=0)
+    balance=models.FloatField(default=0,null=True,blank=True)
+    # bop_file = models.FileField(null=True,blank=True,upload_to="bop/file/")
+    due_date=models.DateField(null=True,blank=True)
+    # bill_upload = models.ImageField(null=True,blank=True,upload_to="party/billupload/")
+    bill_upload = models.FileField(null=True,blank=True,upload_to="party/billupload/")
+   
+
+
+    def __str__(self):
+        return self.invoice_no
+    
+
+    def save(self, *args, **kwargs):
+        self.balance = self.amount - self.payments
+
+        if self.amount > 0 and self.payments == 0:
+            self.payment_status = 'Pending'
+        elif self.payments >= self.amount:
+            self.payment_status = 'Paid'
+        elif 0 < self.payments < self.amount:
+            self.payment_status = 'Partial-Paid'
+        else:
+            self.payment_status = 'Pending'
+
+        super().save(*args, **kwargs)
+

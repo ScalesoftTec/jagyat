@@ -31,6 +31,10 @@ from dashboard.views import EmailThread
 @login_required(login_url='home:handle_login')
 def index(request,module):
 
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+
+
    
     context = {}
     check_permissions(request,module)
@@ -71,6 +75,57 @@ def index(request,module):
         greeting = 'Good Afternoon'
     else:
         greeting = 'Good Evening'
+
+    current_month_word = datetime.now().strftime('%B')
+    current_month_invoices = []
+   
+
+    bop = bill_of_payment.objects.exclude(payment_status='Paid').order_by('-date_of_invoice')
+    for i in bop:
+        print(i)
+    today = date.today()
+
+    next_unpaid_invoice = None
+
+    for invoice in bop:
+        invoice_date = invoice.date_of_invoice
+        invoice_month = invoice_date.strftime("%B")
+        invoice_year = invoice_date.strftime("%Y")
+        invoice.invoice_month = invoice_month
+
+        if invoice.due_date:
+            invoice.days_left = (invoice.due_date - today).days
+        else:
+            invoice.days_left = None
+
+        if invoice_date.month == current_month and invoice_date.year == current_year:
+            current_month_invoices.append(invoice)
+            print(current_month_invoices)
+        invoice.save()
+    if not current_month_invoices or all(inv.payment_status == 'Paid' or inv.balance <= 0 for inv in current_month_invoices):
+ 
+        for invoice in bop:
+            if invoice.date_of_invoice.month != current_month or invoice.date_of_invoice.year != current_year:
+                if invoice.balance > 0:
+                    next_unpaid_invoice = invoice
+                    break
+        if next_unpaid_invoice:
+            current_month_invoices.append(next_unpaid_invoice)
+
+    pending_count = 0
+    pending_total_amount = 0
+    pending_invoices=[]
+
+    for invoice in bop:
+        print(invoice)
+        context['invoice_no']=invoice
+        if invoice not in current_month_invoices:
+            print(invoice)
+            pending_count += 1
+            pending_total_amount += invoice.balance
+            pending_invoices.append(invoice)
+
+   
     
     context = {
         'selected_company':selected_company,
@@ -82,7 +137,13 @@ def index(request,module):
         'final_invoice_payable_count':final_invoice_payable_count,
         'proforma_crn_count':proforma_crn_count,
         'final_crn_count':final_crn_count,
-        'drn_count':drn_count
+        'drn_count':drn_count,
+        'bop': bop,
+        'current_month_invoices': current_month_invoices,
+        'pending_invoices': pending_invoices,
+        'pending_count': pending_count,
+        'pending_total_amount': pending_total_amount
+
     }
    
     return render(request,'accounting_index.html',context)
@@ -4299,3 +4360,44 @@ def payment_export_tally(request,module):
 
 
 
+
+@login_required(login_url='home:handle_login')
+def bop_details(request, module):
+    context = {}
+    check_permissions(request, module)
+
+    today = date.today()
+
+    current_month = today.month
+    current_year = today.year
+    if current_month < 4:
+        current_year -= 1
+    from_date = date(current_year, 4, 1)
+    to_date = today
+    
+    
+    if request.method == 'POST':
+        choose_option = request.POST.get('choose_option')
+
+        if choose_option == 'date':
+            user_from = request.POST.get('from_date')
+            user_to = request.POST.get('to_date')
+
+            if user_from and user_to:
+                from_date = datetime.strptime(user_from, '%Y-%m-%d').date()
+                to_date = datetime.strptime(user_to, '%Y-%m-%d').date()
+
+   
+
+
+    bop=bill_of_payment.objects.filter(
+        date_of_invoice__gte=from_date,
+        date_of_invoice__lte=to_date
+    )
+
+    context['bop'] = bop
+    context['module'] = module
+    context['from_date'] = from_date
+    context['to_date'] = to_date
+
+    return render(request, 'bop/bop_details.html', context)

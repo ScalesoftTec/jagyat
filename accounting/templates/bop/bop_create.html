@@ -1,0 +1,135 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashboard_heading %}
+<h1 class="h4 mb-0 text-gray-800">
+    {% if update %}
+    Update Bills
+    {% else %}
+    Create New Bill
+    {% endif %}
+
+</h1>
+
+<a href="{% url 'accounting:bop_details' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+        class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+{% block dashboard_content %}
+
+
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_date_of_invoice">Invoice Date</label>
+            {{ form.date_of_invoice }}
+        </div>
+
+
+        
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_type">Due Date</label>
+            {{ form.due_date }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_transactions">Transactions Type</label>
+            {{ form.transactions }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_date_of_invoice">Invoice No</label>
+            {{ form.invoice_no }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_amount">Amount</label>
+            {{ form.amount }}
+        </div>
+       
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_payments">Payment Received</label>
+            {{ form.payments }}
+        </div>
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_balance">Balance</label>
+            {{ form.balance }}
+        </div>
+         
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_details">Instrument No</label>
+            {{ form.details }}
+        </div>
+
+      
+
+        
+
+
+        <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_bill_upload">Upload Bill
+            {% if update and data.bill_upload %}
+            <a href="{{ data.bill_upload.url }}" target="_blank">View</a>
+            {% endif %} </label>
+
+            {{ form.bill_upload }}
+
+            <!-- {% if update and data.bill_upload %}
+    <img src="{{ data.bill_upload.url }}" alt="Uploaded Image" class="img-thumbnail" style="max-width: 200px;">
+{% endif %} -->
+
+        </div>
+
+
+
+        <!-- <div class="col-md-3 col-sm-12 mb-3">
+            <label for="id_bill_upload">Upload Bills</label>
+            {{ form.bill_upload }}
+        </div> -->
+
+        <!--  {{form.photo_id}} -->
+
+      
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        {% if update %}
+        Update Bill
+        {% else %}
+        Create New Bill
+        {% endif %}
+
+    </button>
+</form>
+
+<script>
+   
+    document.addEventListener('DOMContentLoaded', function() {
+        const amountField = document.getElementById('id_amount');
+        const paymentsField = document.getElementById('id_payments');
+        const balanceField = document.getElementById('id_balance');
+
+       
+        function updateBalance() {
+            const amount = parseFloat(amountField.value) || 0;
+            const payments = parseFloat(paymentsField.value) || 0;
+            const balance = amount - payments;
+            balanceField.value = balance.toFixed(2); 
+        }
+
+        
+        amountField.addEventListener('input', updateBalance);
+        paymentsField.addEventListener('input', updateBalance);
+
+        
+        updateBalance();
+    });
+</script>
+
+
+{% endblock %}
