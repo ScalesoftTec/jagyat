@@ -1,5 +1,7 @@
 from django.urls import path
 from accounting import views
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 
 app_name="accounting"
 
@@ -113,6 +115,14 @@ urlpatterns = [
     path('<module>/purchase-invoice-details/tally/',views.purchase_invoice_details_tally,name='purchase_invoice_details_tally'),
     path('<module>/purchase-invoice-export/tally/',views.purchase_invoice_export_tally,name='purchase_invoice_export_tally'),
     path('<module>/master/details/bop/',views.bop_details,name='bop_details'),
+
+    path('api/token/jagyat/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('bill-of-payment/', views.bill_of_payment_view),
+    path('bill-of-payment/<int:id>/', views.bill_of_payment_view),
+    path('bill-of-payment/create/jagyat/', views.create_bill_of_payment),
+    path('bill-of-payment/<int:id>/update/jagyat/', views.update_bill_of_payment), 
+    path('bill-of-payment/<int:id>/delete/', views.delete_bill_of_payment), 
 
     
  

@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'hr.apps.HrConfig',
     'operations.apps.OperationsConfig',
     'accounting_report.apps.AccountingReportConfig',
+    'rest_framework_simplejwt',
  
 ]
 
@@ -200,10 +201,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 IMPORT_EXPORT_SKIP_ADMIN_LOG = True
 
-REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+# }
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',  
+    ],
+}
 
 #ckeditor upload path
 CKEDITOR_UPLOAD_PATH="uploads/"

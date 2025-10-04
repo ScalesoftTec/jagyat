@@ -26,6 +26,14 @@ import math
 import pandas as pd
 from django.core.files.storage import FileSystemStorage
 from dashboard.views import EmailThread
+from accounting.serializers import BillOfPaymentSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes,authentication_classes
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.response import Response
+from rest_framework import status
+
 
 
 @login_required(login_url='home:handle_login')
@@ -4401,3 +4409,58 @@ def bop_details(request, module):
     context['to_date'] = to_date
 
     return render(request, 'bop/bop_details.html', context)
+
+
+
+
+
+# bop api
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_bill_of_payment(request):
+    serializer = BillOfPaymentSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def bill_of_payment_view(request, id=None):
+    if id is not None:
+        try:
+            bill = bill_of_payment.objects.get(id=id)
+            serializer = BillOfPaymentSerializer(bill)
+            return Response(serializer.data)
+        except bill_of_payment.DoesNotExist:
+            return Response({"error": "Not found"}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        bills = bill_of_payment.objects.all()
+        serializer = BillOfPaymentSerializer(bills, many=True)
+        return Response(serializer.data)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_bill_of_payment(request, id):
+    try:
+        bill = bill_of_payment.objects.get(id=id)
+    except bill_of_payment.DoesNotExist:
+        return Response({"error": "Not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = BillOfPaymentSerializer(bill, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+def delete_bill_of_payment(request, id):
+    try:
+        bill = bill_of_payment.objects.get(id=id)
+    except bill_of_payment.DoesNotExist:
+        return Response({"error": "Not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    bill.delete()
+    return Response({"msg": "bill deleted successfully"},status=status.HTTP_204_NO_CONTENT)
+
