@@ -12,6 +12,13 @@ from django.db.models import Sum
 register = template.Library()
 
 @register.filter
+def absolute(value):
+    try:
+        return abs(value)
+    except:
+        return value
+    
+@register.filter
 def zip_my_list(value=[],args=[]):    
     try:
         if not value:

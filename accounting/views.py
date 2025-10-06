@@ -33,6 +33,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.response import Response
 from rest_framework import status
+import requests
+from operator import itemgetter
 
 
 
@@ -4415,6 +4417,245 @@ def bop_details(request, module):
 
 
 # bop api
+
+def get_transactions(request,from_date_str, to_date_str):
+    from_date = datetime.strptime(from_date_str, '%Y-%m-%d').date()
+    to_date = datetime.strptime(to_date_str, '%Y-%m-%d').date()
+
+    party_data = {}
+    transactions = []
+    opening_balance = 0
+
+    # if selected_company != 'all':
+    try:
+        # unique_no = selected_company.unique_no
+        # unique_no = request.user.user_account.office.unique_no
+        unique_no = request.user.user_account.office.unique_no
+        print("unique_no =>" ,request.user.user_account.office.unique_no)
+        # response = requests.get(f"http://127.0.0.1:8080/master/api/office_party/{unique_no}/")
+        response = requests.get(f"https://office.ezcargotrack.com/master/api/office_party/{unique_no}/")
+        # response.raise_for_status()
+        party_data = response.json()
+    except requests.RequestException as e:
+        print("Error fetching party data:", e)
+        party_data = {"party_name": "Error fetching data."}
+
+    
+
+    for s in party_data.get('sales_invoice', []):
+        
+        invoice_date = datetime.strptime(s.get('date_of_invoice'), '%Y-%m-%d').date()
+      
+        amount = s.get('net_amount')
+        if invoice_date < from_date:
+            opening_balance += amount
+            # log_opening_entry("Sales Invoice", amount, invoice_date)
+        elif from_date <= invoice_date <= to_date:
+            transactions.append({
+                'type': 'Sales Invoice',
+                'voucher_no': s.get('voucher_no'),
+                'invoice_no': s.get('invoice_no'),
+                'remark': s.get('remark_on_invoice'),
+                'amount': amount,
+                'date': s.get('date_of_invoice')
+            })
+
+   
+    for p in party_data.get('purchase_invoice', []):
+        purchase_date = datetime.strptime(p.get('date_of_invoice'), '%Y-%m-%d').date()
+        amount = -p.get('net_amount')
+        if purchase_date < from_date:
+            opening_balance += amount
+            # log_opening_entry("Purchase Invoice", amount, purchase_date)
+        elif from_date <= purchase_date <= to_date:
+            transactions.append({ 
+                'type': 'Purchase Invoice',
+                'voucher_no': p.get('voucher_no'),
+                'invoice_no': p.get('invoice_no'),
+                'remark': p.get('remark_on_invoice'),
+                'amount': amount,
+                'date': p.get('date_of_invoice')
+            })
+
+
+   
+    for d in party_data.get('debit_note', []):
+        debit_date = datetime.strptime(d.get('date_of_note'), '%Y-%m-%d').date()
+        amount = d.get('net_amount')
+        if debit_date < from_date:
+            opening_balance += amount
+            # log_opening_entry("Debit Note", amount, debit_date)
+        elif from_date <= debit_date <= to_date:
+            transactions.append({
+                'type': 'Debit Note',
+                'voucher_no': d.get('voucher_no'),
+                'debit_note_no': d.get('debit_note_no'),
+                'remark': d.get('remark_on_note'),
+                'amount': amount,
+                'date': d.get('date_of_note')
+            })
+
+    for c in party_data.get('credit_note', []):
+        credit_date = datetime.strptime(c.get('date_of_note'), '%Y-%m-%d').date()
+        amount = -c.get('net_amount')
+        if credit_date < from_date:
+            opening_balance += amount
+            # log_opening_entry("Credit Invoice", amount, credit_date)
+        elif from_date <= credit_date <= to_date:
+            transactions.append({
+                'type': 'Credit Note',
+                'voucher_no': c.get('voucher_no'),
+                'credit_note_no': c.get('credit_note_no'),
+                'remark': c.get('remark_on_note'),
+                'amount': amount,
+                'date': c.get('date_of_note')
+            })
+
+  
+
+   
+    for r in party_data.get('receipt_vouchers', []):
+        receipt_date = datetime.strptime(r.get('voucher_date'), '%Y-%m-%d').date()
+
+        components = [
+            ('Received Amount', -r.get('received_amount', 0), 'received_amount'),
+            ('TDS Deducted', -r.get('reciept_tds_amount', 0), 'reciept_tds_amount'),
+            ('Adjustment Amount', -r.get('adjustment_amount', 0), 'adjustment_amount'),
+        ]
+
+        for label, amount, field_key in components:
+            if amount != 0:
+                if receipt_date < from_date:
+                    opening_balance += amount
+                    # log_opening_entry(f"Receipt Voucher - {label}", amount, receipt_date)
+                elif from_date <= receipt_date <= to_date:
+                    transactions.append({
+                        'type': f'Receipt Voucher',
+                        'label': label,
+                        'voucher_no': r.get('voucher_no'),
+                        'receipt_no': r.get('receipt_no'),
+                        'remark': r.get('remark_on_receipt') or label,
+                        'amount': amount,
+                        'date': r.get('voucher_date')  
+                    })
+
+
+   
+
+    journal_voucher_dates = {}
+    for jv in party_data.get('journal_vouchers', []):
+        jv_id = jv.get('id')
+        print(jv_id)
+        jv_date = jv.get('date')
+        if jv_id and jv_date:
+            journal_voucher_dates[jv_id] = jv_date
+            print(journal_voucher_dates)
+
+            
+
+    for jv_det in party_data.get('journal_vouchers_det', []):
+        jv_id = jv_det.get('voucher')
+        jv_date_str = journal_voucher_dates.get(jv_id)
+        if not jv_date_str:
+            continue
+
+        jv_date = datetime.strptime(jv_date_str, '%Y-%m-%d').date()
+        amount = jv_det.get('amount', 0)
+        dr_cr = jv_det.get('dr_cr', '').lower()
+
+        if dr_cr == 'credit':
+            amount = -amount
+
+        if jv_date < from_date:
+            opening_balance += amount
+            # log_opening_entry("Journal Voucher", amount, jv_date)
+        elif from_date <= jv_date <= to_date:
+            transactions.append({
+                'type': 'Journal Voucher',
+                'voucher_no': jv_id,
+                'remark': jv_det.get('particular'),
+                'amount': amount,
+                'date': jv_date_str
+            })
+
+    transactions.sort(key=itemgetter('date'))
+
+   
+
+    
+    running_balance = opening_balance
+    for t in transactions:
+        running_balance += t['amount']
+        t['balance'] = running_balance
+
+   
+
+    if transactions:
+        last_transaction = transactions[-1]
+        balance_due = last_transaction['balance']
+    else:
+        balance_due = 0
+
+    # print("Final opening_balance calculated:", opening_balance)
+    return party_data, transactions, balance_due, opening_balance
+# @csrf_exempt
+def generate_soa_pdf(request, module):
+
+    current_month = datetime.now().month
+    print(current_month)
+    to_current_year = datetime.now().year + 1
+    current_year = datetime.now().year
+    _, end_day = calendar.monthrange(current_year, current_month)
+
+    
+
+    if current_month < 4:
+        current_year -= 1
+        to_current_year -= 1
+    if request.method == 'POST':
+        from_date = request.POST['from_date']
+        to_date = request.POST['to_date']
+        # company_id = request.POST['company_id']
+
+       
+        # selected_company = Logistic.objects.get(id=company_id)
+
+        party_data, transactions, balance_due, opening_balance = get_transactions(request,from_date, to_date)
+
+
+        context = {
+            'party_data': party_data,
+            'transactions': transactions,
+            'balance_due': balance_due,
+            'opening_balance': opening_balance,
+            'from_date': from_date,
+            'to_date': to_date,
+            'party_name': party_data.get('party_name', 'N/A'),
+            'company': request.user.user_account.office.company_name,    
+            'branch': request.user.user_account.office.branch_name,    
+            'gstin_no': request.user.user_account.office.gstin_no,    
+            'address_line_1': request.user.user_account.office.address_line_1,    
+            'address_line_2': request.user.user_account.office.address_line_2,    
+            'pin_code': request.user.user_account.office.pin_code,    
+            'module': module,
+        }
+
+        template_path = 'accounting_bill_pdf.html'
+        html = render(request, template_path, context).content.decode('utf-8')
+
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="statement_of_account.pdf"'
+
+        pisa_status = pisa.CreatePDF(html, dest=response)
+        if pisa_status.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
+
+    else:
+        return HttpResponse("Invalid request method")      
+
+
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

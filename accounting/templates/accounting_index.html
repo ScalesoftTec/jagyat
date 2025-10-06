@@ -1,6 +1,8 @@
 {% extends 'dashboard/index.html' %} 
 {% block dashoard_title %} Acccounting | {% endblock %} 
 {% block dashboard_heading %}
+{% load static %}
+{% load custom_tags %}
 <style>
     @keyframes blinker {
       50% { opacity: 0; }
@@ -305,7 +307,152 @@ Total pending balance ₹{{ pending_total_amount }}
     
 </div>
 </div>
+
+
+
+{% if request.user.user_account.can_view_bills %}
+
+<button type="button" class="btn btn-primary mt-2" style="min-width: 50px;" data-toggle="modal" data-target="#soaModal">
+  View Scalesoft technologies Account Statement
+</button>
 {% endif %}
+</a>
+<div class="modal fade" id="soaModal" tabindex="-1" role="dialog" aria-labelledby="soaModalLabel" aria-hidden="true">
+ <div class="modal-dialog" role="document">
+   <div class="modal-content">
+     <div class="modal-header">
+       <h5 class="modal-title" id="soaModalLabel">STATEMENT OF ACCOUNTS</h5>
+       <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+         <span aria-hidden="true">&times;</span>
+       </button>
+     </div>
+     <div class="modal-body" style="max-height:400px; overflow-y:auto;">
+      
+       <form
+        action="{% url 'accounting:generate_soa_pdf' module=module %}"
+
+       method="post">
+       {% csrf_token %}
+   <div class="row mb-1">
+     
+   <div class="col-md-4 col-sm-12 mb-3">
+     <label for="from_date">From</label>
+     <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control" id="from_date">
+   </div>
+
+   <div class="col-md-4 col-sm-12 mb-3">
+     <label for="to_date">To</label>
+     <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control" id="to_date">
+   </div>
+   
+<div class="col-md-3 mt-1">
+     <!-- <button type="submit" class="mt-6 btn btn-sm btn-primary">GENERATE PDF</button>  -->
+     <button type="submit" class="btn btn-primary mt-4" style="min-width: 140px;">Generate PDF</button>
+
+     
+   </div>
+     </div>
+
+       </form>
+
+       
+     </div>
+   </div>
+ </div>
+</div>
+
+
+
+<form
+  action="{% url 'dashboard:accounting_dashboard' module=module %}"
+  method="post">
+  {% csrf_token %}
+  <div class="row mb-1">
+    <div class="col-md-2">
+      <label for="company">Company</label>
+      <select name="company" class="form-control form-control-sm" id="company">
+        {% if selected_company == 'all' %}
+        <option value="all" selected>All</option>
+        {% else %}
+        <option value="all">All</option>
+        {% endif %}
+        {% for i in global_companies %} 
+        {% if i.id == selected_company %}
+        <option value="{{i.id}}" selected>{{i}} ({{i.branch_name}})</option>
+        {% else %}
+        <option value="{{i.id}}">{{i}} ({{i.branch_name}})</option>
+        {% endif %} 
+        {% endfor %}
+      </select>
+    </div>
+
+   
+<div class="col-md-3 mt-1">
+      <button type="submit" class="mt-4 btn btn-sm btn-primary">Search</button> 
+
+      
+    </div>
+  </div>
+
+  
+</form>
+
+{% endif %}
+
+
+{% if transactions %}
+<div id="soaTable" style="display: none; margin-top: 20px;">
+  <table class="table table-bordered">
+    <thead style="background-color:grey">
+      <tr>
+        <th>Date</th>
+        <th>Transaction</th>
+        <th>Details</th>
+        <th>Amount</th>
+        <th>Payments</th>
+        <th>Balance</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in transactions %}
+      <tr>
+        <td>{{ t.date }}</td>
+        <td>{{ t.type }}</td>
+        <td>{{ t.remark }}</td>
+        <td>
+          {% if t.amount > 0 %}
+            {{ t.amount }}
+           
+
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>
+          {% if t.amount < 0 %}
+            {{ t.amount|absolute }}
+           
+
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>{{ t.balance }}</td>
+      </tr>
+      {% endfor %}
+
+      <tr style="background-color: #e9e9e9; font-weight: bold;">
+        <td colspan="5" style="text-align: right;">Balance Due:</td>
+        <td>{{ balance_due }}</td>
+      </tr>
+      
+    </tbody>
+  </table>
+</div>
+
+
+{% endif %}
+
 
 <div class="row mb-1">
   <div class="col-md-3 col-sm-12 mb-1">

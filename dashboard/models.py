@@ -121,6 +121,8 @@ class Logistic(models.Model):
     igst_out_ledger_name_28 = models.CharField(max_length=120,null=True,blank=True,default="IGST")
     
     round_off_ledger_name = models.CharField(max_length=120,null=True,blank=True,default="Round Off")
+    unique_no = models.UUIDField(null=True,blank=True)
+
     
     
     

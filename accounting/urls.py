@@ -122,7 +122,9 @@ urlpatterns = [
     path('bill-of-payment/<int:id>/', views.bill_of_payment_view),
     path('bill-of-payment/create/jagyat/', views.create_bill_of_payment),
     path('bill-of-payment/<int:id>/update/jagyat/', views.update_bill_of_payment), 
-    path('bill-of-payment/<int:id>/delete/', views.delete_bill_of_payment), 
+    path('bill-of-payment/<int:id>/delete/', views.delete_bill_of_payment),
+    path('<str:module>/generate-soa-pdf/', views.generate_soa_pdf, name='generate_soa_pdf'),
+ 
 
     
  
