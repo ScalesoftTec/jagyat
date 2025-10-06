@@ -35,6 +35,7 @@ from rest_framework.response import Response
 from rest_framework import status
 import requests
 from operator import itemgetter
+from xhtml2pdf import pisa
 
 
 
