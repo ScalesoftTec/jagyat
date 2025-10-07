@@ -110,6 +110,8 @@ E-Invoice Receivables Details -
             <th scope="col">Created At</th>
           
             <th scope="col">PDF</th>
+            <th scope="col">Revert to Proforma</th>
+            
            
         </tr>
     </thead>
@@ -233,6 +235,50 @@ E-Invoice Receivables Details -
                 {% else %}
                 <td></td>
                 {% endif %}
+
+                <td>
+                    {% if request.user.user_account.is_invoice_reversal %}
+                        {% if data.reciept_rec_inv.count == 0 and not data.irn_no %}
+                        <button type="button" class="btn btn-xs btn-danger"   data-toggle="modal" 
+                        data-target="#reverse_einvoice{{ forloop.counter }}"  title="Reverse E-Invoice">
+                        <i class="bi bi-arrow-return-left"></i>
+                        </button>
+                        {% endif %}
+                    {% else %}
+                    <a class="btn btn-xs btn-secondary disabled" href="#"><i class="bi bi-arrow-return-left"></i></a>
+                    {% endif %}
+    
+                         
+                        <div class="modal fade" id="reverse_einvoice{{ forloop.counter }}" tabindex="-1" role="dialog"
+                            aria-labelledby="reverse_einvoice{{ forloop.counter }}Label" aria-hidden="true">
+                            <div class="modal-dialog " role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="reverse_einvoice{{ forloop.counter }}Label">Details
+                                            {{data.invoice_no}}</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        
+                                      <strong>  Are you sure want to Reverse this e-invoice into performa?</strong> 
+    
+                                       
+                                       
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                                        
+                                       
+                                        <a href="{% url 'accounting:e_invoice_recievable_into_performa' module=module inv_rec_id=data.id %}" class="btn btn-warning" data-toggle="tooltip" data-placement="top" title="Please fill email in party details">Confirm Reverse</a>
+    
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </td>
                
 
             </tr>
@@ -342,5 +388,6 @@ E-Invoice Receivables Details -
   
 
 </script>
+
 
 {% endblock %}
