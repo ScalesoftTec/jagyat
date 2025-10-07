@@ -100,7 +100,13 @@ Payment TDS Report -
       {% if data.type == "Direct" %}
       <tr>
         <td>{{ invoice.company_type }}</td>
-        <td>{{ invoice.job_no }}</td>
+        <td>
+        {% if invoice.job_no %}
+          {{ invoice.job_no }}
+          {% else %}
+          -
+        {% endif %}
+        </td>
         <td>
           
           {{ invoice.purchase_invoice_no }}
