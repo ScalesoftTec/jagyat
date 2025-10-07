@@ -26,6 +26,7 @@ urlpatterns = [
     path('recievable-invoice/pdf/<id>/',views.recievable_invoice_pdf,name='recievable_invoice_pdf'),
     path('recievable-invoice/print/pdf/<id>/',views.recievable_invoice_print_pdf,name='recievable_invoice_print_pdf'),
     path('<module>/send-invoice/pdf/<id>/<from_url>/',views.send_rec_invoice,name='send_rec_invoice'),
+    path('<module>/revert-e-invoice/recievable/<inv_rec_id>', views.e_invoice_recievable_into_performa, name='e_invoice_recievable_into_performa'),
 
     # path('payment/invoice/pdf/<id>/',views.payment_invoice_pdf,name='payment_invoice_pdf'),
 
