@@ -110,7 +110,7 @@ Payment TDS Report -
           {% if invoice.bill_from %}
           {{ invoice.bill_from.party_name }}
           {% else %}
-          {{ invoice.vendor.vendor_name }}
+          {{ invoice.vendor }}
           {% endif %}
         </td>
         <td> 
