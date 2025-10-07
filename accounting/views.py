@@ -708,6 +708,85 @@ def recievable_invoice_delete(request,module,id):
     return redirect('accounting:recievable_invoice_details',module=module)
 
 
+
+
+
+'''     tmax    '''
+@login_required(login_url='home:handle_login')
+def e_invoice_recievable_into_performa(request, module, inv_rec_id):
+    check_permissions(request,module)
+    context = {}
+    cancelled_bill = "N"
+    company = Logistic.objects.filter(id=request.user.user_account.office.id).first()
+    invoices = InvoiceReceivable.objects.select_related('bill_to','company_type','job_no','invoice_currency','bill_to_address','created_by').filter(old_invoice=False).filter(is_einvoiced=True).filter(company_type__tax_policy = "GST").all().order_by('-id')
+
+    if not request.user.user_account.see_global_data:
+        invoices = invoices.filter(company_type=company).all()
+
+    current_month = datetime.now().month
+   
+    current_year = datetime.now().year
+    _,end_day = calendar.monthrange(current_year, current_month)
+    from_date = date(current_year,current_month,1)
+    to_date = date(current_year,current_month,end_day)
+    from_to_date = to_date + timedelta(days=1)
+    choose_company = "All"
+    if request.method == 'POST':
+
+        from_date = request.POST['from_date']
+        to_date = request.POST['to_date']
+        choose_company = request.POST['choose_company']
+        cancelled_bill = request.POST['cancelled_bill']
+        from_to_date = datetime.strptime(to_date,'%Y-%m-%d').date() + timedelta(days=1)
+
+    invoices = invoices.filter(einvoice_date__range=[from_date,to_date]).all()
+
+    context['choose_company'] = choose_company
+    if not choose_company == "All":
+        invoices = invoices.filter(company_type__id=int(choose_company))
+        context['choose_company'] = int(choose_company)
+
+    if cancelled_bill == "N":
+        invoices = invoices.filter(is_cancel=False).all()
+
+    if cancelled_bill == "Y":
+        invoices = invoices.filter(is_cancel=True).all()
+    
+    if not request.user.user_account.also_handle_other_work:
+        invoices = invoices.filter(created_by=request.user).all()
+
+    context['invoices']= invoices
+    context['cancelled_bill']= cancelled_bill
+    context['current_date'] = datetime.now()
+    context['from_date']= datetime.strptime(str(from_date),"%Y-%m-%d")
+    context['to_date']= datetime.strptime(str(to_date),"%Y-%m-%d")
+    context['module']= module
+
+
+
+    invoice = InvoiceReceivable.objects.filter(id=inv_rec_id).first()
+    get_rv =  RecieptVoucherDetails.objects.filter(invoice = invoice)
+    
+    context['module'] = module
+
+    if get_rv.count() == 0:
+        if request.user.user_account.is_invoice_reversal:
+            context['invoice'] = invoice
+            invoice.final_invoice_no = invoice.final_invoice_no
+            invoice.einvoice_date = invoice.einvoice_date
+            invoice.is_proforma = True
+            invoice.is_einvoiced = False
+            invoice.save()
+            messages.success(request,f'Done! Invoice {invoice.invoice_no} Reverted To Proforma ')
+
+        else: 
+            messages.warning(request,f'Invoice {invoice.final_invoice_no} Failed !')
+    else:
+        messages.warning(request,f'Invoice {invoice.invoice_no} Failed ! Reciept Voucher is Avilable')
+    return render(request,'receivable_invoice/einvoice_list.html',context)
+
+
+
 # def recievable_invoice_pdf(request,id):
 #     template_path = 'receivable_invoice/tax_invoice_pdf.html'
 #     invoice = InvoiceReceivable.objects.filter(id=int(id)).first()
@@ -4705,4 +4784,5 @@ def delete_bill_of_payment(request, id):
 
     bill.delete()
     return Response({"msg": "bill deleted successfully"},status=status.HTTP_204_NO_CONTENT)
+
 
