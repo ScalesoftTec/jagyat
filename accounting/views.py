@@ -685,12 +685,14 @@ def make_eninvoice_recievable(request, module, id):
     check_permissions(request, module)
     
     invoice = InvoiceReceivable.objects.get(id=int(id))
-    invoice.final_invoice_no = invoice.invoice_no
 
-    date_of_invoice = invoice.date_of_invoice
-    invoice.einvoice_date = timezone.make_aware(
-        datetime.combine(date_of_invoice, datetime.min.time())
-    )
+    if not invoice.final_invoice_no:
+        invoice.final_invoice_no = invoice.invoice_no
+        date_of_invoice = invoice.date_of_invoice
+
+        invoice.einvoice_date = timezone.make_aware(
+            datetime.combine(date_of_invoice, datetime.min.time())
+        )
 
     invoice.is_einvoiced = True
     invoice.save()
