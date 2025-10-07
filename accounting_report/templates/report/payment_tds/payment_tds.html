@@ -106,9 +106,27 @@ Payment TDS Report -
           {{ invoice.purchase_invoice_no }}
         </td>
         <td>{{invoice.date_of_invoice|date:'Y-m-d'}}</td>
-        <td>{{ invoice.bill_from.party_name }}</td>
-        <td>{{ invoice.bill_from_address.corp_pan }}</td>
-        <td>{{ invoice.tds_section }}</td>
+        <td>
+          {% if invoice.bill_from %}
+          {{ invoice.bill_from.party_name }}
+          {% else %}
+          {{ invoice.vendor.vendor_name }}
+          {% endif %}
+        </td>
+        <td> 
+          {% if invoice.bill_from %}
+          {{ invoice.bill_from_address.corp_pan }}
+          {% else %}
+          {{ invoice.vendor.pan }}
+          {% endif %}
+         </td>
+        <td>
+          {% if invoice.tds_section %}
+          {{ invoice.tds_section }}
+          {% else %}
+          -
+          {% endif %}
+        </td>
         <td data-order="{{ invoice.gross_amount|floatformat:2 }}" align="right">{{ invoice.gross_amount|floatformat:2 }}</td>
         <td data-order="{{ invoice.gst_amount|floatformat:2 }}" align="right">{{ invoice.gst_amount|floatformat:2 }}</td>
         <td data-order="{{ invoice.net_amount|floatformat:2 }}" align="right">{{ invoice.net_amount|floatformat:2 }}</td>
