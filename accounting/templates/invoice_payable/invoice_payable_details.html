@@ -119,11 +119,11 @@ Invoice Payable Details -
         
         <td>
             
-            {% if  data.pay_payment_inv.count == 0 and not data.is_approved %}
+            
            
             <a href="{% url 'accounting:invoice_payable_update' module=module id=data.id %}" class="btn btn-info btn-xs "><i class="fas fa-edit"></i></a>
             
-            {% endif %}
+            
 
 
            
@@ -339,5 +339,6 @@ Invoice Payable Details -
    
 
 </script>
+
 
 {% endblock %}
