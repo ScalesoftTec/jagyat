@@ -2544,18 +2544,17 @@ def payment_tds(request,module):
         company = Logistic.objects.filter(id=int(company)).first()
         
        
-        invoice_payables = InvoicePayable.objects.select_related('company_type','bill_from','job_no','bill_from_address').prefetch_related('pay_payment_inv').filter(date_of_invoice__gte=from_date).filter(date_of_invoice__lte=to_date).filter(company_type=company).all()
-        indirect_expense = IndirectExpense.objects.select_related('job_no','company_type','vendor').prefetch_related('exp_payment_inv').filter(bill_date__gte=from_date).filter(bill_date__lte=to_date).filter(company_type=company).all()
-
+        invoice_payables = InvoicePayable.objects.select_related('company_type','bill_from','bill_from_address').prefetch_related('pay_payment_inv').filter(date_of_invoice__gte=from_date).filter(date_of_invoice__lte=to_date).filter(company_type=company).filter(is_deleted=False).all()
+        
         if not tds_section == "All":
             invoice_payables = invoice_payables.filter(tds_section=tds_section).all()
-            indirect_expense = indirect_expense.filter(tds_section=tds_section).all()
-
+            
         for data in invoice_payables:
             tds = data.tds_payable
             try:
+                for i in data.pay_payment_inv.filter(voucher__is_deleted=False).all():
+                    tds += i.tds_amount
                
-                tds += data.pay_payment_inv.values('tds_amount').aggregate(sum=Sum('tds_amount'))['sum']
             except:
                 pass
             
@@ -2566,24 +2565,10 @@ def payment_tds(request,module):
                     "type":"Direct"
                 })
         
-        for data in indirect_expense:
-            tds = data.tds_amount
-            try:
-               
-                tds += data.exp_payment_inv.values('tds_amount').aggregate(sum=Sum('tds_amount'))['sum']
-            except:
-                pass
-
-            if tds > 0:
-                report.append({
-                    'tds':tds,
-                    'invoice':data,
-                    'type':"Indirect"
-                })
+       
 
         context['company']= int(company.id)
         context['invoice_payables']= invoice_payables
-        context['indirect_expense']= indirect_expense
         context['from_date']= datetime.strptime(str(from_date),'%Y-%m-%d').date()
         context['to_date']= datetime.strptime(str(to_date),'%Y-%m-%d').date()
 
