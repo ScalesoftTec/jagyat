@@ -28,6 +28,8 @@ class UserAccount(models.Model):
     can_delete = models.BooleanField(default=False)
     can_approve = models.BooleanField(default=False)
     handle_masters = models.BooleanField(default=False)
+    is_invoice_reversal = models.BooleanField(default=False, help_text = "Check it to give permission of Convert E-invoice to Performa")
+
     office = models.ForeignKey(Logistic,on_delete=models.SET_NULL,null=True,related_name="emp_office")
     
     def __str__(self) -> str:
@@ -52,4 +54,5 @@ class DocumentHandler(models.Model):
     class Meta:
         verbose_name = 'Document Handler'
         verbose_name_plural = 'Document Handlers'    
+
        
