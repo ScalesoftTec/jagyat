@@ -9,6 +9,10 @@ from django.db.models import Count
 
 def alerts_messages(request):
     alerts = Alerts.objects.filter(completed=False).all()
+    try:
+        alerts_not_readed_by_user = Alerts.objects.filter(completed=False).exclude(user=request.user).count()
+    except:
+        alerts_not_readed_by_user = 0
     recievable_invoices = InvoiceReceivable.objects.count()
     payable_invoices = InvoicePayable.objects.count()
     payment_voucher = (PaymentVoucher.objects.count())
@@ -83,6 +87,7 @@ def alerts_messages(request):
 
    
     return {'alerts':alerts,
+            'alerts_not_readed_by_user':alerts_not_readed_by_user, 
             'MODULES':MODULES,
             'recievable_invoices_global_gth':recievable_invoices,
             'payable_invoices_global_gth':payable_invoices,

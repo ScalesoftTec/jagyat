@@ -6,6 +6,7 @@ from django.db.models import Q
 from home.models import UserAccount
 from django.contrib import messages
 import threading
+from dashboard.models import Alerts
 
 # Create your views here.
 
@@ -18,6 +19,16 @@ class EmailThread(threading.Thread):
         self.msg.send(fail_silently=True)
 
 
+
+def alert_mark_as_read(request,id):
+    alert = Alerts.objects.filter(id=id).first()
+    if alert:
+        alert.user.add(request.user)
+        alert.save()
+        messages.add_message(request, messages.SUCCESS, f'Alert Marked as Read Successfully')
+    else:
+        messages.add_message(request, messages.ERROR, f'Alert Not Found')
+    return redirect(request.META.get('HTTP_REFERER'))
 
 
 def check_permissions(request,module):

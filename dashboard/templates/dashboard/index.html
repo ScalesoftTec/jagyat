@@ -71,8 +71,62 @@
             color: #ffffff!important;
             font-size: 14px;
         }
-       
+        /* Make sure transforms apply */
+.fas.fa-bell {
+  display: inline-block;        /* required for transform/rotation */
+  transform-origin: top center; /* good pivot for a swinging bell */
+}
+
+/* 1) Swing / Ring (natural bell swing, good for notifications) */
+.bell-ring {
+  animation: bell-ring 1s ease-in-out infinite;
+}
+@keyframes bell-ring {
+  0%   { transform: rotate(0deg); color: red!important; }
+  10%  { transform: rotate(25deg); color: white!important;}
+  20%  { transform: rotate(-20deg); color: red!important; }
+  30%  { transform: rotate(15deg); color: white!important;}
+  40%  { transform: rotate(-10deg); color: red!important; }
+  50%  { transform: rotate(6deg); color: white!important;}
+  60%  { transform: rotate(-4deg); color: red!important; }
+  70%  { transform: rotate(2deg); color: white!important;}
+  100% { transform: rotate(0deg); color: red!important; }
+}
+
+/* 2) Quick horizontal shake (attention-grabbing) */
+.bell-shake {
+  animation: bell-shake 0.6s cubic-bezier(.36,.07,.19,.97) infinite;
+}
+@keyframes bell-shake {
+  0%   { transform: translateX(0); }
+  10%  { transform: translateX(-3px) rotate(-2deg); }
+  20%  { transform: translateX(3px) rotate(2deg); }
+  30%  { transform: translateX(-3px) rotate(-2deg); }
+  40%  { transform: translateX(3px) rotate(2deg); }
+  50%  { transform: translateX(-2px) rotate(-1deg); }
+  60%  { transform: translateX(2px) rotate(1deg); }
+  70%  { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+/* 3) Subtle vibrate (very small, continuous) */
+.bell-vibrate {
+  animation: bell-vibrate 0.5s linear infinite;
+}
+@keyframes bell-vibrate {
+  0%   { transform: translateY(0) rotate(0); }
+  25%  { transform: translateY(-1px) rotate(-0.5deg); }
+  50%  { transform: translateY(0) rotate(0); }
+  75%  { transform: translateY(1px) rotate(0.5deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+
+/* Optional utility: play once when adding a class (e.g., on new notification) */
+.bell-once {
+  animation: bell-ring 0.9s ease-in-out 1;
+}
     </style>
+    
 
     
     <style>
@@ -1179,13 +1233,18 @@
                             {% endif %}
                         </li>
 
+                      
                         <!-- Nav Item - Alerts -->
-                        <li class="nav-item dropdown no-arrow mx-1">
+                          <li class="nav-item dropdown no-arrow mx-1">
                             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {% if alerts_not_readed_by_user > 0 %}
+                                <i class="fas fa-bell fa-fw text-white bell-ring" ></i>
+                                {% else %}
                                 <i class="fas fa-bell fa-fw text-white"></i>
+                                {% endif %}
                                 <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter text-white">{{alerts|length}}</span>
+                                <span class="badge badge-danger badge-counter text-white">{{alerts_not_readed_by_user}}</span>
                             </a>
                             <!-- Dropdown - Alerts -->
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -1194,7 +1253,11 @@
                                     Alerts Center
                                 </h6>
                                 {% for alert in alerts %}
-                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                {% if not request.user in alert.user.all %}
+                                <a class="dropdown-item d-flex align-items-center" style="background-color: gray;" href="{% url 'dashboard:alert_mark_as_read' id=alert.id %}">
+                                    {% else %}
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                    {% endif %}
                                     <div class="mr-3">
                                         <div class="icon-circle bg-primary">
                                             {% if alert.money_related %}

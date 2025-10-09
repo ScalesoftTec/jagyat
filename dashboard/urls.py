@@ -14,5 +14,7 @@ urlpatterns = [
     path('sea_import-dashboard/<module>/',views.sea_import_dashboard,name='sea_import_dashboard'),
     path('air_import-dashboard/<module>/',views.air_import_dashboard,name='air_import_dashboard'),
     path('air_export-dashboard/<module>/',views.air_export_dashboard,name='air_export_dashboard'),
+    path('alert_mark_as_read/<int:id>/',views.alert_mark_as_read,name='alert_mark_as_read'),
+
 
 ]

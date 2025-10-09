@@ -19,6 +19,8 @@ class Alerts(models.Model):
     info_related = models.BooleanField(default=False)
     document_related = models.BooleanField(default=False)
     completed = models.BooleanField(default=False)
+    user = models.ManyToManyField(User,related_name='alert_user',blank=True)
+
     
   
     def __str__(self) -> str:
