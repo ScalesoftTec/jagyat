@@ -122,6 +122,14 @@ def index(request,module):
                     break
         if next_unpaid_invoice:
             current_month_invoices.append(next_unpaid_invoice)
+    
+    latest_pending_bill = None
+    for invoice in bop:
+        if invoice.balance > 0:
+            latest_pending_bill = invoice
+            break
+    if latest_pending_bill:
+        context['latest_pending_bill']=latest_pending_bill
 
     pending_count = 0
     pending_total_amount = 0
@@ -130,10 +138,11 @@ def index(request,module):
     for invoice in bop:
         print(invoice)
         context['invoice_no']=invoice
+        pending_total_amount += invoice.balance
+
         if invoice not in current_month_invoices:
             print(invoice)
             pending_count += 1
-            pending_total_amount += invoice.balance
             pending_invoices.append(invoice)
 
    

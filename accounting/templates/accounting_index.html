@@ -217,8 +217,9 @@
 Total pending balance ₹{{ pending_total_amount }}   
 
 <br>
+{% if latest_pending_bill %}
 <strong style="color: rgb(255, 0, 0); font-weight: bold; animation: blinker 2s linear infinite;" >
- kindly pay the September 2025 bill amount till September 30,2025 otherwise your software will be deactivate from server side </strong><br>
+kindly pay the {{ latest_pending_bill.date_of_invoice|date:"F Y" }} bill amount till {{ latest_pending_bill.due_date|date:"F j, Y" }} otherwise your software will be deactivate from server side </strong>{% endif %}<br>
 <button type="submit" class="btn btn-primary" >
       <a href="{% url 'accounting:bop_details' module=module %}"><span style="color:white">View all bills</span></a></button>
       
