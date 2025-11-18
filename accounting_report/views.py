@@ -5930,23 +5930,23 @@ def get_balance_sheet_child_ctageories(category,company,from_date,to_date,report
 # Trial Balance Report
 @login_required(login_url='home:handle_login')
 def trial_balance_report_category(request,module):
-    for i in InvoiceReceivable.objects.filter(is_deleted=False):
-        i.save()
-    for i in InvoicePayable.objects.filter(is_deleted=False).all():
-        i.save()
-    for i in CreditNote.objects.filter(is_deleted=False).filter(is_einvoiced=True):
-        i.save()
-    for i in DebitNote.objects.filter(is_deleted=False):
-        i.save()
+    # for i in InvoiceReceivable.objects.filter(is_deleted=False):
+    #     i.save()
+    # for i in InvoicePayable.objects.filter(is_deleted=False).all():
+    #     i.save()
+    # for i in CreditNote.objects.filter(is_deleted=False).filter(is_einvoiced=True):
+    #     i.save()
+    # for i in DebitNote.objects.filter(is_deleted=False):
+    #     i.save()
 
-    for i in Journal.objects.filter(is_deleted=False):
-        i.save()
-    for i in PaymentVoucher.objects.filter(is_deleted=False):
-        i.save()
-    for i in RecieptVoucher.objects.filter(is_deleted=False):
-        i.save()
-    for i in ContraVoucher.objects.filter(is_deleted=False):
-        i.save()
+    # for i in Journal.objects.filter(is_deleted=False):
+    #     i.save()
+    # for i in PaymentVoucher.objects.filter(is_deleted=False):
+    #     i.save()
+    # for i in RecieptVoucher.objects.filter(is_deleted=False):
+    #     i.save()
+    # for i in ContraVoucher.objects.filter(is_deleted=False):
+    #     i.save()
     
     current_year = datetime.now().year
     to_current_year = datetime.now().year + 1
