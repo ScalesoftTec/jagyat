@@ -1328,16 +1328,23 @@
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <div class="d-sm-flex  justify-content-between mb-4">
                         {% block dashboard_heading %}
                       
                         <h1 class="h3 mb-0 text-gray-800">
                            <span class="greeting-text">{{greeting}}</span>, {{ request.user.first_name }} {{ request.user.last_name }}
                         </h1>
-                        
-                        {% comment %} <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                            class="fas fa-download fa-sm text-white-50"></i> Generate Report</a> {% endcomment %}
+        
+                        <div class="row mt-5">
+                                <div class="col-md-8">
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    {% include "components/dashboard_alerts.html" %}
+                                </div>
+                        </div>
                         {% endblock %}
+
                     </div>
 
                     <!-- Content Row -->
