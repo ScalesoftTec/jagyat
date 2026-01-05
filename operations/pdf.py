@@ -396,9 +396,9 @@ def mbl_pdf(request, id):
     if all_mbl.mbl_type == "Draft":
         # c.drawString(380, 674, 'DRAFT - BL')
         # c.drawImage(logo, 320, 650, width=3.5 * inch, height=1.35 * inch)
-        c.drawImage(logo, 400, 680, width=3.3 * inch, height=1.10 * inch)
+        c.drawImage(logo, 400, 680, width=2.7 * inch, height=1.10 * inch)
     elif all_mbl.mbl_type == "Final" or all_mbl.bl_type == "Non Negotiable":
-        c.drawImage(logo, 400, 680, width=3.3* inch, height=1.10 * inch)
+        c.drawImage(logo, 400, 680, width=2.7* inch, height=1.10 * inch)
     elif all_mbl.mbl_type == "Shipping Instruction":
         c.drawString(350, 674, 'Shipping Instruction')
     else:
