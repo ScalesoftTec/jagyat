@@ -560,7 +560,7 @@ def AWB_pdf(request,id):
     c.drawString(235,138,"Regulations.")
     c.drawString(330,107,"Signature of Shipper of his Agent")
     c.setFont('Helvetica-Bold', 9)
-   c.drawString(300,120,"JAGYAT GLOBAL TRANSPORT AND LOGISTICS PVT. LTD.")
+    c.drawString(300,120,"JAGYAT GLOBAL TRANSPORT AND LOGISTICS PVT. LTD.")
     c.setFont('Helvetica-Bold', 8)
     c.drawString(235,240,"Other Charges")
     c.setFont('Helvetica', 8)
