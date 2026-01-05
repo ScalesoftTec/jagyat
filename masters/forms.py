@@ -811,7 +811,7 @@ class MBLForm(forms.ModelForm):
             
             'company_type':forms.Select(attrs={'class':'form-control'}),
             
-            'mbl_no':forms.TextInput(attrs={'class':'form-control','readonly':True}),
+            'mbl_no':forms.TextInput(attrs={'class':'form-control'}),
             'date':forms.DateInput(attrs={'type': 'date', 'class': 'form-control','required':True}, format="%Y-%m-%d"),
             'shipper_board_date':forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}, format="%Y-%m-%d"),
             'mbl_Document_no':forms.TextInput(attrs={'class':'form-control'}),
