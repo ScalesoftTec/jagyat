@@ -529,7 +529,7 @@
                     <i class="bi bi-file-earmark-ruled"></i>
                     <span>VGM</span></a>
             </li> {% endcomment %}
-
+        {% if module == 'sea_export' or module == "sea_import" %}
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#hbl_tab"
                     aria-expanded="true" aria-controls="hbl_tab">
@@ -548,6 +548,15 @@
                     </div>
                 </div>
             </li>
+        {% else %}
+
+        <li class="nav-item">
+                    <a class="nav-link" href="{% url 'operations:create_awb' module=module %}">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>AWB</span></a>
+                </li>
+                        
+            {% endif %}
             
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#can_tab"

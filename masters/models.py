@@ -1186,6 +1186,7 @@ MBL_TYPE2 = (
 class MBLMaster(LogFolder):
     company_type = models.ForeignKey(Logistic,on_delete=models.CASCADE,null=True,blank=False,related_name="mbl_company_type")
     mbl_no = models.CharField(max_length=100, null=True, blank=True)
+    is_awb = models.BooleanField(default=False)
     date =  models.DateField(null=True,blank=True)
     mbl_Document_no = models.CharField(max_length=100, null=True, blank=True)
     job_no = models.ForeignKey(JobMaster, on_delete=models.SET_NULL, null=True,blank=True,related_name="mbl_job")
@@ -1234,8 +1235,8 @@ class MBLMaster(LogFolder):
     pre_carriage_by = models.CharField(max_length=200, null=True, blank=True)
     ocean_vessel = models.CharField(max_length=200, null=True, blank=True)
     port_of_loading_export = models.ForeignKey(Ports, on_delete=models.SET_NULL, null=True, related_name='port_of_loading_mbl', blank=True)
-    place_of_delivery = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, related_name='mbl_place_of_delivery')
-    place_of_receipt = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, related_name='mbl_place_of_receipt')
+    place_of_delivery = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=True,related_name='mbl_place_of_delivery')
+    place_of_receipt = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=True,related_name='mbl_place_of_receipt')
     voyage_no = models.CharField(max_length=200, null=True, blank=True)
     port_of_discharge = models.ForeignKey(Ports, on_delete=models.SET_NULL, null=True, related_name='port_of_discharge_mbl', blank=True)
     declared_value = models.CharField(max_length=200, null=True, blank=True)
@@ -1256,6 +1257,19 @@ class MBLMaster(LogFolder):
     is_duplicate=models.BooleanField(default=False)
     duplicate_check=models.BooleanField(default=False)
     container_options=models.ManyToManyField(JobContainer,blank=True,related_name='job_container_options')
+
+    # Air
+    airline = models.ForeignKey(Airlines,on_delete=models.SET_NULL,null=True,blank=True,related_name="awb_airline")
+    flight_no = models.CharField(max_length=120,null=True,blank=True)
+    flight_date = models.DateField(null=True,blank=True)
+    departure_date = models.DateField(null=True,blank=True)
+    departure_airport = models.CharField(max_length=150,null=True,blank=True)
+    destination_airport = models.CharField(max_length=150,null=True,blank=True)
+    accounting_information = models.TextField(null=True,blank=True)
+    handling_information = models.TextField(null=True,blank=True)
+    chargeable_weight = models.TextField(null=True, blank=True)
+    rate_charges = models.TextField(null=True, blank=True)
+    total_charges = models.TextField(null=True, blank=True)
 
     class Meta:
         ordering = ('-id',)

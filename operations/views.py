@@ -1625,6 +1625,126 @@ def fc_pdf(request,id):
     return generate_pdf(request,template_path,context)
 
 
+
+# AWB Bill Of Lading
+    
+@login_required(login_url='home:handle_login')
+def create_awb(request,module):
+    context ={}
+
+    check_permissions(request,module)
+  
+
+    form = MBLForm()
+    if request.method == 'POST':
+        form = MBLForm(request.POST,request.FILES)
+        if form.is_valid():
+            form.instance.created_by = request.user
+            form.instance.is_awb = True
+           
+
+            if not request.user.user_account.create_global_data:
+                form.instance.company_type = request.user.user_account.office
+            form.save()
+            messages.add_message(request, messages.SUCCESS, f"Success, New MBL Created.")
+            return redirect('operations:create_awb',module=module)
+        else:
+            print(form.errors.as_json())
+
+    context['form']= form
+    context['module']= module
+ 
+    
+    return render(request,'awb/awb_create.html',context)
+
+
+@login_required(login_url='home:handle_login')
+def awb_details(request,module):
+    context ={}
+    check_permissions(request,module)
+    
+    company = Logistic.objects.filter(id=request.user.user_account.office.id).first()
+    
+    awbs = MBLMaster.objects.select_related('company_type','job_no','created_by','consigned_name','exporter_name','airline').filter(is_awb=True).all()
+
+    if not request.user.user_account.see_global_data:
+        awbs = awbs.filter(company_type=company).all()
+    
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+    _,end_day = calendar.monthrange(current_year, current_month)
+    from_date = date(current_year,current_month,1)
+    to_date = date(current_year,current_month,end_day)
+    
+    if request.method == 'POST':
+       
+        from_date = request.POST['from_date']
+        to_date = request.POST['to_date']
+            
+        
+    awbs = awbs.filter(date__range = [from_date,to_date]).all()
+    
+            
+    if not request.user.user_account.also_handle_other_work:
+        awbs = awbs.filter(created_by=request.user).all()
+          
+    context['awbs']= awbs
+    context['module']= module
+    context['from_date']= datetime.strptime(str(from_date),"%Y-%m-%d").date()
+    context['to_date']= datetime.strptime(str(to_date),"%Y-%m-%d").date()
+    return render(request,'awb/awb_details.html',context)
+
+
+@login_required(login_url='home:handle_login')
+def awb_update(request,module,id):
+    context ={}
+    check_permissions(request,module)
+  
+    obj = get_object_or_404(MBLMaster, id = id)
+    
+    if not request.user.user_account.also_handle_other_work and not obj.created_by == request.user:
+        messages.add_message(request, messages.SUCCESS, f"You are not authenticated to perform this action")
+        return redirect('operations:awb_details',module=module)
+    
+    form = MBLForm( instance = obj)
+    created_by = obj.created_by
+    is_duplicate = obj.is_duplicate
+    duplicate_check = obj.duplicate_check
+    company_type = obj.company_type
+    if request.method == "POST":
+        form = MBLForm(request.POST,request.FILES, instance = obj)
+        if form.is_valid():
+            form.instance.is_awb = True
+            form.instance.created_by = created_by
+            form.instance.updated_by = request.user
+            form.instance.is_duplicate = is_duplicate
+            form.instance.duplicate_check = duplicate_check
+
+            
+            if not request.user.user_account.create_global_data:
+                form.instance.company_type = company_type
+            form.save()
+            messages.add_message(request, messages.SUCCESS, f"Success, Updated Successfully.")
+            return redirect('operations:awb_details',module=module)
+        
+        else:
+            print(form.errors.as_json())
+            
+    context['form']= form
+    context['module']= module
+    context['id']= id
+    context['update']= True
+    return render(request,'awb/awb_create.html',context)
+
+@login_required(login_url='home:handle_login')
+def awb_delete(request,module,id):
+    check_permissions(request,module)
+    awb = MBLMaster.objects.filter(id=int(id)).first()
+    awb.delete()
+    
+    return redirect('operations:awb_details',module=module)
+
+
 # Master Bill Of Lading
     
 @login_required(login_url='home:handle_login')

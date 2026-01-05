@@ -810,6 +810,7 @@ class MBLForm(forms.ModelForm):
         widgets = {
             
             'company_type':forms.Select(attrs={'class':'form-control'}),
+            
             'mbl_no':forms.TextInput(attrs={'class':'form-control','readonly':True}),
             'date':forms.DateInput(attrs={'type': 'date', 'class': 'form-control','required':True}, format="%Y-%m-%d"),
             'shipper_board_date':forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}, format="%Y-%m-%d"),
@@ -859,6 +860,18 @@ class MBLForm(forms.ModelForm):
             'gross_weight':forms.Textarea(attrs={'class':'form-control'}),
             'measurement':forms.Textarea(attrs={'class':'form-control'}),
             'mbl_type':forms.Select(attrs={'class':'form-control'}),
+
+            'flight_no':forms.TextInput(attrs={'class':'form-control form-control-sm'}),
+            'flight_date':forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-sm','required':True}, format="%Y-%m-%d"),
+            'departure_date':forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-sm','required':True}, format="%Y-%m-%d"),
+            'airline':forms.Select(attrs={'class':'form-control form-control-sm'}),
+            'departure_airport':forms.TextInput(attrs={'class':'form-control form-control-sm'}),
+            'destination_airport':forms.TextInput(attrs={'class':'form-control form-control-sm'}),
+            'accounting_information':forms.Textarea(attrs={'class':'form-control form-control-sm','rows':2}),
+            'handling_information':forms.Textarea(attrs={'class':'form-control form-control-sm','rows':2}),
+            'chargeable_weight':forms.Textarea(attrs={'class':'form-control form-control-sm'}),
+            'rate_charges':forms.Textarea(attrs={'class':'form-control form-control-sm'}),
+            'total_charges':forms.Textarea(attrs={'class':'form-control form-control-sm'}),
            
                
         }

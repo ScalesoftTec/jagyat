@@ -1,5 +1,7 @@
 from django.urls import path
 from operations import views,pdf
+from masters.pdf import AWB_pdf
+
 app_name = "operations"
 
 urlpatterns = [
@@ -83,7 +85,14 @@ urlpatterns = [
     path('master/print/mbl/pdf/<id>/',pdf.print_mbl_pdf,name='print_mbl_pdf'),
     
  
+    # AWB
+    path('<module>/master/awb/create/',views.create_awb,name='create_awb'),
+    path('<module>/master/awb/details/',views.awb_details,name='awb_details'),
+    path('<module>/master/update/awb/<id>/',views.awb_update,name='awb_update'),
+    path('<module>/master/delete/awb/<id>/',views.awb_delete,name='awb_delete'),
+    path('master/awb/pdf/<id>/',AWB_pdf,name='awb_pdf'),
     # DSR
+
     path('<module>/master/dsr/create/',views.create_dsr,name='create_dsr'),
     path('<module>/master/dsr/details/',views.dsr_details,name='dsr_details'),
     path('<module>/master/dsr-hbl/details/',views.dsr_hbl_details,name='dsr_hbl_details'),
