@@ -12,6 +12,13 @@ from datetime import datetime
 
 # DSR
 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
 def dsr_pdf(request, id):
     setting = Logistic.objects.first()
 
@@ -304,462 +311,562 @@ def AWB_pdf(request,id):
     domain = Site.objects.get_current().domain
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = ' filename="local_invoice.pdf"'
+
+    if air_mbl.type == "HBL":
+        copies = ['ORIGINAL 2 (FOR CONSIGNEE)','ORIGINAL 3 (FOR SHIPPER)','COPY 4 (DELIVERY RECEIPT)','COPY 5 (FOR DESTINATION)','COPY 9 (FOR AGENT)','COPY 10 (EXTRA COPY FOR CARRIER)','COPY 11 (EXTRA COPY FOR CARRIER)']
+    else:
+        copies = ['ORIGINAL 1 (FOR CARRIER)','ORIGINAL 2 (FOR CONSIGNEE)','ORIGINAL 3 (FOR SHIPPER)','COPY 4 (DELIVERY RECEIPT)','COPY 5 (FOR AIRPORT OF DESTINATION)','COPY 6 (FOR THIRD CARRIER)','COPY 7 (FOR SECOND CARRIER)','COPY 9 (FOR AGENT)','COPY 10 (EXTRA COPY FOR CARRIER)','COPY 11 (EXTRA COPY FOR CARRIER)']
+
     c = canvas.Canvas(response)
+    for copy in copies:
 
-    c.line(12,834, 12,10)                               #left first up to down
-    c.line(577,818,577,10)                              #right last up to down
-    c.line(12, 10, 577, 10)                             #last bottom line
-    c.line(12,834,298,834)                              #upper first half line
-    c.line(12,458,577,458)                              #mid upper half
-    c.line(12,500,577,500)                              #line above handling information
-    c.line(298,834,298,500)                             #half line top to line above handling info
-    c.line(12,818,577,818)                              #second left to right full line 
-    c.line(155,802,577,802)                             #shipper account number
-    c.line(155,802,155,818)
-    c.line(12,550,577,550)                              #mid table upper line
-    c.line(12,525,577,525)
-    c.line(40,550,40,525)
-    c.line(190,550,190,525)
-    c.line(220,550,220,525)
-    c.line(275,550,275,525)
-    c.line(40,537,190,537)
-    c.line(115,537,115,550)
+        c.line(12,834, 12,10)                               #left first up to down
+        c.line(577,818,577,10)                              #right last up to down
+        c.line(12, 10, 577, 10)                             #last bottom line
+        c.line(12,834,298,834)                              #upper first half line
+        c.line(12,458,577,458)                              #mid upper half
+        c.line(12,500,577,500)                              #line above handling information
+        c.line(298,834,298,500)                             #half line top to line above handling info
+        c.line(12,818,577,818)                              #second left to right full line 
+        if air_mbl.type == "HBL":
+            c.line(155,802,577,802)                             #shipper account number
+        else:
+            c.line(155,802,298,802)                             #shipper account number
+        
+        c.line(155,802,155,818)
+        c.line(12,550,577,550)                              #mid table upper line
+        c.line(12,525,577,525)
+        c.line(40,550,40,525)
+        c.line(190,550,190,525)
+        c.line(220,550,220,525)
+        c.line(275,550,275,525)
+        c.line(40,537,190,537)
+        c.line(115,537,115,550)
 
-    c.line(155,745,155,728)
-    c.line(155,728,298,728)
+        c.line(155,745,155,728)
+        c.line(155,728,298,728)
 
-    c.line(330,525,330,550)                             #these are the lines in the to by column
-    c.line(360,525,360,550)
-    c.line(405,525,405,550)
-    c.line(451,525,451,550)
-    c.line(514,525,514,550)
+        c.line(330,525,330,550)                             #these are the lines in the to by column
+        c.line(360,525,360,550)
+        c.line(405,525,405,550)
+        c.line(451,525,451,550)
+        c.line(514,525,514,550)
 
-    c.line(360,542,451,542)
-    c.line(360,534,451,534)
+        c.line(360,542,451,542)
+        c.line(360,534,451,534)
 
-    c.line(383,525,383,542)
-    c.line(428,525,428,542)
+        c.line(383,525,383,542)
+        c.line(428,525,428,542)
 
-    c.line(13,250,577,250)                              #horizontal table bottom line
-    c.line(130,500,130,525)
-    c.line(165,513,255,513)
-    c.line(165,513,165,525)
-    c.line(255,513,255,525)
-    c.line(380,500,380,525)
-    c.line(210,500,210,513)
+        c.line(13,250,577,250)                              #horizontal table bottom line
+        c.line(130,500,130,525)
+        c.line(165,513,255,513)
+        c.line(165,513,165,525)
+        c.line(255,513,255,525)
+        c.line(380,500,380,525)
+        c.line(210,500,210,513)
 
-    c.line(298,660,577,660)
-    c.line(298,590,577,590)
+        c.line(298,660,577,660)
+        c.line(298,590,577,590)
 
-    c.line(12,745,298,745)
-    c.line(12,675,298,675)
-    c.line(12,630,298,630)
-    c.line(12,590,298,590)
-    c.line(155,630,155,590)
+        c.line(12,745,298,745)
+        c.line(12,675,298,675)
+        c.line(12,630,298,630)
+        c.line(12,590,298,590)
+        c.line(155,630,155,590)
 
-    #3rd section lines
-    #right portion
-    c.line(230,10,230,250)                                  #mid standing line
-    c.line(230,170,577,170)
-    c.line(230,60,577,60)
-    #left portion
-    c.line(12,38,335,38)
-    c.line(335,38,335,10)
+        #3rd section lines
+        #right portion
+        c.line(230,10,230,250)                                  #mid standing line
+        c.line(230,170,577,170)
+        c.line(230,60,577,60)
+        #left portion
+        c.line(12,38,335,38)
+        c.line(335,38,335,10)
 
-    c.line(12,63,230,63)
-    c.line(12,88,230,88)
-    c.line(12,113,230,113)
-    c.line(12,138,230,138)
-    c.line(12,163,230,163)
-    c.line(12,190,230,190)
-    c.line(12,220,230,220)
-                                                        #don't temper the spaces they are markings
-    c.line(31,236,71,236)
-    c.line(31,236,31,250)
-    c.line(71,236,71,250)
+        c.line(12,63,230,63)
+        c.line(12,88,230,88)
+        c.line(12,113,230,113)
+        c.line(12,138,230,138)
+        c.line(12,163,230,163)
+        c.line(12,190,230,190)
+        c.line(12,220,230,220)
 
-    c.line(92,236,150,236)
-    c.line(92,236,92,250)
-    c.line(150,236,150,250)
+        c.line(31,236,71,236)
+        c.line(31,236,31,250)
+        c.line(71,236,71,250)
 
-    c.line(171,236,211,236)
-    c.line(171,236,171,250)
-    c.line(211,236,211,250)
+        c.line(92,236,150,236)
+        c.line(92,236,92,250)
+        c.line(150,236,150,250)
 
-    c.line(84,206,158,206)
-    c.line(84,206,84,220)
-    c.line(158,206,158,220)
-    
-    c.line(99,176,143,176)
-    c.line(99,176,99,190)
-    c.line(143,176,143,190)
+        c.line(171,236,211,236)
+        c.line(171,236,171,250)
+        c.line(211,236,211,250)
 
-    c.line(69,151,173,151)
-    c.line(69,151,69,163)
-    c.line(173,151,173,163)
+        c.line(84,206,158,206)
+        c.line(84,206,84,220)
+        c.line(158,206,158,220)
+        
+        c.line(99,176,143,176)
+        c.line(99,176,99,190)
+        c.line(143,176,143,190)
 
-    c.line(66,126,176,126)
-    c.line(66,126,66,138)
-    c.line(176,126,176,138)
+        c.line(69,151,173,151)
+        c.line(69,151,69,163)
+        c.line(173,151,173,163)
 
-    c.line(27,76,106,76)
-    c.line(27,76,27,88)
-    c.line(106,76,106,88)
+        c.line(66,126,176,126)
+        c.line(66,126,66,138)
+        c.line(176,126,176,138)
 
-    c.line(136,76,215,76)
-    c.line(136,76,136,88)
-    c.line(215,76,215,88)
+        c.line(27,76,106,76)
+        c.line(27,76,27,88)
+        c.line(106,76,106,88)
 
-    c.line(17,51,116,51)
-    c.line(17,51,17,63)
-    c.line(116,63,116,51)
+        c.line(136,76,215,76)
+        c.line(136,76,136,88)
+        c.line(215,76,215,88)
 
-    c.line(126,51,225,51)
-    c.line(126,51,126,63)
-    c.line(225,51,225,63)
+        c.line(17,51,116,51)
+        c.line(17,51,17,63)
+        c.line(116,63,116,51)
 
-    c.line(126,25,225,25)
-    c.line(126,25,126,38)
-    c.line(225,25,225,38)
+        c.line(126,51,225,51)
+        c.line(126,51,126,63)
+        c.line(225,51,225,63)
 
-    c.line(121,126,121,10)            #reference line
-    c.line(121,138,121,151)
-    c.line(121,176,121,163)
-    c.line(121,190,121,206)
-    c.line(121,236,121,220)
+        c.line(126,25,225,25)
+        c.line(126,25,126,38)
+        c.line(225,25,225,38)
 
-
-
-
-
-
-
-
-
-    #middle table all lines
-    # -------------------------
-    c.line(12,430,577,430)
-    c.line(124,447,174,447)
-    c.line(12,273,98,273)
-    c.line(331,273,405,273)
-    #|||||||
-    c.line(48,250,48,458)
-    c.line(98,250,98,458)
-    c.line(110,250,110,458)
-    c.line(116,250,116,458)
-    c.line(124,250,124,447)
-    c.line(174,250,174,458)
-    c.line(181,250,181,458)
-    c.line(249,250,249,458)
-    c.line(255,250,255,458)
-    c.line(325,250,325,458)
-    c.line(331,250,331,458)
-    c.line(405,250,405,458)
-    c.line(411,250,411,458)
+        c.line(121,126,121,10)            #reference line
+        c.line(121,138,121,151)
+        c.line(121,176,121,163)
+        c.line(121,190,121,206)
+        c.line(121,236,121,220)
 
 
 
-    logo = f'{air_mbl.company_type.letter_head.url}' 
-    c.drawImage(logo, 300, 670, width=3.7 * inch, height=1.3 * inch)
+        #middle table all lines
+        # -------------------------
+        c.line(12,430,577,430)
+        c.line(124,447,174,447)
+        c.line(12,273,98,273)
+        c.line(331,273,405,273)
+        #|||||||
+        c.line(48,250,48,458)
+        c.line(98,250,98,458)
+        c.line(110,250,110,458)
+        c.line(116,250,116,458)
+        c.line(124,250,124,447)
+        c.line(174,250,174,458)
+        c.line(181,250,181,458)
+        c.line(249,250,249,458)
+        c.line(255,250,255,458)
+        c.line(325,250,325,458)
+        c.line(331,250,331,458)
+        c.line(405,250,405,458)
+        c.line(411,250,411,458)
 
-    c.setFont('Helvetica-Bold', 9)
-    c.drawString(15,822, 'MASTER AIRWAY BILL NO:')
-    c.drawString(306,807,"HOUSE AIRWAYBILL NO:")
-    c.setFont('Helvetica', 9)
-    c.drawString(15,808,"Shipper's Name & Address")
-    c.drawString(15,736,"Consignee's Name & Address")
-    c.setFont('Helvetica', 7.7)
-    c.drawString(175,810,"Shipper's Account Number")
-    c.drawString(175,737,"Consignee's Account Number")
-    c.setFont('Helvetica-Bold', 8)
-    c.drawString(306,793,"Issued By")
-    c.setFont('Helvetica-Bold', 11)
-    
-    c.setFont('Helvetica-Bold', 7)
-    # c.drawString(302,695,"PLOT NO. 18, D-50, AASHRAY APARTMENTS, DILSHAD COLONY (EAST), NEW")
-    # c.drawString(302,684,"DELHI- 110095 (INDIA)")
-    # c.drawString(302,674,"TEL: +91 11 49878387 E-Mail: heera@dtriumphlogistics.com Web:")
-    # c.drawString(302,665,"www.dtriumphlogistics.com GSTIN: 07AAICD7487K1ZZ PAN: AAICD7487K")
-    c.setFont('Helvetica', 6.5)
-    c.drawString(300,654,"It is agreed that the goods described herein are accepted in apparent good order and condition")
-    c.setFont('Helvetica', 6.6)
-    c.drawString(300,646,"(except as noted) for carriage SUBJECT TO THE CONDITIONS OF CONTRACT ON THE")
-    c.drawString(300,638,"REVERSE HEREOF. ALL GOODS MAYBE CARRIED BY ANY OTHER MEANS INCLUDING")
-    c.drawString(300,630,"ROAD OR ANY OTHER CARRIER UNLESS SPECIFIC CONTRARY INSTRUCTIONS ARE")
-    c.drawString(300,622,"GIVEN HEREON BY THE SHIPPER, AND SHIPPER AGREES THAT THE SHIPMENT MAY")
-    c.drawString(300,614,"BE CARRIED VIA INTERMEDIATE STOPPING PLACES WHICH THE CARRIER DEEMS")
-    c.drawString(300,606,"APPROPRIATE.THE SHIPPERS ATTENTION IS DRAWN TO THE NOTICE CONCERNING")
-    c.drawString(300,599,"CARRIER'S LIMITATION OF LIABILITY. Shipper may increase such limitation of liability by")
-    c.drawString(300,592,"declaring a higher value for carriage and paying a supplemental charge if required.")
-    c.setFont('Helvetica', 6.8)
-    c.drawString(17,667,"Issuing Carrier's Agents Name & City")
-    c.setFont('Helvetica', 9)
-    # c.drawString(17,650,"DTRIUMPH LOGISTICS INDIA PRIVATE LIMITED")
-    c.setFont('Helvetica', 8)
-    c.drawString(17,621,"Agent's IATA Code ")
-    c.drawString(165,621,"Account No")
-    c.drawString(17,580,"Airport of Departure (Addr. of First Carrier) and Requested Routing")
-    c.drawString(302,580,"Accounting Information:")
-    # c.drawString(365,563,"******FREIGHT PREPAID******")
-    c.setFont('Helvetica', 9)
-    # c.drawString(20,563,"NEW DELHI")
-    c.setFont('Helvetica', 7)
-    c.drawString(15,542,"To")
-    c.drawString(194,542,"To")
-    c.drawString(225,542,"By")
-    c.drawString(262,542,"To")
-    c.drawString(282,542,"By")
-    c.setFont('Helvetica', 5.9)
-    c.drawString(52,542,"By First Carrier")
-    c.drawString(119,542,"Routing and Destination")
-    c.setFont('Helvetica', 6.6)
-    c.drawString(382,517,"INSURANCE - If Carrier offers insurance, and such insurance")
-    c.drawString(382,509,"is requested in accordance with the conditions thereof, indicate")
-    c.setFont('Helvetica', 6.3)
-    c.drawString(382,502,'amount to be insured in figures in box marked "Amount of Insurance"')
-    c.setFont('Helvetica', 8)
-    c.drawString(34,517,"Airport of Destination")
-    c.drawString(16,491,"Handling Information")
-    c.drawString(302,517,"Amount of Insurance")
-    c.setFont('Helvetica', 7.4)
-    c.drawString(135,517,"Flight")
-    c.drawString(174,517,"For Carrier Use only")
-    c.drawString(259,517,"Flight/Date")
-    c.drawString(299,542,"Currency")
-    c.setFont('Helvetica', 7.2)
-    c.drawString(453,543,"Declared Value of")
-    c.drawString(516,543,"Declared Value for")
-    c.drawString(464,537,"Carriage")
-    c.drawString(524,537,"Customs")
-    c.setFont('Helvetica', 7)
-    c.drawString(335,543,"CHGS")
-    c.drawString(336,536,"Code")
-    c.drawString(343,529,"0")
-    c.setFont('Helvetica', 6)
-    c.drawString(366,544,"WT")
-    c.drawString(388,544,"VAL")
-    c.drawString(420,544,"Other")
-    c.drawString(364,536,"PPD")
-    c.drawString(388,536,"Col")
-    c.drawString(411,536,"PPD")
-    c.drawString(434,536,"Col")
-    c.setFont('Helvetica-Bold', 9)
-    
-    if air_mbl.freight_type == "Prepaid":
-        c.drawString(364,526,"X")
-        c.drawString(411,526,"X")
-    
-    if air_mbl.freight_type == "Collect":
-        c.drawString(390,526,"X")
-        c.drawString(435,526,"X")
-    
-    c.setFont('Helvetica', 8.2)
-    c.drawString(235,162,"Shipper certifies that the particulars on the face hereof are correct at and that insofar as any")
-    c.drawString(235,154,"part of the consignment contains dangerous goods, such part is properly described by name")
-    c.drawString(235,146,"and is in proper condition for carriage by air according to the applicable Dangerous Goods")
-    c.drawString(235,138,"Regulations.")
-    c.drawString(330,107,"Signature of Shipper of his Agent")
-    c.setFont('Helvetica-Bold', 9)
-    c.drawString(300,120,"JAGYAT GLOBAL TRANSPORT AND LOGISTICS PVT. LTD.")
-    c.setFont('Helvetica-Bold', 8)
-    c.drawString(235,240,"Other Charges")
-    c.setFont('Helvetica', 8)
-    c.drawString(235,51,"Executed on (Date)")
-    c.drawString(235,29,"Total Collect Charges")
-    c.drawString(355,51,"at (Place)")
-    c.drawString(430,51,"Signature of Issuing Carrier or Its Agent")    
-    c.setFont('Helvetica', 7)
-    c.drawString(72,154,"Total Other Charges Due Agent")
-    c.drawString(100,448,"Kg")
-    c.drawString(100,439,"Lb")
-    c.setFont('Helvetica', 7.1)
-    c.drawString(128,55,"CC Charges in Dest,Currency")
-    c.drawString(70,130,"Total Other Charges Due Carrier")
-    c.setFont('Helvetica', 7.3)
-    c.drawString(20,55,"Currency Conversion Rates")
-    c.drawString(101,418,"K")
-    c.drawString(117,418,"Q")
-    c.setFont('Helvetica', 8)
-    c.drawString(114,181,"Tax")
-    c.drawString(91,210,"Valuation Charge")
-    c.drawString(95,241,"Weight Charge")
-    c.drawString(37,241,"Prepaid")
-    c.drawString(28,226,"AS AGREED")
-    c.drawString(178,241,"Collect")
-    c.drawString(168,226,"AS AGREED")
-    # c.drawString(345,413,"AS AGREED")
-    c.drawString(345,260,"AS AGREED")
-    c.drawString(438,449,"Nature and Quantity of Goods")
-    c.drawString(440,440,"(Incl. Dimensions of volume)")
-    c.drawString(125,450,"Rate Class")
-    c.drawString(128,440,"Commodity")
-    c.drawString(134,432,"Item No")
-    c.drawString(19,450,"No.of")
-    c.drawString(17,442,"Pieces")
-    c.drawString(21,433,"RCP")
-    c.setFont('Helvetica',9)
-    c.drawString(15,29,"For Carrier's Use only at")
-    c.drawString(40,20,"Destination")
-    c.drawString(130,29,"Charges in Destination")
-    c.drawString(38,79,"Total Prepaid")
-    c.drawString(148,79,"Total Collect")
-    c.drawString(355,442,"Total")
-    c.drawString(279,448,"Rate")
-    c.drawString(271,438,"Charges")
-    c.drawString(190,448,"Chargeable")
-    c.drawString(198,438,"Weight")
-    c.drawString(61,446,"Gross")
-    c.drawString(60,437,"Weight")
-    
-    
+        if air_mbl.type == 'HBL':
+            try:
+                logo = f'{air_mbl.company_type.letter_head.url}' 
+                c.drawImage(logo, 300, 670, width=3.7 * inch, height=1.3 * inch)
+            except:
+                pass
+
+        if air_mbl.type == 'MBL':
+            try:
+                c.setFont('Helvetica-Bold', 9)
+                c.drawString(306,773, f'{air_mbl.airline.name}')
+
+                c.setFont('Helvetica', 8)
+                j=760
+                for i in air_mbl.airline_address.splitlines():
+                    c.drawString(306,j,i)
+                    j -= 9
+            except:
+                pass
 
 
-    if air_mbl:
-        if air_mbl.mbl_no:
-            c.setFont('Helvetica-Bold', 9)
-            c.drawString(140,822, air_mbl.mbl_no)
-       
-        if air_mbl.exporter_name:
-            c.setFont('Helvetica', 9)
-            c.drawString(20,796,air_mbl.exporter_name.party_name +",")
+        c.setFont('Helvetica-Bold', 9)
+        if air_mbl.type == "HBL":
+            c.drawString(15,822, 'HOUSE AIRWAY BILL NO:')
+        else:
+            c.drawString(15,822, 'MASTER AIRWAY BILL NO:')
+
+        c.drawString(350,822, copy)
+
+        if air_mbl.type == "HBL":
+            c.drawString(306,807,"MASTER AIRWAYBILL NO:")
+
+        c.setFont('Helvetica', 9)
+        c.drawString(15,808,"Shipper's Name & Address")
+        c.drawString(15,736,"Consignee's Name & Address")
+        c.setFont('Helvetica', 7.7)
+        c.drawString(175,810,"Shipper's Account Number")
+        c.drawString(175,737,"Consignee's Account Number")
+        c.setFont('Helvetica-Bold', 8)
+        c.drawString(306,793,"Issued By")
+        c.setFont('Helvetica-Bold', 11)
+        
+        c.setFont('Helvetica-Bold', 7)
+        # c.drawString(302,695,"PLOT NO. 18, D-50, AASHRAY APARTMENTS, DILSHAD COLONY (EAST), NEW")
+        # c.drawString(302,684,"DELHI- 110095 (INDIA)")
+        # c.drawString(302,674,"TEL: +91 11 49878387 E-Mail: heera@dtriumphlogistics.com Web:")
+        # c.drawString(302,665,"www.dtriumphlogistics.com GSTIN: 07AAICD7487K1ZZ PAN: AAICD7487K")
+        c.setFont('Helvetica', 6.5)
+        c.drawString(300,654,"It is agreed that the goods described herein are accepted in apparent good order and condition")
+        c.setFont('Helvetica', 6.6)
+        c.drawString(300,646,"(except as noted) for carriage SUBJECT TO THE CONDITIONS OF CONTRACT ON THE")
+        c.drawString(300,638,"REVERSE HEREOF. ALL GOODS MAYBE CARRIED BY ANY OTHER MEANS INCLUDING")
+        c.drawString(300,630,"ROAD OR ANY OTHER CARRIER UNLESS SPECIFIC CONTRARY INSTRUCTIONS ARE")
+        c.drawString(300,622,"GIVEN HEREON BY THE SHIPPER, AND SHIPPER AGREES THAT THE SHIPMENT MAY")
+        c.drawString(300,614,"BE CARRIED VIA INTERMEDIATE STOPPING PLACES WHICH THE CARRIER DEEMS")
+        c.drawString(300,606,"APPROPRIATE.THE SHIPPERS ATTENTION IS DRAWN TO THE NOTICE CONCERNING")
+        c.drawString(300,599,"CARRIER'S LIMITATION OF LIABILITY. Shipper may increase such limitation of liability by")
+        c.drawString(300,592,"declaring a higher value for carriage and paying a supplemental charge if required.")
+        c.setFont('Helvetica', 6.8)
+        c.drawString(17,667,"Issuing Carrier's Agents Name & City")
+        c.setFont('Helvetica', 9)
+        # c.drawString(17,650,"DTRIUMPH LOGISTICS INDIA PRIVATE LIMITED")
+        c.setFont('Helvetica', 8)
+        c.drawString(17,621,"Agent's IATA Code ")
+        c.drawString(165,621,"Account No")
+        c.drawString(17,580,"Airport of Departure (Addr. of First Carrier) and Requested Routing")
+        c.drawString(302,580,"Accounting Information:")
+        # c.drawString(365,563,"******FREIGHT PREPAID******")
+        c.setFont('Helvetica', 9)
+        # c.drawString(20,563,"NEW DELHI")
+        c.setFont('Helvetica', 7)
+        c.drawString(15,542,"To")
+        c.drawString(194,542,"To")
+        c.drawString(225,542,"By")
+        c.drawString(262,542,"To")
+        c.drawString(282,542,"By")
+        c.setFont('Helvetica', 5.9)
+        c.drawString(52,542,"By First Carrier")
+        c.drawString(119,542,"Routing and Destination")
+        c.setFont('Helvetica', 6.6)
+        c.drawString(382,517,"INSURANCE - If Carrier offers insurance, and such insurance")
+        c.drawString(382,509,"is requested in accordance with the conditions thereof, indicate")
+        c.setFont('Helvetica', 6.3)
+        c.drawString(382,502,'amount to be insured in figures in box marked "Amount of Insurance"')
+        c.setFont('Helvetica', 8)
+        c.drawString(34,517,"Airport of Destination")
+        c.drawString(16,491,"Handling Information")
+        c.drawString(302,517,"Amount of Insurance")
+        c.setFont('Helvetica', 7.4)
+        c.drawString(135,517,"Flight")
+        c.drawString(174,517,"For Carrier Use only")
+        c.drawString(259,517,"Flight/Date")
+        c.drawString(299,542,"Currency")
+        c.setFont('Helvetica', 7.2)
+        c.drawString(453,543,"Declared Value of")
+        c.drawString(516,543,"Declared Value for")
+        c.drawString(464,537,"Carriage")
+        c.drawString(524,537,"Customs")
+        c.setFont('Helvetica', 7)
+        c.drawString(335,543,"CHGS")
+        c.drawString(336,536,"Code")
+        c.drawString(343,529,"0")
+        c.setFont('Helvetica', 6)
+        c.drawString(366,544,"WT")
+        c.drawString(388,544,"VAL")
+        c.drawString(420,544,"Other")
+        c.drawString(364,536,"PPD")
+        c.drawString(388,536,"Col")
+        c.drawString(411,536,"PPD")
+        c.drawString(434,536,"Col")
+        c.setFont('Helvetica-Bold', 9)
+        
+        if air_mbl.freight_type == "Prepaid":
+            c.drawString(364,526,"X")
+            c.drawString(411,526,"X")
+        
+        if air_mbl.freight_type == "Collect":
+            c.drawString(390,526,"X")
+            c.drawString(435,526,"X")
+        
+        c.setFont('Helvetica', 8.2)
+        c.drawString(235,162,"Shipper certifies that the particulars on the face hereof are correct at and that insofar as any")
+        c.drawString(235,154,"part of the consignment contains dangerous goods, such part is properly described by name")
+        c.drawString(235,146,"and is in proper condition for carriage by air according to the applicable Dangerous Goods")
+        c.drawString(235,138,"Regulations.")
+        if air_mbl.signature_for:
+            c.drawString(330,107,f"{air_mbl.signature_for}")
+        c.setFont('Helvetica-Bold', 9)
+        if air_mbl.signature_company:
+            c.drawString(300,120,f"{air_mbl.signature_company}")
+        c.setFont('Helvetica-Bold', 8)
+        c.drawString(235,240,"Other Charges")
+        c.setFont('Helvetica', 8)
+        c.drawString(235,51,"Executed on (Date)")
+        c.drawString(235,29,"Total Collect Charges")
+        c.drawString(355,51,"at (Place)")
+        c.drawString(430,51,"Signature of Issuing Carrier or Its Agent")    
+        c.setFont('Helvetica', 7)
+        c.drawString(72,154,"Total Other Charges Due Agent")
+        c.drawString(100,448,"Kg")
+        c.drawString(100,439,"Lb")
+        c.setFont('Helvetica', 7.1)
+        c.drawString(128,55,"CC Charges in Dest,Currency")
+        c.drawString(70,130,"Total Other Charges Due Carrier")
+        c.setFont('Helvetica', 7.3)
+        c.drawString(20,55,"Currency Conversion Rates")
+        c.drawString(101,418,"K")
+        c.drawString(117,418,"Q")
+        c.setFont('Helvetica', 8)
+        c.drawString(114,181,"Tax")
+        c.drawString(91,210,"Valuation Charge")
+        c.drawString(95,241,"Weight Charge")
+        c.drawString(37,241,"Prepaid")
+        c.drawString(28,226,"AS AGREED")
+        c.drawString(178,241,"Collect")
+        c.drawString(168,226,"AS AGREED")
+        # c.drawString(345,413,"AS AGREED")
+        
+        c.drawString(438,449,"Nature and Quantity of Goods")
+        c.drawString(440,440,"(Incl. Dimensions of volume)")
+        c.drawString(125,450,"Rate Class")
+        c.drawString(128,440,"Commodity")
+        c.drawString(134,432,"Item No")
+        c.drawString(19,450,"No.of")
+        c.drawString(17,442,"Pieces")
+        c.drawString(21,433,"RCP")
+        c.setFont('Helvetica',9)
+        c.drawString(15,29,"For Carrier's Use only at")
+        c.drawString(40,20,"Destination")
+        c.drawString(130,29,"Charges in Destination")
+        c.drawString(38,79,"Total Prepaid")
+        c.drawString(148,79,"Total Collect")
+        c.drawString(355,442,"Total")
+        c.drawString(279,448,"Rate")
+        c.drawString(271,438,"Charges")
+        c.drawString(190,448,"Chargeable")
+        c.drawString(198,438,"Weight")
+        c.drawString(61,446,"Gross")
+        c.drawString(60,437,"Weight")
+        
+        
+
+
+        if air_mbl:
+            if air_mbl.mbl_no:
+                c.setFont('Helvetica-Bold', 9)
+                if air_mbl.type == "HBL":
+                    c.drawString(140,822, air_mbl.mbl_Document_no)
+                else:
+                    c.drawString(140,822, air_mbl.mbl_no)
+        
+            if air_mbl.exporter_name:
+                c.setFont('Helvetica', 9)
+                c.drawString(20,796,air_mbl.exporter_name.party_name +",")
+                
+            if air_mbl.exporter_address:
+                j=786
+                c.setFont('Helvetica', 8)
+                for i in air_mbl.exporter_address.splitlines():
+                    c.drawString(20,j,i)
+                    j -= 9
             
-        if air_mbl.exporter_address:
-            j=786
-            c.setFont('Helvetica', 8)
-            for i in air_mbl.exporter_address.splitlines():
-                c.drawString(20,j,i)
-                j -= 9
-        
-        if air_mbl.consigned_name:
-            c.setFont('Helvetica', 9)
-            c.drawString(20,726,air_mbl.consigned_name.party_name +",")
+            if air_mbl.consigned_name:
+                c.setFont('Helvetica', 8)
+                c.drawString(20,720,air_mbl.consigned_name.party_name +",")
+                
+            if air_mbl.consigned_address:
+                j=710
+                c.setFont('Helvetica', 8)
+                for i in air_mbl.consigned_address.splitlines():
+                    c.drawString(20,j,i)
+                    j -= 9
             
-        if air_mbl.consigned_address:
-            j=716
-            c.setFont('Helvetica', 8)
-            for i in air_mbl.consigned_address.splitlines():
-                c.drawString(20,j,i)
-                j -= 9
-        
-        
-        
-        if air_mbl.notify_party:
-            c.setFont('Helvetica', 9)
-            c.drawString(20,720,air_mbl.notify_party.party_name +",")        
-            j=710
-            c.setFont('Helvetica', 8)
-            for i in air_mbl.notify_party_address.splitlines():
-                c.drawString(20,j,i)
-                j -= 9
-        
-        
-        
-        if air_mbl.mbl_Document_no:
-            c.setFont('Helvetica', 9)
-            c.drawString(510,807,air_mbl.mbl_Document_no)
-        
-        if air_mbl.accounting_information:
-            c.setFont('Helvetica', 7)
-            j=570
-            for i in air_mbl.accounting_information.splitlines():
-                c.drawString(310,j,i)
-                j -= 8
-        
-        if air_mbl.departure_airport:
-            c.setFont('Helvetica', 9)
-            c.drawString(40,563,f"{air_mbl.departure_airport}")
             
-        if air_mbl.destination_airport:
-            c.setFont('Helvetica', 9)
-            c.drawString(50,505,air_mbl.destination_airport)
+            
+            if air_mbl.notify_party:
+                c.setFont('Helvetica', 9)
+                c.drawString(20,720,air_mbl.notify_party.party_name +",")        
+                j=710
+                c.setFont('Helvetica', 8)
+                for i in air_mbl.notify_party_address.splitlines():
+                    c.drawString(20,j,i)
+                    j -= 9
+            
+            if air_mbl.agent_name:
+                c.setFont('Helvetica', 8)
+                c.drawString(20,657,air_mbl.agent_name.party_name +",")        
+                j=647
+                c.setFont('Helvetica', 7)
+                for i in air_mbl.agent_address.splitlines():
+                    c.drawString(20,j,i)
+                    j -= 9
+
+            if air_mbl.agent_iata_code:
+                c.setFont('Helvetica', 8)
+                c.drawString(17,607,air_mbl.agent_iata_code)        
+
+            
+            if air_mbl.account_no:
+                c.setFont('Helvetica', 8)
+                c.drawString(165,607,air_mbl.account_no)        
+
+            
+            
+            
+            if air_mbl.mbl_Document_no:
+                c.setFont('Helvetica', 9)
+                if air_mbl.type == "HBL":
+                    c.drawString(510,807,air_mbl.mbl_no)
+
+            if air_mbl.origin_to:
+                c.setFont('Helvetica', 9)
+            
+                c.drawString(16,530,air_mbl.origin_to)
+            
+            if air_mbl.carrier_name:
+                c.setFont('Helvetica', 8)
+            
+                c.drawString(47,528,air_mbl.carrier_name)
         
-        if air_mbl.handling_information:
-            j=481
-            c.setFont('Helvetica', 8)
-            for i in air_mbl.handling_information.splitlines():
-                c.drawString(30,j,i)
-                j -= 9
+            if air_mbl.currency:
+                c.setFont('Helvetica', 8)
+                c.drawString(300,528,air_mbl.currency.short_name)
+            
+            if air_mbl.declared_value:
+                c.setFont('Helvetica', 8)
+                c.drawString(470,528,air_mbl.declared_value)
+            
+            if air_mbl.declared_value_customs:
+                c.setFont('Helvetica', 8)
+                c.drawString(530,528,air_mbl.declared_value_customs)
+            
+            if air_mbl.valuation_charge:
+                c.setFont('Helvetica', 9)
+                c.drawString(20,200,air_mbl.valuation_charge)
+            
+            if air_mbl.accounting_information:
+                c.setFont('Helvetica', 7)
+                j=570
+                for i in air_mbl.accounting_information.splitlines():
+                    c.drawString(310,j,i)
+                    j -= 8
+            
+            if air_mbl.departure_airport:
+                c.setFont('Helvetica', 9)
+                c.drawString(40,563,f"{air_mbl.departure_airport}")
+                
+            if air_mbl.destination_airport:
+                c.setFont('Helvetica', 9)
+                c.drawString(50,505,air_mbl.destination_airport)
+            
+            if air_mbl.handling_information:
+                j=481
+                c.setFont('Helvetica', 8)
+                for i in air_mbl.handling_information.splitlines():
+                    c.drawString(30,j,i)
+                    j -= 9
 
 
 
-        if air_mbl.marks_and_number:
-            j=419
-            c.setFont('Helvetica', 9)
-            total_pieces=0
-            for i in air_mbl.marks_and_number.splitlines():
-               
-                c.drawString(23,j,i)
-                try:
-                    total_pieces += int(i)
-                except:
-                    pass
-                j -= 10
-            c.drawString(20,258,str(total_pieces))
+            if air_mbl.marks_and_number:
+                j=419
+                c.setFont('Helvetica', 9)
+                total_pieces=0
+                for i in air_mbl.marks_and_number.splitlines():
+                
+                    c.drawString(23,j,i)
+                    try:
+                        total_pieces += int(i)
+                    except:
+                        pass
+                    j -= 10
+                c.drawString(20,258,str(total_pieces))
 
 
-        if air_mbl.gross_weight:
-            j=419
-            c.setFont('Helvetica', 9)
-            total_gross_weight=0
-            for i in air_mbl.gross_weight.splitlines():
-                c.drawString(62,j,i)
-                try:
-                    total_gross_weight += float(i)
-                except:
-                    pass
-                j -= 10
-            c.drawString(58,258,str(total_gross_weight))
+            if air_mbl.gross_weight:
+                j=419
+                c.setFont('Helvetica', 9)
+                total_gross_weight=0
+                for i in air_mbl.gross_weight.splitlines():
+                    c.drawString(62,j,i)
+                    try:
+                        total_gross_weight += float(i)
+                    except:
+                        pass
+                    j -= 10
+                c.drawString(58,258,str(total_gross_weight))
 
 
-        if air_mbl.chargeable_weight:
-            j=419
-            c.setFont('Helvetica', 9)
-            for i in air_mbl.chargeable_weight.splitlines():
-                c.drawString(200,j,i)
-                j -= 10
-
-
-        if air_mbl.no_of_packages:
-            j=419
-            c.setFont('Helvetica', 8)
-            for i in air_mbl.no_of_packages.splitlines():
-                c.drawString(345,j,'AS AGREED')
-                j -= 10
-
-        if air_mbl.date:
-            c.setFont('Helvetica-Bold', 9)
-            c.drawString(240,65,str(air_mbl.date))
-
-
-
-        if air_mbl.executed_at:
-            c.drawString(358,65,air_mbl.executed_at)
-
-
-        if air_mbl.bl_type=="Final":
-            # logo = 'http://dtriumph.easyfreightlook.com/static/Image/rayzz_stamp.PNG'
-            # c.drawImage(logo, 498, 65, width=1 * inch, height=1 * inch)
-            pass
+            if air_mbl.chargeable_weight:
+                j=419
+                c.setFont('Helvetica', 9)
+                for i in air_mbl.chargeable_weight.splitlines():
+                    c.drawString(200,j,i)
+                    j -= 10
+            count = 0
+            if air_mbl.rate_charges:
+                j=419
+                c.setFont('Helvetica', 9)
+                for i in air_mbl.rate_charges.splitlines():
+                    c.drawString(270,j,i)
+                    count += 1
+                    j -= 10
 
         
-        if air_mbl.flight_no:
-            c.setFont('Helvetica',8)
-            c.drawString(135,502,str(air_mbl.flight_no))
-        if air_mbl.flight_date:
-            c.setFont('Helvetica',8)
-            c.drawString(250,502,str(air_mbl.flight_date))
-        if air_mbl.description_of_commodities:
-            # c.drawString(425,418,"AS AGREEDDDDDDDDDDDDDD")
-            j=418
-            c.setFont('Helvetica', 9)
-            for i in air_mbl.description_of_commodities.splitlines():
-                c.drawString(417,j,i[:38])
-                j -= 12
+            
+            total_charge = 0
+            if air_mbl.total_charges:
+                j=419
+                c.setFont('Helvetica', 8)
+                for i in air_mbl.total_charges.splitlines():
+                    if is_number(i):
+                        total_charge += float(i)
+
+                    c.drawString(345,j,i)
+                    j -= 10
+
+            if total_charge:
+                c.drawString(345,260,f"{total_charge}")
+            else:
+                c.drawString(345,260,f"AS AGREED")
+
+
+            if air_mbl.date:
+                c.setFont('Helvetica-Bold', 9)
+                c.drawString(240,65,str(air_mbl.date))
 
 
 
-    c.showPage()
+            if air_mbl.executed_at:
+                c.drawString(358,65,air_mbl.executed_at)
+
+
+            if air_mbl.bl_type == "ORIGINAL":
+                # logo = 'http://dtriumph.easyfreightlook.com/static/Image/rayzz_stamp.PNG'
+                # c.drawImage(logo, 498, 65, width=1 * inch, height=1 * inch)
+                pass
+
+            
+            if air_mbl.flight_no:
+                c.setFont('Helvetica',8)
+                c.drawString(135,502,str(air_mbl.flight_no))
+            if air_mbl.flight_date:
+                c.setFont('Helvetica',8)
+                c.drawString(250,502,str(air_mbl.flight_date))
+            if air_mbl.description_of_commodities:
+                # c.drawString(425,418,"AS AGREEDDDDDDDDDDDDDD")
+                j=418
+                c.setFont('Helvetica', 9)
+                for i in air_mbl.description_of_commodities.splitlines():
+                    c.drawString(417,j,i[:38])
+                    j -= 12
+
+
+
+        c.showPage()
     c.save()
+
     return response
 
 

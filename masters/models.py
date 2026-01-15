@@ -1220,6 +1220,8 @@ class MBLMaster(LogFolder):
     currency = models.ForeignKey(currency, on_delete=models.SET_NULL, null=True, related_name='mbl_currency', blank=True)
     freight = models.CharField(max_length=200,null=True, blank=True)
 
+  
+
     no_of_o_mtd = models.CharField(max_length=100, null=True, blank=True)
     freight_charge_amt = models.CharField(max_length=100, null=True, blank=True)
     freight_payable_at = models.CharField(max_length=200, null=True, blank=True)
@@ -1239,8 +1241,6 @@ class MBLMaster(LogFolder):
     place_of_receipt = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=True,related_name='mbl_place_of_receipt')
     voyage_no = models.CharField(max_length=200, null=True, blank=True)
     port_of_discharge = models.ForeignKey(Ports, on_delete=models.SET_NULL, null=True, related_name='port_of_discharge_mbl', blank=True)
-    declared_value = models.CharField(max_length=200, null=True, blank=True)
-
     agent_name = models.ForeignKey(Party, on_delete=models.SET_NULL, null=True, related_name='mbl_agent', blank=True)
     agent_address = models.TextField( null=True, blank=True)
 
@@ -1270,7 +1270,18 @@ class MBLMaster(LogFolder):
     chargeable_weight = models.TextField(null=True, blank=True)
     rate_charges = models.TextField(null=True, blank=True)
     total_charges = models.TextField(null=True, blank=True)
-
+    declared_value = models.CharField(max_length=200, null=True, blank=True)
+    declared_value_customs = models.CharField(max_length=200, null=True, blank=True)
+    valuation_charge = models.CharField(max_length=200, null=True, blank=True)
+    other_charge_due_agent = models.CharField(max_length=200, null=True, blank=True)
+    other_charge_due_carrier = models.CharField(max_length=200, null=True, blank=True)
+    account_no = models.CharField(null=True,blank=True,max_length=120)
+    agent_iata_code = models.CharField(null=True,blank=True,max_length=120)
+    origin_to = models.CharField(max_length=120,null=True,blank=True)
+    airline_address = models.TextField(null=True,blank=True)
+    carrier_name = models.CharField(max_length=120,null=True,blank=True)
+    signature_company = models.CharField(max_length=255,null=True,blank=True, default='JAGYAT GLOBAL TRANSPORT AND LOGISTICS PVT. LTD.')
+    signature_for = models.CharField(max_length=255,null=True,blank=True,default='Signature of Shipper of his Agent')
     class Meta:
         ordering = ('-id',)
     

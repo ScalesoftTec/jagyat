@@ -87,10 +87,7 @@ Create AWB -
             {{ form.type }}
         </div>
 
-        <div class="col-md-2 col-sm-12 mb-1">
-            <label for="id_airline">Airline</label>
-            {{ form.airline }}
-        </div>
+        
         <div class="col-md-2 col-sm-12 mb-1">
             <label for="id_flight_no">Flight No</label>
             {{ form.flight_no }}
@@ -120,11 +117,53 @@ Create AWB -
             <label for="id_executed_at">Executed At</label>
             {{ form.executed_at }}
         </div>
-        {% if update %}
-        <div class="col-md-5 col-sm-12 mb-1">
-            
+      
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_agent_iata_code">Agent IATA Code</label>
+            {{ form.agent_iata_code }}
         </div>
-        {% endif %}
+      
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_account_no">Account No.</label>
+            {{ form.account_no }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_origin_to">Origin To</label>
+            {{ form.origin_to }}
+        </div>
+      
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_carrier_name">Carrier Name</label>
+            {{ form.carrier_name }}
+        </div>
+      
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_currency">Currency</label>
+            {{ form.currency }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_declared_value">Dec. Value Carraige</label>
+            {{ form.declared_value }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_declared_value_customs">Dec. Value Customs</label>
+            {{ form.declared_value_customs }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_valuation_charge">Valuation Charge Amount</label>
+            {{ form.valuation_charge }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_other_charge_due_agent">Other Charge Due Agent</label>
+            {{ form.other_charge_due_agent }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label for="id_other_charge_due_carrier">Other Charge Due Carrier</label>
+            {{ form.other_charge_due_carrier }}
+        </div>
+      
+
+        <div class="col-12"></div>
 
         <div class="col-md-6 col-sm-12 mb-1">
             <label for="id_accounting_information">Accounting Information</label>
@@ -135,25 +174,44 @@ Create AWB -
             {{ form.handling_information }}
         </div>
 
-        <div class="col-md-6 col-sm-12 mb-1">
+        <div class="col-12"></div>
+
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_airline">Airline</label>
+            {{ form.airline }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
             <label for="id_exporter_name">Shipper</label>
             {{ form.exporter_name }}
         </div>
-        <div class="col-md-6 col-sm-12 mb-1">
+        <div class="col-md-3 col-sm-12 mb-1">
             <label for="id_consigned_name">Consignee</label>
             {{ form.consigned_name }}
         </div>
       
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_agent_name">Agent Name</label>
+            {{ form.agent_name }}
+        </div>
+      
 
-        <div class="col-md-6 col-sm-12 mb-1">
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_airline_address">Airline Address</label>
+            {{ form.airline_address }}
+        </div>
+        <div class="col-md-3 col-sm-12 mb-1">
             <label for="id_exporter_address">Exporter Address</label>
             {{ form.exporter_address }}
         </div>
-        <div class="col-md-6 col-sm-12 mb-1">
+        <div class="col-md-3 col-sm-12 mb-1">
             <label for="id_consigned_address">Consigned Address</label>
             {{ form.consigned_address }}
         </div>
-        
+        <div class="col-md-3 col-sm-12 mb-1">
+            <label for="id_agent_address">Agent Address</label>
+            {{ form.agent_address }}
+        </div>
+        <div class="col-12"></div>
         
         <div class="col-md-2 col-sm-12 mb-1">
             <label for="id_marks_and_number">Number Of Pieces.</label>
@@ -187,7 +245,17 @@ Create AWB -
         
         
     </div>
+
+    <div class="col-sm-12">
+        <label for="id_signature_company">Signature Company</label>
+        {{form.signature_company}}
+        
+        <label for="id_signature_for">Signature For</label>
+        {{form.signature_for}}
+        
+    </div>
     <div class="col-md-2 col-sm-12 mb-1" id="container_option">
+
     <label for="id_container_options">Container options</label>
     
     <table id="container_heads" class="table table-bordered">
