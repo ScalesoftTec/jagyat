@@ -2544,7 +2544,7 @@ def payment_tds(request,module):
         company = Logistic.objects.filter(id=int(company)).first()
         
        
-        invoice_payables = InvoicePayable.objects.select_related('company_type','bill_from','bill_from_address').prefetch_related('pay_payment_inv').filter(date_of_invoice__gte=from_date).filter(date_of_invoice__lte=to_date).filter(company_type=company).filter(is_deleted=False).all()
+        invoice_payables = InvoicePayable.objects.select_related('company_type','bill_from','bill_from_address').prefetch_related('pay_payment_inv').filter(tds_booking_date__gte=from_date).filter(tds_booking_date__lte=to_date).filter(company_type=company).filter(is_deleted=False).all()
         
         if not tds_section == "All":
             invoice_payables = invoice_payables.filter(tds_section=tds_section).all()

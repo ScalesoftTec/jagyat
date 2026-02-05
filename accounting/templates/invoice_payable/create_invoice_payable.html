@@ -65,6 +65,7 @@ Purchase Voucher -
             <label class="required" for="id_date_of_invoice">Invoice Date</label>
             {{ form.date_of_invoice }}
         </div>
+       
         <div class="col-md-2 col-sm-12 mb-1">
             <label class="required" for="id_due_date">Due Date</label>
             {{ form.due_date }}
@@ -279,6 +280,11 @@ Purchase Voucher -
                 <div class="col-md-2 col-sm-12 mb-1">
                     <label class="required" for="id_net_amount">Net Amount</label>
                     {{ form.net_amount }}
+                </div>
+
+                <div class="col-md-2 col-sm-12 mb-1">
+                    <label class="required" for="id_tds_booking_date">TDS Booking Date</label>
+                    {{ form.tds_booking_date }}
                 </div>
 
                 <div class="col-md-2 col-sm-12 mb-1">

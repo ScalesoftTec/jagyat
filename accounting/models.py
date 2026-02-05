@@ -721,6 +721,7 @@ class InvoicePayable(LogFolder):
     purchase_invoice_no = models.CharField(max_length=120,null=True,blank=False)
     party_type = models.CharField(max_length=120,null=True,blank=True,choices=PARTY_TYPE,default="Direct")
     date_of_invoice = models.DateField(blank=True, null=True)
+    tds_booking_date = models.DateField(null=True,blank=True)
     job_no = models.ForeignKey(JobMaster, on_delete=models.CASCADE, null=True,related_name='payable_invoice_job',blank=True)
     bill_from = models.ForeignKey(Party, on_delete=models.SET_NULL, null=True,related_name='payable_invoice_bill_to',blank=True)
     bill_from_address = models.ForeignKey(PartyAddress,on_delete=models.SET_NULL,null=True,blank=True,related_name='bill_from_address')
@@ -1255,6 +1256,8 @@ class PaymentVoucher(LogFolder):
     bank_charges_tax = models.FloatField(default=0,blank=True)
     bank_charges = models.FloatField(default=0,blank=True)
     rounded_off = models.BooleanField(default=False)
+
+    
     
     old_voucher = models.BooleanField(default=False)
     

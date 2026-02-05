@@ -240,6 +240,7 @@ class InvoicePayableForm(forms.ModelForm):
             'invoice_no': forms.HiddenInput(attrs={'class': 'form-control form-control-sm','required':True}),
             'purchase_invoice_no': forms.TextInput(attrs={'class': 'form-control form-control-sm', 'required':True}),
             'date_of_invoice': forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-sm','required':True}, format="%Y-%m-%d"),
+            'tds_booking_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-sm'}, format="%Y-%m-%d"),
             'job_no': forms.Select(attrs={'class': 'form-control form-control-sm','required':False}),
             'bill_from': forms.Select(attrs={'class': 'form-control form-control-sm', 'required':True}),
             'bill_from_address': forms.Select(attrs={'class': 'form-control form-control-sm', 'required':True}),
@@ -445,6 +446,7 @@ class PaymentVoucherForm(forms.ModelForm):
             'pay_from': forms.Select(attrs={'class': 'form-control form-control-sm','required':True}),
            
             'bank_clearing_date_payment': forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-sm'}, format="%Y-%m-%d"),
+            
             'voucher_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-sm','required':True}, format="%Y-%m-%d"),
             'from_bank': forms.Select(attrs={'class': 'form-control form-control-sm','required':True}),
             'bank': forms.Select(attrs={'class': 'form-control form-control-sm','required':True}),
