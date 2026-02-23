@@ -895,12 +895,7 @@
 
 
     <div id="footer_content">
-        {% if not data.type_of_invoice == "BILL OF SUPPLY" %}
-        <div style="border:0.5px solid black;margin-bottom:5px; border-top:none; border-left:none; border-right:none;">
-            <strong> IRN : </strong>
-            <span>{{data.irn_no}}</span>
-        </div>
-        {% endif %}
+        
         
         <div style="border-bottom:1px solid black; margin-bottom: 10px;">
             <strong> Remarks : </strong> <span>{{data.remark_on_invoice}}</span>
