@@ -1127,7 +1127,7 @@ def recievable_invoice_pdf(request,id):
     
     pending_col = []
     
-    col_in_invoice = 25
+    col_in_invoice = 22
     if invoice.is_einvoiced and invoice.signed_qr_code:
         col_in_invoice = 22
     
