@@ -1,0 +1,165 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+Sequence List - 
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+  Sequence List
+</h1>
+
+<a href="{% url 'accounting:create_sequence' module=module %}" class="d-inline-block btn  btn-primary shadow-sm"><i
+    class="fas fa-plus text-white-50"></i> Create Sequence</a>
+
+
+{% endblock %}
+
+
+{% block dashboard_content %}
+<div class="alert alert-warning border-left border-warning shadow-sm">
+    <h6 class="font-weight-bold mb-2">
+        <i class="fas fa-info-circle mr-1"></i> Important Notes
+    </h6>
+
+    <ul class="mb-0 pl-3 small">
+        <li>
+            This sequence configuration currently applies only to
+            <strong>Receipt, Payment, and Contra vouchers</strong>.
+        </li>
+        <li>
+            <strong>Sales Invoices and Credit Notes</strong> are not affected by this sequence master.
+        </li>
+        <li>
+            This configuration will become effective
+            <strong>after 31 March 2026</strong>.
+        </li>
+    </ul>
+</div>
+
+
+<div class="">
+
+  <form action="" method="post">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-2">
+          <label for="choose_company">Choose Branch</label>
+          <select name="choose_company" class="form-control form-control-sm" id="choose_company" >
+              {% if choose_company == 'All' %}
+              <option value="All" selected>All</option>
+              {% else %}
+              <option value="All">All</option>
+              {% endif %}
+              {% for data in global_companies %}
+              {% if choose_company == data.id %}
+              <option value="{{data.id}}" selected>{{data.company_name}}</option>
+              {% else %}
+              <option value="{{data.id}}">{{data.company_name}}</option>
+              {% endif %}
+              {% endfor %}
+          </select>
+        </div>
+        
+          {% comment %} <div class="col-2">
+              <label for="from_date">From Date</label>
+              <input type="date" name="from_date" value="{{from_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="start_date">
+          </div>
+          <div class="col-2">
+              <label for="to_date">To Date</label>
+              <input type="date" name="to_date" value="{{to_date|date:'Y-m-d'}}" class="form-control form-control-sm" id="to_date">
+          </div> {% endcomment %}
+          <div class="col-2">
+              <button type="submit" class="btn btn-primary btn-sm mt-4">Filter</button>
+          </div>
+      </div>
+  </form>
+
+</div>
+<div class="table-responsive">
+
+<table class="table table-primary compact display table-bordered table-md-responsive" id="contra_voucher_table">
+  <thead>
+    <tr>
+      <th scope="col">Company</th>
+      <th scope="col">Voucher</th>
+      <th scope="col">From Date</th>
+      <th scope="col">To Date</th>
+      <th scope="col">Prefix</th>
+      <th scope="col">Suffix</th>
+      <th scope="col">Zero Length</th>
+      <th scope="col">Number Skip</th>     
+
+
+
+      <th scope="col">Actions</th>
+
+    </tr>
+  </thead>
+  <tbody>
+    {% for data in sequence %}
+    <tr>
+      
+      <td>{{ data.company_type }}</td>
+      <td>{{ data.voucher_type }}</td>
+      <td>{{ data.from_date|date:"Y-m-d" }}</td>
+      <td>{{ data.to_date|date:"Y-m-d" }}</td>
+      <td>{{ data.prefix }}</td>
+      <td>{{ data.suffix }}</td>
+      <td>{{ data.zero_length }}</td>
+      <td>{{ data.skip_count }}</td>
+  
+
+     
+     
+
+      <td>
+        <a href="{% url 'accounting:sequence_update' module=module id=data.id %}" class="btn btn-xs btn-info"><i
+            class="fas fa-edit"></i></a>
+
+
+      </td>
+
+    </tr>
+
+    {% endfor %}
+
+  </tbody>
+</table>
+
+  
+</div>
+
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+    let table = new DataTable('#contra_voucher_table', {
+        // options
+        dom: 'BQlfrtip',
+        "pageLength": 50,
+        buttons: [
+        {
+            extend: 'collection',
+            text: 'Export',
+            buttons: [
+                'copy',
+                'excel',
+                'csv',
+                'pdf',
+               
+            ]
+        },
+
+        ]
+
+    });
+  
+    document.querySelector('.dtsb-title').style.display = 'none'
+
+</script>
+
+{% endblock %}

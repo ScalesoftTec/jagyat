@@ -1,0 +1,104 @@
+{% extends 'dashboard/index.html' %}
+
+{% block dashoard_title %} 
+{% if update %}
+Update Sequence - 
+
+{% else %}
+Create Sequence - 
+{% endif %}
+{% endblock %}
+
+{% block dashboard_heading %}
+<h1 class="h5 mb-0 text-gray-800">
+    {% if update %}
+    Update Sequence
+    {% else %}
+    Create New Sequence
+    {% endif %}
+</h1>
+
+<a href="{% url 'accounting:sequence_details' module=module %}"
+    class="d-inline-block btn  btn-primary shadow-sm"><i class="fas fa-eye  text-white-50"></i> View List</a>
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+
+
+
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% include 'error_component.html' %}
+    <div class="row">
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required" for="id_company_type">Choose Company</label>
+            {{ form.company_type }}
+        </div>
+     
+
+        <div class="col-md-2 col-sm-12">
+            <label for="id_voucher_type">Voucher Type</label>
+            {{form.voucher_type}}
+        </div>
+        
+        <div class="col-md-2 col-sm-12">
+            <label for="id_from_date">From Date</label>
+            {{form.from_date}}
+        </div>
+        
+        <div class="col-md-2 col-sm-12">
+            <label for="id_to_date">To Date</label>
+            {{form.to_date}}
+        </div>
+        
+        <div class="col-md-2 col-sm-12">
+            <label for="id_prefix">Prefix</label>
+            {{form.prefix}}
+        </div>
+        
+        <div class="col-md-2 col-sm-12">
+            <label for="id_suffix">Suffix</label>
+            {{form.suffix}}
+        </div>
+        
+        <div class="col-md-2 col-sm-12">
+            <label for="id_zero_length">Zero Length</label>
+            {{form.zero_length}}
+        </div>
+        
+        <div class="col-md-2 col-sm-12">
+            <label for="id_skip_count">Skip Numbers</label>
+            {{form.skip_count}}
+        </div>
+        
+        <div class="col-md-12 col-sm-12">
+            <label for="id_is_active">Active</label>
+            {{form.is_active}}
+        </div>
+        
+
+
+
+    </div>
+
+    <button type="submit" class="btn btn-primary" id="submit-btn">
+        {% if update %}
+        Update Sequence
+        {% else %}
+        Submit
+        {% endif %}
+        {% if update %}
+        <input type="hidden"  id="is_update" value="true">
+        {% else %}
+        <input type="hidden" id="is_update" value="false">
+        {% endif %}
+
+    </button>
+
+</form>
+
+
+{% endblock %}

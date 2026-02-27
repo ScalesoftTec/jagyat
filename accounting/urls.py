@@ -125,6 +125,14 @@ urlpatterns = [
     path('bill-of-payment/<int:id>/update/jagyat/', views.update_bill_of_payment), 
     path('bill-of-payment/<int:id>/delete/', views.delete_bill_of_payment),
     path('<str:module>/generate-soa-pdf/', views.generate_soa_pdf, name='generate_soa_pdf'),
+
+    
+ 
+    path('<module>/sequence/create/',views.create_sequence,name='create_sequence'),
+    path('<module>/sequence/details/',views.sequence_details,name='sequence_details'),
+    path('<module>/sequence/update/<id>/',views.sequence_update,name='sequence_update'),
+
+
  
 
     

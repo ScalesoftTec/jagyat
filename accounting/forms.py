@@ -2,6 +2,7 @@ from django.forms.models import inlineformset_factory
 from django import forms
 from accounting.models import ContraVoucher, DebitNote, InvoicePayable, InvoiceReceivable, CreditNote, PaymentVoucher, RecieptVoucher,IndirectExpense,Manifest,TrailorExpense,Loan,Salary,Journal
 from masters.models import Party,GRMaster,JobHBL,JobMaster
+from dashboard.models import SequenceSettings
 
 class SalaryForm(forms.ModelForm):
    
@@ -507,3 +508,19 @@ class JournalVoucherForm(forms.ModelForm):
         }
 
 
+
+class SequenceSettingsForm(forms.ModelForm):
+    class Meta:
+        model = SequenceSettings
+        fields = '__all__'
+        widgets = {
+            'company_type':forms.Select(attrs={'class':'form-control form-control-sm','required':True}),
+            'voucher_type':forms.Select(attrs={'class':'form-control form-control-sm','required':True}),
+            'from_date':forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-sm','required':True}, format="%Y-%m-%d"),
+            'to_date':forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-sm','required':True}, format="%Y-%m-%d"),
+            'prefix':forms.TextInput(attrs={'class':'form-control form-control-sm'}),
+            'suffix':forms.TextInput(attrs={'class':'form-control form-control-sm'}),
+            'zero_length':forms.NumberInput(attrs={'class':'form-control form-control-sm','required':True,'type':'number'}),
+            'skip_count':forms.NumberInput(attrs={'class':'form-control form-control-sm','required':True,'type':'number'}),
+
+        }

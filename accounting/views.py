@@ -4,7 +4,7 @@ from accounting.models import  *
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from masters.models import Bank, BillingHead, JobMaster, Party,currency,LedgerMaster,PartyAddress,TrailorBillingHead,Vendor,JobContainer
-from dashboard.models import Logistic
+from dashboard.models import Logistic,SequenceSettings
 from masters.views import check_permissions
 from json import dumps,loads
 from datetime import date, datetime, timedelta
@@ -4796,4 +4796,75 @@ def delete_bill_of_payment(request, id):
     bill.delete()
     return Response({"msg": "bill deleted successfully"},status=status.HTTP_204_NO_CONTENT)
 
+
+
+# ------------- Sequencing Voucher -------------
+@login_required(login_url='home:handle_login')
+def create_sequence(request,module):
+    context ={}
+    
+    check_permissions(request,module)
+  
+    form = SequenceSettingsForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        messages.add_message(request, messages.SUCCESS, f"Success, New Sequence Created.")
+        return redirect('accounting:create_sequence',module=module)
+    
+    context['form']= form
+    context['module']= module
+    return render(request,'sequence/create_sequence.html',context)
+
+@login_required(login_url='home:handle_login')
+def sequence_details(request,module):
+    context ={}
+    check_permissions(request,module)
+
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+    _,end_day = calendar.monthrange(current_year, current_month)
+    from_date = date(current_year,current_month,1)
+    to_date = date(current_year,current_month,end_day)
+    
+    choose_company = 'All'
+    sequence = SequenceSettings.objects.all()
+    if request.method == 'POST':
+        choose_company = request.POST['choose_company']
+        # from_date = request.POST['from_date']
+        # to_date = request.POST['to_date']
+        # to_date = datetime.strptime(str(to_date),'%Y-%m-%d').date()
+        
+
+    # sequence = sequence.filter(from_date__lte=date.today(),to_date__gte=date.today())
+
+    context['choose_company'] = choose_company
+    if not choose_company == "All":
+        sequence = sequence.filter(company_type__id=int(choose_company))
+        context['choose_company'] = int(choose_company)
+    
+  
+    context['from_date']= datetime.strptime(str(from_date),'%Y-%m-%d').date()
+    context['to_date']= datetime.strptime(str(to_date),'%Y-%m-%d').date()
+    context['sequence']= sequence
+    context['module']= module
+    return render(request,'sequence/sequence_detail.html',context)
+
+@login_required(login_url='home:handle_login')
+def sequence_update(request,module,id):
+    context ={}
+    check_permissions(request,module)
+  
+    obj = get_object_or_404(SequenceSettings, id = id)
+    
+    form = SequenceSettingsForm(request.POST or None, instance = obj)
+    
+    if form.is_valid():
+        form.save()
+        messages.add_message(request, messages.SUCCESS, f"Success, Updated Successfully.")
+        return redirect('accounting:sequence_details',module=module)
+          
+    context['form']= form
+    context['module']= module
+    context['update']= True
+    return render(request,'sequence/create_sequence.html',context)
 

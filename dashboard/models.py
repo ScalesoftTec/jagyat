@@ -143,3 +143,38 @@ class TallyIpAdress(models.Model):
         return self.ip_url
     
     
+
+VOUCHER_TYPE = (
+    ('Job','Job'),
+    ('Sea Job','Sea Job'),
+    ('Air Job','Air Job'),
+    ('Transport Job','Transport Job'),
+    ('Sea Export Job','Sea Export Job'),
+    ('Sea Import Job','Sea Import Job'),
+    ('Air Export Job','Air Export Job'),
+    ('Air Import Job','Air Import Job'),
+    ('Sea MBL','Sea MBL'),
+    ('Air MBL','Air MBL'),
+    ('Proforma Sales','Proforma Sales'),
+    ('Tax Sales','Tax Sales'),
+    ('RCM Sales','RCM Sales'),
+    ('Proforma Credit Note','Proforma Credit Note'),
+    ('Tax Credit Note','Tax Credit Note'),
+    ('RCM Credit Note','RCM Credit Note'),
+    ('Receipt','Receipt'),
+    ('Payment','Payment'),
+    ('Contra','Contra'),
+    # ('Journal','Journal'),
+
+)
+
+class SequenceSettings(models.Model):
+    company_type = models.ForeignKey(Logistic,null=True,blank=True,on_delete=models.CASCADE,related_name='company_sequence')
+    voucher_type = models.CharField(max_length=60,null=True,blank=True,choices=VOUCHER_TYPE)
+    from_date = models.DateField(null=True,blank=True)
+    to_date = models.DateField(null=True,blank=True)
+    prefix = models.CharField(max_length=20,null=True,blank=True)
+    suffix = models.CharField(max_length=20,null=True,blank=True)
+    zero_length = models.IntegerField(default=0)
+    skip_count = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
