@@ -25,7 +25,7 @@ def create_sales_invoice_voucher(sender, instance, created, **kwargs):
 
     net_amount = 0
   
-    einvoice_date = instance.einvoice_date.date() 
+    einvoice_date = instance.einvoice_date
 
     for detail in instance.recievable_invoice_reference.all():
         vouchers = Voucher.objects.filter(sales_invoice_details = detail).all()
