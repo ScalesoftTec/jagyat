@@ -208,7 +208,7 @@ def create_crn_voucher(sender, instance, created, **kwargs):
     if instance.is_deleted or not instance.is_einvoiced:
         return
     
-    einvoice_date = instance.einvoice_date.date() 
+    einvoice_date = instance.einvoice_date
 
     currency_ex_rate = 1
     try:
