@@ -1660,8 +1660,13 @@ def final_credit_note_details(request,module):
 @login_required(login_url='home:handle_login')
 def make_eninvoice_credit_note(request,module,id):
     check_permissions(request,module)
-    login_and_get_token(request)
-    status = add_credit_note_irn(request,id)
+    # login_and_get_token(request)
+    # status = add_credit_note_irn(request,id)
+    credit_note = CreditNote.objects.filter(id=id).first()
+    credit_note.final_invoice_no = credit_note.credit_note_no
+    credit_note.einvoice_date = credit_note.date_of_note
+    credit_note.is_einvoiced = True
+    credit_note.save()
     messages.success(request,status)
     return redirect('accounting:credit_note_details',module=module)
 
