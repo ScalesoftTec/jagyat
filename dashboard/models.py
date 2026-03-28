@@ -124,6 +124,11 @@ class Logistic(models.Model):
     
     round_off_ledger_name = models.CharField(max_length=120,null=True,blank=True,default="Round Off")
     unique_no = models.UUIDField(null=True,blank=True)
+    count_new_tax_invoice_no = models.BooleanField(default=False)
+    get_new_tax_invoice_date = models.BooleanField(default=False)
+    separate_job_count_module_wise = models.BooleanField(default=False)
+    separate_job_count_mode_wise = models.BooleanField(default=False)
+    einvoice_applicable = models.BooleanField(default=False)
 
     
     
@@ -161,6 +166,7 @@ VOUCHER_TYPE = (
     ('Proforma Credit Note','Proforma Credit Note'),
     ('Tax Credit Note','Tax Credit Note'),
     ('RCM Credit Note','RCM Credit Note'),
+     ('REMB Sales','REMB Sales'),
     ('Receipt','Receipt'),
     ('Payment','Payment'),
     ('Contra','Contra'),

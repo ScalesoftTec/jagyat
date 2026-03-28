@@ -83,8 +83,15 @@ def count_sales_no(instance):
     if current_month < 4:
         current_year -= 1
     current_financial_date = date(current_year, 4, 1)
+
+
+    voucher_type = 'Proforma Sales'
+    if instance.type_of_invoice == 'RCM':
+        voucher_type = 'RCM Sales'
+    if instance.type_of_invoice == 'REMB':
+        voucher_type = 'REMB Sales'
     
-    voucher_setting = SequenceSettings.objects.filter(voucher_type='Proforma Sales').filter(company_type=self.company_type).filter(from_date__lte=self.date_of_invoice).filter(to_date__gte=self.date_of_invoice).first()
+    voucher_setting = SequenceSettings.objects.filter(voucher_type=voucher_type).filter(company_type=self.company_type).filter(from_date__lte=self.date_of_invoice).filter(to_date__gte=self.date_of_invoice).first()
 
     prefix = ''
     suffix = ''
@@ -98,8 +105,17 @@ def count_sales_no(instance):
         from_date = voucher_setting.from_date
         to_date = voucher_setting.to_date
 
+    base_queryset = InvoiceReceivable.objects.all()
+
     if voucher_setting:
-        current_length = InvoiceReceivable.objects.filter(date_of_invoice__gte = from_date).filter(date_of_invoice__lte=to_date).count()
+        if instance.type_of_invoice == 'RCM':
+            base_queryset = base_queryset.filter(type_of_invoice='RCM')
+        elif instance.type_of_invoice == 'REMB':
+            base_queryset = base_queryset.filter(type_of_invoice='REMB')
+        else:
+            base_queryset = base_queryset.exclude(type_of_invoice='RCM').exclude(type_of_invoice='REMB')
+
+        current_length = base_queryset.filter(date_of_invoice__gte = from_date).filter(date_of_invoice__lte=to_date).count()
     else:
         current_length = InvoiceReceivable.objects.filter(date_of_invoice__gte = current_financial_date).count()
     if current_length == 0:
@@ -124,8 +140,12 @@ def count_tax_sales_no(instance):
     if current_month < 4:
         current_year -= 1
     current_financial_date = date(current_year, 4, 1)
-    
-    voucher_setting = SequenceSettings.objects.filter(voucher_type='Tax Sales').filter(company_type=self.company_type).filter(from_date__lte=self.date_of_invoice).filter(to_date__gte=self.date_of_invoice).first()
+    voucher_type = 'Tax Sales'
+    if instance.type_of_invoice == 'RCM':
+        voucher_type = 'RCM Sales'
+    if instance.type_of_invoice == 'REMB':
+        voucher_type = 'REMB Sales'
+    voucher_setting = SequenceSettings.objects.filter(voucher_type=voucher_type).filter(company_type=self.company_type).filter(from_date__lte=self.date_of_invoice).filter(to_date__gte=self.date_of_invoice).first()
 
     prefix = ''
     suffix = ''
@@ -139,8 +159,16 @@ def count_tax_sales_no(instance):
         from_date = voucher_setting.from_date
         to_date = voucher_setting.to_date
 
+    base_queryset = InvoiceReceivable.objects.filter(is_einvoiced=True)
     if voucher_setting:
-        current_length = InvoiceReceivable.objects.filter(is_einvoiced=True).filter(date_of_invoice__gte = from_date).filter(date_of_invoice__lte=to_date).count()
+        if instance.type_of_invoice == 'RCM':
+            base_queryset = base_queryset.filter(type_of_invoice='RCM')
+        elif instance.type_of_invoice == 'REMB':
+            base_queryset = base_queryset.filter(type_of_invoice='REMB')
+        else:
+            base_queryset = base_queryset.exclude(type_of_invoice='RCM').exclude(type_of_invoice='REMB')
+
+        current_length = base_queryset.filter(date_of_invoice__gte = from_date).filter(date_of_invoice__lte=to_date).count()
     else:
         current_length = InvoiceReceivable.objects.filter(is_einvoiced=True).filter(date_of_invoice__gte = current_financial_date).count()
     if current_length == 0:
@@ -155,8 +183,7 @@ def count_tax_sales_no(instance):
         else:
             current_length += 1
             
-    self.final_invoice_no = voucher_no
-    self.save()
+    return voucher_no
 
 def count_crn_no(instance):
     self = instance
@@ -165,8 +192,13 @@ def count_crn_no(instance):
     if current_month < 4:
         current_year -= 1
     current_financial_date = date(current_year, 4, 1)
+
+    voucher_type = 'Proforma Credit Note'
+    if instance.is_rcm:
+        voucher_type = 'RCM Credit Note'
+   
     
-    voucher_setting = SequenceSettings.objects.filter(voucher_type='Proforma Credit Note').filter(company_type=self.company_type).filter(from_date__lte=self.date_of_note).filter(to_date__gte=self.date_of_note).first()
+    voucher_setting = SequenceSettings.objects.filter(voucher_type=voucher_type).filter(company_type=self.company_type).filter(from_date__lte=self.date_of_note).filter(to_date__gte=self.date_of_note).first()
 
     prefix = ''
     suffix = ''
@@ -180,8 +212,15 @@ def count_crn_no(instance):
         from_date = voucher_setting.from_date
         to_date = voucher_setting.to_date
 
+    base_queryset = CreditNote.objects.all()
     if voucher_setting:
-        current_length = CreditNote.objects.filter(date_of_note__gte = from_date).filter(date_of_note__lte=to_date).count()
+        if instance.is_rcm:
+            base_queryset = base_queryset.filter(is_rcm=True)
+     
+        else:
+            base_queryset = base_queryset.exclude(is_rcm=True)
+
+        current_length = base_queryset.filter(date_of_note__gte = from_date).filter(date_of_note__lte=to_date).count()
     else:
         current_length = CreditNote.objects.filter(date_of_note__gte = current_financial_date).count()
     if current_length == 0:
@@ -207,7 +246,13 @@ def count_tax_crn_no(instance):
         current_year -= 1
     current_financial_date = date(current_year, 4, 1)
     
-    voucher_setting = SequenceSettings.objects.filter(voucher_type='Taxx Credit Note').filter(company_type=self.company_type).filter(from_date__lte=self.date_of_note).filter(to_date__gte=self.date_of_note).first()
+
+    voucher_type = 'Proforma Credit Note'
+    if instance.is_rcm:
+        voucher_type = 'RCM Credit Note'
+   
+
+    voucher_setting = SequenceSettings.objects.filter(voucher_type=voucher_type).filter(company_type=self.company_type).filter(from_date__lte=self.date_of_note).filter(to_date__gte=self.date_of_note).first()
 
     prefix = ''
     suffix = ''
@@ -221,8 +266,15 @@ def count_tax_crn_no(instance):
         from_date = voucher_setting.from_date
         to_date = voucher_setting.to_date
 
+    base_queryset = CreditNote.objects.filter(is_einvoiced=True)
     if voucher_setting:
-        current_length = CreditNote.objects.filter(is_einvoiced=True).filter(date_of_note__gte = from_date).filter(date_of_note__lte=to_date).count()
+        if instance.is_rcm:
+            base_queryset = base_queryset.filter(is_rcm=True)
+     
+        else:
+            base_queryset = base_queryset.exclude(is_rcm=True)
+
+        current_length = base_queryset.filter(date_of_note__gte = from_date).filter(date_of_note__lte=to_date).count()
     else:
         current_length = CreditNote.objects.filter(is_einvoiced=True).filter(date_of_note__gte = current_financial_date).count()
     if current_length == 0:
@@ -237,9 +289,8 @@ def count_tax_crn_no(instance):
         else:
             current_length += 1
             
-    self.final_invoice_no = voucher_no
-    self.save()
-
+    return voucher_no
+   
 def count_receipts_no(instance):
     self = instance
     current_year = datetime.now().year

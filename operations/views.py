@@ -20,6 +20,9 @@ from accounting.models import Manifest, ManifestChargesToCollect,ManifestCharges
 from accounting.forms import ManifestForm
 from dashboard.views import check_permissions,EmailThread
 import num2words
+from accounting.utils import *
+from django.db import transaction
+
 # Create your views here.
 
 
@@ -673,52 +676,55 @@ def create_job(request,module):
     if request.method == 'POST':
         form = JobForm(request.POST, request.FILES)
         if form.is_valid():
-            form.instance.created_by = request.user
-           
-            if not request.user.user_account.create_global_data:
-                form.instance.company_type = request.user.user_account.office
+            with transaction.atomic():
+                form.instance.created_by = request.user
             
-            if form.instance.module == "Sea Export":
-                all_approve_application_handlers = DocumentHandler.objects.filter(company_type = form.instance.company_type).filter(is_sea_ex_job=True).all()
-            if form.instance.module == "Sea Import":
-                all_approve_application_handlers = DocumentHandler.objects.filter(company_type = form.instance.company_type).filter(is_sea_im_job=True).all()
-            if form.instance.module == "Air Export":
-                all_approve_application_handlers = DocumentHandler.objects.filter(company_type = form.instance.company_type).filter(is_air_ex_job=True).all()
-            if form.instance.module == "Air Import":
-                all_approve_application_handlers = DocumentHandler.objects.filter(company_type = form.instance.company_type).filter(is_air_im_job=True).all()
-            if form.instance.module == "Transport":
-                all_approve_application_handlers = DocumentHandler.objects.filter(company_type = form.instance.company_type).filter(is_transport_job=True).all()
-            
-            if form.instance.company_type.is_job_approve_required:
-                minimum_worker = []
-                for handler in all_approve_application_handlers:
-                    handler_count = len(JobMaster.objects.filter(is_approved=False).filter(application_handler__id=handler.user.id).all())
+                if not request.user.user_account.create_global_data:
+                    form.instance.company_type = request.user.user_account.office
+                
+                if form.instance.module == "Sea Export":
+                    all_approve_application_handlers = DocumentHandler.objects.filter(company_type = form.instance.company_type).filter(is_sea_ex_job=True).all()
+                if form.instance.module == "Sea Import":
+                    all_approve_application_handlers = DocumentHandler.objects.filter(company_type = form.instance.company_type).filter(is_sea_im_job=True).all()
+                if form.instance.module == "Air Export":
+                    all_approve_application_handlers = DocumentHandler.objects.filter(company_type = form.instance.company_type).filter(is_air_ex_job=True).all()
+                if form.instance.module == "Air Import":
+                    all_approve_application_handlers = DocumentHandler.objects.filter(company_type = form.instance.company_type).filter(is_air_im_job=True).all()
+                if form.instance.module == "Transport":
+                    all_approve_application_handlers = DocumentHandler.objects.filter(company_type = form.instance.company_type).filter(is_transport_job=True).all()
+                
+                if form.instance.company_type.is_job_approve_required:
+                    minimum_worker = []
+                    for handler in all_approve_application_handlers:
+                        handler_count = len(JobMaster.objects.filter(is_approved=False).filter(application_handler__id=handler.user.id).all())
+                        
+                        minimum_worker.append({
+                            'user':handler.user,
+                            'counts':handler_count
+                        })
                     
-                    minimum_worker.append({
-                        'user':handler.user,
-                        'counts':handler_count
-                    })
+                    minimum_pos = 0
+                    for count in range (0,len(minimum_worker)-1):
+                        if minimum_worker[count]['counts'] >  minimum_worker[count+1]['counts']:
+                            minimum_pos = count+1
                 
-                minimum_pos = 0
-                for count in range (0,len(minimum_worker)-1):
-                    if minimum_worker[count]['counts'] >  minimum_worker[count+1]['counts']:
-                        minimum_pos = count+1
-            
-                handler = DocumentHandler.objects.filter(user=minimum_worker[minimum_pos]['user']).first()
-                form.instance.application_handler = handler
+                    handler = DocumentHandler.objects.filter(user=minimum_worker[minimum_pos]['user']).first()
+                    form.instance.application_handler = handler
                 
-            else:
-                form.instance.is_approved = True
-            
-            form.save()
-            job_transhipments(request,form.instance)
-            job_invoice(request,form.instance)
-            job_container(request,form.instance)
-            if module == "sea_export" or module == 'sea_import':
-                job_hbl(request,form.instance)
+                else:
+                    form.instance.is_approved = True
+                
+                form.save()
+                if date.today() >= date(2026,4,1):
+                    count_job_no(form.instance)
+                job_transhipments(request,form.instance)
+                job_invoice(request,form.instance)
+                job_container(request,form.instance)
+                if module == "sea_export" or module == 'sea_import':
+                    job_hbl(request,form.instance)
 
-            if module == "air_export" or module == 'air_import':
-                air_job_hbl(request,form.instance)
+                if module == "air_export" or module == 'air_import':
+                    air_job_hbl(request,form.instance)
             
             messages.add_message(request, messages.SUCCESS, f"Success, {form.instance.job_no} New Job Created.")
             return redirect('operations:create_job',module=module)
@@ -1758,12 +1764,16 @@ def create_mbl(request,module):
     if request.method == 'POST':
         form = MBLForm(request.POST,request.FILES)
         if form.is_valid():
-            form.instance.created_by = request.user
-           
+            with transaction.atomic():
+                form.instance.created_by = request.user
+            
 
-            if not request.user.user_account.create_global_data:
-                form.instance.company_type = request.user.user_account.office
-            form.save()
+                if not request.user.user_account.create_global_data:
+                    form.instance.company_type = request.user.user_account.office
+                form.save()
+                if date.today() >= date(2026,4,1):
+                    count_mbl_no(form.instance)
+                
             messages.add_message(request, messages.SUCCESS, f"Success, New MBL Created.")
             return redirect('operations:create_mbl',module=module)
 

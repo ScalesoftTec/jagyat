@@ -36,6 +36,9 @@ from rest_framework import status
 import requests
 from operator import itemgetter
 from xhtml2pdf import pisa
+from accounting.utils import *
+from django.db import transaction
+
 
 
 
@@ -476,21 +479,24 @@ def create_recievable_invoice(request,module):
     job_id = request.GET.get('job_id') or None
     form = InvoiceReceivableForm(request.POST or None ,initial={'job_no':job_id})
     if form.is_valid():
-        form.instance.created_by = request.user
-        if not request.user.user_account.create_global_data:
-            form.instance.company_type = request.user.user_account.office
-        form.instance.pending_amount = (form.instance.net_amount) - (form.instance.tds_payable)
-        form.instance.is_single = True
+        with transaction.atomic():
+            form.instance.created_by = request.user
+            if not request.user.user_account.create_global_data:
+                form.instance.company_type = request.user.user_account.office
+            form.instance.pending_amount = (form.instance.net_amount) - (form.instance.tds_payable)
+            form.instance.is_single = True
+            
+            form.save()
+            if not form.instance.invoice_no and date.today() >= date(2026,4,1):
+                count_sales_no(form.instance)
+            
+            handle_rec_inv_bh(request,form.instance.id)
+            handle_invoice_container_details(request,form.instance)
+            
         
-        form.save()
-        
-        handle_rec_inv_bh(request,form.instance.id)
-        handle_invoice_container_details(request,form.instance)
-        
-       
-        form.instance.is_approved = True
-        
-        form.save()
+            form.instance.is_approved = True
+            form.save()
+
         messages.add_message(request, messages.SUCCESS, f"Success, New Invoice Created.")
         return redirect('accounting:create_recievable_invoice',module=module)
     else:
@@ -693,19 +699,41 @@ def final_invoice_recievable_details(request,module):
 def make_eninvoice_recievable(request, module, id):
     check_permissions(request, module)
     
-    invoice = InvoiceReceivable.objects.get(id=int(id))
+    # invoice = InvoiceReceivable.objects.get(id=int(id))
 
-    if not invoice.final_invoice_no:
-        invoice.final_invoice_no = invoice.invoice_no
-        date_of_invoice = invoice.date_of_invoice
+    # if not invoice.final_invoice_no:
+    #     invoice.final_invoice_no = invoice.invoice_no
+    #     date_of_invoice = invoice.date_of_invoice
 
-        invoice.einvoice_date = timezone.make_aware(
-            datetime.combine(date_of_invoice, datetime.min.time())
-        )
+    #     invoice.einvoice_date = timezone.make_aware(
+    #         datetime.combine(date_of_invoice, datetime.min.time())
+    #     )
 
-    invoice.is_einvoiced = True
-    invoice.save()
-    messages.add_message(request, messages.SUCCESS, "E-invoiced marked final")
+    # invoice.is_einvoiced = True
+    # invoice.save()
+
+
+    login_and_get_token(request)
+    invoice = InvoiceReceivable.objects.filter(id=int(id)).first()
+    if invoice.company_type.einvoice_applicable:
+        login_and_get_token(request)
+        status = add_invoice_recievable_irn(request,id)
+        messages.success(request,status)
+    else:
+        if invoice.company_type.count_new_tax_invoice_no and date.today() >= date(2026,4,1):
+            invoice.final_invoice_no = count_tax_sales_no(invoice)
+        else:
+            invoice.final_invoice_no = invoice.invoice_no
+            
+        if invoice.company_type.get_new_tax_invoice_date and date.today() >= date(2026,4,1):
+            invoice.einvoice_date = datetime.now()
+        else:
+            invoice.einvoice_date = invoice.date_of_invoice
+
+        invoice.is_einvoiced = True
+        invoice.is_proforma = False
+        invoice.save()
+        messages.success(request,'Invoice marked as e-invoice')
     return redirect('accounting:recievable_invoice_details', module=module)
 
 
@@ -1458,17 +1486,20 @@ def create_credit_note(request,module):
     check_permissions(request,module)
     form = CreditNoteForm(request.POST or None)
     if form.is_valid():
-        form.instance.created_by = request.user
-        try:
-            if form.instance.reference_invoice:
-                form.instance.invoice_no = form.instance.reference_invoice.final_invoice_no
-        except:
-            pass
-        if not request.user.user_account.create_global_data:
-            form.instance.company_type = request.user.user_account.office
-            
-        form.save()
-        handle_crn_bh(request,form.instance.id)
+        with transaction.atomic():
+            form.instance.created_by = request.user
+            try:
+                if form.instance.reference_invoice:
+                    form.instance.invoice_no = form.instance.reference_invoice.final_invoice_no
+            except:
+                pass
+            if not request.user.user_account.create_global_data:
+                form.instance.company_type = request.user.user_account.office
+                
+            form.save()
+            if date.today() >= date(2026,4,1):
+                count_crn_no(form.instance)
+            handle_crn_bh(request,form.instance.id)
         messages.add_message(request, messages.SUCCESS, f"Success, New Credit Note Created.")
         return redirect('accounting:create_credit_note',module=module)
     billing_heads = BillingHead.objects.all()
@@ -1662,12 +1693,35 @@ def make_eninvoice_credit_note(request,module,id):
     check_permissions(request,module)
     # login_and_get_token(request)
     # status = add_credit_note_irn(request,id)
-    credit_note = CreditNote.objects.filter(id=id).first()
-    credit_note.final_invoice_no = credit_note.credit_note_no
-    credit_note.einvoice_date = credit_note.date_of_note
-    credit_note.is_einvoiced = True
-    credit_note.save()
-    messages.success(request,status)
+    # credit_note = CreditNote.objects.filter(id=id).first()
+    # credit_note.final_invoice_no = credit_note.credit_note_no
+    # credit_note.einvoice_date = credit_note.date_of_note
+    # credit_note.is_einvoiced = True
+    # credit_note.save()
+    # messages.success(request,status)
+
+
+    invoice = CreditNote.objects.get(id=int(id))
+
+    if invoice.company_type.einvoice_applicable:
+        login_and_get_token(request)
+        status = add_credit_note_irn(request,id)
+        messages.success(request,status)
+    else:
+        if invoice.company_type.count_new_tax_invoice_no and date.today() >= date(2026,4,1):
+            invoice.final_invoice_no = count_tax_crn_no(invoice)
+        else:
+            invoice.final_invoice_no = invoice.credit_note_no
+            
+        if invoice.company_type.get_new_tax_invoice_date and date.today() >= date(2026,4,1):
+            invoice.einvoice_date = datetime.now()
+        else:
+            invoice.einvoice_date = invoice.date_of_note
+
+        invoice.is_einvoiced = True
+        invoice.is_final = True
+        invoice.save()
+        messages.success(request,"CRN Marked as e-crn")
     return redirect('accounting:credit_note_details',module=module)
 
 @login_required(login_url='home:handle_login')
@@ -2577,8 +2631,11 @@ def create_reciept_voucher(request,module):
     check_permissions(request,module)
     form = RecieptVoucherForm(request.POST or None,initial={'company_type':request.user.user_account.office})
     if form.is_valid():
-        form.save()
-        handleRecieptVoucherHeads(request,form.instance.id)
+        with transaction.atomic():
+            form.save()
+            if date.today() >= date(2026,4,1):
+                count_receipts_no(form.instance)
+            handleRecieptVoucherHeads(request,form.instance.id)
         messages.add_message(request, messages.SUCCESS, f"Success, New Reciept Voucher Created.")
         return redirect('accounting:create_reciept_voucher',module=module)    
     context['form']= form
@@ -2826,8 +2883,11 @@ def create_payment_voucher(request,module):
     check_permissions(request,module)
     form = PaymentVoucherForm(request.POST or None)
     if form.is_valid():
-        form.save()
-        handlePaymentVoucherHeads(request,form.instance.id)
+        with transaction.atomic():
+            form.save()
+            if date.today() >= date(2026,4,1):
+                count_payment_no(form.instance)
+            handlePaymentVoucherHeads(request,form.instance.id)
         messages.add_message(request, messages.SUCCESS, f"Success, New Payment Voucher Created.")
         return redirect('accounting:create_payment_voucher',module=module)    
     context['form']= form
@@ -3040,12 +3100,15 @@ def create_contra_voucher(request,module):
   
     form = ContraVoucherForm(request.POST or None)
     if form.is_valid():
-        form.instance.created_by = request.user
-        form.save()
-        length = str(int(form.instance.id)).zfill(5)
-        form.instance.voucher_no = f"CV/{length}"
-        form.save()
-        
+        with transaction.atomic():
+            form.instance.created_by = request.user
+            form.save()
+            length = str(int(form.instance.id)).zfill(5)
+            form.instance.voucher_no = f"CV/{length}"
+            form.save()
+            if date.today() >= date(2026,4,1):
+                count_contra_no(form.instance)
+            
        
       
         messages.add_message(request, messages.SUCCESS, f"Success, New Contra Voucher Created.")

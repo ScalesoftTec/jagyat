@@ -5,6 +5,7 @@ from django.db.models import Q
 import json
 import pytz
 from dashboard.models import Logistic
+from accounting.utils import *
 
 def login_and_get_token(request):
     instance = IrisInvoiceSetting.objects.first()
@@ -243,6 +244,25 @@ def add_invoice_recievable_irn(request,id):
     #     invoice_date = invoice.einvoice_date.date().strftime('%d-%m-%Y')
     
     # return invoice_no
+
+
+    if invoice.company_type.count_new_tax_invoice_no and date.today() >= date(2026,4,1):
+        invoice_no = count_tax_sales_no(invoice)
+    else:
+        invoice_no = invoice.invoice_no
+
+
+    if invoice.company_type.get_new_tax_invoice_date and date.today() >= date(2026,4,1):
+        invoice_date = datetime.now().strftime('%d-%m-%Y')
+        invoice.einvoice_date = date.today()
+    else:
+        invoice_date = invoice.date_of_invoice.strftime('%d-%m-%Y')
+        invoice.einvoice_date = invoice.date_of_invoice
+
+    if not invoice_no:
+        return "Something Went Wrong ! E-invoice Number Not Generated.." 
+    invoice_no = invoice.invoice_no
+
     invoice_date = invoice.date_of_invoice.strftime('%d-%m-%Y')
     invoice_no = invoice.invoice_no
     api_body = {
@@ -314,14 +334,14 @@ def add_invoice_recievable_irn(request,id):
                     
                 if not invoice.category == "B2CS" and not invoice.category == "B2CL":
                 
-                    if response['ackDt'] and not invoice.category == "B2CS" and not invoice.category == "B2CL":
-                        invoice.einvoice_date = invoice.date_of_invoice
+                    # if response['ackDt'] and not invoice.category == "B2CS" and not invoice.category == "B2CL":
+                    #     invoice.einvoice_date = invoice.date_of_invoice
                     if response['signedQrCode'] and not invoice.category == "B2CS" and not invoice.category == "B2CL":
                         invoice.signed_qr_code = response['signedQrCode']
                     if response['irn'] and not invoice.category == "B2CS" and not invoice.category == "B2CL":
                         invoice.irn_no = response['irn']
-                else:
-                    invoice.einvoice_date = invoice.date_of_invoice
+                # else:
+                #     invoice.einvoice_date = invoice.date_of_invoice
                         
 
                 if response['ackNo']:
@@ -536,8 +556,23 @@ def add_credit_note_irn(request,id):
     else:
         bstcd =  invoice.bill_to_address.corp_state.gst_code
     
-    invoice_date = invoice.date_of_note.strftime('%d-%m-%Y')
-    invoice_no = invoice.credit_note_no
+    # invoice_date = invoice.date_of_note.strftime('%d-%m-%Y')
+    # invoice_no = invoice.credit_note_no
+
+
+    if invoice.company_type.count_new_tax_invoice_no and date.today() >= date(2026,4,1):
+        invoice_no = count_tax_crn_no(invoice)
+    else:
+        invoice_no = invoice.credit_note_no
+
+
+    if invoice.company_type.get_new_tax_invoice_date and date.today() >= date(2026,4,1):
+        crn_date = datetime.now().strftime('%d-%m-%Y')
+        invoice.einvoice_date = date.today()
+    else:
+        crn_date = invoice.date_of_note.strftime('%d-%m-%Y')
+        invoice.einvoice_date = invoice.date_of_note
+
     api_body = {
         "userGstin": userGSTIN,
         "supplyType": "O",
@@ -547,7 +582,7 @@ def add_credit_note_irn(request,id):
         "dst":"O",
         "trnTyp": "REG",
         "no": invoice_no,
-        "dt": invoice_date,
+        "dt": crn_date ,
         "refinum": invoice.invoice_no,
         "refidt": ref_invoice_date,
         "rchrg":reverse_charge,
@@ -608,14 +643,14 @@ def add_credit_note_irn(request,id):
                 
             if not invoice.category == "B2CS" and not invoice.category == "B2CL":
             
-                if response['ackDt'] and not invoice.category == "B2CS" and not invoice.category == "B2CL":
-                    invoice.einvoice_date = invoice.date_of_note
+                # if response['ackDt'] and not invoice.category == "B2CS" and not invoice.category == "B2CL":
+                #     invoice.einvoice_date = invoice.date_of_note
                 if response['signedQrCode'] and not invoice.category == "B2CS" and not invoice.category == "B2CL":
                     invoice.signed_qr_code = response['signedQrCode']
                 if response['irn'] and not invoice.category == "B2CS" and not invoice.category == "B2CL":
                     invoice.irn_no = response['irn']
-            else:
-                invoice.einvoice_date = invoice.date_of_note
+            # else:
+            #     invoice.einvoice_date = invoice.date_of_note
                     
             if response['ackNo']:
                 invoice.ack_no = response['ackNo']

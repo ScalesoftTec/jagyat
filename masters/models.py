@@ -1186,6 +1186,7 @@ MBL_TYPE2 = (
 class MBLMaster(LogFolder):
     company_type = models.ForeignKey(Logistic,on_delete=models.CASCADE,null=True,blank=False,related_name="mbl_company_type")
     mbl_no = models.CharField(max_length=100, null=True, blank=True)
+    is_duplicate=models.BooleanField(default=False)
     is_awb = models.BooleanField(default=False)
     date =  models.DateField(null=True,blank=True)
     mbl_Document_no = models.CharField(max_length=100, null=True, blank=True)
@@ -1254,7 +1255,6 @@ class MBLMaster(LogFolder):
     mbl_type = models.CharField(max_length=50,null=True,blank=True,choices=MBL_TYPE2,default='Draft')
     mbl_file = models.FileField(null=True,blank=True)
     hbl_file = models.FileField(null=True,blank=True)
-    is_duplicate=models.BooleanField(default=False)
     duplicate_check=models.BooleanField(default=False)
     container_options=models.ManyToManyField(JobContainer,blank=True,related_name='job_container_options')
 
