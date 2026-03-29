@@ -713,7 +713,7 @@ def make_eninvoice_recievable(request, module, id):
     # invoice.save()
 
 
-    login_and_get_token(request)
+    # login_and_get_token(request)
     invoice = InvoiceReceivable.objects.filter(id=int(id)).first()
     if invoice.company_type.einvoice_applicable:
         login_and_get_token(request)
