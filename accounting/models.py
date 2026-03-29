@@ -1141,7 +1141,7 @@ class RecieptVoucher(LogFolder):
         return f'{self.voucher_no}'
     
     def save(self,*args,**kwargs):
-        if not self.voucher_no:
+        if not self.voucher_no and not date.today() >= date(2026,4,1):
             current_year = datetime.now().year
             current_month = datetime.now().month
             if current_month < 4:
@@ -1281,7 +1281,7 @@ class PaymentVoucher(LogFolder):
         
     
     def save(self,*args,**kwargs):
-        if not self.voucher_no:
+        if not self.voucher_no and not date.today() >= date(2026,4,1):
             current_year = datetime.now().year
             current_month = datetime.now().month
             if current_month < 4:

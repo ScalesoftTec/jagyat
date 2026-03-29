@@ -905,7 +905,7 @@ class JobMaster(LogFolder):
         return self.job_container.all().values('container_type').annotate(count=Count('container_type'))
 
     def save(self,*args,**kwargs):
-        if not self.job_no:
+        if not self.job_no and not date.today() >= date(2026,4,1):
             
             current_year=datetime.now().year
             current_month=datetime.now().month
@@ -1290,7 +1290,7 @@ class MBLMaster(LogFolder):
     
 
     def save(self,*args,**kwargs):
-        if not self.mbl_no:
+        if not self.mbl_no and not date.today() >= date(2026,4,1):
             current_year=datetime.now().year
             current_month=datetime.now().month
             mbl_prefix = self.company_type.mbl_prefix + str(current_year).zfill(2)[2:4] + str(current_month).zfill(2)
