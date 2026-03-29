@@ -621,7 +621,7 @@ class InvoiceReceivable(LogFolder):
 
         
             
-        if not self.invoice_no:
+        if not self.invoice_no and not date.today() >= date(2026,4,1):
             current_year = datetime.now().year
             current_month = datetime.now().month
            
@@ -875,7 +875,7 @@ class CreditNote(LogFolder):
         
        
 
-        if not self.credit_note_no:
+        if not self.credit_note_no and not date.today() >= date(2026,4,1):
             current_year = datetime.now().year
             current_month = datetime.now().month
             # prefix = str(current_year).zfill(2)[2:4] + str(current_month).zfill(2)
