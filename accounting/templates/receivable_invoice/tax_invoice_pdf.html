@@ -211,8 +211,23 @@
             {% if data.job_no.module == 'Air Import' or data.job_no.module == 'Sea Import' %}
             <div>{{data.job_no.importer.party_name}}</div> 
 
+             {% if data.job_no.importer.party_address.first %}
+            <div>{{ data.job_no.importer.party_address.first.corp_address_line1 }}</div>
+            <div>{{ data.job_no.importer.party_address.first.corp_address_line2 }}</div>
+            <div>{{ data.job_no.importer.party_address.first.corp_address_line3 }}</div>
+            <div>{{ data.job_no.importer.party_address.first.corp_state }}</div>
+        {% endif %}
+    {% endif %}
+           
+
             {% elif data.job_no.module == 'Air Export'  or data.job_no.module == 'Sea Export'%}
-                <div>{{data.job_no.consignee.party_name}}</div> 
+            <div>{{data.job_no.consignee.party_name}}</div> 
+                 {% if data.job_no.consignee.party_address.first %}
+            <div>{{ data.job_no.consignee.party_address.first.corp_address_line1 }}</div>
+            <div>{{ data.job_no.consignee.party_address.first.corp_address_line2 }}</div>
+            <div>{{ data.job_no.consignee.party_address.first.corp_address_line3 }}</div>
+            <div>{{ data.job_no.consignee.party_address.first.corp_state }}</div>
+        {% endif %}
             {% endif %}
 
 
