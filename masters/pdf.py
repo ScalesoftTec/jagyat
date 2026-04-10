@@ -503,7 +503,7 @@ def AWB_pdf(request,id):
             c.drawString(306,807,"MASTER AIRWAYBILL NO:")
 
         c.setFont('Helvetica', 9)
-        c.drawString(15,806,"Shipper's Name & Address")
+        c.drawString(15,810,"Shipper's Name & Address")
         c.drawString(15,736,"Consignee's Name & Address")
         c.setFont('Helvetica', 7.7)
         c.drawString(175,810,"Shipper's Account Number")
