@@ -504,7 +504,7 @@ def AWB_pdf(request,id):
 
         c.setFont('Helvetica', 9)
         c.drawString(15,808,"Shipper's Name & Address")
-        c.drawString(15,740,"Consignee's Name & Address")
+        c.drawString(15,736,"Consignee's Name & Address")
         c.setFont('Helvetica', 7.7)
         c.drawString(175,810,"Shipper's Account Number")
         c.drawString(175,737,"Consignee's Account Number")
@@ -681,7 +681,7 @@ def AWB_pdf(request,id):
         
             if air_mbl.exporter_name:
                 c.setFont('Helvetica', 9)
-                c.drawString(20,784,air_mbl.exporter_name.party_name +",")
+                c.drawString(20,790,air_mbl.exporter_name.party_name +",")
                 
             if air_mbl.exporter_address:
                 j=786
