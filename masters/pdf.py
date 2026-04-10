@@ -327,7 +327,7 @@ def AWB_pdf(request,id):
         c.line(12,458,577,458)                              #mid upper half
         c.line(12,500,577,500)                              #line above handling information
         c.line(298,834,298,500)
-        c.setLineWidth(2)                                #half line top to line above handling info
+                                #half line top to line above handling info
         c.line(12,818,577,818)                              #second left to right full line 
         if air_mbl.type == "HBL":
             c.line(155,802,577,802)                             #shipper account number
