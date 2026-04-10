@@ -475,7 +475,7 @@ def AWB_pdf(request,id):
             try:
                 
                 logo = f'{air_mbl.company_type.mbl_final_image.url}' 
-                c.drawImage(logo, 300, 665, width=3.7 * inch, height=1.6 * inch)
+                c.drawImage(logo, 300, 675, width=3.7 * inch, height=1.6 * inch)
             except:
                 pass
 
