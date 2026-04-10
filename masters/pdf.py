@@ -369,7 +369,7 @@ def AWB_pdf(request,id):
 
        
         c.line(298,670,577,670)                              #for movemovent of below logo line
-        c.line(298,600,577,600)
+        c.line(298,605,577,605)
 
         c.line(12,745,298,745)
         c.line(12,675,298,675)
@@ -523,7 +523,7 @@ def AWB_pdf(request,id):
         c.drawString(300,664,"Copies 1, 2 and 3 of this airway bill are originals and have the same validity")
         c.line(300,662,577,662)
 
-        c.drawString(300,658,"It is agreed that the goods described herein are accepted in apparent good order and condition")
+        c.drawString(300,658,"It is agreed that the goods described here in are accepted in apparent good order and condition")
         c.setFont('Helvetica', 6.6)
         c.drawString(300,652,"(except as noted) for carriage SUBJECT TO THE CONDITIONS OF CONTRACT ON THE")
         c.drawString(300,644,"REVERSE HEREOF. ALL GOODS MAYBE CARRIED BY ANY OTHER MEANS INCLUDING")
