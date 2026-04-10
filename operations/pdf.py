@@ -385,7 +385,7 @@ def mbl_pdf(request, id):
    
     domain = Site.objects.get_current().domain
     setting = Logistic.objects.filter(id=all_mbl.company_type.id).first()
-    logo = f'{setting.mbl_final_image.url}' 
+    logo = f'{setting.logo.url}' 
 
    
  
