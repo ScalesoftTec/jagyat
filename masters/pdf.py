@@ -684,7 +684,7 @@ def AWB_pdf(request,id):
                 c.drawString(20,792,air_mbl.exporter_name.party_name +",")
                 
             if air_mbl.exporter_address:
-                j=786
+                j=784
                 c.setFont('Helvetica', 8)
                 for i in air_mbl.exporter_address.splitlines():
                     c.drawString(20,j,i)
@@ -695,7 +695,7 @@ def AWB_pdf(request,id):
                 c.drawString(20,720,air_mbl.consigned_name.party_name +",")
                 
             if air_mbl.consigned_address:
-                j=710
+                j=708
                 c.setFont('Helvetica', 8)
                 for i in air_mbl.consigned_address.splitlines():
                     c.drawString(20,j,i)
