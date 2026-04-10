@@ -508,8 +508,8 @@ def AWB_pdf(request,id):
         c.drawString(175,810,"Shipper's Account Number")
         c.drawString(175,737,"Consignee's Account Number")
         c.setFont('Helvetica-Bold', 8)
-        c.drawString(306,793,"Issued By")
-        c.setFont('Helvetica-Bold', 11)
+        # c.drawString(306,793,"Issued By")
+        # c.setFont('Helvetica-Bold', 11)
         
         c.setFont('Helvetica-Bold', 7)
         # c.drawString(302,695,"PLOT NO. 18, D-50, AASHRAY APARTMENTS, DILSHAD COLONY (EAST), NEW")
