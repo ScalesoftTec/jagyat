@@ -368,7 +368,7 @@ def AWB_pdf(request,id):
         c.line(210,500,210,513)
 
        
-        c.line(298,670.5,577,670.5)                              #for movemovent of below logo line
+        c.line(298,670,577,670)                              #for movemovent of below logo line
         c.line(298,600,577,600)
 
         c.line(12,745,298,745)
@@ -475,7 +475,7 @@ def AWB_pdf(request,id):
             try:
                 
                 logo = f'{air_mbl.company_type.mbl_final_image.url}' 
-                c.drawImage(logo, 300, 670, width=3.7 * inch, height=1.6 * inch)
+                c.drawImage(logo, 300, 670, width=3.7 * inch, height=1.5 * inch)
             except:
                 pass
 
