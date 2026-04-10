@@ -523,7 +523,7 @@ def AWB_pdf(request,id):
         c.drawString(300,664,"Copies 1, 2 and 3 of this airway bill are originals and have the same validity")
         c.line(300,662,577,662)
 
-        c.drawString(300,659,"It is agreed that the goods described here in are accepted in apparent good order and condition")
+        c.drawString(300,657,"It is agreed that the goods described here in are accepted in apparent good order and condition")
         c.setFont('Helvetica', 6.6)
         c.drawString(300,652,"(except as noted) for carriage SUBJECT TO THE CONDITIONS OF CONTRACT ON THE")
         c.drawString(300,644,"REVERSE HEREOF. ALL GOODS MAYBE CARRIED BY ANY OTHER MEANS INCLUDING")
