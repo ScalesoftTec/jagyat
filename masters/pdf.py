@@ -525,7 +525,7 @@ def AWB_pdf(request,id):
 
         c.drawString(300,657,"It is agreed that the goods described here in are accepted in apparent good order and condition")
         c.setFont('Helvetica', 6.6)
-        c.drawString(300,651,"(except as noted) for carriage SUBJECT TO THE CONDITIONS OF CONTRACT ON THE")
+        c.drawString(300,650,"(except as noted) for carriage SUBJECT TO THE CONDITIONS OF CONTRACT ON THE")
         c.drawString(300,643,"REVERSE HEREOF. ALL GOODS MAYBE CARRIED BY ANY OTHER MEANS INCLUDING")
         c.drawString(300,637,"ROAD OR ANY OTHER CARRIER UNLESS SPECIFIC CONTRARY INSTRUCTIONS ARE")
         c.drawString(300,629,"GIVEN HEREON BY THE SHIPPER, AND SHIPPER AGREES THAT THE SHIPMENT MAY")
