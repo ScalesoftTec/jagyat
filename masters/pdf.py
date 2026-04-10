@@ -367,6 +367,7 @@ def AWB_pdf(request,id):
         c.line(380,500,380,525)
         c.line(210,500,210,513)
 
+        c.setLineWidth(2)
         c.line(298,670,577,670)                              #for movemovent of below logo line
         c.line(298,600,577,600)
 
