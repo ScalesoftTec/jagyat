@@ -303,7 +303,7 @@ def vgm_pdf(request, id):
     c.save()
     return response
 
-
+#
 
 def AWB_pdf(request,id):
     
@@ -366,8 +366,8 @@ def AWB_pdf(request,id):
         c.line(380,500,380,525)
         c.line(210,500,210,513)
 
-        c.line(298,660,577,660)
-        c.line(298,590,577,590)
+        c.line(298,670,577,670)                              #for movemovent of below logo line
+        c.line(298,600,577,600)
 
         c.line(12,745,298,745)
         c.line(12,675,298,675)
@@ -471,6 +471,7 @@ def AWB_pdf(request,id):
 
         if air_mbl.type == 'HBL':
             try:
+                
                 logo = f'{air_mbl.company_type.mbl_final_image.url}' 
                 c.drawImage(logo, 300, 670, width=3.7 * inch, height=1.6 * inch)
             except:
@@ -517,16 +518,18 @@ def AWB_pdf(request,id):
         # c.drawString(302,674,"TEL: +91 11 49878387 E-Mail: heera@dtriumphlogistics.com Web:")
         # c.drawString(302,665,"www.dtriumphlogistics.com GSTIN: 07AAICD7487K1ZZ PAN: AAICD7487K")
         c.setFont('Helvetica', 6.5)
-        c.drawString(300,654,"It is agreed that the goods described herein are accepted in apparent good order and condition")
+        c.drawString(300,664,"Copies 1, 2 and 3 of this airway bill are originals and have the same validity")
+
+        c.drawString(300,658,"It is agreed that the goods described herein are accepted in apparent good order and condition")
         c.setFont('Helvetica', 6.6)
-        c.drawString(300,646,"(except as noted) for carriage SUBJECT TO THE CONDITIONS OF CONTRACT ON THE")
-        c.drawString(300,638,"REVERSE HEREOF. ALL GOODS MAYBE CARRIED BY ANY OTHER MEANS INCLUDING")
-        c.drawString(300,630,"ROAD OR ANY OTHER CARRIER UNLESS SPECIFIC CONTRARY INSTRUCTIONS ARE")
-        c.drawString(300,622,"GIVEN HEREON BY THE SHIPPER, AND SHIPPER AGREES THAT THE SHIPMENT MAY")
-        c.drawString(300,614,"BE CARRIED VIA INTERMEDIATE STOPPING PLACES WHICH THE CARRIER DEEMS")
-        c.drawString(300,606,"APPROPRIATE.THE SHIPPERS ATTENTION IS DRAWN TO THE NOTICE CONCERNING")
-        c.drawString(300,599,"CARRIER'S LIMITATION OF LIABILITY. Shipper may increase such limitation of liability by")
-        c.drawString(300,592,"declaring a higher value for carriage and paying a supplemental charge if required.")
+        c.drawString(300,652,"(except as noted) for carriage SUBJECT TO THE CONDITIONS OF CONTRACT ON THE")
+        c.drawString(300,644,"REVERSE HEREOF. ALL GOODS MAYBE CARRIED BY ANY OTHER MEANS INCLUDING")
+        c.drawString(300,638,"ROAD OR ANY OTHER CARRIER UNLESS SPECIFIC CONTRARY INSTRUCTIONS ARE")
+        c.drawString(300,630,"GIVEN HEREON BY THE SHIPPER, AND SHIPPER AGREES THAT THE SHIPMENT MAY")
+        c.drawString(300,623,"BE CARRIED VIA INTERMEDIATE STOPPING PLACES WHICH THE CARRIER DEEMS")
+        c.drawString(300,616,"APPROPRIATE.THE SHIPPERS ATTENTION IS DRAWN TO THE NOTICE CONCERNING")
+        c.drawString(300,608,"CARRIER'S LIMITATION OF LIABILITY. Shipper may increase such limitation of liability by")
+        c.drawString(300,602,"declaring a higher value for carriage and paying a supplemental charge if required.")
         c.setFont('Helvetica', 6.8)
         c.drawString(17,667,"Issuing Carrier's Agents Name & City")
         c.setFont('Helvetica', 9)
@@ -535,7 +538,7 @@ def AWB_pdf(request,id):
         c.drawString(17,621,"Agent's IATA Code ")
         c.drawString(165,621,"Account No")
         c.drawString(17,580,"Airport of Departure (Addr. of First Carrier) and Requested Routing")
-        c.drawString(302,580,"Accounting Information:")
+        c.drawString(302,590,"Accounting Information:")
         # c.drawString(365,563,"******FREIGHT PREPAID******")
         c.setFont('Helvetica', 9)
         # c.drawString(20,563,"NEW DELHI")
@@ -581,14 +584,30 @@ def AWB_pdf(request,id):
         c.drawString(434,536,"Col")
         c.setFont('Helvetica-Bold', 9)
         
-        if air_mbl.freight_type == "Prepaid":
-            c.drawString(364,526,"X")
-            c.drawString(411,526,"X")
+        # if air_mbl.freight_type == "Prepaid":
+        #     c.drawString(364,526,"X")
+        #     c.drawString(411,526,"X")
         
-        if air_mbl.freight_type == "Collect":
-            c.drawString(390,526,"X")
-            c.drawString(435,526,"X")
-        
+        # if air_mbl.freight_type == "Collect":
+        #     c.drawString(390,526,"X")
+        #     c.drawString(435,526,"X")
+
+
+        if air_mbl.wt_ppd:
+            c.drawString(364,526,"✔")
+
+        # WT COL
+        if air_mbl.val_col:
+            c.drawString(390,526,"✔")
+
+        # OTHER PPD
+        if air_mbl.other_ppd:
+            c.drawString(411,526,"✔")
+
+        # OTHER COL
+        if air_mbl.other_col:
+            c.drawString(435,526,"✔")
+                
         c.setFont('Helvetica', 8.2)
         c.drawString(235,162,"Shipper certifies that the particulars on the face hereof are correct at and that insofar as any")
         c.drawString(235,154,"part of the consignment contains dangerous goods, such part is properly described by name")
@@ -662,7 +681,7 @@ def AWB_pdf(request,id):
         
             if air_mbl.exporter_name:
                 c.setFont('Helvetica', 9)
-                c.drawString(20,796,air_mbl.exporter_name.party_name +",")
+                c.drawString(20,784,air_mbl.exporter_name.party_name +",")
                 
             if air_mbl.exporter_address:
                 j=786
@@ -747,9 +766,9 @@ def AWB_pdf(request,id):
             
             if air_mbl.accounting_information:
                 c.setFont('Helvetica', 7)
-                j=570
+                j=580
                 for i in air_mbl.accounting_information.splitlines():
-                    c.drawString(310,j,i)
+                    c.drawString(302,j,i)
                     j -= 8
             
             if air_mbl.departure_airport:

@@ -810,6 +810,11 @@ class MBLForm(forms.ModelForm):
         widgets = {
             
             'company_type':forms.Select(attrs={'class':'form-control'}),
+            'wt_ppd': forms.CheckboxInput(),
+            'val_col': forms.CheckboxInput(),
+            'other_ppd': forms.CheckboxInput(),
+            'other_col': forms.CheckboxInput(),
+            
             
             'mbl_no':forms.TextInput(attrs={'class':'form-control'}),
             'date':forms.DateInput(attrs={'type': 'date', 'class': 'form-control','required':True}, format="%Y-%m-%d"),

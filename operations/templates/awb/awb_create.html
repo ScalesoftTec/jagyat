@@ -236,15 +236,34 @@ Create AWB -
             {{ form.total_charges }}
         </div>
        
-        <div class="col-md-2 col-sm-12 mb-1">
-            <label for="id_description_of_commodities">Goods Nature</label>
-            {{ form.description_of_commodities }}
-        </div>
+       
         
         
         
         
     </div>
+      <div class="row col-12 mb-2">
+            <div class="col-auto">
+   
+
+     
+            <label for="id_wt_ppd">WT PPD</label>
+            {{ form.wt_ppd }}
+        </div>
+        <div class="col-auto">
+            <label for="id_val_col">Val Col</label>
+            {{ form.val_col }}
+        </div>
+        
+         <div class="col-auto">
+            <label for="id_other_ppd">Other PPD</label>
+            {{ form.other_ppd }}
+        </div>
+        
+     <div class="col-auto">
+            <label for="id_other_col">Other Col</label>
+            {{ form.other_col }}
+        </div></div>
 
     <div class="col-sm-12">
         <label for="id_signature_company">Signature Company</label>

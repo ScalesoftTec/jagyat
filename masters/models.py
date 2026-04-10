@@ -1186,6 +1186,11 @@ MBL_TYPE2 = (
 class MBLMaster(LogFolder):
     company_type = models.ForeignKey(Logistic,on_delete=models.CASCADE,null=True,blank=False,related_name="mbl_company_type")
     mbl_no = models.CharField(max_length=100, null=True, blank=True)
+    is_transfered_to_tally = models.BooleanField(default=False)
+    wt_ppd = models.BooleanField(default=False)
+    val_col = models.BooleanField(default=False)
+    other_ppd = models.BooleanField(default=False)
+    other_col = models.BooleanField(default=False)
     is_duplicate=models.BooleanField(default=False)
     is_awb = models.BooleanField(default=False)
     date =  models.DateField(null=True,blank=True)
