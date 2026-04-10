@@ -521,7 +521,7 @@ def AWB_pdf(request,id):
         # c.drawString(302,665,"www.dtriumphlogistics.com GSTIN: 07AAICD7487K1ZZ PAN: AAICD7487K")
         c.setFont('Helvetica', 6.5)
         c.drawString(300,664,"Copies 1, 2 and 3 of this airway bill are originals and have the same validity")
-        c.line(300,661,577,661)
+        c.line(300,661,577,662)
 
         c.drawString(300,658,"It is agreed that the goods described herein are accepted in apparent good order and condition")
         c.setFont('Helvetica', 6.6)
