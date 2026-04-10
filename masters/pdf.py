@@ -369,7 +369,7 @@ def AWB_pdf(request,id):
 
        
         c.line(298,670,577,670)                              #for movemovent of below logo line
-        c.line(298,605,577,605)
+        c.line(298,595,577,595)
 
         c.line(12,745,298,745)
         c.line(12,675,298,675)
