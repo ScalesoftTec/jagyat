@@ -474,7 +474,7 @@ def AWB_pdf(request,id):
         if air_mbl.type == 'HBL':
             try:
                 logo = f'{air_mbl.company_type.mbl_final_image.url}' 
-                c.drawImage(logo, 300, 675, width=3.7 * inch, height=1.6 * inch)
+                c.drawImage(logo, 300, 673, width=3.7 * inch, height=1.5 * inch)
             except:
                 pass
 
