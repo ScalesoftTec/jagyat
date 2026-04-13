@@ -188,7 +188,7 @@ def createVoucher(voucher_type,amount,category,dr_cr,salary=None,indirect_expens
         voucher.company_type = sales_invoice.company_type
         if sales_invoice.is_einvoiced:
             
-            voucher.date = sales_invoice.einvoice_date.date()
+            voucher.date = sales_invoice.einvoice_date
         else:
             voucher.date = sales_invoice.date_of_invoice
 

@@ -720,12 +720,12 @@ def make_eninvoice_recievable(request, module, id):
         status = add_invoice_recievable_irn(request,id)
         messages.success(request,status)
     else:
-        if invoice.company_type.count_new_tax_invoice_no and date.today() >= date(2026,4,1):
+        if invoice.company_type.count_new_tax_invoice_no :
             invoice.final_invoice_no = count_tax_sales_no(invoice)
         else:
             invoice.final_invoice_no = invoice.invoice_no
             
-        if invoice.company_type.get_new_tax_invoice_date and date.today() >= date(2026,4,1):
+        if invoice.company_type.get_new_tax_invoice_date :
             invoice.einvoice_date = datetime.now()
         else:
             invoice.einvoice_date = invoice.date_of_invoice

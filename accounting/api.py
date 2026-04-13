@@ -263,8 +263,8 @@ def add_invoice_recievable_irn(request,id):
         return "Something Went Wrong ! E-invoice Number Not Generated.." 
     invoice_no = invoice.invoice_no
 
-    invoice_date = invoice.date_of_invoice.strftime('%d-%m-%Y')
-    invoice_no = invoice.invoice_no
+    # invoice_date = invoice.date_of_invoice.strftime('%d-%m-%Y')
+    # invoice_no = invoice.invoice_no
     api_body = {
         "userGstin": userGSTIN,
         "supplyType": "O",
