@@ -170,6 +170,8 @@ class InvoiceReceivableForm(forms.ModelForm):
             'quotation': forms.Select(attrs={'class': 'form-control form-control-sm'}),
             'bill_to': forms.Select(attrs={'class': 'form-control form-control-sm','required':True}),
             'bill_to_address': forms.Select(attrs={'class': 'form-control form-control-sm','required':True}),
+            'consignee': forms.Select(attrs={'class': 'form-control form-control-sm'}),
+            'consignee_address': forms.Select(attrs={'class': 'form-control form-control-sm'}),
             'shipper_address': forms.Select(attrs={'class': 'form-control form-control-sm','required':True}),
             'shipper': forms.Select(attrs={'class': 'form-control form-control-sm','required':True}),
             'is_proforma': forms.CheckboxInput(),
