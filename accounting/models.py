@@ -553,6 +553,8 @@ class InvoiceReceivable(LogFolder):
     bill_to_address = models.ForeignKey(PartyAddress,on_delete=models.SET_NULL,null=True,blank=True,related_name='bill_address')
     shipper = models.ForeignKey(Party, on_delete=models.SET_NULL,blank=True, null=True,related_name='recievable_invoice_shipper')
     shipper_address = models.ForeignKey(PartyAddress,on_delete=models.SET_NULL,null=True,blank=True,related_name='shipper_address')
+    consignee = models.ForeignKey(Party, on_delete=models.SET_NULL,blank=True, null=True,related_name='recievable_invoice_consignee')
+    consignee_address = models.ForeignKey(PartyAddress,on_delete=models.SET_NULL,null=True,blank=True,related_name='consignee_address')
     gst_applicable = models.CharField(max_length=10,default="Yes",choices=GST_APPLICABLE)
     company_type = models.ForeignKey(Logistic,on_delete=models.CASCADE,null=True,blank=True,related_name="inv_rec_company_type")
     is_proforma = models.BooleanField(default=True)

@@ -208,27 +208,37 @@
         
         <td style="text-align:left;vertical-align:top;padding:2px;width: 25%;">
             <div><strong>Consignee :</strong></div>
-            {% if data.job_no.module == 'Air Import' or data.job_no.module == 'Sea Import' %}
-            <div>{{data.job_no.importer.party_name}}</div> 
 
-             {% if data.job_no.importer.party_address.first %}
-            <div>{{ data.job_no.importer.party_address.first.corp_address_line1 }}</div>
-            <div>{{ data.job_no.importer.party_address.first.corp_address_line2 }}</div>
-            <div>{{ data.job_no.importer.party_address.first.corp_address_line3 }}</div>
-            <div>{{ data.job_no.importer.party_address.first.corp_state }}</div>
-        {% endif %}
-    
+            {% if data.consignee and data.consignee_address %}
+                <div>{{data.consignee.party_name}}</div> 
+                <div>{{ data.consignee_address.corp_address_line1 }}</div>
+                <div>{{ data.consignee_address.corp_address_line2 }}</div>
+                <div>{{ data.consignee_address.corp_address_line3 }}</div>
+                <div>{{ data.consignee_address.corp_state }}</div>
+
+            {% else %}
+                {% if data.job_no.module == 'Air Import' or data.job_no.module == 'Sea Import' %}
+                    <div>{{data.job_no.importer.party_name}}</div> 
+
+                    {% if data.job_no.importer.party_address.first %}
+                        <div>{{ data.job_no.importer.party_address.first.corp_address_line1 }}</div>
+                        <div>{{ data.job_no.importer.party_address.first.corp_address_line2 }}</div>
+                        <div>{{ data.job_no.importer.party_address.first.corp_address_line3 }}</div>
+                        <div>{{ data.job_no.importer.party_address.first.corp_state }}</div>
+                    {% endif %}
+        
            
 
-            {% elif data.job_no.module == 'Air Export'  or data.job_no.module == 'Sea Export'%}
-            <div>{{data.job_no.consignee.party_name}}</div> 
-                 {% if data.job_no.consignee.party_address.first %}
-            <div>{{ data.job_no.consignee.party_address.first.corp_address_line1 }}</div>
-            <div>{{ data.job_no.consignee.party_address.first.corp_address_line2 }}</div>
-            <div>{{ data.job_no.consignee.party_address.first.corp_address_line3 }}</div>
-            <div>{{ data.job_no.consignee.party_address.first.corp_state }}</div>
-        {% endif %}
-            {% endif %}
+                    {% elif data.job_no.module == 'Air Export'  or data.job_no.module == 'Sea Export'%}
+                        <div>{{data.job_no.consignee.party_name}}</div> 
+                        {% if data.job_no.consignee.party_address.first %}
+                            <div>{{ data.job_no.consignee.party_address.first.corp_address_line1 }}</div>
+                            <div>{{ data.job_no.consignee.party_address.first.corp_address_line2 }}</div>
+                            <div>{{ data.job_no.consignee.party_address.first.corp_address_line3 }}</div>
+                            <div>{{ data.job_no.consignee.party_address.first.corp_state }}</div>
+                        {% endif %}
+                {% endif %}
+                {% endif %}
 
 
             <!-- <div>{{data.account_address.corp_address_line1}}</div>

@@ -123,6 +123,16 @@ Invoice Receivables Create -
     
      
         <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_consignee">Consignee</label>
+            {{ form.consignee }}
+        </div>
+        <div class="col-md-2 col-sm-12 mb-1">
+            <label class="required"  for="id_consignee_address">Consignee Address</label>
+            {{ form.consignee_address }}
+        </div>
+    
+     
+        <div class="col-md-2 col-sm-12 mb-1">
             <label class="required"  for="id_invoice_currency">Invoice Currency</label>
             {{ form.invoice_currency }}
         </div>
@@ -460,9 +470,31 @@ Invoice Receivables Create -
             
             getOnlyPartyAdress(document.getElementById('id_shipper').value,'id_shipper_address')
         }
+        
+    
 
         document.getElementById('id_shipper').addEventListener('change',()=>getOnlyPartyAdress(document.getElementById('id_shipper').value,'id_shipper_address')) 
         document.getElementById('id_shipper').addEventListener('keyup',()=>getOnlyPartyAdress(document.getElementById('id_shipper').value,'id_shipper_address'))
+       
+       
+    }catch(err){
+
+    }
+   
+    try{
+
+      
+        if(is_update == "false" || !document.getElementById('id_consignee_address').value ){
+            
+            document.getElementById('id_consignee_address').innerHTML = ''
+        }
+        else{           
+            getOnlyPartyAdress(document.getElementById('id_consignee').value,'id_consignee_address')
+        }
+
+      
+        document.getElementById('id_consignee').addEventListener('change',()=>getOnlyPartyAdress(document.getElementById('id_consignee').value,'id_consignee_address')) 
+        document.getElementById('id_consignee').addEventListener('keyup',()=>getOnlyPartyAdress(document.getElementById('id_consignee').value,'id_consignee_address'))
     }catch(err){
 
     }
@@ -724,6 +756,16 @@ Invoice Receivables Create -
                                     $("#id_bill_to").val(job.account_id);
                                     if (job.account_id) {
                                         getOnlyPartyAdress(job.account_id, 'id_bill_to_address');
+                                    }
+                            
+                                    if (job.importer_id) {
+                                        $("#id_consignee").val(job.importer_id);
+                                        getOnlyPartyAdress(job.importer_id, 'id_consignee_address');
+                                    }
+                            
+                                    if (job.consignee_id) {
+                                        $("#id_consignee").val(job.consignee_id);
+                                        getOnlyPartyAdress(job.consignee_id, 'id_consignee_address');
                                     }
                             
                                 
