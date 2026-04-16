@@ -3056,9 +3056,9 @@ def gstr1_recievable_server_side(request,module):
                         else:
                             error_flag = 1
                 
-                
-                invoice.gst_amount = total_gst
-                invoice.save()
+                if not invoice.gst_amount == total_gst:
+                    invoice.gst_amount = total_gst
+                    invoice.save()
                 if error_flag == 0:
                     report.append({
                         'invoice':invoice,
