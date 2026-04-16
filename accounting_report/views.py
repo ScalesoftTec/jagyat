@@ -3016,8 +3016,11 @@ def gstr1_recievable_server_side(request,module):
                 i_5 = 0
                 i_12 = 0
                 i_18 = 0
+                total_gst = 0
                 error_flag = 0
                 for i in invoice.recievable_invoice_reference.all():
+                    total_gst += round((i.gst * i.amount)/100,2)
+
                     company_gst_code_check = invoice.company_type.company_gst_code
                     billing_head = i.billing_head
                     if i.gst == 0:
@@ -3053,6 +3056,9 @@ def gstr1_recievable_server_side(request,module):
                         else:
                             error_flag = 1
                 
+                
+                invoice.gst_amount = total_gst
+                invoice.save()
                 if error_flag == 0:
                     report.append({
                         'invoice':invoice,
