@@ -368,8 +368,8 @@ def AWB_pdf(request,id):
         c.line(210,500,210,513)
 
        
-        c.line(298,730,577,730)                              #for movemovent of below logo line
-        c.line(298,722,577,722)
+        c.line(298,710,577,710)                              #for movemovent of below logo line
+        c.line(298,702,577,702)
 
         # Accounting Information Heading Above Line
         c.line(298,598,577,598)
