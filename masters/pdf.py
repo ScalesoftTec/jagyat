@@ -372,7 +372,7 @@ def AWB_pdf(request,id):
         c.line(298,702,577,702)
 
         # Accounting Information Heading Above Line
-        c.line(298,598,577,598)
+        c.line(298,634,577,634)
 
         c.line(12,745,298,745)
         c.line(12,675,298,675)
@@ -522,19 +522,28 @@ def AWB_pdf(request,id):
         # c.drawString(302,674,"TEL: +91 11 49878387 E-Mail: heera@dtriumphlogistics.com Web:")
         # c.drawString(302,665,"www.dtriumphlogistics.com GSTIN: 07AAICD7487K1ZZ PAN: AAICD7487K")
         c.setFont('Helvetica', 6.5)
-        c.drawString(300,664,"Copies 1, 2 and 3 of this airway bill are originals and have the same validity")
+        c.drawString(300,704,"Copies 1, 2 and 3 of this airway bill are originals and have the same validity")
         
 
-        c.drawString(300,656.5,"It is agreed that the goods described here in are accepted in apparent good order and condition")
+        c.drawString(300,693.5,"It is agreed that the goods described here in are accepted in apparent good order and condition")
         c.setFont('Helvetica', 6.6)
-        c.drawString(300,650,"(except as noted) for carriage SUBJECT TO THE CONDITIONS OF CONTRACT ON THE")
-        c.drawString(300,643,"REVERSE HEREOF. ALL GOODS MAYBE CARRIED BY ANY OTHER MEANS INCLUDING")
-        c.drawString(300,637,"ROAD OR ANY OTHER CARRIER UNLESS SPECIFIC CONTRARY INSTRUCTIONS ARE")
-        c.drawString(300,629,"GIVEN HEREON BY THE SHIPPER, AND SHIPPER AGREES THAT THE SHIPMENT MAY")
-        c.drawString(300,622,"BE CARRIED VIA INTERMEDIATE STOPPING PLACES WHICH THE CARRIER DEEMS")
-        c.drawString(300,615,"APPROPRIATE.THE SHIPPERS ATTENTION IS DRAWN TO THE NOTICE CONCERNING")
-        c.drawString(300,607,"CARRIER'S LIMITATION OF LIABILITY. Shipper may increase such limitation of liability by")
-        c.drawString(300,601,"declaring a higher value for carriage and paying a supplemental charge if required.")
+        y = 686
+        c.drawString(300,y,"(except as noted) for carriage SUBJECT TO THE CONDITIONS OF CONTRACT ON THE")
+        y -= 7
+        c.drawString(300,y,"REVERSE HEREOF. ALL GOODS MAYBE CARRIED BY ANY OTHER MEANS INCLUDING")
+        y -= 7
+        c.drawString(300,y,"ROAD OR ANY OTHER CARRIER UNLESS SPECIFIC CONTRARY INSTRUCTIONS ARE")
+        y -= 7
+        c.drawString(300,y,"GIVEN HEREON BY THE SHIPPER, AND SHIPPER AGREES THAT THE SHIPMENT MAY")
+        y -= 7
+        c.drawString(300,y,"BE CARRIED VIA INTERMEDIATE STOPPING PLACES WHICH THE CARRIER DEEMS")
+        y -= 7
+        c.drawString(300,y,"APPROPRIATE.THE SHIPPERS ATTENTION IS DRAWN TO THE NOTICE CONCERNING")
+        y -= 7
+        c.drawString(300,y,"CARRIER'S LIMITATION OF LIABILITY. Shipper may increase such limitation of liability by")
+        y -= 7
+        c.drawString(300,y,"declaring a higher value for carriage and paying a supplemental charge if required.")
+        y -= 7
         c.setFont('Helvetica', 6.8)
         c.drawString(17,667,"Issuing Carrier's Agents Name & City")
         c.setFont('Helvetica', 9)
@@ -543,7 +552,7 @@ def AWB_pdf(request,id):
         c.drawString(17,621,"Agent's IATA Code ")
         c.drawString(165,621,"Account No")
         c.drawString(17,580,"Airport of Departure (Addr. of First Carrier) and Requested Routing")
-        c.drawString(302,590,"Accounting Information:")
+        c.drawString(302,625,"Accounting Information:")
         # c.drawString(365,563,"******FREIGHT PREPAID******")
         c.setFont('Helvetica', 9)
         # c.drawString(20,563,"NEW DELHI")
@@ -771,7 +780,7 @@ def AWB_pdf(request,id):
             
             if air_mbl.accounting_information:
                 c.setFont('Helvetica', 7)
-                j=580
+                j=615
                 for i in air_mbl.accounting_information.splitlines():
                     c.drawString(302,j,i)
                     j -= 8
