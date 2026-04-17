@@ -501,10 +501,10 @@ def AWB_pdf(request,id):
         else:
             c.drawString(15,822, 'MASTER AIRWAY BILL NO:')
 
-        c.drawString(350,822, copy)
+        # c.drawString(350,822, copy)
 
         if air_mbl.type == "HBL":
-            c.drawString(306,807,"MASTER AIRWAYBILL NO:")
+            c.drawString(306,822,"MASTER AIRWAYBILL NO:")
 
         c.setFont('Helvetica', 9)
         c.drawString(15,808,"Shipper's Name & Address")
@@ -741,7 +741,7 @@ def AWB_pdf(request,id):
             if air_mbl.mbl_Document_no:
                 c.setFont('Helvetica', 9)
                 if air_mbl.type == "HBL":
-                    c.drawString(510,807,air_mbl.mbl_no)
+                    c.drawString(510,822,air_mbl.mbl_no)
 
             if air_mbl.origin_to:
                 c.setFont('Helvetica', 9)
