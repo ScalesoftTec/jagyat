@@ -330,7 +330,7 @@ def AWB_pdf(request,id):
                                 #half line top to line above handling info
         c.line(12,818,577,818)                              #second left to right full line 
         if air_mbl.type == "HBL":
-            c.line(155,802,577,802)                             #shipper account number
+            c.line(155,802,298,802)                             #shipper account number
         else:
             c.line(155,802,298,802)                             #shipper account number
         
@@ -368,8 +368,8 @@ def AWB_pdf(request,id):
         c.line(210,500,210,513)
 
        
-        c.line(298,700,577,700)                              #for movemovent of below logo line
-        c.line(298,692,577,692)
+        c.line(298,730,577,730)                              #for movemovent of below logo line
+        c.line(298,722,577,722)
 
         # Accounting Information Heading Above Line
         c.line(298,598,577,598)
