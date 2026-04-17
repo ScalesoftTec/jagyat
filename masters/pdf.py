@@ -477,17 +477,17 @@ def AWB_pdf(request,id):
         if air_mbl.type == 'HBL':
             try:
                 logo = f'{air_mbl.company_type.mbl_final_image.url}' 
-                c.drawImage(logo, 300, 720, width=3.7 * inch, height=1.3 * inch)
+                c.drawImage(logo, 300, 718, width=3.7 * inch, height=1.3 * inch)
             except:
                 pass
 
         if air_mbl.type == 'MBL':
             try:
                 c.setFont('Helvetica-Bold', 9)
-                c.drawString(306,773, f'{air_mbl.airline.name}')
+                c.drawString(306,793, f'{air_mbl.airline.name}')
 
                 c.setFont('Helvetica', 8)
-                j=760
+                j=780
                 for i in air_mbl.airline_address.splitlines():
                     c.drawString(306,j,i)
                     j -= 9
