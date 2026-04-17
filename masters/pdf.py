@@ -321,9 +321,9 @@ def AWB_pdf(request,id):
     for copy in copies:
 
         c.line(12,834, 12,10)                               #left first up to down
-        c.line(577,818,577,10)                              #right last up to down
+        c.line(577,834,577,10)                              #right last up to down
         c.line(12, 10, 577, 10)                             #last bottom line
-        c.line(12,834,298,834)                              #upper first half line
+        c.line(12,834,577,834)                              #upper first half line 
         c.line(12,458,577,458)                              #mid upper half
         c.line(12,500,577,500)                              #line above handling information
         c.line(298,834,298,500)
@@ -368,7 +368,10 @@ def AWB_pdf(request,id):
         c.line(210,500,210,513)
 
        
-        c.line(298,670,577,670)                              #for movemovent of below logo line
+        c.line(298,700,577,700)                              #for movemovent of below logo line
+        c.line(298,692,577,692)
+
+        # Accounting Information Heading Above Line
         c.line(298,598,577,598)
 
         c.line(12,745,298,745)
@@ -520,7 +523,7 @@ def AWB_pdf(request,id):
         # c.drawString(302,665,"www.dtriumphlogistics.com GSTIN: 07AAICD7487K1ZZ PAN: AAICD7487K")
         c.setFont('Helvetica', 6.5)
         c.drawString(300,664,"Copies 1, 2 and 3 of this airway bill are originals and have the same validity")
-        c.line(300,662,577,662)
+        
 
         c.drawString(300,656.5,"It is agreed that the goods described here in are accepted in apparent good order and condition")
         c.setFont('Helvetica', 6.6)
