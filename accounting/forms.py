@@ -3,6 +3,8 @@ from django import forms
 from accounting.models import ContraVoucher, DebitNote, InvoicePayable, InvoiceReceivable, CreditNote, PaymentVoucher, RecieptVoucher,IndirectExpense,Manifest,TrailorExpense,Loan,Salary,Journal
 from masters.models import Party,GRMaster,JobHBL,JobMaster
 from dashboard.models import SequenceSettings
+from datetime import date
+
 
 class SalaryForm(forms.ModelForm):
    
@@ -192,6 +194,15 @@ class InvoiceReceivableForm(forms.ModelForm):
             'deductible_amount': forms.TextInput(attrs={'class': 'form-control form-control-sm','required':True}),
             'tds_payable': forms.TextInput(attrs={'class': 'form-control form-control-sm','required':True}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        today = date.today()
+        first_day = today.replace(day=1)
+
+        
+        self.fields['date_of_invoice'].widget.attrs['min'] = first_day.strftime('%Y-%m-%d')
 
 class AmmendInvoiceReceivableForm(forms.ModelForm):
     
