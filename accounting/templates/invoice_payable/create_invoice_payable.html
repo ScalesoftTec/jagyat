@@ -82,7 +82,7 @@ Purchase Voucher -
             {{ form.bill_from }}
         </div>
         <div class="col-md-2 col-sm-12 mb-1" id="bill_from_adress_div">
-            <label for="id_bill_from_adress">Bill From Address</label>
+            <label class="required" for="id_bill_from_adress">Bill From Address</label>
             {{ form.bill_from_address }}
         </div>
         
@@ -843,20 +843,30 @@ Purchase Voucher -
         bill_from_address_div.style.display = 'none';
         vendor_div.style.display = 'none';
 
-        bill_from.required = false
-        bill_from_address.required = false
-        vendor.required = false
+        // bill_from.required = false
+        // bill_from_address.required = false
+        // vendor.required = false
+
+
+        bill_from.removeAttribute('required')
+        bill_from_address.removeAttribute('required')
+        vendor.removeAttribute('required')
 
         if(party_type === "Direct"){
-          bill_from.required = true
-          bill_from_address.required = true
+        //   bill_from.required = true
+        bill_from.setAttribute('required', 'required')
+        bill_from_address.setAttribute('required', 'required')
+
+
+        //   bill_from_address.required = true
 
           bill_from_div.style.display = 'block'
           bill_from_address_div.style.display = 'block'
         }
         
         if(party_type === "Indirect"){
-          vendor.required = true
+        //   vendor.required = true
+        vendor.setAttribute('required', 'required')
           vendor_div.style.display = 'block'
         }
 
