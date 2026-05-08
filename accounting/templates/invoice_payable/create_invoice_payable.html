@@ -828,50 +828,106 @@ Purchase Voucher -
 
 
     
+    // const handleDirectOrIndirect = () => {
+    //     const bill_from_div = document.getElementById(`bill_from_div`)
+    //     const bill_from_address_div = document.getElementById(`bill_from_adress_div`)
+    //     const vendor_div = document.getElementById(`vendor_div`)
+        
+    //     const bill_from = document.getElementById(`id_bill_from`)
+    //     const bill_from_address = document.getElementById(`id_bill_from_address`)
+    //     const vendor = document.getElementById(`id_vendor`)
+        
+    //     const party_type = document.getElementById(`id_party_type`).value
+
+    //     bill_from_div.style.display = 'none';
+    //     bill_from_address_div.style.display = 'none';
+    //     vendor_div.style.display = 'none';
+
+    //     // bill_from.required = false
+    //     // bill_from_address.required = false
+    //     // vendor.required = false
+
+
+    //     bill_from.removeAttribute('required')
+    //     bill_from_address.removeAttribute('required')
+    //     vendor.removeAttribute('required')
+
+
+        
+
+    //     if(party_type === "Direct"){
+    //     //   bill_from.required = true
+    //     bill_from.setAttribute('required', 'required')
+    //     bill_from_address.setAttribute('required', 'required')
+
+
+    //     //   bill_from_address.required = true
+
+    //       bill_from_div.style.display = 'block'
+    //       bill_from_address_div.style.display = 'block'
+    //     }
+        
+    //     if(party_type === "Indirect"){
+    //     //   vendor.required = true
+    //     vendor.setAttribute('required', 'required')
+    //       vendor_div.style.display = 'block'
+    //     }
+
+        
+    // }
+    
+    
     const handleDirectOrIndirect = () => {
-        const bill_from_div = document.getElementById(`bill_from_div`)
-        const bill_from_address_div = document.getElementById(`bill_from_adress_div`)
-        const vendor_div = document.getElementById(`vendor_div`)
-        
-        const bill_from = document.getElementById(`id_bill_from`)
-        const bill_from_address = document.getElementById(`id_bill_from_address`)
-        const vendor = document.getElementById(`id_vendor`)
-        
-        const party_type = document.getElementById(`id_party_type`).value
 
-        bill_from_div.style.display = 'none';
-        bill_from_address_div.style.display = 'none';
-        vendor_div.style.display = 'none';
+    const bill_from_div = document.getElementById('bill_from_div')
+    const bill_from_address_div = document.getElementById('bill_from_adress_div')
+    const vendor_div = document.getElementById('vendor_div')
 
-        // bill_from.required = false
-        // bill_from_address.required = false
-        // vendor.required = false
+    const bill_from = document.getElementById('id_bill_from')
+    const bill_from_address = document.getElementById('id_bill_from_address')
+    const vendor = document.getElementById('id_vendor')
 
+    const party_type = document.getElementById('id_party_type').value
 
-        bill_from.removeAttribute('required')
-        bill_from_address.removeAttribute('required')
-        vendor.removeAttribute('required')
+    // Hide all
+    bill_from_div.style.display = 'none';
+    bill_from_address_div.style.display = 'none';
+    vendor_div.style.display = 'none';
 
-        if(party_type === "Direct"){
-        //   bill_from.required = true
-        bill_from.setAttribute('required', 'required')
-        bill_from_address.setAttribute('required', 'required')
+    // Remove required
+    bill_from.removeAttribute('required');
+    bill_from_address.removeAttribute('required');
+    vendor.removeAttribute('required');
 
+    // Disable all
+    bill_from.disabled = true;
+    bill_from_address.disabled = true;
+    vendor.disabled = true;
 
-        //   bill_from_address.required = true
+    // DIRECT
+    if (party_type === "Direct") {
 
-          bill_from_div.style.display = 'block'
-          bill_from_address_div.style.display = 'block'
-        }
-        
-        if(party_type === "Indirect"){
-        //   vendor.required = true
-        vendor.setAttribute('required', 'required')
-          vendor_div.style.display = 'block'
-        }
+        bill_from_div.style.display = 'block';
+        bill_from_address_div.style.display = 'block';
 
-        
+        bill_from.disabled = false;
+        bill_from_address.disabled = false;
+
+        bill_from.setAttribute('required', 'required');
+        bill_from_address.setAttribute('required', 'required');
     }
+
+    // INDIRECT
+    if (party_type === "Indirect") {
+
+        vendor_div.style.display = 'block';
+
+        vendor.disabled = false;
+
+        vendor.setAttribute('required', 'required');
+    }
+}
+    
     handleDirectOrIndirect()
  
     document.getElementById(`id_party_type`).addEventListener('change',handleDirectOrIndirect)
