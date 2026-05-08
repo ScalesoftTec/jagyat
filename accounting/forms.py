@@ -257,7 +257,7 @@ class InvoicePayableForm(forms.ModelForm):
             'tds_booking_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-sm'}, format="%Y-%m-%d"),
             'job_no': forms.Select(attrs={'class': 'form-control form-control-sm','required':False}),
             'bill_from': forms.Select(attrs={'class': 'form-control form-control-sm', 'required':True}),
-            'bill_from_address': forms.Select(attrs={'class': 'form-control form-control-sm', 'required':True}),
+            'bill_from_address': forms.Select(attrs={'class': 'form-control form-control-sm'}),
             'invoice_currency': forms.Select(attrs={'class': 'form-control form-control-sm','required':True}),
             'currency_ex_rate': forms.NumberInput(attrs={'class': 'form-control form-control-sm','required':True}),
             'round_off': forms.NumberInput(attrs={'class': 'form-control form-control-sm','step':0.001}),
