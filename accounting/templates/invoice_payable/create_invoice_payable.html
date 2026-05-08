@@ -889,22 +889,22 @@ Purchase Voucher -
 
     const party_type = document.getElementById('id_party_type').value
 
-    // Hide all
+    
     bill_from_div.style.display = 'none';
     bill_from_address_div.style.display = 'none';
     vendor_div.style.display = 'none';
 
-    // Remove required
+    
     bill_from.removeAttribute('required');
     bill_from_address.removeAttribute('required');
     vendor.removeAttribute('required');
 
-    // Disable all
+    
     bill_from.disabled = true;
     bill_from_address.disabled = true;
     vendor.disabled = true;
 
-    // DIRECT
+    
     if (party_type === "Direct") {
 
         bill_from_div.style.display = 'block';
@@ -917,7 +917,7 @@ Purchase Voucher -
         bill_from_address.setAttribute('required', 'required');
     }
 
-    // INDIRECT
+    
     if (party_type === "Indirect") {
 
         vendor_div.style.display = 'block';
