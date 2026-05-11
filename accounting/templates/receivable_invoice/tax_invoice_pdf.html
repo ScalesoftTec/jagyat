@@ -928,8 +928,16 @@
             <span>{{i.job_no}}</span>
             {% endfor %}
         </div>
-        
 
+        {% if data.type_of_invoice == 'EXWOP'%}
+        
+        <div style="border-bottom:1px solid black; margin-bottom: 10px;">
+            <span><p>This invoice is meant for export of service and covered under LUT without payment of integrated tax</p></span>
+            
+          
+        </div>
+        {% endif %}
+        
             <div>
                 <table >
                     <tr style="padding-top:10px!important;">
