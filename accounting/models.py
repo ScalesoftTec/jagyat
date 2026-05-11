@@ -319,7 +319,9 @@ INVOICE_MODE = (
 INVOICE_TYPE = (
     ('TAX INVOICE','TAX INVOICE'),
     ('BILL OF SUPPLY','BILL OF SUPPLY'),
-    ('RCM','RCM')
+    ('RCM','RCM'),
+    ('EXWOP','EXWOP')
+    
 )
 
 Choose_tds_section=(
