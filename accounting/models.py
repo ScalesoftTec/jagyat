@@ -320,7 +320,7 @@ INVOICE_TYPE = (
     ('TAX INVOICE','TAX INVOICE'),
     ('BILL OF SUPPLY','BILL OF SUPPLY'),
     ('RCM','RCM'),
-    ('EXWOP','EXWOP')
+ 
     
 )
 
