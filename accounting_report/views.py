@@ -2483,7 +2483,7 @@ def reciept_tds(request,module):
 
         
         
-        rec_invoices = InvoiceReceivable.objects.filter(tds_payable__gt=0,company_type=company).select_related('job_no','bill_from','bill_from_address')
+        rec_invoices = InvoiceReceivable.objects.filter(tds_payable__gt=0,company_type=company).select_related('job_no','bill_to','bill_to_address')
 
         if date_filter_from == "Input":
             rec_invoices = rec_invoices.filter(date_of_invoice__gte=from_date,date_of_invoice__lte=to_date)
