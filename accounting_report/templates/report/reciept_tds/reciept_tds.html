@@ -113,7 +113,7 @@ Reciept TDS Report -
 <table class="table table-primary table-bordered table-hover" id="reciept_tds_table">
     <thead>
       <tr>
-
+        <th scope="col">Type</th>
         <th scope="col">Branch</th>
         <th scope="col">Job No.</th>
         <th scope="col">Bill No.</th>
@@ -135,23 +135,32 @@ Reciept TDS Report -
         {% else %}
       <tr>
         {% endif %}
+
+
+        <td>{% if data.type == "Receipt" %}
+            <span class="badge badge-success">Receipt</span>
+          {% else %}
+            <span class="badge badge-warning">Payable</span>
+          {% endif %}
+        </td>
+
         
         <td>
           <input type="hidden" value="{{data.id}}" id="voucher_{{forloop.counter}}" name="voucher_{{forloop.counter}}">
-          {{data.voucher.company_type}}
+            {{ data.branch }}
         </td>
 
-        <td>{{ data.invoice.job_no }}</td>
+        <td>{{ data.job_no }}</td>
         <td>
          
-          {{ data.invoice.final_invoice_no }}
+          {{ data.bill_no }}
           
         </td>
-        <td>{{data.invoice.einvoice_date|date:'Y-m-d'}}</td>
-        <td>{{ data.party.party_name }}</td>
-        <td>{{ data.party_address.corp_pan }}</td>
-        <td>{{ data.party_address.corp_tan }}</td>
-        <td data-order="{{ data.invoice.net_amount|floatformat:2 }}" align="right">{{ data.invoice.net_amount|floatformat:2 }}</td>
+        <td>{{data.bill_date|date:'Y-m-d'}}</td>
+        <td>{{ data.party_name }}</td>
+        <td>{{ data.pan }}</td>
+        <td>{{ data.tan }}</td>
+        <td data-order="{{ data.invoice_amount|floatformat:2 }}" align="right">{{ data.invoice_amount|floatformat:2 }}</td>
     
         <td align="right" data-order="{{ data.tds_amount|floatformat:0|floatformat:2 }}">{{ data.tds_amount|floatformat:0|floatformat:2 }}</td>
       
@@ -165,7 +174,7 @@ Reciept TDS Report -
     </tbody>
     <tfoot>
       <tr>
-        <td colspan="6"></td>
+        <td colspan="7"></td>
         <td class="text-right text-white">Total</td>
         <td class="text-right text-white"></td>
         <td class="text-right text-white"></td>
@@ -196,14 +205,14 @@ Reciept TDS Report -
       // options
       dom: 'BQlfrtip',
       columnDefs: [
-          { "type": "date", "targets": 4,"displayFormat": 'dddd D MMMM YYYY' },
+          { "type": "date", "targets": 5,"displayFormat": 'dddd D MMMM YYYY' },
        
           ],
           lengthMenu: [
               [10, 25, 50, -1],
               [10, 25, 50, 'All'],
           ],
-          order: [[4, 'asc']],
+          order: [[5, 'asc']],
 
           select: {
             style: "multiple",
@@ -224,12 +233,12 @@ Reciept TDS Report -
           ],
           drawCallback: function () {
             var api = this.api();
-            $( api.table().column(7).footer() ).html(
-                api.column( 7, {page:'current'} ).nodes().sum()
-            );
-           
             $( api.table().column(8).footer() ).html(
                 api.column( 8, {page:'current'} ).nodes().sum()
+            );
+           
+            $( api.table().column(9).footer() ).html(
+                api.column( 9, {page:'current'} ).nodes().sum()
             );
            
           

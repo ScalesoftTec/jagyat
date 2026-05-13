@@ -2478,16 +2478,69 @@ def reciept_tds(request,module):
         
         if date_filter_from == "Claimed":
             vouchers = vouchers.filter(tds_claim_date__gte=from_date).filter(tds_claim_date__lte=to_date).all()
+
+        receipt_vouchers = vouchers
+
+        
+        
+        payable_invoices = InvoicePayable.objects.filter(tds_payable__gt=0,company_type=company).select_related('job_no','bill_from','bill_from_address')
+
+        if date_filter_from == "Input":
+            payable_invoices = payable_invoices.filter(date_of_invoice__gte=from_date,date_of_invoice__lte=to_date)
+
+        if date_filter_from == "Claimed":
+            payable_invoices = payable_invoices.filter(tds_booking_date__gte=from_date,tds_booking_date__lte=to_date)
+
+        combined_report = []
+
+        
+        for item in receipt_vouchers:
+            combined_report.append({
+                'type': 'Receipt',
+                'branch': item.voucher.company_type,
+                'job_no': item.invoice.job_no if item.invoice else '',
+                'bill_no': item.invoice.final_invoice_no if item.invoice else '',
+                'bill_date': item.invoice.einvoice_date if item.invoice else '',
+                'party_name': item.party.party_name if item.party else '',
+                'pan': item.party_address.corp_pan if item.party_address else '',
+                'tan': item.party_address.corp_tan if item.party_address else '',
+                'invoice_amount': item.invoice.net_amount if item.invoice else 0,
+                'tds_amount': item.tds_amount,
+            })
+
+
+                
+    
+        for item in payable_invoices:
+            combined_report.append({
+                'type': 'Payable',
+                'branch': item.company_type,
+                'job_no': item.job_no,
+                'bill_no': item.purchase_invoice_no,
+                'bill_date': item.date_of_invoice,
+                'party_name': item.bill_from.party_name if item.bill_from else '',
+                'pan': item.bill_from_address.corp_pan if item.bill_from_address else '',
+                'tan': item.bill_from_address.corp_tan if item.bill_from_address else '',
+                'invoice_amount': item.net_amount,
+                'tds_amount': item.tds_payable,
+            })
+
+        context['report'] = combined_report
+
         
         context['from_date']= datetime.strptime(str(from_date),'%Y-%m-%d').date()
         context['to_date']= datetime.strptime(str(to_date),'%Y-%m-%d').date()
-        context['report']= vouchers
+        # context['report']= vouchers
         context['company']= company
         context['date_filter_from']= date_filter_from
   
     context['module']= module
     
     return render(request,'report/reciept_tds/reciept_tds.html',context)
+
+
+
+
 
 @login_required(login_url='home:handle_login')
 def reciept_tds_claim_action(request,module):
