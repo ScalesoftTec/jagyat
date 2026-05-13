@@ -2483,10 +2483,10 @@ def reciept_tds(request,module):
 
         
         
-        rec_invoices = InvoiceReceivable.objects.filter(tds_payable__gt=0,company_type=company).select_related('job_no','bill_to','bill_to_address')
+        rec_invoices = InvoiceReceivable.objects.filter(is_einvoiced=True).filter(tds_payable__gt=0,company_type=company).select_related('job_no','bill_to','bill_to_address')
 
         if date_filter_from == "Input":
-            rec_invoices = rec_invoices.filter(date_of_invoice__gte=from_date,date_of_invoice__lte=to_date)
+            rec_invoices = rec_invoices.filter(einvoice_date__gte=from_date,einvoice_date__lte=to_date)
 
        
 
@@ -2515,11 +2515,11 @@ def reciept_tds(request,module):
                 'type': 'Sales',
                 'branch': item.company_type,
                 'job_no': item.job_no,
-                'bill_no': item.purchase_invoice_no,
-                'bill_date': item.date_of_invoice,
-                'party_name': item.bill_from.party_name if item.bill_from else '',
-                'pan': item.bill_from_address.corp_pan if item.bill_from_address else '',
-                'tan': item.bill_from_address.corp_tan if item.bill_from_address else '',
+                'bill_no': item.final_invoice_no,
+                'bill_date': item.einvoice_date,
+                'party_name': item.bill_to.party_name if item.bill_to else '',
+                'pan': item.bill_to_address.corp_pan if item.bill_to_address else '',
+                'tan': item.bill_to_address.corp_tan if item.bill_to_address else '',
                 'invoice_amount': item.net_amount,
                 'tds_amount': item.tds_payable,
             })
