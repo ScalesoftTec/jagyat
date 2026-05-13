@@ -2483,13 +2483,12 @@ def reciept_tds(request,module):
 
         
         
-        payable_invoices = InvoicePayable.objects.filter(tds_payable__gt=0,company_type=company).select_related('job_no','bill_from','bill_from_address')
+        rec_invoices = InvoiceReceivable.objects.filter(tds_payable__gt=0,company_type=company).select_related('job_no','bill_from','bill_from_address')
 
         if date_filter_from == "Input":
-            payable_invoices = payable_invoices.filter(date_of_invoice__gte=from_date,date_of_invoice__lte=to_date)
+            rec_invoices = rec_invoices.filter(date_of_invoice__gte=from_date,date_of_invoice__lte=to_date)
 
-        if date_filter_from == "Claimed":
-            payable_invoices = payable_invoices.filter(tds_booking_date__gte=from_date,tds_booking_date__lte=to_date)
+       
 
         combined_report = []
 
@@ -2511,9 +2510,9 @@ def reciept_tds(request,module):
 
                 
     
-        for item in payable_invoices:
+        for item in rec_invoices:
             combined_report.append({
-                'type': 'Payable',
+                'type': 'Sales',
                 'branch': item.company_type,
                 'job_no': item.job_no,
                 'bill_no': item.purchase_invoice_no,
