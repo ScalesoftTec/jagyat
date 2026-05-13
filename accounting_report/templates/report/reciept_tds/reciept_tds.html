@@ -32,7 +32,7 @@ Reciept TDS Report -
           <select name="company" required class="form-control" id="company">
               <option value="" selected disabled hidden>Choose Company</option>
               {% for item in global_companies %}
-              {% if company == item.id %}
+              {% if company.id == item.id %}
               <option value="{{item.id}}" selected>{{item}}</option>
               {% else %}
               <option value="{{item.id}}" >{{item}}</option>
@@ -118,6 +118,10 @@ Reciept TDS Report -
         <th scope="col">Job No.</th>
         <th scope="col">Bill No.</th>
         <th scope="col">Bill Date</th>
+         {% if date_filter_from == "Claimed" %}
+        <th scope="col">Claim Date</th>
+        {% endif %}
+
         <th scope="col">Party Name</th>
         <th scope="col">Party PAN</th>
         <th scope="col">Party TAN</th>
@@ -146,7 +150,8 @@ Reciept TDS Report -
 
         
         <td>
-          <input type="hidden" value="{{data.id}}" id="voucher_{{forloop.counter}}" name="voucher_{{forloop.counter}}">
+          <!-- <input type="hidden" value="{{data.id}}" id="voucher_{{forloop.counter}}" name="voucher_{{forloop.counter}}"> -->
+           <input type="hidden" value="{{data.source}}-{{data.id}}" id="voucher_{{forloop.counter}}">
             {{ data.branch }}
         </td>
 
@@ -157,6 +162,9 @@ Reciept TDS Report -
           
         </td>
         <td>{{data.bill_date|date:'Y-m-d'}}</td>
+        {% if date_filter_from == "Claimed" %}
+        <td>{{ data.tds_claimed|date:'Y-m-d' }}</td>
+        {% endif %}
         <td>{{ data.party_name }}</td>
         <td>{{ data.pan }}</td>
         <td>{{ data.tan }}</td>

@@ -2499,6 +2499,8 @@ def reciept_tds(request,module):
         
         for item in receipt_vouchers:
             combined_report.append({
+                'id': item.id,
+                'source': 'receipt',
                 'type': 'Receipt',
                 'branch': item.voucher.company_type,
                 'job_no': item.invoice.job_no if item.invoice else '',
@@ -2509,6 +2511,7 @@ def reciept_tds(request,module):
                 'tan': item.party_address.corp_tan if item.party_address else '',
                 'invoice_amount': item.invoice.net_amount if item.invoice else 0,
                 'tds_amount': item.tds_amount,
+                'tds_claimed': item.tds_claim_date,
             })
 
 
@@ -2516,6 +2519,8 @@ def reciept_tds(request,module):
     
         for item in rec_invoices:
             combined_report.append({
+                'id': item.id,
+                'source': 'sales',
                 'type': 'Sales',
                 'branch': item.company_type,
                 'job_no': item.job_no,
@@ -2526,6 +2531,7 @@ def reciept_tds(request,module):
                 'tan': item.bill_to_address.corp_tan if item.bill_to_address else '',
                 'invoice_amount': item.net_amount,
                 'tds_amount': item.tds_payable,
+                'tds_claimed': item.tds_claim_date,
             })
 
         context['report'] = combined_report
@@ -2562,17 +2568,68 @@ def reciept_tds_claim_action(request,module):
         if list_selected == "0":
             return redirect("dashboard:reciept_tds",module=module)
         
-        selected_fields = selected_fields.split(",")
-        for i in selected_fields:
-            voucher = RecieptVoucherDetails.objects.filter(id=int(i)).first()
-            voucher.tds_claimed = status
-            if status:
-                voucher.tds_claim_date = claim_date
+        # selected_fields = selected_fields.split(",")
+        # for i in selected_fields:
+        #     voucher = RecieptVoucherDetails.objects.filter(id=int(i)).first()
+        # for i in selected_fields.split(","):
+        #     if not i:
+        #         continue
+
+        #     voucher = RecieptVoucherDetails.objects.filter(id=int(i)).first()
+        #     voucher.tds_claimed = status
+        #     if status:
+        #         voucher.tds_claim_date = claim_date
                 
-            voucher.save()
+        #     voucher.save()
+
+
+        for item in selected_fields.split(","):
+
+            if not item:
+                continue
+
+            data = item.split("-")
+
+            source = data[0]
+            row_id = data[1]
+
+            if source == "receipt":
+
+                voucher = RecieptVoucherDetails.objects.filter(
+                    id=row_id
+                ).first()
+
+                if voucher:
+                    voucher.tds_claimed = status
+
+                    if status:
+                        voucher.tds_claim_date = claim_date
+                    else:
+                        voucher.tds_claim_date = None
+
+                    voucher.save()
+
+            if source == "sales":
+
+                invoice = InvoiceReceivable.objects.filter(
+                    id=row_id
+                ).first()
+
+                if invoice:
+                    invoice.tds_claimed = status
+
+                    if status:
+                        invoice.tds_claim_date = claim_date
+                    else:
+                        invoice.tds_claim_date = None
+
+                    invoice.save()
             
-    return redirect("dashboard:reciept_tds",module=module)
+    return redirect("acr:reciept_tds",module=module)
             
+
+
+
 @login_required(login_url='home:handle_login')
 def payment_tds(request,module):
     context ={}
