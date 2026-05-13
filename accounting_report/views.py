@@ -2488,6 +2488,10 @@ def reciept_tds(request,module):
         if date_filter_from == "Input":
             rec_invoices = rec_invoices.filter(einvoice_date__gte=from_date,einvoice_date__lte=to_date)
 
+
+        if date_filter_from == "Claimed":
+            rec_invoices = rec_invoices.filter(tds_claim_date__gte=from_date).filter(tds_claim_date__lte=to_date).all()
+
        
 
         combined_report = []
