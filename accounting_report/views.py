@@ -2516,13 +2516,28 @@ def reciept_tds(request,module):
             })
 
 
-                
-    
+        
+                        
+
+        
+       
+
         for item in rec_invoices:
+
+            receipt_voucher_no = ''
+
+            for receipt in item.reciept_rec_inv.all():
+                if receipt.voucher:
+                    if receipt_voucher_no:
+                        receipt_voucher_no += ', '
+
+                    receipt_voucher_no += receipt.voucher.voucher_no
+
             combined_report.append({
                 'id': item.id,
                 'source': 'sales',
                 'type': 'Sales',
+                'voucher_no': receipt_voucher_no,
                 'branch': item.company_type,
                 'job_no': item.job_no,
                 'bill_no': item.final_invoice_no,
