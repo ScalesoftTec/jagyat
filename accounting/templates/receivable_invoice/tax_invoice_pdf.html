@@ -181,7 +181,7 @@
         <td rowspan="2" style="text-align:left;vertical-align:top;padding:0px;width: 20%;">
             <div>
                 {% if data.qr_code_image %}
-                <img src="{{data.qr_code_image.url}}" alt="">
+                <img src="{{data.qr_code_image}}" alt="">
                 {% endif %}
 
 
@@ -355,8 +355,15 @@
             </td>
 
             <td colspan="4">
-                <div><strong>Description Of Goodss</strong></div>
+                <div><strong>Description Of Goods</strong></div>
                 <div>{{data.job_no.commodity}}</div>
+                
+            </td>
+             <td>
+                <div><strong>CBM</strong></div>
+                <div> {% for cbm in data.job_no.job_hbl.all %}
+                    {{cbm.cbm}}
+                {% endfor %}</div>
                 
             </td>
         </tr>
@@ -434,7 +441,7 @@
 
 
             <td>
-                <div><strong>CBM</strong></div>
+                <div><strong>Volume</strong></div>
                 <div>
                 {% for cbm in data.job_no.job_hbl.all %}
                     {{cbm.volume}}

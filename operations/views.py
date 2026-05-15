@@ -362,6 +362,7 @@ def job_hbl(request,job):
         volume = request.POST[f'hbl_volume-{i}']
         net_weight = request.POST[f'hbl_net_weight-{i}']
         gross_weight = request.POST[f'hbl_gross_weight-{i}']
+        cbm = request.POST[f'hbl_cbm-{i}']
         hbl = None
 
         if job_hbl_details_is_update == "yes" and job_hbl_details_is_active == "yes":
@@ -377,6 +378,7 @@ def job_hbl(request,job):
             hbl.volume = volume
             hbl.net_weight = net_weight
             hbl.gross_weight = gross_weight
+            hbl.cbm = cbm
             hbl.save()
 
         elif job_hbl_details_is_update == "no" and job_hbl_details_is_active == "yes":
@@ -393,6 +395,7 @@ def job_hbl(request,job):
                     volume = volume,
                     net_weight = net_weight,
                     gross_weight = gross_weight,
+                    cbm = cbm
                 )
 
         if job_hbl_details_is_active == "yes" and hbl:
@@ -424,27 +427,28 @@ def job_hbl(request,job):
                 job_container_no = request.POST[f'job_hbl_container_no-{i}{j}']
                 container_type = request.POST[f'job_hbl_container_type-{i}{j}']
                 line_seal = request.POST[f'job_hbl_line_seal-{i}{j}']
-                pickup_date = request.POST[f'job_hbl_pickup_date-{i}{j}']
-                in_fac_date = request.POST[f'job_hbl_in_fac_date-{i}{j}']
-                fac_out_date = request.POST[f'job_hbl_fac_out_date-{i}{j}']
-                return_date = request.POST[f'job_hbl_return_date-{i}{j}']
-                cfs_in_date = request.POST[f'job_hbl_cfs_in_date-{i}{j}']
+                # pickup_date = request.POST[f'job_hbl_pickup_date-{i}{j}']
+                job_hbl_packaging = request.POST[f'job_hbl_packaging-{i}{j}']
+                # fac_out_date = request.POST[f'job_hbl_fac_out_date-{i}{j}']
+                # return_date = request.POST[f'job_hbl_return_date-{i}{j}']
+                # cfs_in_date = request.POST[f'job_hbl_cfs_in_date-{i}{j}']
 
             
-                railout_date = request.POST[f'job_hbl_railout_date-{i}{j}']
+                # railout_date = request.POST[f'job_hbl_railout_date-{i}{j}']
 
-                stuffing_date = request.POST[f'job_hbl_stuffing_date-{i}{j}']
-                icd_handover_date = request.POST[f'job_hbl_icd_handover_date-{i}{j}']
-                delivery_date = request.POST[f'job_hbl_delivery_date-{i}{j}']
+                # stuffing_date = request.POST[f'job_hbl_stuffing_date-{i}{j}']
+                # icd_handover_date = request.POST[f'job_hbl_icd_handover_date-{i}{j}']
+                # delivery_date = request.POST[f'job_hbl_delivery_date-{i}{j}']
                 gross_weight=request.POST[f"job_hbl_gross_wt-{i}{j}"]
 
-                port_handover_date = request.POST[f'job_hbl_port_handover_date-{i}{j}']
+                # port_handover_date = request.POST[f'job_hbl_port_handover_date-{i}{j}']
 
                 container = None
                 if job_hbl_container_details_is_update == "yes" and job_hbl_container_details_is_active == "yes":
                     job_hbl_container_details_id = request.POST[f'job_hbl_container_details_id-{i}{j}']
                     container = JobContainer.objects.filter(id=int(job_hbl_container_details_id)).first()
                     container.job_container_no = job_container_no
+                    container.packaging = job_hbl_packaging
                     container.container_type = container_type
                     container.line_seal = line_seal
                     container.gross_wt = gross_weight
@@ -458,37 +462,38 @@ def job_hbl(request,job):
                             job_container_no = job_container_no,
                             container_type = container_type,    
                             line_seal = line_seal,
-                            gross_wt = gross_weight
+                            gross_wt = gross_weight,
+                            packaging = job_hbl_packaging
                         )
                     
 
                 if job_hbl_container_details_is_active == "yes" and container:
                     
-                        if stuffing_date:
-                            container.stuffing_date = stuffing_date
-                        if icd_handover_date:
-                            container.icd_handover_date = icd_handover_date
-                        if port_handover_date:
-                            container.port_handover_date = port_handover_date
+                        # if stuffing_date:
+                        #     container.stuffing_date = stuffing_date
+                        # if icd_handover_date:
+                        #     container.icd_handover_date = icd_handover_date
+                        # if port_handover_date:
+                        #     container.port_handover_date = port_handover_date
                         
-                        if delivery_date:
-                            container.delivery_date = delivery_date
+                        # if delivery_date:
+                        #     container.delivery_date = delivery_date
                         
-                        if pickup_date:
-                            container.pickup_date = pickup_date
+                        # if pickup_date:
+                        #     container.pickup_date = pickup_date
                         
-                        if in_fac_date:
-                            container.in_fac_date = in_fac_date
+                        # if in_fac_date:
+                        #     container.in_fac_date = in_fac_date
                         
-                        if fac_out_date:
-                            container.fac_out_date = fac_out_date
-                        if cfs_in_date:
-                            container.cfs_in_date = cfs_in_date
-                        if railout_date:
-                            container.railout_date = railout_date
+                        # if fac_out_date:
+                        #     container.fac_out_date = fac_out_date
+                        # if cfs_in_date:
+                        #     container.cfs_in_date = cfs_in_date
+                        # if railout_date:
+                        #     container.railout_date = railout_date
                         
-                        if return_date:
-                            container.return_date = return_date
+                        # if return_date:
+                        #     container.return_date = return_date
 
                         if gross_weight:
                             container.gross_wt = gross_weight
@@ -533,6 +538,7 @@ def air_job_hbl(request,job):
         net_weight = request.POST[f'hbl_net_weight-{i}']
         gross_weight = request.POST[f'hbl_gross_weight-{i}']
         chargeable_weight = request.POST[f'hbl_chargeable_weight-{i}']
+        cbm = request.POST[f'hbl_cbm-{i}'] 
         hbl = None
 
 
@@ -550,6 +556,8 @@ def air_job_hbl(request,job):
             hbl.net_weight = net_weight
             hbl.gross_weight = gross_weight
             hbl.chargeable_weight = chargeable_weight
+            hbl.cbm = cbm
+
             hbl.save()
 
         elif job_hbl_details_is_update == "no" and job_hbl_details_is_active == "yes":
@@ -566,6 +574,7 @@ def air_job_hbl(request,job):
                     volume = volume,
                     net_weight = net_weight,
                     gross_weight = gross_weight,
+                    cbm = cbm,
                     chargeable_weight = chargeable_weight
                 )
 
@@ -598,21 +607,22 @@ def air_job_hbl(request,job):
                 job_container_no = request.POST[f'job_hbl_container_no-{i}{j}']
                 container_type = request.POST[f'job_hbl_container_type-{i}{j}']
                 line_seal = request.POST[f'job_hbl_line_seal-{i}{j}']
-                pickup_date = request.POST[f'job_hbl_pickup_date-{i}{j}']
-                in_fac_date = request.POST[f'job_hbl_in_fac_date-{i}{j}']
-                fac_out_date = request.POST[f'job_hbl_fac_out_date-{i}{j}']
-                return_date = request.POST[f'job_hbl_return_date-{i}{j}']
-                cfs_in_date = request.POST[f'job_hbl_cfs_in_date-{i}{j}']
+                job_hbl_packaging = request.POST[f'job_hbl_packaging-{i}{j}']
+                # pickup_date = request.POST[f'job_hbl_pickup_date-{i}{j}']
+                # in_fac_date = request.POST[f'job_hbl_in_fac_date-{i}{j}']
+                # fac_out_date = request.POST[f'job_hbl_fac_out_date-{i}{j}']
+                # return_date = request.POST[f'job_hbl_return_date-{i}{j}']
+                # cfs_in_date = request.POST[f'job_hbl_cfs_in_date-{i}{j}']
 
             
                 
 
-                stuffing_date = request.POST[f'job_hbl_stuffing_date-{i}{j}']
-                icd_handover_date = request.POST[f'job_hbl_icd_handover_date-{i}{j}']
-                delivery_date = request.POST[f'job_hbl_delivery_date-{i}{j}']
+                # stuffing_date = request.POST[f'job_hbl_stuffing_date-{i}{j}']
+                # icd_handover_date = request.POST[f'job_hbl_icd_handover_date-{i}{j}']
+                # delivery_date = request.POST[f'job_hbl_delivery_date-{i}{j}']
                 gross_weight=request.POST[f"job_hbl_gross_wt-{i}{j}"]
 
-                port_handover_date = request.POST[f'job_hbl_port_handover_date-{i}{j}']
+                # port_handover_date = request.POST[f'job_hbl_port_handover_date-{i}{j}']
 
                 container = None
                 if job_hbl_container_details_is_update == "yes" and job_hbl_container_details_is_active == "yes":
@@ -622,6 +632,7 @@ def air_job_hbl(request,job):
                     container.container_type = container_type
                     container.line_seal = line_seal
                     container.gross_wt = gross_weight
+                    container.packaging = job_hbl_packaging
                     container.save()
 
                 elif job_hbl_container_details_is_update == "no" and job_hbl_container_details_is_active == "yes":
@@ -632,36 +643,37 @@ def air_job_hbl(request,job):
                             job_container_no = job_container_no,
                             container_type = container_type,    
                             line_seal = line_seal,
-                            gross_wt = gross_weight
+                            gross_wt = gross_weight,
+                            packaging = job_hbl_packaging
                         )
                     
 
                 if job_hbl_container_details_is_active == "yes" and container:
                     
-                        if stuffing_date:
-                            container.stuffing_date = stuffing_date
-                        if icd_handover_date:
-                            container.icd_handover_date = icd_handover_date
-                        if port_handover_date:
-                            container.port_handover_date = port_handover_date
+                        # if stuffing_date:
+                        #     container.stuffing_date = stuffing_date
+                        # if icd_handover_date:
+                        #     container.icd_handover_date = icd_handover_date
+                        # if port_handover_date:
+                        #     container.port_handover_date = port_handover_date
                         
-                        if delivery_date:
-                            container.delivery_date = delivery_date
+                        # if delivery_date:
+                        #     container.delivery_date = delivery_date
                         
-                        if pickup_date:
-                            container.pickup_date = pickup_date
+                        # if pickup_date:
+                        #     container.pickup_date = pickup_date
                         
-                        if in_fac_date:
-                            container.in_fac_date = in_fac_date
+                        # if in_fac_date:
+                        #     container.in_fac_date = in_fac_date
                         
-                        if fac_out_date:
-                            container.fac_out_date = fac_out_date
-                        if cfs_in_date:
-                            container.cfs_in_date = cfs_in_date
+                        # if fac_out_date:
+                        #     container.fac_out_date = fac_out_date
+                        # if cfs_in_date:
+                        #     container.cfs_in_date = cfs_in_date
                        
                         
-                        if return_date:
-                            container.return_date = return_date
+                        # if return_date:
+                        #     container.return_date = return_date
 
                         if gross_weight:
                             container.gross_wt = gross_weight

@@ -967,6 +967,7 @@ class JobHBL(models.Model):
     no_of_packages = models.CharField(max_length=30,null=True,blank=True,default=0)
     packages_type = models.CharField(max_length=200,null=True,blank=True)
     volume = models.FloatField(default=0)
+    cbm = models.FloatField(default=0)
     net_weight = models.FloatField(default=0)
     gross_weight = models.FloatField(default=0)
     
