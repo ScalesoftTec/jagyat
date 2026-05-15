@@ -124,7 +124,7 @@ Reciept TDS Report -
 
         <th scope="col">Party Name</th>
         <th scope="col">Party PAN</th>
-        <th scope="col">Party TAN</th>
+        <th scope="col">Voucher No.</th>
         <th scope="col">Invoice Amount</th>
       
         <th scope="col">Amount</th>
@@ -167,7 +167,7 @@ Reciept TDS Report -
         {% endif %}
         <td>{{ data.party_name }}</td>
         <td>{{ data.pan }}</td>
-        <td>{{ data.tan }}</td>
+        <td>{{ data.voucher_no }}</td>
         <td data-order="{{ data.invoice_amount|floatformat:2 }}" align="right">{{ data.invoice_amount|floatformat:2 }}</td>
     
         <td align="right" data-order="{{ data.tds_amount|floatformat:0|floatformat:2 }}">{{ data.tds_amount|floatformat:0|floatformat:2 }}</td>
