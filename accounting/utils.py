@@ -477,13 +477,6 @@ def count_job_no(instance):
         # current_length = JobMaster.objects.filter(job_date__gte = from_date).filter(job_date__lte=to_date).count()
         queryset = JobMaster.objects.filter(job_date__gte=current_financial_date,company_type=instance.company_type).exclude(is_deleted=True)
         current_length = queryset.count() + 1
-
-        # current_length = JobMaster.objects.filter(job_date__gte = current_financial_date,company_type=instance.company_type).exclude(is_deleted=True).count()
-
-#         queryset = JobMaster.objects.filter(
-#     job_date__gte=current_financial_date,
-#     company_type=instance.company_type
-# )
     else:
         current_length = JobMaster.objects.filter(job_date__gte = current_financial_date).count()
     if current_length == 0:
