@@ -475,7 +475,7 @@ def count_job_no(instance):
 
     if voucher_setting:
         # current_length = JobMaster.objects.filter(job_date__gte = from_date).filter(job_date__lte=to_date).count()
-        current_length = JobMaster.objects.filter(job_date__gte = current_financial_date,company_type=instance.company_type).count()
+        current_length = JobMaster.objects.filter(job_date__gte = current_financial_date,company_type=instance.company_type).exclude(is_deleted=True).count()
 
 #         queryset = JobMaster.objects.filter(
 #     job_date__gte=current_financial_date,
