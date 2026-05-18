@@ -473,35 +473,18 @@ def count_job_no(instance):
         from_date = voucher_setting.from_date
         to_date = voucher_setting.to_date
 
-    # if voucher_setting:
-    #     current_length = JobMaster.objects.filter(job_date__gte = from_date).filter(job_date__lte=to_date).count()
-    # else:
-    #     current_length = JobMaster.objects.filter(job_date__gte = current_financial_date).count()
-    # if current_length == 0:
-    #     current_length = 1
-    queryset = JobMaster.objects.filter(
-        job_date__gte=current_financial_date,
-        company_type=instance.company_type
-    )
+    if voucher_setting:
+        # current_length = JobMaster.objects.filter(job_date__gte = from_date).filter(job_date__lte=to_date).count()
+        current_length = JobMaster.objects.filter(job_date__gte = current_financial_date,company_type=instance.company_type).count()
 
-    # mode wise counting continuation
-    if instance.company_type.separate_job_count_mode_wise:
-
-        if instance.module.startswith('Sea'):
-            queryset = queryset.filter(module__startswith='Sea')
-
-        elif instance.module.startswith('Air'):
-            queryset = queryset.filter(module__startswith='Air')
-
-        elif instance.module.startswith('Transport'):
-            queryset = queryset.filter(module__startswith='Transport')
-
-    # module wise counting continuation
-    elif instance.company_type.separate_job_count_module_wise:
-
-        queryset = queryset.filter(module=instance.module)
-
-    current_length = queryset.count() + 1
+#         queryset = JobMaster.objects.filter(
+#     job_date__gte=current_financial_date,
+#     company_type=instance.company_type
+# )
+    else:
+        current_length = JobMaster.objects.filter(job_date__gte = current_financial_date).count()
+    if current_length == 0:
+        current_length = 1
     is_duplicate = True
 
     
