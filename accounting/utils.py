@@ -9,6 +9,8 @@ from accounting.models import InvoiceReceivable, CreditNote, RecieptVoucher, Pay
 from masters.models import JobMaster, MBLMaster
 from datetime import datetime, date
 from dashboard.models import SequenceSettings
+from datetime import datetime, date
+
 
 def link_callback(uri, rel):
  
@@ -420,81 +422,195 @@ def count_contra_no(instance):
     self.voucher_no =  voucher_no
     self.save()
 
+# def count_job_no(instance):
+#     self = instance
+#     current_year = datetime.now().year
+#     current_month = datetime.now().month
+#     if current_month < 4:
+#         current_year -= 1
+#     current_financial_date = date(current_year, 4, 1)
+    
+#     voucher_setting = SequenceSettings.objects.filter(company_type=self.company_type).filter(from_date__lte=self.job_date).filter(to_date__gte=self.job_date)
+
+#     if instance.company_type.separate_job_count_mode_wise:
+#         if instance.module.startswith('Sea'):
+#             voucher_setting = voucher_setting.filter(voucher_type='Sea Job').first()
+#         if instance.module.startswith('Air'):
+#             voucher_setting = voucher_setting.filter(voucher_type='Air Job').first()
+#         if instance.module.startswith('Transport'):
+#             voucher_setting = voucher_setting.filter(voucher_type='Transport Job').first()
+
+#     elif instance.company_type.separate_job_count_module_wise:
+#         if instance.module == 'Sea Export':
+#             voucher_setting = voucher_setting.filter(voucher_type='Sea Export Job').first()
+       
+#         if instance.module == 'Sea Import':
+#             voucher_setting = voucher_setting.filter(voucher_type='Sea Import Job').first()
+       
+#         if instance.module == 'Air Export':
+#             voucher_setting = voucher_setting.filter(voucher_type='Air Export Job').first()
+       
+#         if instance.module == 'Air Import':
+#             voucher_setting = voucher_setting.filter(voucher_type='Air Import Job').first()
+        
+#         if instance.module == 'Transport':
+#             voucher_setting = voucher_setting.filter(voucher_type='Transport Job').first()
+
+#     else:
+#         voucher_setting = voucher_setting.filter(voucher_type='Job').first()
+
+       
+
+
+
+#     prefix = ''
+#     suffix = ''
+#     no_of_zero = 0
+#     from_date = current_financial_date
+#     to_date = current_financial_date
+#     if voucher_setting:
+#         prefix = voucher_setting.prefix or ''
+#         suffix = voucher_setting.suffix or ''
+#         no_of_zero = voucher_setting.zero_length or 0
+#         from_date = voucher_setting.from_date
+#         to_date = voucher_setting.to_date
+
+#     if voucher_setting:
+#         # current_length = JobMaster.objects.filter(job_date__gte = from_date).filter(job_date__lte=to_date).count()
+#         queryset = JobMaster.objects.filter(job_date__gte=current_financial_date,company_type=instance.company_type).exclude(is_deleted=True)
+#         current_length = queryset.count() + 1
+#     else:
+#         current_length = JobMaster.objects.filter(job_date__gte = current_financial_date).count()
+#     if current_length == 0:
+#         current_length = 1
+#     is_duplicate = True
+
+    
+#     while is_duplicate:
+#         voucher_no = prefix + str(current_length).zfill(no_of_zero) + suffix
+            
+#         voucher = JobMaster.objects.filter(job_no=voucher_no).count()
+#         if voucher == 0:
+#             is_duplicate = False
+#         else:
+#             current_length += 1
+            
+#     self.job_no = voucher_no
+#     self.save()
+
+
+
 def count_job_no(instance):
     self = instance
+
     current_year = datetime.now().year
     current_month = datetime.now().month
+
     if current_month < 4:
         current_year -= 1
+
     current_financial_date = date(current_year, 4, 1)
-    
-    voucher_setting = SequenceSettings.objects.filter(company_type=self.company_type).filter(from_date__lte=self.job_date).filter(to_date__gte=self.job_date)
+
+   
+
+    voucher_queryset = SequenceSettings.objects.filter(
+        company_type=self.company_type,
+        from_date__lte=self.job_date,
+        to_date__gte=self.job_date
+    )
+
+    voucher_type = 'Job'
+
 
     if instance.company_type.separate_job_count_mode_wise:
+
         if instance.module.startswith('Sea'):
-            voucher_setting = voucher_setting.filter(voucher_type='Sea Job').first()
-        if instance.module.startswith('Air'):
-            voucher_setting = voucher_setting.filter(voucher_type='Air Job').first()
-        if instance.module.startswith('Transport'):
-            voucher_setting = voucher_setting.filter(voucher_type='Transport Job').first()
+            voucher_type = 'Sea Job'
 
+        elif instance.module.startswith('Air'):
+            voucher_type = 'Air Job'
+
+        elif instance.module.startswith('Transport'):
+            voucher_type = 'Transport Job'
+
+    
     elif instance.company_type.separate_job_count_module_wise:
+
         if instance.module == 'Sea Export':
-            voucher_setting = voucher_setting.filter(voucher_type='Sea Export Job').first()
-       
-        if instance.module == 'Sea Import':
-            voucher_setting = voucher_setting.filter(voucher_type='Sea Import Job').first()
-       
-        if instance.module == 'Air Export':
-            voucher_setting = voucher_setting.filter(voucher_type='Air Export Job').first()
-       
-        if instance.module == 'Air Import':
-            voucher_setting = voucher_setting.filter(voucher_type='Air Import Job').first()
-        
-        if instance.module == 'Transport':
-            voucher_setting = voucher_setting.filter(voucher_type='Transport Job').first()
+            voucher_type = 'Sea Export Job'
 
-    else:
-        voucher_setting = voucher_setting.filter(voucher_type='Job').first()
+        elif instance.module == 'Sea Import':
+            voucher_type = 'Sea Import Job'
 
-       
+        elif instance.module == 'Air Export':
+            voucher_type = 'Air Export Job'
 
+        elif instance.module == 'Air Import':
+            voucher_type = 'Air Import Job'
 
+        elif instance.module == 'Transport':
+            voucher_type = 'Transport Job'
+
+    voucher_setting = voucher_queryset.filter(
+        voucher_type=voucher_type
+    ).order_by('-from_date', '-id').first()
+
+   
 
     prefix = ''
     suffix = ''
     no_of_zero = 0
+
     from_date = current_financial_date
     to_date = current_financial_date
+
+  
     if voucher_setting:
         prefix = voucher_setting.prefix or ''
         suffix = voucher_setting.suffix or ''
         no_of_zero = voucher_setting.zero_length or 0
+
         from_date = voucher_setting.from_date
         to_date = voucher_setting.to_date
 
-    if voucher_setting:
-        # current_length = JobMaster.objects.filter(job_date__gte = from_date).filter(job_date__lte=to_date).count()
-        queryset = JobMaster.objects.filter(job_date__gte=current_financial_date,company_type=instance.company_type).exclude(is_deleted=True)
-        current_length = queryset.count() + 1
-    else:
-        current_length = JobMaster.objects.filter(job_date__gte = current_financial_date).count()
-    if current_length == 0:
-        current_length = 1
-    is_duplicate = True
+  
 
-    
-    while is_duplicate:
-        voucher_no = prefix + str(current_length).zfill(no_of_zero) + suffix
-            
-        voucher = JobMaster.objects.filter(job_no=voucher_no).count()
-        if voucher == 0:
-            is_duplicate = False
-        else:
-            current_length += 1
-            
+
+    queryset = JobMaster.objects.filter(
+    job_date__gte=current_financial_date,
+    company_type=instance.company_type
+).exclude(is_deleted=True)
+
+    current_length = queryset.count() + 1
+
+    if current_length <= 0:
+        current_length = 1
+
+   
+    while True:
+
+        voucher_no = (
+            prefix +
+            str(current_length).zfill(no_of_zero) +
+            suffix
+        )
+
+        exists = JobMaster.objects.filter(
+            job_no=voucher_no
+        ).exists()
+
+        if not exists:
+            break
+
+        current_length += 1
+
+   
+
     self.job_no = voucher_no
     self.save()
+
+    return voucher_no
+
 
 def count_mbl_no(instance):
     self = instance
