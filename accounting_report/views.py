@@ -2869,7 +2869,7 @@ def gstr1_hsn_recievable(request,module):
         rcm_include = request.POST['rcm_include']
 
         
-        invoices = InvoiceReceivableDetail.objects.filter(invoice_receivable__old_invoice=False).filter(invoice_receivable__is_cancel=False).filter(invoice_receivable__is_einvoiced=True).filter(invoice_receivable__einvoice_date__range=[from_date,to_date]).filter(invoice_receivable__company_type__tax_policy="GST").all()
+        invoices = InvoiceReceivableDetail.objects.filter(invoice_receivable__old_invoice=False).filter(invoice_receivable__is_cancel=False).filter(invoice_receivable__is_einvoiced=True).filter(invoice_receivable__einvoice_date__date__gte=from_date,invoice_receivable__einvoice_date__date__lte=to_date).filter(invoice_receivable__company_type__tax_policy="GST").all()
         
         if not choose_company == "All":
             invoices = invoices.filter(invoice_receivable__company_type__company_gst_code=choose_company).all()
@@ -2943,7 +2943,7 @@ def gstr1_hsn_recievable(request,module):
                                 )
 
 
-        credit_notes = CreditNoteDetail.objects.filter(credit_note__is_einvoiced=True).filter(credit_note__einvoice_date__range=[from_date,to_date]).filter(credit_note__company_type__tax_policy="GST").filter(credit_note__is_cancel=False).all()
+        credit_notes = CreditNoteDetail.objects.filter(credit_note__is_einvoiced=True).filter(credit_note__einvoice_date__date__gte=from_date,credit_note__einvoice_date__date__lte=to_date).filter(credit_note__company_type__tax_policy="GST").filter(credit_note__is_cancel=False).all()
         if rcm_include == "N":
             credit_notes = credit_notes.exclude(credit_note__is_rcm=True).all()
         if rcm_include == "R":
@@ -3102,11 +3102,11 @@ def gstr1_recievable_server_side(request,module):
         act_to_date = datetime.strptime(str(to_date),'%Y-%m-%d').date() + timedelta(days=1)
         company_gst_code = request.POST['company_gst_code']
 
-        invoices = InvoiceReceivable.objects.select_related('company_type','bill_to','bill_to_address','invoice_currency','job_no','bill_to_address__corp_state').prefetch_related('recievable_invoice_reference','recievable_invoice_reference__billing_head').filter(is_einvoiced = True).filter(company_type__tax_policy = "GST").filter(einvoice_date__gte=from_date).filter(einvoice_date__lte=act_to_date).filter(old_invoice=False).all()
+        invoices = InvoiceReceivable.objects.select_related('company_type','bill_to','bill_to_address','invoice_currency','job_no','bill_to_address__corp_state').prefetch_related('recievable_invoice_reference','recievable_invoice_reference__billing_head').filter(is_einvoiced = True).filter(company_type__tax_policy = "GST").filter(einvoice_date__date__gte=from_date).filter(einvoice_date__date__lte=to_date).filter(old_invoice=False).all()
         
             
                 
-        credit_notes = CreditNote.objects.select_related('company_type','bill_to','bill_to_address','invoice_currency','job_no','bill_to_address__corp_state').prefetch_related('credit_note_reference','credit_note_reference__billing_head').filter(is_einvoiced = True).filter(company_type__tax_policy = "GST").filter(einvoice_date__gte=from_date).filter(einvoice_date__lte=act_to_date).all()
+        credit_notes = CreditNote.objects.select_related('company_type','bill_to','bill_to_address','invoice_currency','job_no','bill_to_address__corp_state').prefetch_related('credit_note_reference','credit_note_reference__billing_head').filter(is_einvoiced = True).filter(company_type__tax_policy = "GST").filter(einvoice_date__date__gte=from_date).filter(einvoice_date__date__lte=to_date).all()
 
         if not company_gst_code == "A":
             invoices = invoices.filter(company_type__company_gst_code=company_gst_code).all()
