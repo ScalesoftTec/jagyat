@@ -556,6 +556,7 @@ CHOICE_FREIGHT_TERM = (
     ('C&F' ,'C&F'),
     ('CIF' ,'CIF'),  
     ('DAP' ,'DAP'),  
+    ('DDU' ,'DDU'),  
     ('DDP' ,'DDP'),  
     ('FOB' ,'FOB'),  
     ('EXW' ,'EXW'),  
