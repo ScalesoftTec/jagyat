@@ -4351,7 +4351,7 @@ def ageing_analysis(request,module):
             company = Logistic.objects.filter(id=int(request.POST['company'])).first()
             selected_company = company
             recievables = recievables.filter(company_type=company).all()
-            advance_vouchers = advance_vouchers.filter(company_type=company).all()
+            advance_vouchers = advance_vouchers.filter(voucher__company_type=company).all()
             credit_note = credit_note.filter(company_type=company).all()
             direct_payables = direct_payables.filter(company_type=company).all()
             payment_advance_vouchers = payment_advance_vouchers.filter(voucher__company_type=company).all()
