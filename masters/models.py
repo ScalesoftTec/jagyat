@@ -412,7 +412,8 @@ class PartyType(models.Model):
 
 PARTY_CREATION_CHOICES = [
     ('DELHI', 'DELHI'),
-    ('MUMBAI', 'MUMBAI')
+    ('MUMBAI', 'MUMBAI'),
+    ('KOLKATA', 'KOLKATA')
 ]
 
 class Party(LogFolder):
