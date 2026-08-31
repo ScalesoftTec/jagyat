@@ -95,6 +95,55 @@ Payment TDS Report -
     </thead>
     <tbody>
 
+      {% for invoice in payments %}
+      
+      
+     
+      <tr>
+        <td>{{ invoice.voucher.company_type }}</td>
+        <td>
+        {% if invoice.invoice.job_no %}
+          {{ invoice.invoice.job_no }}
+          {% else %}
+          -
+        {% endif %}
+        </td>
+        <td>
+          
+          {{ invoice.invoice.purchase_invoice_no }}
+        </td>
+        <td>{{invoice.invoice.date_of_invoice|date:'Y-m-d'}}</td>
+        <td>{{invoice.invoice.tds_booking_date|date:'Y-m-d'}}</td>
+        <td>
+          {% if invoice.party %}
+          {{ invoice.party.party_name }}
+          {% else %}
+          {{ invoice.vendor }}
+          {% endif %}
+        </td>
+        <td> 
+          {% if invoice.party_address %}
+          {{ invoice.party_address.corp_pan }}
+          {% else %}
+          {{ invoice.vendor.pan }}
+          {% endif %}
+         </td>
+        <td>
+          {% if invoice.invoice.tds_section %}
+          {{ invoice.invoice.tds_section }}
+          {% else %}
+          -
+          {% endif %}
+        </td>
+        <td data-order="{{ invoice.invoice.gross_amount|floatformat:2 }}" align="right">{{ invoice.invoice.gross_amount|floatformat:2 }}</td>
+        <td data-order="{{ invoice.invoice.gst_amount|floatformat:2 }}" align="right">{{ invoice.invoice.gst_amount|floatformat:2 }}</td>
+        <td data-order="{{ invoice.invoice.net_amount|floatformat:2 }}" align="right">{{ invoice.invoice.net_amount|floatformat:2 }}</td>
+
+
+        <td align="right" data-order="{{ invoice.tds_amount|floatformat:0|floatformat:2 }}">{{ invoice.tds_amount|floatformat:0|floatformat:2 }}</td>
+      </tr>
+      {% endfor %}
+   
       {% for data in report %}
       
       {% with invoice=data.invoice %}
