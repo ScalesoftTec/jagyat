@@ -2675,7 +2675,7 @@ def payment_tds(request,module):
        
         invoice_payables = InvoicePayable.objects.select_related('company_type','bill_from','bill_from_address').prefetch_related('pay_payment_inv').filter(tds_booking_date__gte=from_date).filter(tds_booking_date__lte=to_date).filter(company_type=company).filter(is_deleted=False).all()
 
-        payments = PaymentVoucherDetails.objects.select_related('party','party_address','voucher','voucher__company_type','invoice','vendor').filter(voucher__voucher_date__gte=from_date).filter(voucher__voucher_date__lte=to_date).filter(voucher__company_type=company).filter(voucher__is_deleted=False).all()
+        payments = PaymentVoucherDetails.objects.select_related('party','party_address','voucher','voucher__company_type','invoice','vendor').filter(voucher__voucher_date__gte=from_date).filter(voucher__voucher_date__lte=to_date).filter(voucher__company_type=company).filter(tds_amount__gt=0).filter(voucher__is_deleted=False).all()
         
         if not tds_section == "All":
             invoice_payables = invoice_payables.filter(tds_section=tds_section).all()
