@@ -1102,6 +1102,17 @@ def recievable_invoice_pdf(request,id):
     template_path = 'receivable_invoice/tax_invoice_pdf.html'
     invoice = InvoiceReceivable.objects.filter(id=int(id)).first()
     invoice.save()
+
+    selected_hbls = invoice.hbl_options.all()
+
+    hbl_totals = selected_hbls.aggregate(
+        total_cbm=Sum('cbm'),
+        total_volume=Sum('volume'),
+        total_pkt=Sum('no_of_packages'),
+        total_gross_weight=Sum('gross_weight'),
+        total_chargeable_weight=Sum('chargeable_weight'),
+        
+    )
     amount_in_words = num2words.num2words(round(invoice.net_amount,2), to="currency" ,lang='en_IN')
     amount_in_words = amount_in_words.replace(',','')
     amount_in_words = amount_in_words.replace('-',' ')
@@ -1202,7 +1213,12 @@ def recievable_invoice_pdf(request,id):
         'per_12_taxable':per_12_taxable,
         'per_18_taxable':per_18_taxable,
         'total_taxable_amount':total_taxable_amount,
-        'domain':domain
+        'domain':domain,
+        'total_cbm': hbl_totals['total_cbm'] or 0,
+        'total_volume': hbl_totals['total_volume'] or 0,
+        'total_pkt': hbl_totals['total_pkt'] or 0,
+        'total_gross_weight': hbl_totals['total_gross_weight'] or 0,
+        'total_chargeable_weight': hbl_totals['total_chargeable_weight'] or 0,
     }
     
     return generate_pdf(request,template_path,context)

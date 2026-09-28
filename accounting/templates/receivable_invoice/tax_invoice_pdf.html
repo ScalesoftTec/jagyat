@@ -181,7 +181,7 @@
         <td rowspan="2" style="text-align:left;vertical-align:top;padding:0px;width: 20%;">
             <div>
                 {% if data.qr_code_image %}
-                <img src="{{data.qr_code_image}}" alt="">
+                <img src="{{data.qr_code_image.url}}" alt="">
                 {% endif %}
 
 
@@ -361,9 +361,10 @@
             </td>
              <td>
                 <div><strong>CBM</strong></div>
-                <div> {% for cbm in data.job_no.job_hbl.all %}
+                {%comment%}<div> {% for cbm in data.job_no.job_hbl.all %}
                     {{cbm.cbm}}
-                {% endfor %}</div>
+                {% endfor %}</div>{%endcomment%}
+                <div>{{ total_cbm|floatformat:3 }}</div>
                 
             </td>
         </tr>
@@ -442,11 +443,12 @@
 
             <td>
                 <div><strong>Volume</strong></div>
-                <div>
-                {% for cbm in data.job_no.job_hbl.all %}
+                {%comment%} <div>
+               {% for cbm in data.job_no.job_hbl.all %}
                     {{cbm.volume}}
                 {% endfor %}
-                </div>
+                </div>{%endcomment%}
+                <div>{{ total_volume|floatformat:3 }}</div>
             </td>
 
 
@@ -454,7 +456,10 @@
             {% if data.job_no.module == 'Air Import' or data.job_no.module == 'Air Export'%}
             <td>
                 <div><strong>PKT</strong></div>
-                <div>{{data.job_no.no_of_packages}}</div>
+               {%comment%} <div>{{data.job_no.no_of_packages}}</div>{%endcomment%}
+               <div>{{ total_pkt|floatformat:0 }}</div>
+
+
             </td>
             {% endif %}
 
@@ -464,11 +469,12 @@
             {% if data.job_no.module == 'Air Import' or data.job_no.module == 'Air Export'%}
             <td>
                 <div><strong>Gross Weight</strong></div>
-                <div>
+                {%comment%}<div>
                     {% for cbm in data.job_no.job_hbl.all %}
                     {{cbm.gross_weight}}
                 {% endfor %}
-            </div>
+            </div>{%endcomment%}
+            <div>{{ total_gross_weight|floatformat:3 }}</div>
             </td>
             {% endif %}
 
@@ -479,9 +485,10 @@
             <td>
                 <div><strong>Chargable Weight</strong></div>
                 <!-- <div>{{data.job_no.chargable_weight}}</div> -->
-                {% for cbm in data.job_no.job_hbl.all %}
+              {%comment%}  {% for cbm in data.job_no.job_hbl.all %}
                     {{cbm.chargeable_weight}}
-                {% endfor %}
+                {% endfor %}{%endcomment%}
+                <div>{{ total_chargeable_weight|floatformat:3 }}</div>
             </td>
             {% endif %}
 
