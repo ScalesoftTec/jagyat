@@ -302,20 +302,37 @@
             {% else %}
             <td style="width: 140px;">
                 <div><strong>S/B No. Date</strong></div>
-                <div>{{data.job_no.job_invoice.first.ship_bill_no}} {{data.job_no.job_invoice.first.ship_bill_date}}</div>
+                <div>{%comment%}{{data.job_no.job_invoice.first.ship_bill_no}} {{data.job_no.job_invoice.first.ship_bill_date}}{%endcomment%}
+               {% for inv in data.job_no.job_invoice.all %}
+               {{inv.ship_bill_no}} & {%if inv.ship_bill_date %} {{inv.ship_bill_date}}{% else %}
+                    N/A
+                    {%endif%}{% if not forloop.last%},{%endif%}
+               {% endfor %}
+
+
+                </div>
             </td>
             {% endif %}
 
             <td colspan="3">
                 <div><strong>Exporter Inv. No & Date</strong></div>
-                <div>
-                    {{data.job_no.job_invoice.first.invoice_no}} 
+                <div>{% for inv in data.job_no.job_invoice.all %}
+                    {{inv.invoice_no}}
+                    &
+                    {% if inv.invoice_date %}
+                        {{inv.invoice_date}}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                    
+                    {% endfor %}
+                   {%comment%} {{data.job_no.job_invoice.first.invoice_no}} 
                     & 
                     {% if data.job_no.job_invoice.first.invoice_date %}
                         {{data.job_no.job_invoice.first.invoice_date}}
                     {% else %}
                     N/A
-                    {% endif %}
+                    {% endif %}{%endcomment%}
                 </div>
             </td>
             <td >
@@ -959,7 +976,7 @@
                                 {{data.company_type.for_company}}
                             </h6>
                            
-                            <img style="margin-left:100px; " width="100px" height="90px" src="{{ data.company_type.stamp.url }}" alt="" />
+                            <img style="margin-left:100px; " width="100px" height="90px" src="{{ data.company_type.stamp.url}}" alt="" />
                            
                             <h6 style="font-size: 11px; padding-top: 30px!important; text-align:right; font-weight:bold;">Auth. Sign.</h6>
                         </td>
