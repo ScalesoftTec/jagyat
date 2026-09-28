@@ -324,7 +324,9 @@
                     {% else %}
                     N/A
                     {% endif %}
-                    
+                    {% if not forloop.last %}
+                    /
+                    {% endif %}
                     {% endfor %}
                    {%comment%} {{data.job_no.job_invoice.first.invoice_no}} 
                     & 
