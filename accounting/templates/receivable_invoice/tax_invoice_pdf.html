@@ -306,7 +306,7 @@
                {% for inv in data.job_no.job_invoice.all %}
                {{inv.ship_bill_no}} & {%if inv.ship_bill_date %} {{inv.ship_bill_date}}{% else %}
                     N/A
-                    {%endif%}{% if not forloop.last%},{%endif%}
+                    {%endif%}{% if not forloop.last%}/{%endif%}
                {% endfor %}
 
 
